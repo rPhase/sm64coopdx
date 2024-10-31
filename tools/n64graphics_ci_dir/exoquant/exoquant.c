@@ -24,8 +24,8 @@ SOFTWARE.
 
 #include "exoquant.h"
 
-#ifdef __APPLE__
-// No malloc on mac
+#if defined(__APPLE__) || defined(__OpenBSD__)
+// No malloc.h on MacOS or OpenBSD
 #else
 #include <malloc.h>
 #endif

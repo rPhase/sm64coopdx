@@ -22,9 +22,6 @@ if not os.path.exists('sound/samples/extended/'):
     print('Created extended soundbank folder, as it was missing')
 
 def copy_dir(source, destinations):
-    if not os.path.exists(source):
-        return
-
     for filename in os.listdir(source):
         if not filename.endswith('.aiff'):
             continue
