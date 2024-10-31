@@ -20,9 +20,16 @@
 static struct DjuiPaginated* sLobbyPaginated = NULL;
 static struct DjuiFlowLayout* sLobbyLayout = NULL;
 static struct DjuiButton* sRefreshButton = NULL;
+#ifdef TOUCH_CONTROLS
+static struct DjuiButton* sJoinButton = NULL;
+#endif
 static struct DjuiThreePanel* sDescriptionPanel = NULL;
 static struct DjuiText* sTooltip = NULL;
 static char* sPassword = NULL;
+
+#ifdef TOUCH_CONTROLS
+void djui_panel_join_lobby(struct DjuiBase* caller);
+#endif
 
 static void djui_panel_join_lobby_description_create(void) {
     f32 bodyHeight = 600;
@@ -38,6 +45,12 @@ static void djui_panel_join_lobby_description_create(void) {
     djui_base_set_border_width(&panel->base, 8);
     djui_base_set_padding(&panel->base, 16, 16, 16, 16);
     {
+#ifdef TOUCH_CONTROLS
+        sJoinButton = djui_button_create(&panel->base, "No Lobby Selected", DJUI_BUTTON_STYLE_NORMAL, djui_panel_join_lobby);
+        djui_base_set_size(&sJoinButton->base, 1.0f, 64);
+        djui_base_set_alignment(&sJoinButton->base, DJUI_HALIGN_RIGHT, DJUI_VALIGN_TOP);
+        djui_base_set_enabled(&sJoinButton->base, false);
+#else
         struct DjuiFlowLayout* body = djui_flow_layout_create(&panel->base);
         djui_base_set_alignment(&body->base, DJUI_HALIGN_CENTER, DJUI_VALIGN_CENTER);
         djui_base_set_size_type(&body->base, DJUI_SVT_RELATIVE, DJUI_SVT_RELATIVE);
@@ -45,6 +58,7 @@ static void djui_panel_join_lobby_description_create(void) {
         djui_base_set_color(&body->base, 0, 0, 0, 0);
         djui_flow_layout_set_margin(body, 16);
         djui_flow_layout_set_flow_direction(body, DJUI_FLOW_DIR_DOWN);
+#endif
 
         struct DjuiText* description = djui_text_create(&panel->base, "");
         djui_base_set_size_type(&description->base, DJUI_SVT_RELATIVE, DJUI_SVT_RELATIVE);
@@ -66,13 +80,27 @@ static void djui_lobby_on_hover_end(UNUSED struct DjuiBase* base) {
 }
 
 void djui_panel_join_lobby(struct DjuiBase* caller) {
+#ifdef TOUCH_CONTROLS
+    if (!gCoopNetDesiredLobby) return;
+    djui_text_set_text(sJoinButton->text, "Joining...");
+    djui_base_set_enabled(&sJoinButton->base, false);
+#else
     gCoopNetDesiredLobby = (uint64_t)caller->tag;
+#endif
     snprintf(gCoopNetPassword, 64, "%s", sPassword);
     network_reset_reconnect_and_rehost();
     network_set_system(NS_COOPNET);
     network_init(NT_CLIENT, false);
     djui_panel_join_message_create(caller);
 }
+
+#ifdef TOUCH_CONTROLS
+void djui_panel_select_lobby(struct DjuiBase* caller) {
+    gCoopNetDesiredLobby = (uint64_t)caller->tag;
+    djui_text_set_text(sJoinButton->text, "Join");
+    djui_base_set_enabled(&sJoinButton->base, true);
+}
+#endif
 
 void djui_panel_join_query(uint64_t aLobbyId, UNUSED uint64_t aOwnerId, uint16_t aConnections, uint16_t aMaxConnections, UNUSED const char* aGame, const char* aVersion, const char* aHostName, const char* aMode, const char* aDescription) {
     if (!sLobbyLayout) { return; }
@@ -95,7 +123,11 @@ void djui_panel_join_query(uint64_t aLobbyId, UNUSED uint64_t aOwnerId, uint16_t
     }
 
     struct DjuiBase* layoutBase = &sLobbyLayout->base;
+#ifdef TOUCH_CONTROLS
+    struct DjuiLobbyEntry* entry = djui_lobby_entry_create(layoutBase, (char*)aHostName, (char*)mode, playerText, (char*)aDescription, disabled, djui_panel_select_lobby, djui_lobby_on_hover, NULL);
+#else
     struct DjuiLobbyEntry* entry = djui_lobby_entry_create(layoutBase, (char*)aHostName, (char*)mode, playerText, (char*)aDescription, disabled, djui_panel_join_lobby, djui_lobby_on_hover, djui_lobby_on_hover_end);
+#endif
     entry->base.tag = (s64)aLobbyId;
     djui_paginated_update_page_buttons(sLobbyPaginated);
 }
@@ -134,6 +166,10 @@ void djui_panel_join_lobbies_refresh(UNUSED struct DjuiBase* caller) {
     djui_base_destroy_children(&sLobbyLayout->base);
     djui_text_set_text(sRefreshButton->text, DLANG(LOBBIES, REFRESHING));
     djui_base_set_enabled(&sRefreshButton->base, false);
+#ifdef TOUCH_CONTROLS
+    djui_text_set_text(sJoinButton->text, "No Lobby Selected");
+    djui_base_set_enabled(&sJoinButton->base, false);
+#endif
     djui_paginated_update_page_buttons(sLobbyPaginated);
     ns_coopnet_query(djui_panel_join_query, djui_panel_join_query_finish, sPassword);
 }

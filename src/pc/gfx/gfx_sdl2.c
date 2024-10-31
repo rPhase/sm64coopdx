@@ -6,10 +6,6 @@
 #define FOR_WINDOWS 0
 #endif
 
-#if defined(_WIN32) || defined(_WIN64)
-#include <windows.h>
-#endif
-
 #if FOR_WINDOWS
 #define GLEW_STATIC
 #include <GL/glew.h>
@@ -37,12 +33,14 @@
 #include "../configfile.h"
 #include "../cliopts.h"
 
-#include "pc/controller/controller_keyboard.h"
-#include "pc/controller/controller_sdl.h"
-#include "pc/controller/controller_bind_mapping.h"
+#include "src/pc/controller/controller_keyboard.h"
+#ifdef TOUCH_CONTROLS
+#include "src/pc/controller/controller_touchscreen.h"
+#endif
+#include "src/pc/controller/controller_sdl.h"
+#include "src/pc/controller/controller_bind_mapping.h"
 #include "pc/utils/misc.h"
 #include "pc/mods/mod_import.h"
-#include "pc/rom_checker.h"
 
 #ifndef GL_MAX_SAMPLES
 #define GL_MAX_SAMPLES 0x8D57
@@ -54,6 +52,7 @@
 #else
 # define FRAMERATE 30
 #endif
+
 // time between consequtive game frames
 static const f64 sFrameTime = 1.0 / ((double)FRAMERATE);
 static f64 sFrameTargetTime = 0;
@@ -65,6 +64,11 @@ static kb_callback_t kb_key_down = NULL;
 static kb_callback_t kb_key_up = NULL;
 static void (*kb_all_keys_up)(void) = NULL;
 static void (*kb_text_input)(char*) = NULL;
+#ifdef TOUCH_CONTROLS
+static void (*touch_down_callback)(void* event);
+static void (*touch_motion_callback)(void* event);
+static void (*touch_up_callback)(void* event);
+#endif
 
 #define IS_FULLSCREEN() ((SDL_GetWindowFlags(wnd) & SDL_WINDOW_FULLSCREEN_DESKTOP) != 0)
 
@@ -112,29 +116,31 @@ static void gfx_sdl_reset_dimension_and_pos(void) {
 }
 
 static void gfx_sdl_init(const char *window_title) {
-#if defined(_WIN32) || defined(_WIN64)
-    SetProcessDPIAware();
-#endif
-
-    SDL_SetHint(SDL_HINT_VIDEO_X11_NET_WM_BYPASS_COMPOSITOR, "0");
     SDL_Init(SDL_INIT_VIDEO);
+    // This causes Android to show the onscreen keyboard
+    // Haven't needed this instance on Android yet
+    // gfx_sdl_start_text_input() gets called when needed
+    #ifndef __ANDROID__
     SDL_StartTextInput();
+    #endif
+
+    #ifdef TARGET_ANDROID
+    SDL_SetHint(SDL_HINT_ORIENTATIONS, "LandscapeLeft LandscapeRight");
+    #endif
 
     if (configWindow.msaa > 0) {
         SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
         SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, configWindow.msaa);
-    } else {
-        SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 0);
     }
 
     SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
     SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 
-#ifdef USE_GLES
+    #ifdef USE_GLES
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 2);  // These attributes allow for hardware acceleration on RPis.
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_ES);
-#endif
+    #endif
 
     int xpos = (configWindow.x == WAPI_WIN_CENTERPOS) ? SDL_WINDOWPOS_CENTERED : configWindow.x;
     int ypos = (configWindow.y == WAPI_WIN_CENTERPOS) ? SDL_WINDOWPOS_CENTERED : configWindow.y;
@@ -170,7 +176,7 @@ static void gfx_sdl_get_dimensions(uint32_t *width, uint32_t *height) {
 static void gfx_sdl_onkeydown(int scancode) {
     const Uint8 *state = SDL_GetKeyboardState(NULL);
 
-    if ((state[SDL_SCANCODE_LALT] || state[SDL_SCANCODE_RALT]) && state[SDL_SCANCODE_RETURN]) {
+    if (state[SDL_SCANCODE_LALT] && state[SDL_SCANCODE_RETURN]) {
         configWindow.fullscreen = !configWindow.fullscreen;
         configWindow.settings_changed = true;
         return;
@@ -185,23 +191,40 @@ static void gfx_sdl_onkeyup(int scancode) {
         kb_key_up(translate_sdl_scancode(scancode));
 }
 
-static void gfx_sdl_ondropfile(char* path) {
-#ifdef _WIN32
-    char portable_path[SYS_MAX_PATH];
-    if (sys_windows_short_path_from_mbs(portable_path, SYS_MAX_PATH, path)) {
-        if (!gRomIsValid) {
-            rom_on_drop_file(portable_path);
-        } else if (gGameInited) {
-            mod_import_file(portable_path);
-        }
+#ifdef TOUCH_CONTROLS
+static void gfx_sdl_fingerdown(SDL_TouchFingerEvent sdl_event) {
+    struct TouchEvent event;
+    event.x = sdl_event.x;
+    event.y = sdl_event.y;
+    event.touchID = sdl_event.fingerId + 1;
+    if (touch_down_callback != NULL) {
+        touch_down_callback((void*)&event);
     }
-#else
-    if (!gRomIsValid) {
-        rom_on_drop_file(path);
-    } else if (gGameInited) {
-        mod_import_file(path);
+}
+
+static void gfx_sdl_fingermotion(SDL_TouchFingerEvent sdl_event) {
+    struct TouchEvent event;
+    event.x = sdl_event.x;
+    event.y = sdl_event.y;
+    event.touchID = sdl_event.fingerId + 1;
+    if (touch_motion_callback != NULL) {
+        touch_motion_callback((void*)&event);
     }
+}
+
+static void gfx_sdl_fingerup(SDL_TouchFingerEvent sdl_event) {
+    struct TouchEvent event;
+    event.x = sdl_event.x;
+    event.y = sdl_event.y;
+    event.touchID = sdl_event.fingerId + 1;
+    if (touch_up_callback != NULL) {
+        touch_up_callback((void*)&event);
+    }
+}
 #endif
+
+static void gfx_sdl_ondropfile(char* path) {
+    mod_import_file(path);
 }
 
 static void gfx_sdl_handle_events(void) {
@@ -217,6 +240,17 @@ static void gfx_sdl_handle_events(void) {
             case SDL_KEYUP:
                 gfx_sdl_onkeyup(event.key.keysym.scancode);
                 break;
+#ifdef TOUCH_CONTROLS
+	    case SDL_FINGERDOWN:
+                gfx_sdl_fingerdown(event.tfinger);
+                break;
+	    case SDL_FINGERMOTION:
+                gfx_sdl_fingermotion(event.tfinger);
+                break;
+	    case SDL_FINGERUP:
+                gfx_sdl_fingerup(event.tfinger);
+                break;
+#endif
             case SDL_WINDOWEVENT:
                 if (!IS_FULLSCREEN()) {
                     switch (event.window.event) {
@@ -256,6 +290,14 @@ static void gfx_sdl_set_keyboard_callbacks(kb_callback_t on_key_down, kb_callbac
     kb_text_input = on_text_input;
 }
 
+#ifdef TOUCH_CONTROLS
+static void gfx_sdl_set_touchscreen_callbacks(void (*down)(void* event), void (*motion)(void* event), void (*up)(void* event)) {
+    touch_down_callback = down;
+    touch_motion_callback = motion;
+    touch_up_callback = up;
+}
+#endif
+
 static bool gfx_sdl_start_frame(void) {
     return true;
 }
@@ -282,24 +324,12 @@ static int gfx_sdl_get_max_msaa(void) {
     return maxSamples;
 }
 
-static void gfx_sdl_set_window_title(const char* title) {
-    SDL_SetWindowTitle(wnd, title);
-}
-
-static void gfx_sdl_reset_window_title(void) {
-    SDL_SetWindowTitle(wnd, TITLE);
-}
-
 static void gfx_sdl_shutdown(void) {
     if (SDL_WasInit(0)) {
         if (ctx) { SDL_GL_DeleteContext(ctx); ctx = NULL; }
         if (wnd) { SDL_DestroyWindow(wnd); wnd = NULL; }
         SDL_Quit();
     }
-}
-
-static bool gfx_sdl_has_focus(void) {
-    return (SDL_GetWindowFlags(wnd) & SDL_WINDOW_INPUT_FOCUS);
 }
 
 static void gfx_sdl_start_text_input(void) { SDL_StartTextInput(); }
@@ -311,6 +341,9 @@ static void gfx_sdl_set_cursor_visible(bool visible) { SDL_ShowCursor(visible ? 
 struct GfxWindowManagerAPI gfx_sdl = {
     gfx_sdl_init,
     gfx_sdl_set_keyboard_callbacks,
+#ifdef TOUCH_CONTROLS
+    gfx_sdl_set_touchscreen_callbacks,
+#endif
     gfx_sdl_main_loop,
     gfx_sdl_get_dimensions,
     gfx_sdl_handle_events,
@@ -326,9 +359,6 @@ struct GfxWindowManagerAPI gfx_sdl = {
     gfx_sdl_set_cursor_visible,
     gfx_sdl_delay,
     gfx_sdl_get_max_msaa,
-    gfx_sdl_set_window_title,
-    gfx_sdl_reset_window_title,
-    gfx_sdl_has_focus
 };
 
 #endif // BACKEND_WM

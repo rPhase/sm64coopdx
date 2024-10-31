@@ -520,7 +520,11 @@ struct DjuiChatBox* djui_chat_box_create(void) {
     djui_base_init(&gDjuiRoot->base, base, djui_chat_box_render, djui_chat_box_destroy);
     djui_base_set_size_type(base, DJUI_SVT_ABSOLUTE, DJUI_SVT_ABSOLUTE);
     djui_base_set_size(base, 600, 400);
+#ifdef TOUCH_CONTROLS
+    djui_base_set_alignment(base, DJUI_HALIGN_LEFT, DJUI_VALIGN_TOP);
+#else
     djui_base_set_alignment(base, DJUI_HALIGN_LEFT, DJUI_VALIGN_BOTTOM);
+#endif
     djui_base_set_color(base, 0, 0, 0, 0);
     djui_base_set_padding(base, 0, 8, 8, 8);
 
@@ -546,9 +550,15 @@ struct DjuiChatBox* djui_chat_box_create(void) {
 
     struct DjuiInputbox* chatInput = djui_inputbox_create(base, MAX_MSG_LENGTH);
     struct DjuiBase* ciBase = &chatInput->base;
+#ifdef TOUCH_CONTROLS
+    djui_base_set_size_type(ciBase, DJUI_SVT_ABSOLUTE, DJUI_SVT_ABSOLUTE);
+    djui_base_set_size(ciBase, 560, 32);
+    djui_base_set_location(ciBase, 32, 0);
+#else
     djui_base_set_size_type(ciBase, DJUI_SVT_RELATIVE, DJUI_SVT_ABSOLUTE);
     djui_base_set_size(ciBase, 1.0f, 32);
     djui_base_set_alignment(ciBase, DJUI_HALIGN_LEFT, DJUI_VALIGN_BOTTOM);
+#endif
     djui_interactable_hook_key(&chatInput->base, djui_chat_box_input_on_key_down, djui_inputbox_on_key_up);
     djui_interactable_hook_text_input(&chatInput->base, djui_chat_box_input_on_text_input);
     chatBox->chatInput = chatInput;

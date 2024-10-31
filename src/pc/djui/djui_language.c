@@ -7,7 +7,7 @@
 #include "pc/djui/djui_language.h"
 #include "pc/djui/djui_popup.h"
 
-static ini_t* sLang = NULL;
+ini_t* sLang = NULL;
 
 bool djui_language_init(char* lang) {
     // free old ini
@@ -17,9 +17,23 @@ bool djui_language_init(char* lang) {
     }
 
     // construct path
+    char exePath[SYS_MAX_PATH] = "";
+    // path_to_executable() is unimplementable on Android and non-Apple, non-Linux UNIX
+#ifdef TARGET_ANDROID
+    // on Android, use a special path I choose my own way
+    const char *gamedir = get_gamedir();
+    snprintf(exePath, sizeof(exePath), "%s", gamedir);
+#elif defined(__unix__) && !defined(__linux__) && !defined(OSX_BUILD)
+    // on BSD, I choose the user path (~/.local/share/sm64ex-coop/)
+    const char *userpath = sys_user_path();
+    snprintf(exePath, sizeof(exePath), "%s", userpath);
+#else
+    path_get_folder((char*)path_to_executable(), exePath);
+#endif
+
     char path[SYS_MAX_PATH] = "";
     if (!lang || lang[0] == '\0') { lang = "English"; }
-    snprintf(path, SYS_MAX_PATH, "%s/lang/%s.ini", sys_exe_path(), lang);
+    snprintf(path, SYS_MAX_PATH, "%s/lang/%s.ini", exePath, lang);
 
     // load
     sLang = ini_load(path);

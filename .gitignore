@@ -21,6 +21,12 @@
 *.la
 *.lo
 
+# Shared objects (inc. Windows DLLs)
+*.dll
+*.so
+*.so.*
+*.dylib
+
 # Executables
 *.exe
 *.out
@@ -81,6 +87,11 @@ sm64config.txt
 !/sound/**/*custom*/**/*.aiff
 !/assets/**/*custom*.bin
 !/assets/**/*custom*/**/*.bin
+!/lib/discordsdk/*.*
+!/lib/discordsdk/x86/*.*
+!/lib/bass/**
+!/lib/bass/x86/**
+!/lib/lua/**/*.*
 
 # visual studio
 build-windows-visual-studio/.vs
@@ -89,5 +100,14 @@ build-windows-visual-studio/.vs
 todo.txt
 todo-old.txt
 
-tools/ido5.3_compiler/usr/lib/libc.so.1
-/.vs
+# custom sounds
+sound/samples/sfx_custom_luigi*/*.aiff
+sound/samples/sfx_custom_wario*/*.aiff
+
+# Android files
+!/textures/touchcontrols/*.png
+!platform/android/android/**/*.so
+platform/android/android/lib/*/libc++_shared.so
+platform/android/android/lib/*/libmain.so
+lib/src/lua/src/lua
+lib/src/lua/src/luac

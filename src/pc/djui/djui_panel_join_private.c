@@ -36,6 +36,11 @@ void djui_panel_join_private_create(struct DjuiBase* caller) {
         sInputboxPassword = inputbox1;
 
         struct DjuiRect* rect2 = djui_rect_container_create(body, 64);
+#ifdef TOUCH_CONTROLS
+        // Padding to move the inputbox1 out from under most touch keyboards
+        djui_base_set_size_type(&rect2->base, DJUI_SVT_RELATIVE, DJUI_SVT_ABSOLUTE);
+        djui_base_set_size(&rect2->base, 1.0f, 400);
+#endif
         {
             struct DjuiButton* button1 = djui_button_create(&rect2->base, DLANG(MENU, BACK), DJUI_BUTTON_STYLE_BACK, djui_panel_menu_back);
             djui_base_set_size(&button1->base, 0.485f, 64);

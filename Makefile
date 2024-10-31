@@ -27,19 +27,47 @@ TARGET_N64 = 0
 # Build and optimize for Raspberry Pi(s)
 TARGET_RPI ?= 0
 
+# Build and optimize for BeagleBone Black
+TARGET_BBB ?= 0
+
+# Disable linking to BASS and enable building Lua, coopnet and libjuice from source
+TARGET_FOSS ?= 1
+
+# Build for Android with SurfaceFlinger windowing backend
+TARGET_ANDROID ?= 0
+
+# Use OpenGL ES instead of OpenGL
+USE_GLES ?= 0
+
+# Build for BSD
+TARGET_BSD ?= 0
+
 # Makeflag to enable OSX fixes
 OSX_BUILD ?= 0
+
+# Enable -no-pie linker option
+NO_PIE ?= 1
 
 # Specify the target you are building for, TARGET_BITS=0 means native
 TARGET_ARCH ?= native
 TARGET_BITS ?= 0
 
+# Enable immediate load by default
+IMMEDIATELOAD ?= 1
+# Enable better camera by default
+BETTERCAMERA ?= 1
+# Enable no drawing distance by default
+NODRAWINGDISTANCE ?= 1
 # Disable texture fixes by default (helps with them purists)
 TEXTURE_FIX ?= 0
-# Enable level texture enhancements by default (Castle Grounds and Castle Courtyard recolorable texture hills)
-ENHANCE_LEVEL_TEXTURES ?= 1
+# Enable extended options menu by default
+EXT_OPTIONS_MENU ?= 1
+# Disable text-based save-files by default
+TEXTSAVES ?= 0
+# Load resources from external files
+EXTERNAL_DATA ?= 0
 # Enable Discord Game SDK (used for Discord invites)
-DISCORD_SDK ?= 1
+DISCORD_SDK ?= 0
 # Enable CoopNet SDK (used for CoopNet server hosting)
 COOPNET ?= 1
 # Enable docker build workarounds
@@ -57,34 +85,30 @@ ASAN ?= 0
 HEADLESS ?= 0
 # Enable Game ICON
 ICON ?= 1
-# Use .app (for macOS)
+# Use .app (mac only)
 USE_APP ?= 1
-# Minimum macOS Version
-# If our arch is arm, set to macOS 14
-ifeq ($(shell arch),arm64)
-  MIN_MACOS_VERSION ?= 14
-else
-  MIN_MACOS_VERSION ?= 10.15
-endif
-# Homebrew Prefix
-BREW_PREFIX ?= $(shell brew --prefix)
-# Make some small adjustments for handheld devices
-HANDHELD ?= 0
-
+# Enable touchscreen controls
+TOUCH_CONTROLS ?= 0
 # Various workarounds for weird toolchains
+
 NO_BZERO_BCOPY ?= 0
 NO_LDIV ?= 0
 
 # Backend selection
 
-# Renderers: GL, GL_LEGACY, D3D11, DUMMY
+# Renderers: GL, GL_LEGACY, D3D11, D3D12, DUMMY
 RENDER_API ?= GL
-# Window managers: SDL1, SDL2, DXGI (forced if RENDER_API is D3D11), DUMMY (forced if RENDER_API is DUMMY)
+# Window managers: SDL1, SDL2, DXGI (forced if D3D11 or D3D12 in RENDER_API), DUMMY (forced if RENDER_API is DUMMY)
 WINDOW_API ?= SDL2
 # Audio backends: SDL1, SDL2, DUMMY
 AUDIO_API ?= SDL2
 # Controller backends (can have multiple, space separated): SDL2, SDL1
 CONTROLLER_API ?= SDL2
+
+# Misc settings for EXTERNAL_DATA
+
+BASEDIR ?= res
+BASEPACK ?= base.zip
 
 # Automatic settings for PC port(s)
 
@@ -120,11 +144,39 @@ ifeq ($(HOST_OS),Windows)
   WINDOWS_BUILD := 1
 endif
 
-ifeq ($(HOST_OS),Darwin)
-  OSX_BUILD := 1
+# Attempt to detect Termux Android build
+ifneq ($(shell which termux-setup-storage),)
+  TARGET_ANDROID := 1
+endif
+
+# If parent folder is the gradle repository for Android, 
+# copy mods and lang files to assets for later gradle build
+ifneq ($(shell ls ../../src/main/),)
+  DUMMY != mkdir -p ../../src/main/assets && \
+           cp -r mods ../../src/main/assets/ && \
+           cp -r lang ../../src/main/assets/
+endif
+
+# Attempt to detect BSD
+ifneq ($(shell uname -s | grep BSD),)
+  TARGET_BSD := 1
+endif
+
+# Attempt to detect 32-bit
+ifneq ($(shell uname -m | grep -e i386 -e i686 -e arm -e armhf -e armv6l -e armv7l -e armv8l -e armv8b),)
+  TARGET_BITS = 32
 endif
 
 # MXE overrides
+
+ifeq ($(TARGET_ANDROID),1)
+  RENDER_API := GL
+  WINDOW_API := SDL2
+  AUDIO_API := SDL2
+  CONTROLLER_API := SDL2
+  TOUCH_CONTROLS := 1
+  TARGET_FOSS := 1
+endif
 
 ifeq ($(WINDOWS_BUILD),1)
   ifeq ($(CROSS),i686-w64-mingw32.static-)
@@ -185,7 +237,7 @@ endif
 #   eu - builds the 1997 PAL version
 #   sh - builds the 1997 Japanese Shindou version, with rumble pak support
 VERSION ?= us
-$(eval $(call validate-option,VERSION,us))
+$(eval $(call validate-option,VERSION,jp us eu sh))
 
 # Graphics microcode used
 GRUCODE ?= f3dex2e
@@ -302,10 +354,15 @@ ifeq ($(TARGET_RPI),1)
 	endif
 endif
 
+# BeagleBone Black. Its architecture is not identical to any RPi
+ifeq ($(TARGET_BBB),1)
+  OPT_FLAGS := -march=armv7-a -marm -mfpu=neon -mtune=cortex-a8 -O3
+endif
+
 # Set BITS (32/64) to compile for
 OPT_FLAGS += $(BITS)
 
-TARGET := sm64.$(VERSION)
+TARGET := sm64coopdx
 
 # Stuff for showing the git hash in the intro on nightly builds
 # From https://stackoverflow.com/questions/44038428/include-git-commit-hash-and-or-branch-name-in-c-c-source
@@ -321,7 +378,7 @@ TARGET := sm64.$(VERSION)
 #   f3d_new - default for EU and Shindou versions
 #   f3dex   -
 #   f3dex2  -
-#   f3dex2e - default for PC Port
+#   f3dex2e -
 #   f3dzex  - newer, experimental microcode used in Animal Crossing
 $(eval $(call validate-option,GRUCODE,f3d_old f3dex f3dex2 f3dex2e f3d_new f3dzex))
 
@@ -343,7 +400,13 @@ endif
 # Check for certain target types.
 
 ifeq ($(TARGET_RPI),1) # Define RPi to change SDL2 title & GLES2 hints
-     DEFINES += USE_GLES=1
+  DEFINES += USE_GLES=1
+else ifeq ($(TARGET_ANDROID),1)
+  DEFINES += TARGET_ANDROID=1 USE_GLES=1 _LANGUAGE_C=1
+else ifeq ($(TARGET_BBB),1)
+  DEFINES += USE_GLES=1
+else ifeq ($(USE_GLES),1)
+  DEFINES += USE_GLES=1
 endif
 
 ifeq ($(OSX_BUILD),1) # Modify GFX & SDL2 for OSX GL
@@ -352,7 +415,7 @@ endif
 
 # Check backends
 
-ifneq (,$(filter $(RENDER_API),D3D11))
+ifneq (,$(filter $(RENDER_API),D3D11 D3D12))
   ifneq ($(WINDOWS_BUILD),1)
     $(error DirectX is only supported on Windows)
   endif
@@ -397,11 +460,28 @@ endif
 
 ifeq ($(NON_MATCHING),1)
   DEFINES += NON_MATCHING=1 AVOID_UB=1
+  COMPARE := 0
 endif
+
+
+# COMPARE - whether to verify the SHA-1 hash of the ROM after building
+#   1 - verifies the SHA-1 hash of the selected version of the game
+#   0 - does not verify the hash
+COMPARE ?= 1
+$(eval $(call validate-option,COMPARE,0 1))
 
 ifeq ($(OSX_BUILD),0)
 	USE_APP := 0
+else ifeq ($(shell uname -m),arm64)
+  DISCORD_SDK := 0
 endif
+
+TARGET_STRING := sm64.$(VERSION).$(GRUCODE)
+# If non-default settings were chosen, disable COMPARE
+ifeq ($(filter $(TARGET_STRING), sm64.jp.f3d_old sm64.us.f3d_old sm64.eu.f3d_new sm64.sh.f3d_new),)
+  COMPARE := 0
+endif
+
 
 # Whether to hide commands or not
 VERBOSE ?= 0
@@ -417,6 +497,12 @@ ifeq ($(filter clean distclean,$(MAKECMDGOALS)),)
   $(info ==== Build Options ====)
   $(info Version:        $(VERSION))
   $(info Microcode:      $(GRUCODE))
+  $(info Target:         $(TARGET))
+  ifeq ($(COMPARE),1)
+    $(info Compare ROM:    yes)
+  else
+    $(info Compare ROM:    no)
+  endif
   ifeq ($(NON_MATCHING),1)
     $(info Build Matching: no)
   else
@@ -431,6 +517,18 @@ endif
 #==============================================================================#
 
 TOOLS_DIR := tools
+
+LIBLUA_DIR := lib/src/lua
+
+ifeq ($(TARGET_BSD),1)
+  LUA_PLATFORM := bsd
+else
+  LUA_PLATFORM := linux
+endif
+
+ZLIB_DIR := lib/src/zlib
+
+COOPNET_DIR := lib/src/coopnet
 
 # (This is a bit hacky, but a lot of rules implicitly depend
 # on tools and assets, and we use directory globs further down
@@ -457,6 +555,30 @@ ifeq ($(filter clean distclean print-%,$(MAKECMDGOALS)),)
       endif
   endif
 
+  # Make liblua
+  ifeq ($(TARGET_FOSS),1)
+    DUMMY != $(MAKE) -C $(LIBLUA_DIR) $(LUA_PLATFORM) >&2 || echo FAIL
+    ifeq ($(DUMMY),FAIL)
+      $(error Failed to build lua)
+    endif
+  endif
+
+  # Make zlib
+  ifeq ($(TARGET_ANDROID),1)
+    DUMMY != $(MAKE) -C $(ZLIB_DIR) libz.a >&2 || echo FAIL
+    ifeq ($(DUMMY),FAIL)
+      $(error Failed to build zlib)
+    endif
+  endif
+
+  # Make coopnet
+  ifeq ($(TARGET_FOSS),1)
+    DUMMY != $(MAKE) -C $(COOPNET_DIR) >&2 || echo FAIL
+    ifeq ($(DUMMY),FAIL)
+      $(error Failed to build coopnet)
+    endif
+  endif
+
   $(info Building Game...)
 
 endif
@@ -464,6 +586,20 @@ endif
 #==============================================================================#
 # Extra Source Files                                                           #
 #==============================================================================#
+
+# Luigi and wario sounds don't work on 32-bit right now
+# And the audio code is so terrible I don't care enough to figure it out at the moment
+ifeq ($(TARGET_BITS), 32)
+ifeq ($(TARGET_FOSS),0)
+  _ := $(shell rm -rf sound/samples/sfx_custom_luigi/*.aiff)
+  _ := $(shell rm -rf sound/samples/sfx_custom_luigi_peach/*.aiff)
+  _ := $(shell rm -rf sound/samples/sfx_custom_wario/*.aiff)
+  _ := $(shell rm -rf sound/samples/sfx_custom_wario_peach/*.aiff)
+
+# Copy missing character sounds from mario sound banks
+_ := $(shell $(PYTHON) $(TOOLS_DIR)/copy_mario_sounds.py)
+endif
+endif
 
 # Copy missing instrument samples from the music sound banks
 _ := $(shell $(PYTHON) $(TOOLS_DIR)/copy_extended_sounds.py)
@@ -477,12 +613,17 @@ BUILD_DIR_BASE := build
 BUILD_DIR := $(BUILD_DIR_BASE)/$(VERSION)_pc
 
 ifeq ($(WINDOWS_BUILD),1)
-	EXE := $(BUILD_DIR)/sm64coopdx.exe
+	EXE := $(BUILD_DIR)/$(TARGET_STRING).exe
+else ifeq ($(TARGET_ANDROID),1)
+  EXE := $(BUILD_DIR)/libmain.so
+  ZIP_UNCOMPRESSED := $(BUILD_DIR)/$(TARGET).uncompressed.zip
+  APK_ALIGNED := $(BUILD_DIR)/$(TARGET).aligned.apk
+  APK_SIGNED := $(BUILD_DIR)/$(TARGET).apk
 else # Linux builds/binary namer
 	ifeq ($(TARGET_RPI),1)
-		EXE := $(BUILD_DIR)/sm64coopdx.arm
+		EXE := $(BUILD_DIR)/$(TARGET_STRING).arm
 	else
-		EXE := $(BUILD_DIR)/sm64coopdx
+		EXE := $(BUILD_DIR)/$(TARGET_STRING)
 	endif
 endif
 
@@ -500,13 +641,15 @@ SRC_DIRS := src src/engine src/game src/audio src/menu src/buffers actors levels
 BIN_DIRS := bin bin/$(VERSION)
 
 # PC files
-SRC_DIRS += src/pc src/pc/gfx src/pc/audio src/pc/controller src/pc/fs src/pc/fs/packtypes src/pc/mods src/pc/dev src/pc/network src/pc/network/packets src/pc/network/socket src/pc/network/coopnet src/pc/utils src/pc/utils/miniz src/pc/djui src/pc/lua src/pc/lua/utils src/pc/os
+SRC_DIRS += src/pc src/pc/gfx src/pc/audio src/pc/controller src/pc/fs src/pc/fs/packtypes src/pc/mods src/dev src/pc/network src/pc/network/packets src/pc/network/socket src/pc/network/coopnet src/pc/utils src/pc/utils/miniz src/pc/djui src/pc/lua src/pc/lua/utils src/pc/os
+
+ifeq ($(TARGET_ANDROID),1)
+  SRC_DIRS += platform/android
+endif
 
 ifeq ($(DISCORD_SDK),1)
   SRC_DIRS += src/pc/discord
 endif
-
-SRC_DIRS += src/pc/mumble
 
 ULTRA_SRC_DIRS := lib/src lib/src/math lib/asm lib/data
 ULTRA_BIN_DIRS := lib/bin
@@ -529,9 +672,9 @@ GODDARD_C_FILES   := $(foreach dir,$(GODDARD_SRC_DIRS),$(wildcard $(dir)/*.c))
 ULTRA_S_FILES     := $(foreach dir,$(ULTRA_SRC_DIRS),$(wildcard $(dir)/*.s))
 GENERATED_C_FILES := $(BUILD_DIR)/assets/mario_anim_data.c $(BUILD_DIR)/assets/demo_data.c
 
-#ifeq ($(TARGET_N64),0)
-#  GENERATED_C_FILES += $(addprefix $(BUILD_DIR)/bin/,$(addsuffix _skybox.c,$(notdir $(basename $(wildcard textures/skyboxes/*.png)))))
-#endif
+ifeq ($(TARGET_N64),0)
+  GENERATED_C_FILES += $(addprefix $(BUILD_DIR)/bin/,$(addsuffix _skybox.c,$(notdir $(basename $(wildcard textures/skyboxes/*.png)))))
+endif
 
 # "If we're N64, use the above"
 ifeq ($(TARGET_N64),0)
@@ -591,11 +734,7 @@ ifeq ($(DISCORD_SDK), 1)
     # HACKY! Instead of figuring out all of the dynamic library linking madness...
     # I copied the library and gave it two names.
     # This really shouldn't be required, but I got tired of trying to do it the "right way"
-    ifeq ($(shell uname -m),arm64) # A hacky way of determining if the user is running on Apple Silicon hardware
-      DISCORD_SDK_LIBS := lib/discordsdk/aarch64/discord_game_sdk.dylib lib/discordsdk/aarch64/libdiscord_game_sdk.dylib
-    else
-      DISCORD_SDK_LIBS := lib/discordsdk/discord_game_sdk.dylib lib/discordsdk/libdiscord_game_sdk.dylib
-    endif
+    DISCORD_SDK_LIBS := lib/discordsdk/discord_game_sdk.dylib lib/discordsdk/libdiscord_game_sdk.dylib
   else
     DISCORD_SDK_LIBS := lib/discordsdk/libdiscord_game_sdk.so
   endif
@@ -609,12 +748,7 @@ _ := $(shell rm -rf ./$(BUILD_DIR)/$(LANG_DIR))
 MOD_DIR := mods
 
 # Remove old mod dir
-_ := $(shell $(PYTHON) $(TOOLS_DIR)/remove_built_in_mods.py)
-
-PALETTES_DIR := palettes
-
-# Remove old palettes dir
-_ := $(shell rm -rf ./$(BUILD_DIR)/$(PALETTES_DIR))
+_ := $(shell rm -rf ./$(BUILD_DIR)/$(MOD_DIR))
 
 # Automatic dependency files
 DEP_FILES := $(O_FILES:.o=.d) $(ULTRA_O_FILES:.o=.d) $(GODDARD_O_FILES:.o=.d) $(BUILD_DIR)/$(LD_SCRIPT).d
@@ -651,9 +785,9 @@ else ifeq ($(COMPILER),gcc)
   CC      := $(CROSS)gcc
   CXX     := $(CROSS)g++
   ifeq ($(OSX_BUILD),0)
-	  EXTRA_CFLAGS += -Wno-unused-result -Wno-format-truncation
+	EXTRA_CFLAGS += -Wno-unused-result -Wno-format-truncation
   else
-	  EXTRA_CFLAGS += -Wno-unused-result -mmacosx-version-min=$(MIN_MACOS_VERSION)
+	EXTRA_CFLAGS += -Wno-unused-result
   endif
 else ifeq ($(COMPILER),clang)
   CC      := clang
@@ -675,20 +809,15 @@ else
 endif
 
 ifeq ($(WINDOWS_BUILD),1) # fixes compilation in MXE on Linux and WSL
-  CPP := cpp -P
+  CPP := cpp
   OBJCOPY := objcopy
   OBJDUMP := $(CROSS)objdump
 else ifeq ($(OSX_BUILD),1)
-  OSX_GCC_VER = $(shell find $(BREW_PREFIX)/bin/gcc* | grep -oE '[[:digit:]]+' | sort -n | uniq | tail -1)
-  # if we couldn't find a gcc ver, default to 9
-  ifeq ($(OSX_GCC_VER),)
-    OSX_GCC_VER = 9
-  endif
-  CPP := cpp-$(OSX_GCC_VER) -P
+  CPP := cpp-9
   OBJDUMP := i686-w64-mingw32-objdump
   OBJCOPY := i686-w64-mingw32-objcopy
 else ifeq ($(TARGET_N64),0) # Linux & other builds
-  CPP := $(CROSS)cpp -P
+  CPP := $(CROSS)cpp
   OBJCOPY := $(CROSS)objcopy
   OBJDUMP := $(CROSS)objdump
 else
@@ -741,14 +870,18 @@ else
   INCLUDE_DIRS += sound lib/lua/include lib/coopnet/include $(EXTRA_INCLUDES)
 endif
 
-# Connfigure backend flags
+ifeq ($(TARGET_ANDROID),1)
+  INCLUDE_DIRS += platform/android/include
+endif
+
+# Configure backend flags
 
 SDLCONFIG := $(CROSS)sdl2-config
 
 BACKEND_CFLAGS := -DRAPI_$(RENDER_API)=1 -DWAPI_$(WINDOW_API)=1 -DAAPI_$(AUDIO_API)=1
 # can have multiple controller APIs
 BACKEND_CFLAGS += $(foreach capi,$(CONTROLLER_API),-DCAPI_$(capi)=1)
-BACKEND_LDFLAG0S :=
+BACKEND_LDFLAGS :=
 
 SDL1_USED := 0
 SDL2_USED := 0
@@ -756,24 +889,30 @@ SDL2_USED := 0
 # for now, it's either SDL+GL or DXGI+DirectX, so choose based on WAPI
 ifeq ($(WINDOW_API),DXGI)
   DXBITS := `cat $(ENDIAN_BITWIDTH) | tr ' ' '\n' | tail -1`
+  ifeq ($(RENDER_API),D3D12)
+    BACKEND_CFLAGS += -Iinclude/dxsdk
+  endif
   BACKEND_LDFLAGS += -ld3dcompiler -ldxgi -ldxguid
   BACKEND_LDFLAGS += -lsetupapi -ldinput8 -luser32 -lgdi32 -limm32 -lole32 -loleaut32 -lshell32 -lwinmm -lversion -luuid -static
 else ifeq ($(findstring SDL,$(WINDOW_API)),SDL)
   ifeq ($(WINDOWS_BUILD),1)
     BACKEND_LDFLAGS += -lglew32 -lglu32 -lopengl32
+  else ifeq ($(TARGET_ANDROID),1)
+    BACKEND_LDFLAGS += -lGLESv2 -llog
   else ifeq ($(TARGET_RPI),1)
     BACKEND_LDFLAGS += -lGLESv2
+  else ifeq ($(TARGET_BBB),1)
+    BACKEND_LDFLAGS += -lGLESv2
+  else ifeq ($(USE_GLES),1)
+    BACKEND_LDFLAGS += -lGLESv2
   else ifeq ($(OSX_BUILD),1)
-    BACKEND_LDFLAGS += -framework OpenGL `pkg-config --libs glew` -mmacosx-version-min=$(MIN_MACOS_VERSION)
-    EXTRA_CPP_FLAGS += -stdlib=libc++ -std=c++17 -mmacosx-version-min=$(MIN_MACOS_VERSION)
+    BACKEND_LDFLAGS += -framework OpenGL `pkg-config --libs glew` -ld_classic
+    EXTRA_CPP_FLAGS += -stdlib=libc++ -std=c++0x
+  else ifeq ($(TARGET_BSD),1)
+    BACKEND_CFLAGS += $(shell pkg-config gl --cflags)
+    BACKEND_LDFLAGS += $(shell pkg-config gl --libs)
   else
     BACKEND_LDFLAGS += -lGL
-   endif
-endif
-
-ifeq ($(WINDOW_API),DUMMY)
-  ifeq ($(WINDOWS_BUILD),1)
-    BACKEND_LDFLAGS += -lole32 -luuid -lshlwapi
   endif
 endif
 
@@ -800,18 +939,22 @@ else ifeq ($(SDL1_USED),1)
 endif
 
 ifneq ($(SDL1_USED)$(SDL2_USED),00)
-  ifeq ($(OSX_BUILD),1)
+  ifeq ($(TARGET_ANDROID),1)
+    BACKEND_LDFLAGS += -lSDL2
+  else ifeq ($(OSX_BUILD),1)
     # on OSX at least the homebrew version of sdl-config gives include path as `.../include/SDL2` instead of `.../include`
     OSX_PREFIX := $(shell $(SDLCONFIG) --prefix)
     BACKEND_CFLAGS += -I$(OSX_PREFIX)/include $(shell $(SDLCONFIG) --cflags)
+  else ifeq ($(TARGET_BSD),1)
+    BACKEND_CFLAGS += $(shell pkg-config sdl2 --cflags)
+    BACKEND_LDFLAGS += $(shell pkg-config sdl2 --libs)
   else
-    BACKEND_CFLAGS += `$(SDLCONFIG) --cflags`
-  endif
-
-  ifeq ($(WINDOWS_BUILD),1)
-    BACKEND_LDFLAGS += `$(SDLCONFIG) --static-libs` -lsetupapi -luser32 -limm32 -lole32 -loleaut32 -lshell32 -lshlwapi -lwinmm -lversion
-  else
-    BACKEND_LDFLAGS += `$(SDLCONFIG) --libs`
+    BACKEND_CFLAGS += $(shell $(SDLCONFIG) --cflags)
+    ifeq ($(WINDOWS_BUILD),1)
+      BACKEND_LDFLAGS += $(shell $(SDLCONFIG) --static-libs) -lsetupapi -luser32 -limm32 -lole32 -loleaut32 -lshell32 -lwinmm -lversion
+    else
+      BACKEND_LDFLAGS += $(shell $(SDLCONFIG) --libs)
+    endif
   endif
 endif
 
@@ -852,6 +995,12 @@ endif
 # C preprocessor flags
 CPPFLAGS := -P -Wno-trigraphs $(DEF_INC_CFLAGS)
 
+ifeq ($(TARGET_ANDROID),1)
+  ifneq ($(shell which termux-setup-storage),) # Termux has clang
+    CPPFLAGS := -E -P -x c -Wno-trigraphs $(DEF_INC_CFLAGS)
+  endif
+endif
+
 ifeq ($(TARGET_N64),1)
   ifeq ($(shell getconf LONG_BIT), 32)
     # Work around memory allocation bug in QEMU
@@ -863,21 +1012,42 @@ ifeq ($(TARGET_N64),1)
 endif
 
 ifeq ($(WINDOWS_BUILD),1)
-  LDFLAGS := $(BITS) -march=$(TARGET_ARCH) -Llib -lpthread $(BACKEND_LDFLAGS) -static -mconsole
+  LDFLAGS := $(BITS) -march=$(TARGET_ARCH) -Llib -lpthread $(BACKEND_LDFLAGS) -static
   ifeq ($(CROSS),)
     LDFLAGS += -no-pie
   endif
+  ifeq ($(WINDOWS_CONSOLE),1)
+    LDFLAGS += -mconsole
+  endif
 else ifeq ($(TARGET_RPI),1)
   LDFLAGS := $(OPT_FLAGS) -lm $(BACKEND_LDFLAGS) -no-pie
+else ifeq ($(TARGET_BBB),1)
+  LDFLAGS := $(OPT_FLAGS) -lm $(BACKEND_LDFLAGS) -no-pie
+else ifeq ($(TARGET_ANDROID),1)
+  ifneq ($(shell uname -m | grep "i.86"),)
+    ARCH_APK := x86
+  else ifeq ($(shell uname -m),x86_64)
+    ARCH_APK := x86_64
+  else ifeq ($(shell getconf LONG_BIT),64)
+    ARCH_APK := arm64-v8a
+  else
+    ARCH_APK := armeabi-v7a
+  endif
+  CFLAGS  += -fPIC
+  LDFLAGS := -L ./platform/android/android/lib/$(ARCH_APK)/ -lm $(BACKEND_LDFLAGS) -shared
 else ifeq ($(OSX_BUILD),1)
   LDFLAGS := -lm $(BACKEND_LDFLAGS) -lpthread
+else ifeq ($(TARGET_BSD),1)
+  LDFLAGS := -lm $(BACKEND_LDFLAGS) -lpthread
 else
-  LDFLAGS := $(BITS) -march=$(TARGET_ARCH) -lm $(BACKEND_LDFLAGS) -no-pie -lpthread
+  LDFLAGS := $(BITS) -march=$(TARGET_ARCH) -lm $(BACKEND_LDFLAGS) -lpthread -ldl
+  ifeq ($(NO_PIE), 1)
+    LDFLAGS += -no-pie
+  endif
 endif
 
-# used by crash handler and loading screen on linux
 ifeq ($(WINDOWS_BUILD),0)
-  LDFLAGS += -rdynamic -ldl -pthread
+  LDFLAGS += -rdynamic
 endif
 
 # icon
@@ -910,13 +1080,10 @@ endif
 # Coop specific libraries
 
 # Zlib
-LDFLAGS += -lz
-
-# Update checker library
-ifeq ($(WINDOWS_BUILD),1)
-  LDFLAGS += -lwininet
+ifeq ($(TARGET_ANDROID),1)
+  LDFLAGS += -L$(ZLIB_DIR) -l:libz.a
 else
-  LDFLAGS += -lcurl
+  LDFLAGS += -lz
 endif
 
 # Lua
@@ -933,16 +1100,18 @@ else ifeq ($(OSX_BUILD),1)
     LDFLAGS += -L./lib/lua/mac_intel/ -l lua53
   endif
 else ifeq ($(TARGET_RPI),1)
-	ifneq (,$(findstring aarch64,$(machine)))
+  ifneq (,$(findstring aarch64,$(machine)))
     LDFLAGS += -Llib/lua/linux -l:liblua53-arm64.a
   else
     LDFLAGS += -Llib/lua/linux -l:liblua53-arm.a
   endif
+else ifeq ($(TARGET_FOSS),1)
+  LDFLAGS += -L$(LIBLUA_DIR)/src -l:liblua.a
 else
   LDFLAGS += -Llib/lua/linux -l:liblua53.a -ldl
 endif
 
-# CoopNet
+# coopnet
 COOPNET_LIBS :=
 ifeq ($(COOPNET),1)
   ifeq ($(WINDOWS_BUILD),1)
@@ -967,8 +1136,10 @@ ifeq ($(COOPNET),1)
     else
       LDFLAGS += -Llib/coopnet/linux -l:libcoopnet-arm.a -l:libjuice.a
     endif
-  else
+  else ifeq ($(TARGET_FOSS),0)
     LDFLAGS += -Llib/coopnet/linux -l:libcoopnet.a -l:libjuice.a
+  else
+    LDFLAGS += -L$(COOPNET_DIR)/bin -L$(COOPNET_DIR)/lib/libjuice -l:libcoopnet.a -l:libjuice.a
   endif
 endif
 
@@ -987,13 +1158,14 @@ endif
 # Prevent a crash with -sopt
 export LANG := C
 
-ifeq ($(OSX_BUILD),0)
-  LDFLAGS += -latomic
-endif
-
 #==============================================================================#
 # Extra CC Flags                                                               #
 #==============================================================================#
+
+# Identify that this is a coop build so that one patch can be applied to EX
+# and/or COOP. They can choose to ifdef entity synchronization out.
+CC_CHECK_CFLAGS += -DCOOP
+CFLAGS += -DCOOP
 
 # Enforce -Werror in strict mode
 ifeq ($(STRICT),1)
@@ -1009,10 +1181,42 @@ endif
 
 # Check for enhancement options
 
+# Check for immediate load option
+ifeq ($(IMMEDIATELOAD),1)
+  CC_CHECK_CFLAGS += -DIMMEDIATELOAD
+  CFLAGS += -DIMMEDIATELOAD
+endif
+
 # Check for docker build workaround option
 ifeq ($(DOCKERBUILD),1)
   CC_CHECK_CFLAGS += -DDOCKERBUILD
   CFLAGS += -DDOCKERBUILD
+endif
+
+# Check for Puppycam option
+ifeq ($(BETTERCAMERA),1)
+  CC_CHECK_CFLAGS += -DBETTERCAMERA
+  CFLAGS += -DBETTERCAMERA
+  EXT_OPTIONS_MENU := 1
+endif
+
+#ifeq ($(TEXTSAVES),1)
+#  CC_CHECK_CFLAGS += -DTEXTSAVES
+#  CFLAGS += -DTEXTSAVES
+#endif
+
+# Check for no drawing distance option
+#ifeq ($(NODRAWINGDISTANCE),1)
+  CC_CHECK_CFLAGS += -DNODRAWINGDISTANCE
+  CFLAGS += -DNODRAWINGDISTANCE
+#endif
+
+ifeq ($(WINDOW_API),SDL2)
+  # Check for SDL2 touch controls
+  ifeq ($(TOUCH_CONTROLS),1)
+    CC_CHECK_CFLAGS += -DTOUCH_CONTROLS
+    CFLAGS += -DTOUCH_CONTROLS
+  endif
 endif
 
 # Check for Discord SDK option
@@ -1045,16 +1249,10 @@ ifeq ($(TEXTURE_FIX),1)
   CFLAGS += -DTEXTURE_FIX
 endif
 
-# Check for enhance level textures option
-ifeq ($(ENHANCE_LEVEL_TEXTURES),1)
-  CC_CHECK_CFLAGS += -DENHANCE_LEVEL_TEXTURES
-  CFLAGS += -DENHANCE_LEVEL_TEXTURES
-endif
-
-# Check for handheld option
-ifeq ($(HANDHELD),1)
-  CC_CHECK_CFLAGS += -DHANDHELD
-  CFLAGS += -DHANDHELD
+# Check for extended options menu option
+ifeq ($(EXT_OPTIONS_MENU),1)
+  CC_CHECK_CFLAGS += -DEXT_OPTIONS_MENU
+  CFLAGS += -DEXT_OPTIONS_MENU
 endif
 
 # Check for no bzero/bcopy workaround option
@@ -1073,6 +1271,16 @@ endif
 ifeq ($(LEGACY_GL),1)
   CC_CHECK_CFLAGS += -DLEGACY_GL
   CFLAGS += -DLEGACY_GL
+endif
+
+# Load external textures
+ifeq ($(EXTERNAL_DATA),1)
+  CC_CHECK_CFLAGS += -DEXTERNAL_DATA -DFS_BASEDIR="\"$(BASEDIR)\""
+  CFLAGS += -DEXTERNAL_DATA -DFS_BASEDIR="\"$(BASEDIR)\""
+  # tell skyconv to write names instead of actual texture data and save the split tiles so we can use them later
+  SKYTILE_DIR := $(BUILD_DIR)/textures/skybox_tiles
+  SKYCONV_ARGS := --store-names --write-tiles "$(SKYTILE_DIR)"
+  $(shell mkdir -p $(SKYTILE_DIR))
 endif
 
 #==============================================================================#
@@ -1128,7 +1336,46 @@ endef
 #==============================================================================#
 
 #all: $(ROM)
+ifeq ($(TARGET_ANDROID),1)
+all: $(APK_SIGNED)
+EXE_DEPEND := $(APK_SIGNED)
+else
 all: $(EXE)
+EXE_DEPEND := $(EXE)
+endif
+
+ifeq ($(EXTERNAL_DATA),1)
+
+BASEPACK_PATH := $(BUILD_DIR)/$(BASEDIR)/$(BASEPACK)
+BASEPACK_LST := $(BUILD_DIR)/basepack.lst
+
+# depend on resources as well
+all: $(BASEPACK_PATH)
+
+# phony target for building resources
+res: $(BASEPACK_PATH)
+
+# prepares the basepack.lst
+$(BASEPACK_LST): $(EXE_DEPEND)
+	@$(PRINT) "$(GREEN)Making basepack list.$(NO_COL)\n"
+	@mkdir -p $(BUILD_DIR)/$(BASEDIR)
+	@echo -n > $(BASEPACK_LST)
+	@echo "$(BUILD_DIR)/sound/bank_sets sound/bank_sets" >> $(BASEPACK_LST)
+	@echo "$(BUILD_DIR)/sound/sequences.bin sound/sequences.bin" >> $(BASEPACK_LST)
+	@echo "$(BUILD_DIR)/sound/sound_data.ctl sound/sound_data.ctl" >> $(BASEPACK_LST)
+	@echo "$(BUILD_DIR)/sound/sound_data.tbl sound/sound_data.tbl" >> $(BASEPACK_LST)
+	@$(foreach f, $(wildcard $(SKYTILE_DIR)/*), echo $(f) gfx/$(f:$(BUILD_DIR)/%=%) >> $(BASEPACK_LST);)
+	@find actors -name \*.png -exec echo "{} gfx/{}" >> $(BASEPACK_LST) \;
+	@find levels -name \*.png -exec echo "{} gfx/{}" >> $(BASEPACK_LST) \;
+	@find textures -name \*.png -exec echo "{} gfx/{}" >> $(BASEPACK_LST) \;
+
+# prepares the resource ZIP with base data
+$(BASEPACK_PATH): $(BASEPACK_LST)
+	@$(PRINT) "$(GREEN)Packing basepack zip file.$(NO_COL)\n"
+	$(V)$(PYTHON) $(TOOLS_DIR)/mkzip.py $(BASEPACK_LST) $(BASEPACK_PATH)
+
+endif
+
 
 ifeq ($(WINDOWS_BUILD),1)
 exemap: $(EXE)
@@ -1136,8 +1383,16 @@ exemap: $(EXE)
 all: exemap
 endif
 
+ifeq ($(COMPARE),1)
+	@$(PRINT) "$(GREEN)Checking if ROM matches.. $(NO_COL)\n"
+	@$(SHA1SUM) --quiet -c $(TARGET).sha1 && $(PRINT) "$(TARGET): $(GREEN)OK$(NO_COL)\n" || ($(PRINT) "$(YELLOW)Building the ROM file has succeeded, but does not match the original ROM.\nThis is expected, and not an error, if you are making modifications.\nTo silence this message, use 'make COMPARE=0.' $(NO_COL)\n" && false)
+endif
+
 clean:
 	$(RM) -r $(BUILD_DIR_BASE)
+	$(MAKE) -s -C $(LIBLUA_DIR) clean
+	$(MAKE) -s -C $(ZLIB_DIR) clean
+	$(MAKE) -s -C $(COOPNET_DIR) clean
 
 cleantools:
 	$(MAKE) -s -C $(TOOLS_DIR) clean
@@ -1166,10 +1421,7 @@ $(BUILD_DIR)/$(LANG_DIR):
 	@$(CP) -f -r $(LANG_DIR) $(BUILD_DIR)
 
 $(BUILD_DIR)/$(MOD_DIR):
-	$(CP) -f -r $(MOD_DIR) $(BUILD_DIR)
-
-$(BUILD_DIR)/$(PALETTES_DIR):
-	@$(CP) -f -r $(PALETTES_DIR) $(BUILD_DIR)
+	@$(CP) -f -r $(MOD_DIR) $(BUILD_DIR)
 
 # Extra object file dependencies
 
@@ -1180,9 +1432,11 @@ ifeq ($(TARGET_N64),1)
 endif
 
 $(BUILD_DIR)/src/game/characters.o:   $(SOUND_SAMPLE_TABLES)
-$(SOUND_BIN_DIR)/sound_data.o:        $(SOUND_BIN_DIR)/sound_data.ctl.inc.c $(SOUND_BIN_DIR)/sound_data.tbl.inc.c $(SOUND_BIN_DIR)/sequences.bin.inc.c $(SOUND_BIN_DIR)/bank_sets.inc.c
-$(SOUND_BIN_DIR)/samples_assets.o:    $(SOUND_BIN_DIR)/samples_offsets.inc.c
-$(SOUND_BIN_DIR)/sequences_assets.o:  $(SOUND_BIN_DIR)/sequences_offsets.inc.c
+$(SOUND_BIN_DIR)/sound_data.o: \
+	$(SOUND_BIN_DIR)/sound_data.ctl.be.64.inc.c $(SOUND_BIN_DIR)/sound_data.tbl.be.64.inc.c $(SOUND_BIN_DIR)/sequences.bin.be.64.inc.c $(SOUND_BIN_DIR)/bank_sets.be.64.inc.c \
+	$(SOUND_BIN_DIR)/sound_data.ctl.be.32.inc.c $(SOUND_BIN_DIR)/sound_data.tbl.be.32.inc.c $(SOUND_BIN_DIR)/sequences.bin.be.32.inc.c $(SOUND_BIN_DIR)/bank_sets.be.32.inc.c \
+	$(SOUND_BIN_DIR)/sound_data.ctl.le.64.inc.c $(SOUND_BIN_DIR)/sound_data.tbl.le.64.inc.c $(SOUND_BIN_DIR)/sequences.bin.le.64.inc.c $(SOUND_BIN_DIR)/bank_sets.le.64.inc.c \
+	$(SOUND_BIN_DIR)/sound_data.ctl.le.32.inc.c $(SOUND_BIN_DIR)/sound_data.tbl.le.32.inc.c $(SOUND_BIN_DIR)/sequences.bin.le.32.inc.c $(SOUND_BIN_DIR)/bank_sets.le.32.inc.c
 $(BUILD_DIR)/levels/scripts.o:        $(BUILD_DIR)/include/level_headers.h
 
 ifeq ($(VERSION),sh)
@@ -1203,13 +1457,15 @@ ifeq ($(VERSION),eu)
   $(BUILD_DIR)/bin/eu/translation_en.o: $(BUILD_DIR)/text/us/define_text.inc.c
   $(BUILD_DIR)/bin/eu/translation_de.o: $(BUILD_DIR)/text/de/define_text.inc.c
   $(BUILD_DIR)/bin/eu/translation_fr.o: $(BUILD_DIR)/text/fr/define_text.inc.c
+  $(BUILD_DIR)/levels/menu/leveldata.o: $(BUILD_DIR)/include/text_strings.h
   $(BUILD_DIR)/levels/menu/leveldata.o: $(BUILD_DIR)/text/us/define_courses.inc.c
   $(BUILD_DIR)/levels/menu/leveldata.o: $(BUILD_DIR)/text/de/define_courses.inc.c
   $(BUILD_DIR)/levels/menu/leveldata.o: $(BUILD_DIR)/text/fr/define_courses.inc.c
+  $(BUILD_DIR)/src/game/level_info.o: $(BUILD_DIR)/include/text_strings.h
   $(BUILD_DIR)/src/game/level_info.o: $(BUILD_DIR)/text/us/define_courses.inc.c
   $(BUILD_DIR)/src/game/level_info.o: $(BUILD_DIR)/text/de/define_courses.inc.c
   $(BUILD_DIR)/src/game/level_info.o: $(BUILD_DIR)/text/fr/define_courses.inc.c
-
+  
   O_FILES += $(BUILD_DIR)/bin/eu/translation_en.o $(BUILD_DIR)/bin/eu/translation_de.o $(BUILD_DIR)/bin/eu/translation_fr.o
 else
   ifeq ($(VERSION),sh)
@@ -1227,29 +1483,45 @@ ALL_DIRS := $(BUILD_DIR) $(addprefix $(BUILD_DIR)/,$(SRC_DIRS) $(GODDARD_SRC_DIR
 # Make sure build directory exists before compiling anything
 DUMMY != mkdir -p $(ALL_DIRS)
 
+$(BUILD_DIR)/include/text_strings.h: $(BUILD_DIR)/include/text_menu_strings.h
+$(BUILD_DIR)/src/menu/file_select.o: $(BUILD_DIR)/include/text_strings.h
+$(BUILD_DIR)/src/menu/star_select.o: $(BUILD_DIR)/include/text_strings.h
+$(BUILD_DIR)/src/game/camera.o:      $(BUILD_DIR)/include/text_strings.h
+$(BUILD_DIR)/src/game/ingame_menu.o: $(BUILD_DIR)/include/text_strings.h
+
+
 #==============================================================================#
 # Texture Generation                                                           #
 #==============================================================================#
 TEXTURE_ENCODING := u8
 
-# Convert PNGs to RGBA32, RGBA16, IA16, IA8, IA4, IA1, I8, I4 binary files
-$(BUILD_DIR)/%: %.png
+ifeq ($(EXTERNAL_DATA),1)
+  $(BUILD_DIR)/%: %.png
+	$(call print,Dummying:,$<,$@)
+	$(V)$(PYTHON) $(TOOLS_DIR)/zeroterm.py "$(patsubst %.png,%,$^)" > $@
+else
+  # Convert PNGs to RGBA32, RGBA16, IA16, IA8, IA4, IA1, I8, I4 binary files
+  $(BUILD_DIR)/%: %.png
 	$(call print,Converting:,$<,$@)
 	$(V)$(N64GRAPHICS) -s raw -i $@ -g $< -f $(lastword $(subst ., ,$@))
 
-$(BUILD_DIR)/%.inc.c: %.png
+  $(BUILD_DIR)/%.inc.c: %.png
 	$(call print,Converting:,$<,$@)
 	$(V)$(N64GRAPHICS) -s $(TEXTURE_ENCODING) -i $@ -g $< -f $(lastword ,$(subst ., ,$(basename $<)))
+endif
 
-# Color Index CI8
-$(BUILD_DIR)/%.ci8: %.ci8.png
+
+ifeq ($(EXTERNAL_DATA),0)
+  # Color Index CI8
+  $(BUILD_DIR)/%.ci8: %.ci8.png
 	$(call print,Converting:,$<,$@)
 	$(V)$(N64GRAPHICS_CI) -i $@ -g $< -f ci8
 
-# Color Index CI4
-$(BUILD_DIR)/%.ci4: %.ci4.png
+  # Color Index CI4
+  $(BUILD_DIR)/%.ci4: %.ci4.png
 	$(call print,Converting:,$<,$@)
 	$(V)$(N64GRAPHICS_CI) -i $@ -g $< -f ci4
+endif
 
 #==============================================================================#
 # Compressed Segment Generation                                                #
@@ -1298,6 +1570,8 @@ $(BUILD_DIR)/%.table: %.aiff
 	$(call print,Extracting codebook:,$<,$@)
 	$(V)$(AIFF_EXTRACT_CODEBOOK) $< >$@
 	$(call print,Piping:,$<,$@.inc.c)
+	$(V)hexdump -v -e '1/1 "0x%X,"' $< > $@.inc.c
+	$(V)echo >> $@.inc.c
 
 $(BUILD_DIR)/%.aifc: $(BUILD_DIR)/%.table %.aiff
 	$(call print,Encoding VADPCM:,$<,$@)
@@ -1311,33 +1585,76 @@ $(ENDIAN_BITWIDTH): $(TOOLS_DIR)/determine-endian-bitwidth.c
 	@$(RM) $@.dummy1
 	@$(RM) $@.dummy2
 
-$(SOUND_BIN_DIR)/sound_data.ctl: sound/sound_banks/ $(SOUND_BANK_FILES) $(SOUND_SAMPLE_AIFCS) $(ENDIAN_BITWIDTH)
-	@$(PRINT) "$(GREEN)Generating:  $(BLUE)$@ $(NO_COL)\n"
-	$(V)$(PYTHON) $(TOOLS_DIR)/assemble_sound.py $(BUILD_DIR)/sound/samples/ sound/sound_banks/ $(SOUND_BIN_DIR)/sound_data.ctl $(SOUND_BIN_DIR)/ctl_header $(SOUND_BIN_DIR)/sound_data.tbl $(SOUND_BIN_DIR)/tbl_header $(C_DEFINES) $$(cat $(ENDIAN_BITWIDTH))
+$(SOUND_BIN_DIR)/sound_data.ctl.be.64: sound/sound_banks/ $(SOUND_BANK_FILES) $(SOUND_SAMPLE_AIFCS)
+	$(PYTHON) $(TOOLS_DIR)/assemble_sound.py $(BUILD_DIR)/sound/samples/ sound/sound_banks/ $(SOUND_BIN_DIR)/sound_data.ctl.be.64 $(SOUND_BIN_DIR)/ctl_header.be.64 $(SOUND_BIN_DIR)/sound_data.tbl.be.64 $(SOUND_BIN_DIR)/tbl_header.be.64 $(C_DEFINES) --endian big --bitwidth 64
 
-$(SOUND_BIN_DIR)/sound_data.tbl: $(SOUND_BIN_DIR)/sound_data.ctl
+$(SOUND_BIN_DIR)/sound_data.ctl.be.32: sound/sound_banks/ $(SOUND_BANK_FILES) $(SOUND_SAMPLE_AIFCS)
+	$(PYTHON) $(TOOLS_DIR)/assemble_sound.py $(BUILD_DIR)/sound/samples/ sound/sound_banks/ $(SOUND_BIN_DIR)/sound_data.ctl.be.32 $(SOUND_BIN_DIR)/ctl_header.be.32 $(SOUND_BIN_DIR)/sound_data.tbl.be.32 $(SOUND_BIN_DIR)/tbl_header.be.32 $(C_DEFINES) --endian big --bitwidth 32
+
+$(SOUND_BIN_DIR)/sound_data.ctl.le.64: sound/sound_banks/ $(SOUND_BANK_FILES) $(SOUND_SAMPLE_AIFCS)
+	$(PYTHON) $(TOOLS_DIR)/assemble_sound.py $(BUILD_DIR)/sound/samples/ sound/sound_banks/ $(SOUND_BIN_DIR)/sound_data.ctl.le.64 $(SOUND_BIN_DIR)/ctl_header.le.64 $(SOUND_BIN_DIR)/sound_data.tbl.le.64 $(SOUND_BIN_DIR)/tbl_header.le.64 $(C_DEFINES) --endian little --bitwidth 64
+
+$(SOUND_BIN_DIR)/sound_data.ctl.le.32: sound/sound_banks/ $(SOUND_BANK_FILES) $(SOUND_SAMPLE_AIFCS)
+	$(PYTHON) $(TOOLS_DIR)/assemble_sound.py $(BUILD_DIR)/sound/samples/ sound/sound_banks/ $(SOUND_BIN_DIR)/sound_data.ctl.le.32 $(SOUND_BIN_DIR)/ctl_header.le.32 $(SOUND_BIN_DIR)/sound_data.tbl.le.32 $(SOUND_BIN_DIR)/tbl_header.le.32 $(C_DEFINES) --endian little --bitwidth 32
+
+$(SOUND_BIN_DIR)/sound_data.tbl.be.64: $(SOUND_BIN_DIR)/sound_data.ctl.be.64
 	@true
 
-$(SOUND_BIN_DIR)/ctl_header: $(SOUND_BIN_DIR)/sound_data.ctl
+$(SOUND_BIN_DIR)/sound_data.tbl.be.32: $(SOUND_BIN_DIR)/sound_data.ctl.be.32
 	@true
 
-$(SOUND_BIN_DIR)/tbl_header: $(SOUND_BIN_DIR)/sound_data.ctl
+$(SOUND_BIN_DIR)/sound_data.tbl.le.64: $(SOUND_BIN_DIR)/sound_data.ctl.le.64
 	@true
 
-$(SOUND_BIN_DIR)/samples_offsets.inc.c: $(SOUND_BIN_DIR)/sound_data.ctl
+$(SOUND_BIN_DIR)/sound_data.tbl.le.32: $(SOUND_BIN_DIR)/sound_data.ctl.le.32
 	@true
 
-$(SOUND_BIN_DIR)/sequences_offsets.inc.c: $(SOUND_BIN_DIR)/sound_data.ctl
+$(SOUND_BIN_DIR)/ctl_header.be.64: $(SOUND_BIN_DIR)/sound_data.ctl.be.64
 	@true
 
-$(SOUND_BIN_DIR)/sequences.bin: $(SOUND_BANK_FILES) sound/sequences.json $(SOUND_SEQUENCE_DIRS) $(SOUND_SEQUENCE_FILES) $(ENDIAN_BITWIDTH)
-	@$(PRINT) "$(GREEN)Generating:  $(BLUE)$@ $(NO_COL)\n"
-	$(V)$(PYTHON) $(TOOLS_DIR)/assemble_sound.py --sequences $@ $(SOUND_BIN_DIR)/sequences_header $(SOUND_BIN_DIR)/bank_sets sound/sound_banks/ sound/sequences.json $(SOUND_SEQUENCE_FILES) $(C_DEFINES) $$(cat $(ENDIAN_BITWIDTH))
-
-$(SOUND_BIN_DIR)/bank_sets: $(SOUND_BIN_DIR)/sequences.bin
+$(SOUND_BIN_DIR)/ctl_header.be.32: $(SOUND_BIN_DIR)/sound_data.ctl.be.32
 	@true
 
-$(SOUND_BIN_DIR)/sequences_header: $(SOUND_BIN_DIR)/sequences.bin
+$(SOUND_BIN_DIR)/ctl_header.le.64: $(SOUND_BIN_DIR)/sound_data.ctl.le.64
+	@true
+
+$(SOUND_BIN_DIR)/ctl_header.le.32: $(SOUND_BIN_DIR)/sound_data.ctl.le.32
+	@true
+
+$(SOUND_BIN_DIR)/tbl_header.be.64: $(SOUND_BIN_DIR)/sound_data.ctl.be.64
+	@true
+
+$(SOUND_BIN_DIR)/tbl_header.be.32: $(SOUND_BIN_DIR)/sound_data.ctl.be.32
+	@true
+
+$(SOUND_BIN_DIR)/tbl_header.le.64: $(SOUND_BIN_DIR)/sound_data.ctl.le.64
+	@true
+
+$(SOUND_BIN_DIR)/sound_data.tbl.le.32: $(SOUND_BIN_DIR)/sound_data.ctl.le.32
+	@true
+
+$(SOUND_BIN_DIR)/sequences.bin.be.64: $(SOUND_BANK_FILES) sound/sequences.json $(SOUND_SEQUENCE_DIRS) $(SOUND_SEQUENCE_FILES)
+	$(PYTHON) $(TOOLS_DIR)/assemble_sound.py --sequences $@ $(SOUND_BIN_DIR)/sequences_header $(SOUND_BIN_DIR)/bank_sets.be.64 sound/sound_banks/ sound/sequences.json $(SOUND_SEQUENCE_FILES) $(C_DEFINES) --endian big --bitwidth 64
+
+$(SOUND_BIN_DIR)/sequences.bin.be.32: $(SOUND_BANK_FILES) sound/sequences.json $(SOUND_SEQUENCE_DIRS) $(SOUND_SEQUENCE_FILES)
+	$(PYTHON) $(TOOLS_DIR)/assemble_sound.py --sequences $@ $(SOUND_BIN_DIR)/sequences_header $(SOUND_BIN_DIR)/bank_sets.be.32 sound/sound_banks/ sound/sequences.json $(SOUND_SEQUENCE_FILES) $(C_DEFINES) --endian big --bitwidth 32
+
+$(SOUND_BIN_DIR)/sequences.bin.le.64: $(SOUND_BANK_FILES) sound/sequences.json $(SOUND_SEQUENCE_DIRS) $(SOUND_SEQUENCE_FILES)
+	$(PYTHON) $(TOOLS_DIR)/assemble_sound.py --sequences $@ $(SOUND_BIN_DIR)/sequences_header $(SOUND_BIN_DIR)/bank_sets.le.64 sound/sound_banks/ sound/sequences.json $(SOUND_SEQUENCE_FILES) $(C_DEFINES) --endian little --bitwidth 64
+
+$(SOUND_BIN_DIR)/sequences.bin.le.32: $(SOUND_BANK_FILES) sound/sequences.json $(SOUND_SEQUENCE_DIRS) $(SOUND_SEQUENCE_FILES)
+	$(PYTHON) $(TOOLS_DIR)/assemble_sound.py --sequences $@ $(SOUND_BIN_DIR)/sequences_header $(SOUND_BIN_DIR)/bank_sets.le.32 sound/sound_banks/ sound/sequences.json $(SOUND_SEQUENCE_FILES) $(C_DEFINES) --endian little --bitwidth 32
+
+$(SOUND_BIN_DIR)/bank_sets.be.64: $(SOUND_BIN_DIR)/sequences.bin.be.64
+	@true
+
+$(SOUND_BIN_DIR)/bank_sets.be.32: $(SOUND_BIN_DIR)/sequences.bin.be.32
+	@true
+
+$(SOUND_BIN_DIR)/bank_sets.le.64: $(SOUND_BIN_DIR)/sequences.bin.le.64
+	@true
+
+$(SOUND_BIN_DIR)/bank_sets.le.32: $(SOUND_BIN_DIR)/sequences.bin.le.32
 	@true
 
 $(SOUND_BIN_DIR)/%.m64: $(SOUND_BIN_DIR)/%.o
@@ -1348,6 +1665,12 @@ $(SOUND_BIN_DIR)/%.m64: $(SOUND_BIN_DIR)/%.o
 #==============================================================================#
 # Generated Source Code Files                                                  #
 #==============================================================================#
+
+ifeq ($(EXTERNAL_DATA),1)
+  $(SOUND_BIN_DIR)/%.inc.c: $(SOUND_BIN_DIR)/%
+	$(call print,Dummying:,$<,$@)
+	$(V)$(PYTHON) $(TOOLS_DIR)/zeroterm.py "$(patsubst $(BUILD_DIR)/%,%,$^)" | hexdump -v -e '1/1 "0x%X,"' > $@
+endif
 
 # Convert binary file to a comma-separated list of byte values for inclusion in C code
 $(BUILD_DIR)/%.inc.c: $(BUILD_DIR)/%
@@ -1366,6 +1689,12 @@ $(BUILD_DIR)/assets/demo_data.c: assets/demo_data.json $(wildcard assets/demos/*
 	$(V)$(PYTHON) $(TOOLS_DIR)/demo_data_converter.py assets/demo_data.json $(DEF_INC_CFLAGS) > $@
 
 # Encode in-game text strings
+$(BUILD_DIR)/include/text_strings.h: include/text_strings.h.in
+	$(call print,Encoding:,$<,$@)
+	$(V)$(TEXTCONV) charmap.txt $< $@
+$(BUILD_DIR)/include/text_menu_strings.h: include/text_menu_strings.h.in
+	$(call print,Encoding:,$<,$@)
+	$(V)$(TEXTCONV) charmap_menu.txt $< $@
 $(BUILD_DIR)/text/%/define_courses.inc.c: text/define_courses.inc.c text/%/courses.h
 	@$(PRINT) "$(GREEN)Preprocessing: $(BLUE)$@ $(NO_COL)\n"
 	$(V)$(CPP) $(PROF_FLAGS) $(CPPFLAGS) $< -o - -I text/$*/ | $(TEXTCONV) charmap.txt - $@
@@ -1516,7 +1845,40 @@ ifeq ($(TARGET_N64),1)
   $(BUILD_DIR)/$(TARGET).objdump: $(ELF)
 	$(OBJDUMP) -D $< > $@
 else
-  $(EXE): $(O_FILES) $(MIO0_FILES:.mio0=.o) $(ULTRA_O_FILES) $(GODDARD_O_FILES) $(BUILD_DIR)/$(RPC_LIBS) $(BUILD_DIR)/$(DISCORD_SDK_LIBS) $(BUILD_DIR)/$(COOPNET_LIBS) $(BUILD_DIR)/$(LANG_DIR) $(BUILD_DIR)/$(MOD_DIR) $(BUILD_DIR)/$(PALETTES_DIR)
+
+ifeq ($(TARGET_ANDROID),1)
+APK_FILES := $(shell find platform/android/ -type f)
+
+$(ZIP_UNCOMPRESSED): $(EXE) $(APK_FILES)
+	cp -r platform/android $(BUILD_DIR)/platform/ && \
+	mkdir $(BUILD_DIR)/platform/android/android/assets/ && \
+	cp -r mods $(BUILD_DIR)/platform/android/android/assets/ && \
+	cp -r lang $(BUILD_DIR)/platform/android/android/assets/ && \
+	cp $(PREFIX)/lib/libc++_shared.so $(BUILD_DIR)/platform/android/android/lib/$(ARCH_APK)/ && \
+	cp $(EXE) $(BUILD_DIR)/platform/android/android/lib/$(ARCH_APK)/ && \
+	cd $(BUILD_DIR)/platform/android/android && \
+	zip -0 -r ../../../../../$@ ./* && \
+	cd - && \
+	rm -rf $(BUILD_DIR)/platform/android/android
+
+$(APK_ALIGNED): $(ZIP_UNCOMPRESSED)
+	zipalign -f -p 4 $< $@
+
+$(APK_SIGNED): $(APK_ALIGNED)
+	cp $< $@ && \
+	apksigner sign --cert platform/android/certificate.pem --key platform/android/key.pk8 $@
+endif
+
+# Ugly but I don't have a better idea right now
+# I have a better idea now. That will come later.
+ifeq ($(TARGET_BSD), 1)
+  DUMMY != mkdir -p ~/.local/share/sm64ex-coop/mods && \
+           mkdir -p ~/.local/share/sm64ex-coop/lang && \
+           cp -r mods/ ~/.local/share/sm64ex-coop/mods && \
+           cp -r lang/ ~/.local/share/sm64ex-coop/lang
+endif
+
+  $(EXE): $(O_FILES) $(MIO0_FILES:.mio0=.o) $(ULTRA_O_FILES) $(GODDARD_O_FILES) $(BUILD_DIR)/$(RPC_LIBS) $(BUILD_DIR)/$(DISCORD_SDK_LIBS) $(BUILD_DIR)/$(COOPNET_LIBS) $(BUILD_DIR)/$(LANG_DIR) $(BUILD_DIR)/$(MOD_DIR)
 	@$(PRINT) "$(GREEN)Linking executable: $(BLUE)$@ $(NO_COL)\n"
 	$(V)$(LD) $(PROF_FLAGS) -L $(BUILD_DIR) -o $@ $(O_FILES) $(ULTRA_O_FILES) $(GODDARD_O_FILES) $(LDFLAGS)
 endif
@@ -1526,63 +1888,41 @@ endif
 # with no prerequisites, .SECONDARY causes no intermediate target to be removed
 .SECONDARY:
 
-APP_DIR = ./sm64coopdx.app
+APP_DIR = ./sm64ex-coop.app
 APP_CONTENTS_DIR = $(APP_DIR)/Contents
 APP_MACOS_DIR = $(APP_CONTENTS_DIR)/MacOS
-APP_RESOURCES_DIR = $(APP_CONTENTS_DIR)/Resources
-
-
-ifeq ($(OSX_BUILD),1)
-  GLEW_LIB := $(shell find $(BREW_PREFIX)/Cellar/glew | grep libGLEW.2.2.0 | sort -n | uniq)
-  SDL2_LIB := $(shell find $(BREW_PREFIX)/Cellar/sdl2 | grep libSDL2- | sort -n | uniq)
-endif
 
 all:
 	@if [ "$(USE_APP)" = "0" ]; then \
-		rm -rf build/us_pc/sm64coopdx.app; \
-  else \
-		$(PRINT) "$(GREEN)Creating App Bundle: $(BLUE)build/us_pc/sm64coopdx.app\n"; \
+		rm -rf build/us_pc/sm64ex-coop.app; \
+    else \
+		$(PRINT) "$(GREEN)Creating App Bundle: $(BLUE)build/us_pc/sm64ex-coop.app\n"; \
 		rm -rf $(APP_DIR); \
-		rm -rf build/us_pc/sm64coopdx.app; \
+		rm -rf build/us_pc/sm64ex-coop.app; \
 		mkdir -p $(APP_MACOS_DIR); \
-		mkdir -p $(APP_RESOURCES_DIR); \
-		mv build/us_pc/sm64coopdx $(APP_MACOS_DIR)/sm64coopdx; \
-    cp -r build/us_pc/mods $(APP_RESOURCES_DIR); \
-    cp -r build/us_pc/lang $(APP_RESOURCES_DIR); \
-    cp -r build/us_pc/dynos $(APP_RESOURCES_DIR); \
-    cp -r build/us_pc/palettes $(APP_RESOURCES_DIR); \
-		cp build/us_pc/discord_game_sdk.dylib $(APP_MACOS_DIR); \
-    cp build/us_pc/libdiscord_game_sdk.dylib $(APP_MACOS_DIR); \
-    cp build/us_pc/libcoopnet.dylib $(APP_MACOS_DIR); \
-    cp build/us_pc/libjuice.1.2.2.dylib $(APP_MACOS_DIR); \
-    cp $(SDL2_LIB) $(APP_MACOS_DIR)/libSDL2.dylib; \
-    install_name_tool -change $(BREW_PREFIX)/opt/sdl2/lib/libSDL2-2.0.0.dylib @executable_path/libSDL2.dylib $(APP_MACOS_DIR)/sm64coopdx; > /dev/null 2>&1 \
-		install_name_tool -id @executable_path/libSDL2.dylib $(APP_MACOS_DIR)/libSDL2.dylib; > /dev/null 2>&1 \
-    codesign --force --deep --sign - $(APP_MACOS_DIR)/libSDL2.dylib; \
-    cp $(GLEW_LIB) $(APP_MACOS_DIR)/libGLEW.dylib; \
-    install_name_tool -change $(BREW_PREFIX)/opt/glew/lib/libGLEW.2.2.dylib @executable_path/libGLEW.dylib $(APP_MACOS_DIR)/sm64coopdx; > /dev/null 2>&1 \
-		install_name_tool -id @executable_path/libGLEW.dylib $(APP_MACOS_DIR)/libGLEW.dylib; > /dev/null 2>&1 \
-    codesign --force --deep --sign - $(APP_MACOS_DIR)/libGLEW.dylib; \
-		cp res/icon.icns $(APP_RESOURCES_DIR)/icon.icns; \
+		mkdir -p $(APP_CONTENTS_DIR)/Resources; \
+		mv build/us_pc/sm64.us.f3dex2e $(APP_MACOS_DIR)/sm64ex-coop; \
+		cp -r build/us_pc/* $(APP_MACOS_DIR); \
+		cp res/icon.icns $(APP_CONTENTS_DIR)/Resources/icon.icns; \
 		echo "APPL????" > $(APP_CONTENTS_DIR)/PkgInfo; \
 		echo '<?xml version="1.0" encoding="UTF-8"?>' > $(APP_CONTENTS_DIR)/Info.plist; \
 		echo '<!DOCTYPE plist PUBLIC "-//Apple Computer//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">' >> $(APP_CONTENTS_DIR)/Info.plist; \
 		echo '<plist version="1.0">' >> $(APP_CONTENTS_DIR)/Info.plist; \
 		echo '<dict>' >> $(APP_CONTENTS_DIR)/Info.plist; \
 		echo '    <key>CFBundleExecutable</key>' >> $(APP_CONTENTS_DIR)/Info.plist; \
-		echo '    <string>sm64coopdx</string>' >> $(APP_CONTENTS_DIR)/Info.plist; \
+		echo '    <string>sm64ex-coop</string>' >> $(APP_CONTENTS_DIR)/Info.plist; \
 		echo '    <key>CFBundleIconFile</key>' >> $(APP_CONTENTS_DIR)/Info.plist; \
 		echo '    <string>icon</string>' >> $(APP_CONTENTS_DIR)/Info.plist; \
 		echo '    <key>CFBundleIconName</key>' >> $(APP_CONTENTS_DIR)/Info.plist; \
 		echo '    <string>AppIcon</string>' >> $(APP_CONTENTS_DIR)/Info.plist; \
 		echo '    <key>CFBundleDisplayName</key>' >> $(APP_CONTENTS_DIR)/Info.plist; \
-		echo '    <string>sm64coopdx</string>' >> $(APP_CONTENTS_DIR)/Info.plist; \
+		echo '    <string>sm64ex-coop</string>' >> $(APP_CONTENTS_DIR)/Info.plist; \
 		echo '    <!-- Add other keys and values here -->' >> $(APP_CONTENTS_DIR)/Info.plist; \
 		echo '</dict>' >> $(APP_CONTENTS_DIR)/Info.plist; \
 		echo '</plist>' >> $(APP_CONTENTS_DIR)/Info.plist; \
-		chmod +x $(APP_MACOS_DIR)/sm64coopdx; \
+		chmod +x $(APP_MACOS_DIR)/sm64ex-coop; \
 		mv $(APP_DIR) build/us_pc/; \
-  fi
+    fi
 
 # Remove built-in rules, to improve performance
 MAKEFLAGS += --no-builtin-rules

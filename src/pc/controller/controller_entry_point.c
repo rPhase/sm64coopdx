@@ -5,6 +5,7 @@
 #include "../configfile.h"
 
 #include "controller_keyboard.h"
+#include "controller_touchscreen.h"
 #include "controller_sdl.h"
 
 // Analog camera movement by Pathétique (github.com/vrmiguel), y0shin and Mors
@@ -12,11 +13,21 @@
 
 // moved these from sdl controller implementations
 
+int mouse_x;
+int mouse_y;
+
+int mouse_window_buttons;
+int mouse_window_x;
+int mouse_window_y;
+
 static struct ControllerAPI *controller_implementations[] = {
-#if defined(CAPI_SDL2) || defined(CAPI_SDL1)
+    #if defined(CAPI_SDL2) || defined(CAPI_SDL1)
     &controller_sdl,
-#endif
+    #endif
     &controller_keyboard,
+    #ifdef TOUCH_CONTROLS
+    &controller_touchscreen,
+    #endif
 };
 
 s32 osContInit(UNUSED OSMesgQueue *mq, u8 *controllerBits, UNUSED OSContStatus *status) {

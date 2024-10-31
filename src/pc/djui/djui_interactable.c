@@ -431,6 +431,10 @@ void djui_interactable_update(void) {
         djui_interactable_on_bind(gInteractableBinding);
     } else if ((padButtons & PAD_BUTTON_A) || (mouseButtons & MOUSE_BUTTON_1)) {
         // cursor down events
+        #ifdef TOUCH_CONTROLS
+        if (gInteractableMouseDown == NULL)
+            djui_interactable_cursor_update_active(&gDjuiRoot->base);
+        #endif
         if (gDjuiHovered != NULL) {
             gInteractableMouseDown = gDjuiHovered;
             gDjuiHovered = NULL;
@@ -481,6 +485,12 @@ void djui_interactable_hook_focus(struct DjuiBase* base,
                                         void (*on_focus)(struct DjuiBase*, OSContPad*),
                                         void (*on_focus_end)(struct DjuiBase*)) {
     struct DjuiInteractable* interactable = base->interactable;
+    // on Android, if I don't make this change, the onscreen keyboard
+    // does not automatically appear when the Player Name box is
+    // touched
+    #ifdef __ANDROID__
+    if (on_focus_begin != NULL)
+    #endif
     interactable->on_focus_begin = on_focus_begin;
     interactable->on_focus       = on_focus;
     interactable->on_focus_end   = on_focus_end;

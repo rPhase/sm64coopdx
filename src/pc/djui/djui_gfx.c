@@ -45,23 +45,19 @@ const Gfx dl_djui_simple_rect[] = {
 };
 
 f32 djui_gfx_get_scale(void) {
+    u32 windowWidth, windowHeight;
+    wm_api->get_dimensions(&windowWidth, &windowHeight);
+    s32 hhH = windowHeight / 720.0f;
     if (configDjuiScale == 0) { // auto
-        u32 windowWidth, windowHeight;
-        wm_api->get_dimensions(&windowWidth, &windowHeight);
-        if (windowHeight < 768) {
-            return 0.5f;
-        } else if (windowHeight < 1440) {
-            return 1.0f;
-        } else {
-            return 1.5f;
-        }
+        return hhH;
+
     } else {
         switch (configDjuiScale) {
-            case 1:  return 0.5f;
-            case 2:  return 0.85f;
-            case 3:  return 1.0f;
-            case 4:  return 1.5f;
-            default: return 1.0f;
+            case 1:  return hhH * 0.5f;
+            case 2:  return hhH * 0.85f;
+            case 3:  return hhH * 1.0f;
+            case 4:  return hhH * 1.15f;
+            default: return hhH * 1.0f;
         }
     }
 }

@@ -8,6 +8,9 @@
 #include "sounds.h"
 #include "audio/external.h"
 #include "game/bettercamera.h"
+#ifdef TOUCH_CONTROLS
+#include "pc/controller/controller_touchscreen.h"
+#endif
 
 static struct DjuiPanel* sPanelList = NULL;
 static struct DjuiPanel* sPanelRemoving = NULL;
@@ -228,3 +231,47 @@ void djui_panel_shutdown(void) {
     }
     sShuttingDown = false;
 }
+
+#ifdef TOUCH_CONTROLS
+void djui_panel_shutdown_touchconfig(struct DjuiBase* caller) {
+    static bool sShuttingDown = false;
+    if (sShuttingDown) { return; }
+    sShuttingDown = true;
+    struct DjuiPanel* panel = sPanelList;
+    while (panel != NULL) {
+        struct DjuiPanel* next = panel->parent;
+        if (panel->on_panel_destroy) {
+            panel->on_panel_destroy(NULL);
+        }
+        djui_base_destroy(panel->base);
+        free(panel);
+        panel = next;
+    }
+
+    if (sPanelRemoving != NULL) {
+        struct DjuiPanel* panel = sPanelRemoving;
+        sPanelRemoving = NULL;
+        if (panel->on_panel_destroy) {
+            panel->on_panel_destroy(NULL);
+        }
+        djui_base_destroy(panel->base);
+        free(panel);
+    }
+
+    sPanelList = NULL;
+    sPanelRemoving = NULL;
+    sMoveAmount = 0;
+    gDjuiPanelJoinMessageVisible = false;
+    gDjuiPanelMainCreated = false;
+    gDjuiPanelPauseCreated = false;
+    djui_cursor_set_visible(false);
+    for (u32 i = 0; i < CONTROL_ELEMENT_COUNT; i++) {
+        configControlElementsLast[i].x[0] = configControlElements[i].x[0];
+        configControlElementsLast[i].y[0] = configControlElements[i].y[0];
+        configControlElementsLast[i].size[0] = configControlElements[i].size[0];
+        configControlElementsLast[i].anchor[0] = configControlElements[i].anchor[0];
+    }
+    gInTouchConfig = true;
+    sShuttingDown = false;
+}
+#endif

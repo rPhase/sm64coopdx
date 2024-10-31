@@ -11,21 +11,25 @@
 
 #include <SDL2/SDL.h>
 
+// Analog camera movement by Pathétique (github.com/vrmiguel), y0shin and Mors
+// Contribute or communicate bugs at github.com/vrmiguel/sm64-analog-camera
+
 #include <ultra64.h>
 
 #include "controller_api.h"
 #include "controller_sdl.h"
 #include "controller_mouse.h"
-#include "pc/pc_main.h"
-#include "pc/configfile.h"
-#include "pc/platform.h"
-#include "pc/fs/fs.h"
+#ifdef TOUCH_CONTROLS
+#include "controller_touchscreen.h"
+#endif
+#include "../configfile.h"
+#include "../platform.h"
+#include "../fs/fs.h"
 
 #include "game/level_update.h"
-#include "game/first_person_cam.h"
 #include "pc/lua/utils/smlua_misc_utils.h"
+
 #include "pc/djui/djui.h"
-#include "pc/djui/djui_panel_pause.h"
 #include "pc/djui/djui_hud_utils.h"
 
 #define MAX_JOYBINDS 32
@@ -33,7 +37,9 @@
 #define MAX_JOYBUTTONS 32  // arbitrary; includes virtual keys for triggers
 #define AXIS_THRESHOLD (30 * 256)
 
+#ifdef BETTERCAMERA
 extern u8 newcam_mouse;
+#endif
 
 static bool init_ok = false;
 static bool haptics_enabled = false;
@@ -48,6 +54,7 @@ static u32 joy_binds[MAX_JOYBINDS][2] = { 0 };
 static u32 mouse_binds[MAX_JOYBINDS][2] = { 0 };
 
 static bool joy_buttons[MAX_JOYBUTTONS] = { false };
+static u32 mouse_buttons = 0;
 static u32 last_mouse = VK_INVALID;
 static u32 last_joybutton = VK_INVALID;
 static u32 last_gamepad = 0;
@@ -70,9 +77,11 @@ static inline void controller_add_binds(const u32 mask, const u32 *btns) {
 
 static void controller_sdl_bind(void) {
     bzero(joy_binds, sizeof(joy_binds));
-    bzero(mouse_binds, sizeof(mouse_binds));
     num_joy_binds = 0;
+#ifdef MOUSE_ACTIONS
+    bzero(mouse_binds, sizeof(mouse_binds));
     num_mouse_binds = 0;
+#endif
 
     controller_add_binds(A_BUTTON,     configKeyA);
     controller_add_binds(B_BUTTON,     configKeyB);
@@ -123,13 +132,15 @@ static void controller_sdl_init(void) {
         free(gcdata);
     }
 
-    if (newcam_mouse == 1) { controller_mouse_enter_relative(); }
-    controller_mouse_read_relative();
+#ifdef BETTERCAMERA
+    if (newcam_mouse == 1)
+        SDL_SetRelativeMouseMode(SDL_TRUE);
+    SDL_GetRelativeMouseState(&mouse_x, &mouse_y);
+#endif
 
     controller_sdl_bind();
 
     init_ok = true;
-    mouse_init_ok = true;
 }
 
 static SDL_Haptic *controller_sdl_init_haptics(const int joy) {
@@ -148,7 +159,7 @@ static SDL_Haptic *controller_sdl_init_haptics(const int joy) {
         return NULL;
     }
 
-    printf("Controller %s has haptics support, rumble enabled\n", SDL_JoystickNameForIndex(joy));
+    printf("controller %s has haptics support, rumble enabled\n", SDL_JoystickNameForIndex(joy));
     return hap;
 }
 
@@ -158,7 +169,6 @@ static inline void update_button(const int i, const bool new) {
     joy_buttons[i] = new;
     if (pressed) {
         last_joybutton = i;
-        djui_panel_pause_disconnect_key_update(VK_BASE_SDL_GAMEPAD + i);
         djui_interactable_on_key_down(VK_BASE_SDL_GAMEPAD + i);
     }
     if (unpressed) {
@@ -166,19 +176,32 @@ static inline void update_button(const int i, const bool new) {
     }
 }
 
-extern s16 gMenuMode;
+u8 ignore_lock = FALSE;
 static void controller_sdl_read(OSContPad *pad) {
-    if (!init_ok) { return; }
-
-    if ((newcam_mouse == 1 || get_first_person_enabled() || gDjuiHudLockMouse) && !is_game_paused() && !gDjuiPanelPauseCreated && !gDjuiInMainMenu && !gDjuiChatBoxFocus && !gDjuiConsoleFocus && WAPI.has_focus()) {
-        controller_mouse_enter_relative();
-    } else {
-        controller_mouse_leave_relative();
+    if (!init_ok) {
+        return;
     }
 
-    u32 mouse_prev = mouse_buttons;
-    controller_mouse_read_relative();
-    u32 mouse = mouse_buttons;
+#ifdef BETTERCAMERA
+// something about the way this is causes SDL2 to actually lose input events on X11.
+// so, when touch controls are enabled, I force absolute mouse mode to work around touchup
+// events being lost when the game resumes from pause, which caused buttons to get
+// stuck.
+#ifndef TOUCH_CONTROLS
+    if (!gDjuiHudLockMouse) {
+        if (newcam_mouse == 1 && (!is_game_paused() || sCurrPlayMode != 2) && !gDjuiInMainMenu) {
+            SDL_SetRelativeMouseMode(SDL_TRUE);
+            ignore_lock = true;
+        } else {
+#endif
+            SDL_SetRelativeMouseMode(SDL_FALSE);
+#ifndef TOUCH_CONTROLS
+            ignore_lock = false;
+        }
+    }
+#endif
+
+    u32 mouse = SDL_GetRelativeMouseState(&mouse_x, &mouse_y);
 
     if (!gInteractableOverridePad) {
         for (u32 i = 0; i < num_mouse_binds; ++i)
@@ -186,14 +209,32 @@ static void controller_sdl_read(OSContPad *pad) {
                 pad->button |= mouse_binds[i][1];
     }
     // remember buttons that changed from 0 to 1
-    last_mouse = (mouse_prev ^ mouse) & mouse;
+    last_mouse = (mouse_buttons ^ mouse) & mouse;
+    mouse_buttons = mouse;
+#endif
+    if (!ignore_lock && (!is_game_paused() || sCurrPlayMode != 2) && !gDjuiInMainMenu) {
+#ifndef TOUCH_CONTROLS
+        SDL_SetRelativeMouseMode(gDjuiHudLockMouse ? SDL_TRUE : SDL_FALSE);
+#endif
+#ifndef BETTERCAMERA
+        u32 mouse = SDL_GetRelativeMouseState(&mouse_x, &mouse_y);
+
+        if (!gInteractableOverridePad) {
+            for (u32 i = 0; i < num_mouse_binds; ++i)
+                if (mouse & SDL_BUTTON(mouse_binds[i][0]))
+                    pad->button |= mouse_binds[i][1];
+        }
+        // remember buttons that changed from 0 to 1
+        last_mouse = (mouse_buttons ^ mouse) & mouse;
+        mouse_buttons = mouse;
+#endif
+    }
 
     if (configBackgroundGamepad != sBackgroundGamepad) {
         sBackgroundGamepad = configBackgroundGamepad;
         SDL_SetHint(SDL_HINT_JOYSTICK_ALLOW_BACKGROUND_EVENTS, sBackgroundGamepad ? "1" : "0");
     }
 
-    if (configDisableGamepads) { return; }
 
     SDL_GameControllerUpdate();
 
@@ -219,7 +260,7 @@ static void controller_sdl_read(OSContPad *pad) {
             return;
         }
     }
-
+    
     int16_t leftx = SDL_GameControllerGetAxis(sdl_cntrl, SDL_CONTROLLER_AXIS_LEFTX);
     int16_t lefty = SDL_GameControllerGetAxis(sdl_cntrl, SDL_CONTROLLER_AXIS_LEFTY);
     int16_t rightx = SDL_GameControllerGetAxis(sdl_cntrl, SDL_CONTROLLER_AXIS_RIGHTX);
@@ -230,6 +271,9 @@ static void controller_sdl_read(OSContPad *pad) {
 
     for (u32 i = 0; i < SDL_CONTROLLER_BUTTON_MAX; ++i) {
         const bool new = SDL_GameControllerGetButton(sdl_cntrl, i);
+#ifdef TOUCH_CONTROLS
+        if (new) gGamepadActive = true;
+#endif
         update_button(i, new);
     }
 
@@ -276,14 +320,50 @@ static void controller_sdl_read(OSContPad *pad) {
     }
 }
 
+void controller_sdl_read_mouse_window(void) {
+    if (!init_ok) { return; }
+
+#if defined(_WIN32) && (defined(RAPI_D3D12) || defined(RAPI_D3D11))
+    mouse_window_buttons = 0;
+    mouse_window_buttons |= (GetAsyncKeyState(VK_LBUTTON) ? (1 << 0) : 0);
+    mouse_window_buttons |= (GetAsyncKeyState(VK_RBUTTON) ? (1 << 1) : 0);
+    POINT p;
+    if (GetCursorPos(&p) && ScreenToClient(GetActiveWindow(), &p))
+    {
+        mouse_window_x = p.x;
+        mouse_window_y = p.y;
+    }
+#else
+    mouse_window_buttons = SDL_GetMouseState(&mouse_window_x, &mouse_window_y);
+#endif
+}
+
 static void controller_sdl_rumble_play(f32 strength, f32 length) {
+#ifdef TARGET_ANDROID
+    if (sdl_cntrl) {
+        // technique copied from Super Tux Kart, this is an attempt to prefer activating the motor 
+        // inside the external gamepad instead of activating the motor inside the android device
+        u16 scaled_strength = strength * pow(2, 16);
+        s32 ret = SDL_GameControllerRumble(sdl_cntrl, scaled_strength, scaled_strength, (u32)(length * 1000.0f));
+        if (ret == -1 && sdl_haptic)
+            SDL_HapticRumblePlay(sdl_haptic, strength, (u32)(length * 1000.0f));
+    }
+#else
     if (sdl_haptic)
         SDL_HapticRumblePlay(sdl_haptic, strength, (u32)(length * 1000.0f));
+#endif    
 }
 
 static void controller_sdl_rumble_stop(void) {
+#ifdef TARGET_ANDROID
+    if (sdl_cntrl) {
+        SDL_GameControllerRumble(sdl_cntrl, 0, 0, 0);
+        if (sdl_haptic) SDL_HapticRumbleStop(sdl_haptic);
+    }
+#else
     if (sdl_haptic)
         SDL_HapticRumbleStop(sdl_haptic);
+#endif
 }
 
 static u32 controller_sdl_rawkey(void) {
@@ -322,7 +402,6 @@ static void controller_sdl_shutdown(void) {
 
     haptics_enabled = false;
     init_ok = false;
-    mouse_init_ok = false;
 }
 
 struct ControllerAPI controller_sdl = {

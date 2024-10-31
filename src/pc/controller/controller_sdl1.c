@@ -42,7 +42,9 @@ enum {
     MAX_AXES,
 };
 
+#ifdef BETTERCAMERA
 extern u8 newcam_mouse;
+#endif
 
 static bool init_ok;
 static SDL_Joystick *sdl_joy;
@@ -125,15 +127,15 @@ static void controller_sdl_init(void) {
                 joy_axis_binds[i] = -1;
     }
 
-    if (newcam_mouse == 1 && gMenuMode == -1 && !gDjuiChatBoxFocus && !gDjuiConsoleFocus) {
-        controller_mouse_enter_relative();
-    }
-    controller_mouse_read_relative();
+#ifdef BETTERCAMERA
+    if (newcam_mouse == 1)
+        SDL_WM_GrabInput(SDL_GRAB_ON);
+    SDL_GetRelativeMouseState(&mouse_x, &mouse_y);
+#endif
 
     controller_sdl_bind();
 
     init_ok = true;
-    mouse_init_ok = true;
 }
 
 static inline void update_button(const int i, const bool new) {
@@ -149,19 +151,16 @@ static inline int16_t get_axis(const int i) {
         return 0;
 }
 
-extern s16 gMenuMode;
 static void controller_sdl_read(OSContPad *pad) {
     if (!init_ok) return;
 
-    if (newcam_mouse == 1 && gMenuMode == -1 && !gDjuiChatBoxFocus && !gDjuiConsoleFocus) {
-        controller_mouse_enter_relative();
-    } else {
-        controller_mouse_leave_relative();
-    }
-
-    u32 mouse_prev = mouse_buttons;
-    controller_mouse_read_relative();
-    u32 mouse = mouse_buttons;
+#ifdef BETTERCAMERA
+    if (newcam_mouse == 1 && sCurrPlayMode != 2)
+        SDL_WM_GrabInput(SDL_GRAB_ON);
+    else
+        SDL_WM_GrabInput(SDL_GRAB_OFF);
+    
+    u32 mouse = SDL_GetRelativeMouseState(&mouse_x, &mouse_y);
 
     if (!gInteractableOverridePad) {
         for (u32 i = 0; i < num_mouse_binds; ++i)
@@ -170,9 +169,10 @@ static void controller_sdl_read(OSContPad *pad) {
     }
 
     // remember buttons that changed from 0 to 1
-    last_mouse = (mouse_prev ^ mouse) & mouse;
+    last_mouse = (mouse_buttons ^ mouse) & mouse;
+    mouse_buttons = mouse;
+#endif
 
-    if (configDisableGamepads) { return; }
     if (!sdl_joy) return;
 
     SDL_JoystickUpdate();
@@ -233,6 +233,25 @@ static void controller_sdl_read(OSContPad *pad) {
     }
 }
 
+void controller_sdl_read_mouse_window(void) {
+    if (!init_ok) { return; }
+
+#if defined(_WIN32) && (defined(RAPI_D3D12) || defined(RAPI_D3D11))
+    mouse_window_buttons = 0;
+    mouse_window_buttons |= (GetAsyncKeyState(VK_LBUTTON) ? (1 << 0) : 0);
+    mouse_window_buttons |= (GetAsyncKeyState(VK_RBUTTON) ? (1 << 1) : 0);
+    POINT p;
+    if (GetCursorPos(&p) && ScreenToClient(GetActiveWindow(), &p))
+    {
+        mouse_window_x = p.x;
+        mouse_window_y = p.y;
+    }
+#else
+    mouse_window_buttons = SDL_GetMouseState(&mouse_window_x, &mouse_window_y);
+#endif
+
+}
+
 static void controller_sdl_rumble_play(f32 strength, f32 length) { }
 
 static void controller_sdl_rumble_stop(void) { }
@@ -264,7 +283,6 @@ static void controller_sdl_shutdown(void) {
     }
 
     init_ok = false;
-    mouse_init_ok = false;
 }
 
 struct ControllerAPI controller_sdl = {

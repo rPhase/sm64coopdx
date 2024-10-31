@@ -4,6 +4,11 @@
 #include <time.h>
 #include <unistd.h>
 
+#ifdef TARGET_ANDROID
+#include <sys/stat.h>
+#include "platform.h"
+#endif
+
 #include "sm64.h"
 
 #include "pc/lua/smlua.h"
@@ -26,6 +31,9 @@
 #include "configfile.h"
 #include "controller/controller_api.h"
 #include "controller/controller_keyboard.h"
+#ifdef TOUCH_CONTROLS
+#include "controller/controller_touchscreen.h"
+#endif
 #include "fs/fs.h"
 
 #include "game/display.h" // for gGlobalTimer
@@ -315,8 +323,22 @@ void game_exit(void) {
     game_deinit();
     exit(0);
 }
-
+# define FS_BASEDIR "res"
 void* main_game_init(UNUSED void* dummy) {
+#ifdef TARGET_ANDROID
+    char gamedir[SYS_MAX_PATH] = { 0 };
+    const char *basedir = get_gamedir();
+    snprintf(gamedir, sizeof(gamedir), "%s/%s", 
+             basedir, gCLIOpts.GameDir[0] ? gCLIOpts.GameDir : FS_BASEDIR);
+    if (stat(gamedir, NULL) == -1) {
+        mkdir(gamedir, 0770);
+    }
+    // Extract lang files and default mods from the apk and copy them to basedir
+    // TODO: some way to inhibit this on launch if the apk doesn't contain updated/differing files?
+    SDL_AndroidCopyAssetFilesToDir(basedir);
+#else
+    const char *gamedir = gCLIOpts.GameDir[0] ? gCLIOpts.GameDir : FS_BASEDIR;
+#endif
     // load language
     if (!djui_language_init(configLanguage)) { snprintf(configLanguage, MAX_CONFIG_STRING, "%s", ""); }
 
@@ -351,7 +373,16 @@ void* main_game_init(UNUSED void* dummy) {
     gGameInited = true;
 }
 
+// I don't really understand how calling main() from the SDL Java wrapper
+// worked in Android before and doesn't now, but it has started to not work,
+// possibly because the Android NDK is stripping or mangling main(), 
+// so I've switched it to SDL_main 
+#ifdef TARGET_ANDROID
+int SDL_main(int argc, char *argv[]) {
+#else
 int main(int argc, char *argv[]) {
+#endif
+
     // handle terminal arguments
     if (!parse_cli_opts(argc, argv)) { return 0; }
 
@@ -385,6 +416,9 @@ int main(int argc, char *argv[]) {
     if (!gGfxInited) {
         gfx_init(&WAPI, &RAPI, TITLE);
         WAPI.set_keyboard_callbacks(keyboard_on_key_down, keyboard_on_key_up, keyboard_on_all_keys_up, keyboard_on_text_input);
+#ifdef TOUCH_CONTROLS
+        WAPI.set_touchscreen_callbacks((void *)touch_down, (void *)touch_motion, (void *)touch_up);
+#endif
     }
 
     // render the rom setup screen
