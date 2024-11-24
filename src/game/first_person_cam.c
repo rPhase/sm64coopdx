@@ -68,7 +68,9 @@ static void first_person_camera_update(void) {
     s16 invX = camera_config_is_x_inverted() ? 1 : -1;
     s16 invY = camera_config_is_y_inverted() ? 1 : -1;
 
-    if (mouse_relative_enabled) {
+    // mobile hack: comment this out
+
+    //if (mouse_relative_enabled) {
         // hack: make c buttons work for moving the camera
         s16 extStickX = m->controller->extStickX;
         s16 extStickY = m->controller->extStickY;
@@ -93,7 +95,7 @@ static void first_person_camera_update(void) {
                 gFirstPersonCamera.yaw += sensX * (invX * extStickX - 1.5f * mouse_x);
             }
         }
-    }
+    //}
 
     // fix yaw for some specific actions
     // if the left stick is held, use Mario's yaw to set the camera's yaw
