@@ -1,3 +1,6 @@
+bool gUpdateMessage = false;
+
+#ifndef TARGET_ANDROID
 #include <stdio.h>
 #if defined(_WIN32) || defined(_WIN64)
 #include <windows.h>
@@ -15,8 +18,6 @@
 
 static char sVersionUpdateTextBuffer[256] = { 0 };
 static char sRemoteVersion[8] = { 0 };
-
-bool gUpdateMessage = false;
 
 void show_update_popup(void) {
     if (sVersionUpdateTextBuffer[0] == '\0') { return; }
@@ -131,3 +132,4 @@ void check_for_updates(void) {
         gUpdateMessage = true;
     }
 }
+#endif
