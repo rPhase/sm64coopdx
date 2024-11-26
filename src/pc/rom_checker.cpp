@@ -37,9 +37,9 @@ static struct VanillaMD5 sVanillaMD5[] = {
 };
 
 inline static void rename_tmp_folder() {
-    std::string userPath = fs_get_write_path("");
-    std::string oldPath = userPath + "tmp";
-    std::string newPath = userPath + TMP_DIRECTORY;
+    std::string userPath = sys_user_path();
+    std::string oldPath = userPath + "/tmp";
+    std::string newPath = userPath + "/" + TMP_DIRECTORY;
     if (fs::exists(oldPath) && !fs::exists(newPath)) {
 #if defined(_WIN32) || defined(_WIN64)
         SetFileAttributesA(oldPath.c_str(), FILE_ATTRIBUTE_HIDDEN);
@@ -48,7 +48,7 @@ inline static void rename_tmp_folder() {
     }
 }
 
-static bool is_rom_valid(const std::string romPath) {
+/*static bool is_rom_valid(const std::string romPath) {
     u8 dataHash[16] = { 0 };
     mod_cache_md5(romPath.c_str(), dataHash);
 
@@ -60,14 +60,13 @@ static bool is_rom_valid(const std::string romPath) {
     bool foundHash = false;
     for (VanillaMD5 *md5 = sVanillaMD5; md5->localizationName != NULL; md5++) {
         if (md5->md5 == ss.str()) {
-            std::string destPath = fs_get_write_path("") + std::string("baserom.") + md5->localizationName + ".z64";
+            std::string destPath =
+                fs_get_write_path("") + std::string("baserom.") + md5->localizationName + ".z64";
 
             // Copy the rom to the user path
             if (romPath != destPath && !std::filesystem::exists(std::filesystem::path(destPath))) {
-                std::filesystem::copy_file(
-                    std::filesystem::path(romPath),
-                    std::filesystem::path(destPath)
-                );
+                std::filesystem::copy_file(std::filesystem::path(romPath),
+                                           std::filesystem::path(destPath));
             }
 
             snprintf(gRomFilename, SYS_MAX_PATH, "%s", destPath.c_str()); // Load the copied rom
@@ -81,35 +80,29 @@ static bool is_rom_valid(const std::string romPath) {
 }
 
 inline static bool scan_path_for_rom(const char *dir) {
-    for (const auto &entry: std::filesystem::directory_iterator(dir)) {
+    for (const auto &entry : std::filesystem::directory_iterator(dir)) {
         std::string path = entry.path().generic_string();
         if (str_ends_with(path.c_str(), ".z64")) {
-            if (is_rom_valid(path)) { return true; }
+            if (is_rom_valid(path)) {
+                return true;
+            }
         }
     }
     return false;
-}
+}*/
 
 extern "C" {
 void legacy_folder_handler(void) {
-    rename_tmp_folder();
+        rename_tmp_folder();
+    }
 }
 
 bool main_rom_handler(void) {
-    if (scan_path_for_rom(fs_get_write_path(""))) { return true; }
-    scan_path_for_rom(sys_exe_path());
-    return gRomIsValid;
-}
-
-#ifdef LOADING_SCREEN_SUPPORTED
-void rom_on_drop_file(const char *path) {
-    static bool hasDroppedInvalidFile = false;
-    if (strlen(path) > 0) {
-        if (!is_rom_valid(path) && !hasDroppedInvalidFile) {
-            hasDroppedInvalidFile = true;
-            strcat(gCurrLoadingSegment.str, "\n\\#ffc000\\The file you last dropped was not a valid, vanilla SM64 rom.");
-        }
+    std::string userPath = sys_user_path();
+    std::string rome_path = userPath + "/baserom.us.z64";
+    if (fs_sys_dir_exists(rome_path)) {
+        gRomIsValid = true;
     }
-}
-#endif
+
+    return gRomIsValid;
 }

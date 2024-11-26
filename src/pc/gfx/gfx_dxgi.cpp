@@ -331,7 +331,7 @@ static LRESULT CALLBACK gfx_dxgi_wnd_proc(HWND h_wnd, UINT message, WPARAM w_par
 
                 wcsFileName[0] = L'\0';
                 if (GetOpenFileNameW(&ofn) && sys_windows_short_path_from_wcs(szFileName, MAX_PATH, wcsFileName)) {
-                    rom_on_drop_file(szFileName);
+                   // rom_on_drop_file(szFileName);
                 }
                 return 0;
             }
@@ -344,7 +344,7 @@ static LRESULT CALLBACK gfx_dxgi_wnd_proc(HWND h_wnd, UINT message, WPARAM w_par
                 if (0 != DragQueryFileW(hDrop, i, wcsFileName, MAX_PATH)) {
                     if (sys_windows_short_path_from_wcs(szFileName, MAX_PATH, wcsFileName)) {
                         if (!gRomIsValid) {
-                            rom_on_drop_file(szFileName);
+                           // rom_on_drop_file(szFileName);
                         } else if (gGameInited) {
                             mod_import_file(szFileName);
                         }

@@ -376,47 +376,6 @@ static inline bool copy_userdata(const char *userdir) {
     return ret;
 }
 
-const char *sys_user_path(void) {
-    static char path[SYS_MAX_PATH] = { 0 };
-
-    // get the new pref path from SDL
-    char *sdlpath = SDL_GetPrefPath("", "sm64ex-coop");
-    if (sdlpath) {
-        const unsigned int len = strlen(sdlpath);
-        strncpy(path, sdlpath, sizeof(path));
-        path[sizeof(path)-1] = 0;
-
-        SDL_free(sdlpath);
-
-        if (path[len-1] == '/' || path[len-1] == '\\')
-            path[len-1] = 0; // strip the trailing separator
-
-        if (!fs_sys_dir_exists(path) && !fs_sys_mkdir(path))
-            path[0] = 0; // somehow failed, we got no user path
-        else
-            copy_userdata(path); // TEMPORARY: try to copy old saves, if any
-    }
-
-    return path;
-}
-
-const char *sys_exe_path(void) {
-    static char path[SYS_MAX_PATH] = { 0 };
-    if ('\0' != path[0]) { return path; }
-
-    char *sdlPath = SDL_GetBasePath();
-    if (sdlPath && sdlPath[0]) {
-        // use the SDL path if it exists
-        const unsigned int len = strlen(sdlPath);
-        snprintf(path, sizeof(path), "%s", sdlPath);
-        path[sizeof(path)-1] = 0;
-        SDL_free(sdlPath);
-        if (path[len-1] == '/' || path[len-1] == '\\')
-            path[len-1] = 0; // strip the trailing separator
-    }
-    return path;
-}
-
 #endif
 
 #endif // platform switch
