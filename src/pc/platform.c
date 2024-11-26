@@ -327,6 +327,24 @@ const char *sys_exe_path(void) {
         path[0] = 0; // somehow failed, we got no exe path
     return path;
 }
+
+static void sys_fatal_impl(const char *msg) {
+    SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR , "Fatal error", msg, NULL);
+    fprintf(stderr, "FATAL ERROR:\n%s\n", msg);
+    fflush(stderr);
+    exit(1);
+}
+
+void sys_fatal(const char *fmt, ...) {
+    static char msg[2048];
+    va_list args;
+    va_start(args, fmt);
+    vsnprintf(msg, sizeof(msg), fmt, args);
+    va_end(args);
+    fflush(stdout); // push all crap out
+    sys_fatal_impl(msg);
+}
+
 #else
 
 // TEMPORARY: check the old save folder and copy contents to the new path
@@ -397,23 +415,6 @@ const char *sys_exe_path(void) {
             path[len-1] = 0; // strip the trailing separator
     }
     return path;
-}
-
-static void sys_fatal_impl(const char *msg) {
-    SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR , "Fatal error", msg, NULL);
-    fprintf(stderr, "FATAL ERROR:\n%s\n", msg);
-    fflush(stderr);
-    exit(1);
-}
-
-void sys_fatal(const char *fmt, ...) {
-    static char msg[2048];
-    va_list args;
-    va_start(args, fmt);
-    vsnprintf(msg, sizeof(msg), fmt, args);
-    va_end(args);
-    fflush(stdout); // push all crap out
-    sys_fatal_impl(msg);
 }
 
 #endif
