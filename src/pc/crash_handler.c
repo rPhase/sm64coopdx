@@ -1,4 +1,5 @@
 // Adapted from PeachyPeach's sm64pc-omm (now sm64ex-omm)
+#ifndef TARGET_ANDROID
 #include "crash_handler.h"
 
 char gLastRemoteBhv[256] = "";
@@ -731,3 +732,4 @@ void crash_handler_init(void) {
         tag++;
     }
 }
+#endif

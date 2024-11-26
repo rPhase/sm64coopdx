@@ -329,7 +329,7 @@ void* main_game_init(UNUSED void* dummy) {
     char gamedir[SYS_MAX_PATH] = { 0 };
     const char *basedir = get_gamedir();
     snprintf(gamedir, sizeof(gamedir), "%s/%s", 
-             basedir, gCLIOpts.GameDir[0] ? gCLIOpts.GameDir : FS_BASEDIR);
+             basedir,/* gCLIOpts.GameDir[0] ? gCLIOpts.GameDir :*/ FS_BASEDIR);
     if (stat(gamedir, NULL) == -1) {
         mkdir(gamedir, 0770);
     }
@@ -337,7 +337,7 @@ void* main_game_init(UNUSED void* dummy) {
     // TODO: some way to inhibit this on launch if the apk doesn't contain updated/differing files?
     SDL_AndroidCopyAssetFilesToDir(basedir);
 #else
-    const char *gamedir = gCLIOpts.GameDir[0] ? gCLIOpts.GameDir : FS_BASEDIR;
+    const char *gamedir = /*gCLIOpts.GameDir[0] ? gCLIOpts.GameDir :*/ FS_BASEDIR;
 #endif
     // load language
     if (!djui_language_init(configLanguage)) { snprintf(configLanguage, MAX_CONFIG_STRING, "%s", ""); }

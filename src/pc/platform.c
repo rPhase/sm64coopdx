@@ -415,24 +415,4 @@ static void sys_fatal_impl(const char *msg) {
     exit(1);
 }
 
-#else
-
-#ifndef WAPI_DUMMY
-#warning "You might want to implement these functions for your platform"
-#endif
-
-const char *sys_user_path(void) {
-    return ".";
-}
-
-const char *sys_exe_path(void) {
-    return ".";
-}
-
-static void sys_fatal_impl(const char *msg) {
-    fprintf(stderr, "FATAL ERROR:\n%s\n", msg);
-    fflush(stderr);
-    exit(1);
-}
-
 #endif // platform switch
