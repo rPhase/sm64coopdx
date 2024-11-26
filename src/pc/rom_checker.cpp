@@ -98,9 +98,10 @@ void legacy_folder_handler(void) {
 }
 
 bool main_rom_handler(void) {
-    std::string userPath = sys_user_path();
-    std::string rome_path = userPath + "/baserom.us.z64";
-    if (fs_sys_dir_exists(rome_path)) {
+    const char*userPath = sys_user_path();
+    char romepath[256] = {0};
+    snprintf(romepath, 256, "%s/baserom.us.z64", userPath);
+    if (fs_sys_dir_exists(romepath)) {
         gRomIsValid = true;
     }
 
