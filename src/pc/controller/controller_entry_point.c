@@ -16,7 +16,6 @@
 int mouse_x;
 int mouse_y;
 
-int mouse_window_buttons;
 int mouse_window_x;
 int mouse_window_y;
 

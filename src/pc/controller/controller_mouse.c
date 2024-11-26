@@ -11,7 +11,7 @@ static bool mouse_relative_prev_cursor_state;
 #include <SDL2/SDL.h>
 #endif
 
-bool mouse_init_ok;
+s32 mouse_init_ok;
 
 u32 mouse_buttons;
 s32 mouse_x;
@@ -21,7 +21,7 @@ u32 mouse_window_buttons;
 s32 mouse_window_x;
 s32 mouse_window_y;
 
-bool mouse_relative_enabled;
+s32 mouse_relative_enabled;
 
 void controller_mouse_read_window(void) {
     if (!mouse_init_ok) { return; }
