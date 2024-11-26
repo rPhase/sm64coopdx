@@ -1298,7 +1298,7 @@ endif
 
 clean:
 	$(RM) -r $(BUILD_DIR_BASE)
-  $(MAKE) -s -C $(LIBLUA_DIR) clean
+	$(MAKE) -s -C $(LIBLUA_DIR) clean
 	$(MAKE) -s -C $(ZLIB_DIR) clean
 	$(MAKE) -s -C $(COOPNET_DIR) clean
 
