@@ -6,7 +6,7 @@
 extern int mouse_x;
 extern int mouse_y;
 
-extern int mouse_window_buttons;
+extern u32 mouse_window_buttons;
 extern int mouse_window_x;
 extern int mouse_window_y;
 

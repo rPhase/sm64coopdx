@@ -75,7 +75,7 @@ void controller_mouse_read_relative(void) {
 
 void controller_mouse_enter_relative(void) {
     if (!mouse_relative_enabled) {
-        mouse_relative_enabled = true;
+        mouse_relative_enabled = TRUE;
 
 #if defined(WAPI_DXGI)
         CURSORINFO ci;
@@ -97,7 +97,7 @@ void controller_mouse_enter_relative(void) {
 
 void controller_mouse_leave_relative(void) {
     if (mouse_relative_enabled) {
-        mouse_relative_enabled = false;
+        mouse_relative_enabled = FALSE;
 
 #if defined(WAPI_DXGI)
         ShowCursor(mouse_relative_prev_cursor_state);
