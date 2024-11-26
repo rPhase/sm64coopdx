@@ -1,5 +1,5 @@
 // adapted from https://www.mumble.info/documentation/developer/positional-audio/link-plugin/
-
+#ifndef TARGET_ANDROID
 #include "mumble.h"
 
 #include "engine/math_util.h"
@@ -197,3 +197,4 @@ bool should_update_context() {
 
 	return true;
 }
+#endif

@@ -1,3 +1,4 @@
+#ifndef TARGET_ANDROID
 #ifndef MUMBLE_H
 #define MUMBLE_H
 
@@ -32,3 +33,4 @@ void mumble_update_menu(void);
 bool should_update_context(void);
 
 #endif /* MUMBLE_H */
+#endif

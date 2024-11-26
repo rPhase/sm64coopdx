@@ -495,7 +495,7 @@ int main(int argc, char *argv[]) {
         network_init(NT_NONE, false);
     }
 
-    mumble_init();
+    //mumble_init();
 
     // main loop
     while (true) {
@@ -505,7 +505,7 @@ int main(int argc, char *argv[]) {
 #ifdef DISCORD_SDK
         discord_update();
 #endif
-        mumble_update();
+        //mumble_update();
 #ifdef DEBUG
         fflush(stdout);
         fflush(stderr);
