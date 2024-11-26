@@ -3,7 +3,7 @@
 #include <stdio.h>
 #include <ctype.h>
 #include "pc/platform.h"
-#include "pc/configini.h" // for writing
+//#include "pc/configini.h" // for writing
 #include "pc/ini.h" // for parsing
 #include "pc/lua/smlua.h"
 #include "pc/mods/mods_utils.h"
