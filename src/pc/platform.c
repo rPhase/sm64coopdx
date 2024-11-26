@@ -86,16 +86,6 @@ void sys_swap_backslashes(char* buffer) {
 
 static void sys_fatal_impl(const char *msg) __attribute__ ((noreturn));
 
-void sys_fatal(const char *fmt, ...) {
-    static char msg[2048];
-    va_list args;
-    va_start(args, fmt);
-    vsnprintf(msg, sizeof(msg), fmt, args);
-    va_end(args);
-    fflush(stdout); // push all crap out
-    sys_fatal_impl(msg);
-}
-
 #ifdef _WIN32
 
 static bool sys_windows_pathname_is_portable(const wchar_t *name, size_t size)
@@ -414,6 +404,16 @@ static void sys_fatal_impl(const char *msg) {
     fprintf(stderr, "FATAL ERROR:\n%s\n", msg);
     fflush(stderr);
     exit(1);
+}
+
+void sys_fatal(const char *fmt, ...) {
+    static char msg[2048];
+    va_list args;
+    va_start(args, fmt);
+    vsnprintf(msg, sizeof(msg), fmt, args);
+    va_end(args);
+    fflush(stdout); // push all crap out
+    sys_fatal_impl(msg);
 }
 
 #endif

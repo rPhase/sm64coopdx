@@ -37,6 +37,6 @@ const char *sys_file_name(const char *fpath);
 void sys_swap_backslashes(char* buffer);
 
 // shows an error message in some way and terminates the game
-void sys_fatal(const char *fmt, ...) __attribute__ ((noreturn));
+void sys_fatal(const char *fmt, ...);
 
 #endif // _SM64_PLATFORM_H_
