@@ -338,6 +338,7 @@ const char *sys_exe_path(void) {
     return path;
 }
 #else
+
 // TEMPORARY: check the old save folder and copy contents to the new path
 // this will be removed after a while
 static inline bool copy_userdata(const char *userdir) {
@@ -414,5 +415,7 @@ static void sys_fatal_impl(const char *msg) {
     fflush(stderr);
     exit(1);
 }
+
+#endif
 
 #endif // platform switch
