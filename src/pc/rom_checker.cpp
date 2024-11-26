@@ -101,7 +101,7 @@ bool main_rom_handler(void) {
 
     const char *basedir = get_gamedir();
     snprintf(path, sizeof(path), "%s/user/baserom.us.z64", basedir);
-    if (fs_sys_dir_exists(path)) {
+    if (fs_sys_file_exists(path)) {
         gRomIsValid = true;
         //foundHash = true
         snprintf(gRomFilename, SYS_MAX_PATH, "%s", path);
