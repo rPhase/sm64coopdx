@@ -1060,7 +1060,7 @@ endif
 ifeq ($(WINDOWS_BUILD),1)
   LDFLAGS += -lwininet
 else
-  LDFLAGS += -lcurl
+  #LDFLAGS += -lcurl
 endif
 
 # Lua
