@@ -9,10 +9,6 @@
 #include "pc/mods/mods_utils.h"
 #include "pc/debuglog.h"
 #ifdef __ANDROID__
-bool path_exists(char* path) {
-    struct stat sb = { 0 };
-    return (stat(path, &sb) == 0);
-}
 #include "pc/utils/misc.h"
 
 #define MAX_CACHED_KEYS 100
@@ -162,7 +158,7 @@ bool mod_storage_save(const char *key, const char *value) {
     }
     if (!fs_sys_dir_exists(savPath)) { fs_sys_mkdir(savPath); }
 
-    bool exists = path_exists(filename);
+    bool exists = fs_sys_path_exists(filename);
     file = fopen(filename, exists ? "r+" : "w");
    // cfg = ConfigNew();
     if (exists) {
@@ -224,7 +220,7 @@ const char *mod_storage_load(const char *key) {
     static char value[MAX_KEY_VALUE_LENGTH];
     ini_t *storage;
 
-    if (!path_exists(filename)) {
+    if (!fs_sys_path_exists(filename)) {
         free(filename);
         return NULL;
     }
