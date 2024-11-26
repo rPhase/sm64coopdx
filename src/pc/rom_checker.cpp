@@ -97,10 +97,11 @@ void legacy_folder_handler(void) {
 }
 
 bool main_rom_handler(void) {
-    const char *userPath = sys_user_path();
-    char romepath[256] = { 0 };
-    snprintf(romepath, 256, "%s/baserom.us.z64", userPath);
-    if (fs_sys_dir_exists(romepath)) {
+    static char path[SYS_MAX_PATH] = { 0 };
+
+    const char *basedir = get_gamedir();
+    snprintf(path, sizeof(path), "%s/user/baserom.us.z64", basedir);
+    if (fs_sys_dir_exists(path)) {
         gRomIsValid = true;
     }
 
