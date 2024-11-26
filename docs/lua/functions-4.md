@@ -1045,19 +1045,19 @@
 <br />
 
 
-## [mod_storage_clear](#mod_storage_clear)
+## [key_cache_init](#key_cache_init)
 
 ### Lua Example
-`local booleanValue = mod_storage_clear()`
+`key_cache_init()`
 
 ### Parameters
 - None
 
 ### Returns
-- `boolean`
+- None
 
 ### C Prototype
-`bool mod_storage_clear(void);`
+`void key_cache_init(void);`
 
 [:arrow_up_small:](#)
 
@@ -1077,67 +1077,7 @@
 - `string`
 
 ### C Prototype
-`const char *mod_storage_load(const char* key);`
-
-[:arrow_up_small:](#)
-
-<br />
-
-## [mod_storage_load_bool](#mod_storage_load_bool)
-
-### Lua Example
-`local booleanValue = mod_storage_load_bool(key)`
-
-### Parameters
-| Field | Type |
-| ----- | ---- |
-| key | `string` |
-
-### Returns
-- `boolean`
-
-### C Prototype
-`bool mod_storage_load_bool(const char* key);`
-
-[:arrow_up_small:](#)
-
-<br />
-
-## [mod_storage_load_number](#mod_storage_load_number)
-
-### Lua Example
-`local numberValue = mod_storage_load_number(key)`
-
-### Parameters
-| Field | Type |
-| ----- | ---- |
-| key | `string` |
-
-### Returns
-- `number`
-
-### C Prototype
-`f32 mod_storage_load_number(const char* key);`
-
-[:arrow_up_small:](#)
-
-<br />
-
-## [mod_storage_remove](#mod_storage_remove)
-
-### Lua Example
-`local booleanValue = mod_storage_remove(key)`
-
-### Parameters
-| Field | Type |
-| ----- | ---- |
-| key | `string` |
-
-### Returns
-- `boolean`
-
-### C Prototype
-`bool mod_storage_remove(const char* key);`
+`const char *mod_storage_load(const char *key);`
 
 [:arrow_up_small:](#)
 
@@ -1158,49 +1098,7 @@
 - `boolean`
 
 ### C Prototype
-`bool mod_storage_save(const char* key, const char* value);`
-
-[:arrow_up_small:](#)
-
-<br />
-
-## [mod_storage_save_bool](#mod_storage_save_bool)
-
-### Lua Example
-`local booleanValue = mod_storage_save_bool(key, value)`
-
-### Parameters
-| Field | Type |
-| ----- | ---- |
-| key | `string` |
-| value | `boolean` |
-
-### Returns
-- `boolean`
-
-### C Prototype
-`bool mod_storage_save_bool(const char* key, bool value);`
-
-[:arrow_up_small:](#)
-
-<br />
-
-## [mod_storage_save_number](#mod_storage_save_number)
-
-### Lua Example
-`local booleanValue = mod_storage_save_number(key, value)`
-
-### Parameters
-| Field | Type |
-| ----- | ---- |
-| key | `string` |
-| value | `number` |
-
-### Returns
-- `boolean`
-
-### C Prototype
-`bool mod_storage_save_number(const char* key, f32 value);`
+`bool mod_storage_save(const char *key, const char *value);`
 
 [:arrow_up_small:](#)
 
