@@ -376,6 +376,7 @@ void* main_game_init(UNUSED void* dummy) {
 #ifdef TOUCH_CONTROLS
         WAPI.set_touchscreen_callbacks((void *)touch_down, (void *)touch_motion, (void *)touch_up);
 #endif
+    }
 
     gGameInited = true;
 }
