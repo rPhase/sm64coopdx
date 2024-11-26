@@ -1,3 +1,5 @@
+#include <stdbool.h>
+
 bool gUpdateMessage = false;
 
 #ifndef TARGET_ANDROID
