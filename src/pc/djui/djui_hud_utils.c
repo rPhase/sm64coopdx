@@ -2,7 +2,7 @@
 #include <PR/ultratypes.h>
 #include <PR/gbi.h>
 #include <string.h>
-
+#include "pc/controller/controller_sdl.h"
 #include "pc/controller/controller_mouse.h"
 #ifdef TOUCH_CONTROLS
 #include "pc/controller/controller_touchscreen.h"

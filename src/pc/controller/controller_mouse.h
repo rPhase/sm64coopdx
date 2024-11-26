@@ -15,4 +15,6 @@ extern int mouse_window_y;
 
 extern struct ControllerAPI controller_mouse;
 
+extern void controller_mouse_read_window(void);
+
 #endif
