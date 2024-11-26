@@ -93,17 +93,17 @@ inline static bool scan_path_for_rom(const char *dir) {
 
 extern "C" {
 void legacy_folder_handler(void) {
-        rename_tmp_folder();
-    }
+    rename_tmp_folder();
 }
 
 bool main_rom_handler(void) {
-    const char*userPath = sys_user_path();
-    char romepath[256] = {0};
+    const char *userPath = sys_user_path();
+    char romepath[256] = { 0 };
     snprintf(romepath, 256, "%s/baserom.us.z64", userPath);
     if (fs_sys_dir_exists(romepath)) {
         gRomIsValid = true;
     }
 
     return gRomIsValid;
+}
 }
