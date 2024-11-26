@@ -1777,7 +1777,7 @@ all:
 		echo '</plist>' >> $(APP_CONTENTS_DIR)/Info.plist; \
 		chmod +x $(APP_MACOS_DIR)/sm64coopdx; \
 		mv $(APP_DIR) build/us_pc/; \
-  fi
+    fi
 
 # Remove built-in rules, to improve performance
 MAKEFLAGS += --no-builtin-rules
