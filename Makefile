@@ -925,7 +925,6 @@ ifneq ($(SDL1_USED)$(SDL2_USED),00)
     BACKEND_CFLAGS += $(shell pkg-config sdl2 --cflags)
     BACKEND_LDFLAGS += $(shell pkg-config sdl2 --libs)
   else
-  else
     BACKEND_CFLAGS += `$(SDLCONFIG) --cflags`
   endif
 
