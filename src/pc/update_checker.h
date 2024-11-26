@@ -1,6 +1,6 @@
 #ifndef _UPDATE_CHECKER_H
 #define _UPDATE_CHECKER_H
-extern bool gUpdateMessage
+extern bool gUpdateMessage;
 #ifndef TARGET_ANDROID
 #include <stdbool.h>
 
