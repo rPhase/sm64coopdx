@@ -144,7 +144,7 @@ bool mod_storage_save(const char *key, const char *value) {
 #endif
 
     FILE *file;
-    Config *cfg = NULL;
+   // Config *cfg = NULL;
     char *filename;
     filename = (char *)malloc((SYS_MAX_PATH - 1) * sizeof(char));
     mod_storage_get_filename(filename);
@@ -160,9 +160,9 @@ bool mod_storage_save(const char *key, const char *value) {
 
     bool exists = path_exists(filename);
     file = fopen(filename, exists ? "r+" : "w");
-    cfg = ConfigNew();
+   // cfg = ConfigNew();
     if (exists) {
-        if (ConfigReadFile(filename, &cfg) != CONFIG_OK) {
+     /*   if (ConfigReadFile(filename, &cfg) != CONFIG_OK) {
             ConfigFree(cfg);
             fclose(file);
             free(filename);
@@ -174,7 +174,7 @@ bool mod_storage_save(const char *key, const char *value) {
             fclose(file);
             free(filename);
             return false;
-        }
+        }*/
     }
 
     char lowerKey[MAX_KEY_VALUE_LENGTH];
@@ -184,13 +184,13 @@ bool mod_storage_save(const char *key, const char *value) {
         lowerKey[i] = tolower(lowerKey[i]);
     }
 
-    ConfigRemoveKey(cfg, "storage", lowerKey);
-    ConfigRemoveKey(cfg, "storage", key);
-    ConfigAddString(cfg, "storage", key, value);
+    //ConfigRemoveKey(cfg, "storage", lowerKey);
+    //ConfigRemoveKey(cfg, "storage", key);
+   // ConfigAddString(cfg, "storage", key, value);
 
     fclose(file);
-    ConfigPrintToFile(cfg, filename);
-    ConfigFree(cfg);
+    //ConfigPrintToFile(cfg, filename);
+   // ConfigFree(cfg);
     free(filename);
 
     return true;
