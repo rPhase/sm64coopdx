@@ -320,8 +320,8 @@ void djui_inputbox_on_key_up(UNUSED struct DjuiBase *base, int scancode) {
         case SCANCODE_SHIFT_RIGHT:   sHeldShift   &= ~(1 << 1); break;
         case SCANCODE_CONTROL_LEFT:  sHeldControl &= ~(1 << 0); break;
         case SCANCODE_CONTROL_RIGHT: sHeldControl &= ~(1 << 1); break;
-        case SCANCODE_ALT_LEFT:      sHeldAlt     &= ~(1 << 0); break;
-        case SCANCODE_ALT_RIGHT:     sHeldAlt     &= ~(1 << 1); break;
+       // case SCANCODE_ALT_LEFT:      sHeldAlt     &= ~(1 << 0); break;
+        //case SCANCODE_ALT_RIGHT:     sHeldAlt     &= ~(1 << 1); break;
     }
 }
 
