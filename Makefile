@@ -1054,6 +1054,7 @@ ifeq ($(TARGET_ANDROID),1)
   LDFLAGS += -L$(ZLIB_DIR) -l:libz.a
 else
   LDFLAGS += -lz
+endif
 
 # Update checker library
 ifeq ($(WINDOWS_BUILD),1)
