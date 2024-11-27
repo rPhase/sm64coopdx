@@ -11,7 +11,7 @@
 #define CANCEL_BUTTON 0x0002
 #define RESET_BUTTON 0x0003
 #define SNAP_BUTTON 0x0004
-#define LUA_BUTTON 0x0005
+#define CONSOLE_BUTTON 0x0005
 
 #define CONTROL_ELEMENT_COUNT 21
 #define CONTROL_CONFIG_ELEMENT_COUNT 4
@@ -58,7 +58,7 @@ enum ConfigControlElementIndex {
     TOUCH_DDOWN,
     TOUCH_DLEFT,
     TOUCH_DRIGHT,
-    TOUCH_LUA,
+    TOUCH_CONSOLE,
 };
 
 enum ConfigControlConfigElementIndex {

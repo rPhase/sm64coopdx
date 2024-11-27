@@ -686,7 +686,7 @@ static const struct BuiltinTexInfo sDynosBuiltinTexs[] = {
     define_builtin_tex(texture_hud_char_period, "textures/segment2/custom_hud_period.rgba16.png", 16, 16, 16),
     define_builtin_tex(texture_hud_char_plus, "textures/segment2/custom_hud_plus.rgba16.png", 16, 16, 16),
 #ifdef TOUCH_CONTROLS
-    define_builtin_tex(texture_touch_button, "textures/touchcontrols/touch_button.rgba16.png", 16, 16, 16),
+    /*define_builtin_tex(texture_touch_button, "textures/touchcontrols/touch_button.rgba16.png", 16, 16, 16),
     define_builtin_tex(texture_touch_button_dark, "textures/touchcontrols/touch_button_dark.rgba16.png", 16, 16, 16),
     define_builtin_tex(texture_touch_cup, "textures/touchcontrols/touch_cup.rgba16.png", 16, 16, 16),
     define_builtin_tex(texture_touch_cdown, "textures/touchcontrols/touch_cdown.rgba16.png", 16, 16, 16),
@@ -697,12 +697,12 @@ static const struct BuiltinTexInfo sDynosBuiltinTexs[] = {
     define_builtin_tex(texture_touch_down, "textures/touchcontrols/touch_down.rgba16.png", 16, 16, 16),
     define_builtin_tex(texture_touch_left, "textures/touchcontrols/touch_left.rgba16.png", 16, 16, 16),
     define_builtin_tex(texture_touch_right, "textures/touchcontrols/touch_right.rgba16.png", 16, 16, 16),
-    define_builtin_tex(texture_touch_lua, "textures/touchcontrols/touch_lua.rgba16.png", 16, 16, 16),
+    define_builtin_tex(texture_touch_console, "textures/touchcontrols/touch_console.rgba16.png", 16, 16, 16),
     define_builtin_tex(texture_touch_check, "textures/touchcontrols/touch_check.rgba16.png", 16, 16, 16),
     define_builtin_tex(texture_touch_cross, "textures/touchcontrols/touch_cross.rgba16.png", 16, 16, 16),
     define_builtin_tex(texture_touch_reset, "textures/touchcontrols/touch_reset.rgba16.png", 16, 16, 16),
     define_builtin_tex(texture_touch_snap, "textures/touchcontrols/touch_snap.rgba16.png", 16, 16, 16),
-    define_builtin_tex(texture_touch_trash, "textures/touchcontrols/touch_trash.rgba16.png", 16, 16, 16),
+    define_builtin_tex(texture_touch_trash, "textures/touchcontrols/touch_trash.rgba16.png", 16, 16, 16),*/
 #endif
     define_builtin_tex(texture_credits_char_3, "textures/segment2/segment2.06200.rgba16.png", 8, 8, 16),
     define_builtin_tex(texture_credits_char_4, "textures/segment2/segment2.06280.rgba16.png", 8, 8, 16),

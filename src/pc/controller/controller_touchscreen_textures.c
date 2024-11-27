@@ -1,42 +1,82 @@
 #ifdef TOUCH_CONTROLS
 #include "controller_touchscreen_textures.h"
 
-ALIGNED8 const u8 texture_touch_button[] = {
-#include "textures/touchcontrols/touch_button.rgba16.inc.c"
+// Joystick
+ALIGNED8 const u8 texture_touch_joystick[] = {
+#include "textures/touchcontrols/touch_joystick.rgba16.inc.c"
 };
-ALIGNED8 const u8 texture_touch_button_dark[] = {
-#include "textures/touchcontrols/touch_button_dark.rgba16.inc.c"
+ALIGNED8 const u8 texture_touch_joystick_base[] = {
+#include "textures/touchcontrols/touch_joystick_base.rgba16.inc.c"
 };
-ALIGNED8 const u8 texture_touch_cup[] = {
-#include "textures/touchcontrols/touch_cup.rgba16.inc.c"
+
+// C Buttons
+ALIGNED8 const u8 texture_touch_c_up[] = {
+#include "textures/touchcontrols/touch_button_c_up.rgba16.inc.c"
 };
-ALIGNED8 const u8 texture_touch_cdown[] = {
-#include "textures/touchcontrols/touch_cdown.rgba16.inc.c"
+ALIGNED8 const u8 texture_touch_c_down[] = {
+#include "textures/touchcontrols/touch_button_c_down.rgba16.inc.c"
 };
-ALIGNED8 const u8 texture_touch_cleft[] = {
-#include "textures/touchcontrols/touch_cleft.rgba16.inc.c"
+ALIGNED8 const u8 texture_touch_c_left[] = {
+#include "textures/touchcontrols/touch_button_c_left.rgba16.inc.c"
 };
-ALIGNED8 const u8 texture_touch_cright[] = {
-#include "textures/touchcontrols/touch_cright.rgba16.inc.c"
+ALIGNED8 const u8 texture_touch_c_right[] = {
+#include "textures/touchcontrols/touch_button_c_right.rgba16.inc.c"
 };
+
+// D-Pad Buttons
+ALIGNED8 const u8 texture_touch_dpad_up[] = {
+#include "textures/touchcontrols/touch_button_dpad_up.rgba16.inc.c"
+};
+ALIGNED8 const u8 texture_touch_dpad_down[] = {
+#include "textures/touchcontrols/touch_button_dpad_down.rgba16.inc.c"
+};
+ALIGNED8 const u8 texture_touch_dpad_left[] = {
+#include "textures/touchcontrols/touch_button_dpad_left.rgba16.inc.c"
+};
+ALIGNED8 const u8 texture_touch_dpad_right[] = {
+#include "textures/touchcontrols/touch_button_dpad_right.rgba16.inc.c"
+};
+
+// Normal Buttons
+ALIGNED8 const u8 texture_touch_a[] = {
+#include "textures/touchcontrols/touch_button_a.rgba16.inc.c"
+};
+ALIGNED8 const u8 texture_touch_b[] = {
+#include "textures/touchcontrols/touch_button_b.rgba16.inc.c"
+};
+ALIGNED8 const u8 texture_touch_x[] = {
+#include "textures/touchcontrols/touch_button_x.rgba16.inc.c"
+};
+ALIGNED8 const u8 texture_touch_y[] = {
+#include "textures/touchcontrols/touch_button_y.rgba16.inc.c"
+};
+ALIGNED8 const u8 texture_touch_start[] = {
+#include "textures/touchcontrols/touch_button_start.rgba16.inc.c"
+};
+
+// Trigger Buttons
+ALIGNED8 const u8 texture_touch_l[] = {
+#include "textures/touchcontrols/touch_button_l.rgba16.inc.c"
+};
+ALIGNED8 const u8 texture_touch_r[] = {
+#include "textures/touchcontrols/touch_button_r.rgba16.inc.c"
+};
+ALIGNED8 const u8 texture_touch_z[] = {
+#include "textures/touchcontrols/touch_button_z.rgba16.inc.c"
+};
+
+// Misc Buttons
 ALIGNED8 const u8 texture_touch_chat[] = {
 #include "textures/touchcontrols/touch_chat.rgba16.inc.c"
 };
-ALIGNED8 const u8 texture_touch_up[] = {
-#include "textures/touchcontrols/touch_up.rgba16.inc.c"
+ALIGNED8 const u8 texture_touch_playerlist[] = {
+#include "textures/touchcontrols/touch_button_playerlist.rgba16.inc.c"
 };
-ALIGNED8 const u8 texture_touch_down[] = {
-#include "textures/touchcontrols/touch_down.rgba16.inc.c"
+ALIGNED8 const u8 texture_touch_console[] = {
+#include "textures/touchcontrols/touch_button_console.rgba16.inc.c"
 };
-ALIGNED8 const u8 texture_touch_left[] = {
-#include "textures/touchcontrols/touch_left.rgba16.inc.c"
-};
-ALIGNED8 const u8 texture_touch_right[] = {
-#include "textures/touchcontrols/touch_right.rgba16.inc.c"
-};
-ALIGNED8 const u8 texture_touch_lua[] = {
-#include "textures/touchcontrols/touch_lua.rgba16.inc.c"
-};
+
+// Editor Buttons
 ALIGNED8 const u8 texture_touch_check[] = {
 #include "textures/touchcontrols/touch_check.rgba16.inc.c"
 };
@@ -54,22 +94,31 @@ ALIGNED8 const u8 texture_touch_trash[] = {
 };
 
 const Texture *const touch_textures[TOUCH_TEXTURE_COUNT] = {
-    texture_touch_button,
-    texture_touch_button_dark,
-    texture_touch_cup,
-    texture_touch_cdown,
-    texture_touch_cleft,
-    texture_touch_cright,
+    texture_touch_joystick,
+    texture_touch_joystick_base,
+    texture_touch_c_up,
+    texture_touch_c_down,
+    texture_touch_c_left,
+    texture_touch_c_right,
+    texture_touch_dpad_up,
+    texture_touch_dpad_down,
+    texture_touch_dpad_left,
+    texture_touch_dpad_right,
+    texture_touch_a,
+    texture_touch_b,
+    texture_touch_x,
+    texture_touch_y,
+    texture_touch_start,
+    texture_touch_l,
+    texture_touch_r,
+    texture_touch_z,
     texture_touch_chat,
-    texture_touch_up,
-    texture_touch_down,
-    texture_touch_left,
-    texture_touch_right,
-    texture_touch_lua,
+    texture_touch_playerlist,
+    texture_touch_console,
     texture_touch_check,
     texture_touch_cross,
     texture_touch_reset,
     texture_touch_snap,
     texture_touch_trash,
-};
+}; 
 #endif

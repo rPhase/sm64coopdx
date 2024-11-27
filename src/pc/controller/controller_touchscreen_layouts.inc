@@ -119,7 +119,7 @@
                       .anchor = {CONTROL_ELEMENT_RIGHT,
                                  CONTROL_ELEMENT_HIDDEN,
                                  CONTROL_ELEMENT_HIDDEN}},
-[TOUCH_LUA] =        {.x =      {60 , 50 , 50 },
+[TOUCH_CONSOLE] =        {.x =      {60 , 50 , 50 },
                       .y =      {720, 720, 720},
                       .size =   {120, 120, 120},
                       .anchor = {CONTROL_ELEMENT_HIDDEN,

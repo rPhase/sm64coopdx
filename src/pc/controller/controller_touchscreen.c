@@ -67,25 +67,25 @@ ConfigControlElement configControlConfigElements[CONTROL_CONFIG_ELEMENT_COUNT] =
 static struct ControlElement ControlElements[CONTROL_ELEMENT_COUNT] = {
 [TOUCH_STICK] =      {.type = Joystick},
 [TOUCH_MOUSE] =      {.type = Mouse},
-[TOUCH_A] =          {.type = Button, .character = 'a',                  .buttonID = A_BUTTON},
-[TOUCH_B] =          {.type = Button, .character = 'b',                  .buttonID = B_BUTTON},
-[TOUCH_X] =          {.type = Button, .character = 'x',                  .buttonID = X_BUTTON},
-[TOUCH_Y] =          {.type = Button, .character = 'y',                  .buttonID = Y_BUTTON},
-[TOUCH_START] =      {.type = Button, .character = 's',                  .buttonID = START_BUTTON},
-[TOUCH_L] =          {.type = Button, .character = 'l',                  .buttonID = L_TRIG},
-[TOUCH_R] =          {.type = Button, .character = 'r',                  .buttonID = R_TRIG},
-[TOUCH_Z] =          {.type = Button, .character = 'z',                  .buttonID = Z_TRIG},
-[TOUCH_CUP] =        {.type = Button, .character = TEXTURE_TOUCH_CUP,    .buttonID = U_CBUTTONS},
-[TOUCH_CDOWN] =      {.type = Button, .character = TEXTURE_TOUCH_CDOWN,  .buttonID = D_CBUTTONS},
-[TOUCH_CLEFT] =      {.type = Button, .character = TEXTURE_TOUCH_CLEFT,  .buttonID = L_CBUTTONS},
-[TOUCH_CRIGHT] =     {.type = Button, .character = TEXTURE_TOUCH_CRIGHT, .buttonID = R_CBUTTONS},
-[TOUCH_CHAT] =       {.type = Button, .character = TEXTURE_TOUCH_CHAT,   .buttonID = CHAT_BUTTON},
-[TOUCH_PLAYERLIST] = {.type = Button, .character = 'p',                  .buttonID = PLAYERLIST_BUTTON},
-[TOUCH_DUP] =        {.type = Button, .character = TEXTURE_TOUCH_UP,     .buttonID = U_JPAD},
-[TOUCH_DDOWN] =      {.type = Button, .character = TEXTURE_TOUCH_DOWN,   .buttonID = D_JPAD},
-[TOUCH_DLEFT] =      {.type = Button, .character = TEXTURE_TOUCH_LEFT,   .buttonID = L_JPAD},
-[TOUCH_DRIGHT] =     {.type = Button, .character = TEXTURE_TOUCH_RIGHT,  .buttonID = R_JPAD},
-[TOUCH_LUA] =        {.type = Button, .character = TEXTURE_TOUCH_LUA,    .buttonID = LUA_BUTTON},
+[TOUCH_A] =          {.type = Button, .character = TEXTURE_TOUCH_A,          .buttonID = A_BUTTON},
+[TOUCH_B] =          {.type = Button, .character = TEXTURE_TOUCH_B,          .buttonID = B_BUTTON},
+[TOUCH_X] =          {.type = Button, .character = TEXTURE_TOUCH_X,          .buttonID = X_BUTTON},
+[TOUCH_Y] =          {.type = Button, .character = TEXTURE_TOUCH_Y,          .buttonID = Y_BUTTON},
+[TOUCH_START] =      {.type = Button, .character = TEXTURE_TOUCH_START,      .buttonID = START_BUTTON},
+[TOUCH_L] =          {.type = Button, .character = TEXTURE_TOUCH_L,          .buttonID = L_TRIG},
+[TOUCH_R] =          {.type = Button, .character = TEXTURE_TOUCH_R,          .buttonID = R_TRIG},
+[TOUCH_Z] =          {.type = Button, .character = TEXTURE_TOUCH_Z,          .buttonID = Z_TRIG},
+[TOUCH_CUP] =        {.type = Button, .character = TEXTURE_TOUCH_C_UP,       .buttonID = U_CBUTTONS},
+[TOUCH_CDOWN] =      {.type = Button, .character = TEXTURE_TOUCH_C_DOWN,     .buttonID = D_CBUTTONS},
+[TOUCH_CLEFT] =      {.type = Button, .character = TEXTURE_TOUCH_C_LEFT,     .buttonID = L_CBUTTONS},
+[TOUCH_CRIGHT] =     {.type = Button, .character = TEXTURE_TOUCH_C_RIGHT,    .buttonID = R_CBUTTONS},
+[TOUCH_CHAT] =       {.type = Button, .character = TEXTURE_TOUCH_CHAT,       .buttonID = CHAT_BUTTON},
+[TOUCH_PLAYERLIST] = {.type = Button, .character = TEXTURE_TOUCH_PLAYERLIST, .buttonID = PLAYERLIST_BUTTON},
+[TOUCH_DUP] =        {.type = Button, .character = TEXTURE_TOUCH_DPAD_UP,    .buttonID = U_JPAD},
+[TOUCH_DDOWN] =      {.type = Button, .character = TEXTURE_TOUCH_DPAD_DOWN,  .buttonID = D_JPAD},
+[TOUCH_DLEFT] =      {.type = Button, .character = TEXTURE_TOUCH_DPAD_LEFT,  .buttonID = L_JPAD},
+[TOUCH_DRIGHT] =     {.type = Button, .character = TEXTURE_TOUCH_DPAD_RIGHT, .buttonID = R_JPAD},
+[TOUCH_CONSOLE] =    {.type = Button, .character = TEXTURE_TOUCH_CONSOLE,    .buttonID = CONSOLE_BUTTON},
 };
 
 // config-only elements
@@ -331,7 +331,7 @@ static void handle_touch_up(u32 i) { // separated for when the layout changes
                 djui_interactable_on_key_up(configKeyChat[0]);
             if (ControlElements[i].buttonID == PLAYERLIST_BUTTON && !gInTouchConfig)
                 djui_interactable_on_key_up(configKeyPlayerList[0]);
-            if (ControlElements[i].buttonID == LUA_BUTTON && !gInTouchConfig)
+            if (ControlElements[i].buttonID == CONSOLE_BUTTON && !gInTouchConfig)
                 djui_console_toggle();
             if (gInTouchConfig) {
                 // toggle size of buttons on double-tap
@@ -368,10 +368,27 @@ static void select_button_texture(int dark) {
     gDPPipeSync(gDisplayListHead++);
     
     if (!dark) {
-        gDPSetTextureImage(gDisplayListHead++, G_IM_FMT_RGBA, G_IM_SIZ_16b, 1, touch_textures[TEXTURE_TOUCH_BUTTON]);
+        gDPSetTextureImage(gDisplayListHead++, G_IM_FMT_RGBA, G_IM_SIZ_16b, 1, touch_textures[TEXTURE_TOUCH_JOYSTICK]);
     } else {
-        gDPSetTextureImage(gDisplayListHead++, G_IM_FMT_RGBA, G_IM_SIZ_16b, 1, touch_textures[TEXTURE_TOUCH_BUTTON_DARK]);
+        //dark but not in yet
+        gDPSetTextureImage(gDisplayListHead++, G_IM_FMT_RGBA, G_IM_SIZ_16b, 1, touch_textures[TEXTURE_TOUCH_JOYSTICK]);
     }
+
+    gSPDisplayList(gDisplayListHead++, dl_hud_img_load_tex_block);
+}
+
+static void select_joystick_tex_base(void) {
+    gDPPipeSync(gDisplayListHead++);
+    
+    gDPSetTextureImage(gDisplayListHead++, G_IM_FMT_RGBA, G_IM_SIZ_16b, 1, touch_textures[TEXTURE_TOUCH_JOYSTICK_BASE]);
+
+    gSPDisplayList(gDisplayListHead++, dl_hud_img_load_tex_block);
+}
+
+static void select_joystick_tex(void) {
+    gDPPipeSync(gDisplayListHead++);
+    
+    gDPSetTextureImage(gDisplayListHead++, G_IM_FMT_RGBA, G_IM_SIZ_16b, 1, touch_textures[TEXTURE_TOUCH_JOYSTICK]);
 
     gSPDisplayList(gDisplayListHead++, dl_hud_img_load_tex_block);
 }
@@ -382,7 +399,7 @@ static void select_char_texture(u8 num) {
     if (num < TOUCH_TEXTURE_COUNT) { // touchscreen symbols
         gDPSetTextureImage(gDisplayListHead++, G_IM_FMT_RGBA, G_IM_SIZ_16b, 1, touch_textures[num]);
     } else if (num < 87) { // unknown
-        gDPSetTextureImage(gDisplayListHead++, G_IM_FMT_RGBA, G_IM_SIZ_16b, 1, touch_textures[TEXTURE_TOUCH_LUA]);
+        gDPSetTextureImage(gDisplayListHead++, G_IM_FMT_RGBA, G_IM_SIZ_16b, 1, touch_textures[TEXTURE_TOUCH_CONSOLE]);
     } else { // letters
         gDPSetTextureImage(gDisplayListHead++, G_IM_FMT_RGBA, G_IM_SIZ_16b, 1, main_hud_lut[num - 87]);
     }
@@ -417,10 +434,11 @@ void render_touch_controls(void) {
         pos = get_pos(&configControlElements[i], 0);
         if (pos.y == HIDE_POS) continue;
         size = configControlElements[i].size[0];
-        select_button_texture(0);
+        select_joystick_tex_base();
         switch (ControlElements[i].type) {
             case Joystick:
                 DrawSprite(pos.x, pos.y, 3);
+                select_joystick_tex();
                 DrawSprite(pos.x + 4 + ControlElements[i].joyX, pos.y + 4 + ControlElements[i].joyY, 2);
                 break;
             case Mouse:
@@ -435,8 +453,8 @@ void render_touch_controls(void) {
                 break;
             case Button:
                 if (ControlElements[i].touchID)
-                    select_button_texture(1);
-                DrawSprite(pos.x - 8, pos.y, 1 + size / 100);
+                /*select_button_texture(1);
+                DrawSprite(pos.x - 8, pos.y, 1 + size / 100);*/
                 select_char_texture(ControlElements[i].character);
                 DrawSprite(pos.x, pos.y, size / 100);
                 break;
@@ -535,7 +553,7 @@ static void touchscreen_read(OSContPad *pad) {
                     if (ControlElements[i].touchID &&
                         ControlElements[i].buttonID != CHAT_BUTTON &&
                         ControlElements[i].buttonID != PLAYERLIST_BUTTON &&
-                        ControlElements[i].buttonID != LUA_BUTTON) {
+                        ControlElements[i].buttonID != CONSOLE_BUTTON) {
                         pad->button |= ControlElements[i].buttonID;
                     }
                     break;
