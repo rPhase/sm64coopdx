@@ -22,7 +22,7 @@ static void djui_panel_pause_resume(UNUSED struct DjuiBase* caller) {
 
 void djui_panel_pause_quit_yes(UNUSED struct DjuiBase* caller) {
     network_reset_reconnect_and_rehost();
-    network_shutdown(true, false, false, false);
+    //network_shutdown(true, false, false, false);
 }
 
 void djui_panel_pause_disconnect_key_update(int scancode) {
