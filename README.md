@@ -8,7 +8,8 @@ Contains some code from:\
 [AloXado320/sm64ex-alo](https://github.com/AloXado320/sm64ex-alo) \
 [VDavid003/sm64-port-android](https://github.com/VDavid003/sm64-port-android) \
 [VDavid003/sm64-port-android-base](https://github.com/VDavid003/sm64-port-android-base) \
-[porcino/sm64-port-android](https://github.com/porcino/sm64-port-android)
+[porcino/sm64-port-android](https://github.com/porcino/sm64-port-android) \
+[robertkirkman/sm64ex-coop](https://github.com/robertkirkman/sm64ex-coop)
 
 ## Initial Goal (Accomplished)
 Create a mod for the PC port where multiple people can play together online.
