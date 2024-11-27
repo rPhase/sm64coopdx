@@ -735,7 +735,7 @@ void network_shutdown(bool sendLeaving, bool exiting, bool popup, bool reconnect
     save_file_load_all(TRUE);
     extern void save_file_set_using_backup_slot(bool usingBackupSlot);
     save_file_set_using_backup_slot(false);
-    //f_shutdown();
+    f_shutdown();
 
     extern s16 gMenuMode;
     gMenuMode = -1;

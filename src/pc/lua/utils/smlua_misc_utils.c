@@ -480,11 +480,15 @@ void set_environment_region(u8 index, s32 value) {
 ///
 
 void set_window_title(const char* title) {
+    #ifndef TARGET_ANDROID
     WAPI.set_window_title(title);
+    #endif
 }
 
 void reset_window_title(void) {
+    #ifndef TARGET_ANDROID
     WAPI.reset_window_title();
+    #endif
 }
 
 ///
