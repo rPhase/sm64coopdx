@@ -57,6 +57,5 @@ void smlua_logline(void);
 void smlua_dump_stack(void);
 void smlua_dump_globals(void);
 void smlua_dump_table(int index);
-void smlua_free(void *ptr);
 
 #endif

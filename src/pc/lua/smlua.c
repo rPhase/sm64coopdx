@@ -1,5 +1,4 @@
 #include "smlua.h"
-#include "smlua_cobject_map.h"
 #include "game/hardcoded.h"
 #include "pc/mods/mods.h"
 #include "pc/mods/mods_utils.h"
@@ -286,7 +285,8 @@ static void smlua_load_script(struct Mod* mod, struct ModFile* file, u16 remoteI
 
 void smlua_init(void) {
     smlua_shutdown();
-    smlua_pointer_user_data_init();
+    smlua_cobject_allowlist_init();
+    smlua_cpointer_allowlist_init();
 
     gLuaState = luaL_newstate();
     lua_State* L = gLuaState;
@@ -386,7 +386,8 @@ void smlua_shutdown(void) {
     smlua_text_utils_reset_all();
     smlua_audio_utils_reset_all();
     audio_custom_shutdown();
-    smlua_pointer_user_data_shutdown();
+    smlua_cobject_allowlist_shutdown();
+    smlua_cpointer_allowlist_shutdown();
     smlua_clear_hooks();
     smlua_model_util_clear();
     smlua_level_util_reset();

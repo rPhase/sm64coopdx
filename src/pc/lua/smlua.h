@@ -9,6 +9,7 @@
 #include "types.h"
 
 #include "smlua_cobject.h"
+#include "smlua_cobject_allowlist.h"
 #include "smlua_cobject_autogen.h"
 #include "smlua_utils.h"
 #include "smlua_functions.h"
