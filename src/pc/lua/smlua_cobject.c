@@ -388,14 +388,22 @@ static int smlua__get_field(lua_State* L) {
     u64 pointer = (u64)(intptr_t) cobj->pointer;
     const char *key = smlua_to_string(L, 2);
 
-    // Legacy support
-    if (strcmp(key, "_pointer") == 0) {
-        lua_pushinteger(L, pointer);
-        return 1;
-    }
-    if (strcmp(key, "_lot") == 0) {
-        lua_pushinteger(L, cobj->lot);
-        return 1;
+    // On Android 11+ on aarch64 CPUs, the memory allocator sometimes creates pointers
+    // containing very large addresses, which were not correctly cast from signed to unsigned
+    // at this line. For example, 0xB4000076C685D3B0 became 0xB4000076C685D400; the
+    // 10 LSB lose precision. To fix this, I explicitly cast in increasingly verbose
+    // ways until the value stopped losing precision:
+#ifdef __ANDROID__
+    u64 pointer = smlua_to_unsigned_integer(L, 2);
+#else
+    u64 pointer = smlua_to_integer(L, 2);
+#endif
+    if (!gSmLuaConvertSuccess) { return 0; }
+
+    const char* key = smlua_to_string(L, 3);
+    if (!gSmLuaConvertSuccess) {
+        LOG_LUA_LINE("Tried to get a non-string field of cobject");
+        return 0;
     }
 
     if (cobj->freed) {
@@ -469,8 +477,31 @@ static int smlua__set_field(lua_State* L) {
     u64 pointer = (u64)(intptr_t) cobj->pointer;
     const char *key = smlua_to_string(L, 2);
 
-    if (cobj->freed) {
-        LOG_LUA_LINE("_set_field on freed object");
+#ifdef __ANDROID__
+    u64 pointer = smlua_to_unsigned_integer(L, 2);
+#else
+    u64 pointer = smlua_to_integer(L, 2);
+#endif
+    if (!gSmLuaConvertSuccess) { return 0; }
+
+    const char* key = smlua_to_string(L, 3);
+    if (!gSmLuaConvertSuccess) {
+        LOG_LUA_LINE("Tried to set a non-string field of cobject");
+        return 0;
+    }
+
+    if (pointer == 0) {
+        LOG_LUA_LINE("_set_field on null pointer");
+        return 0;
+    }
+
+    if (!smlua_valid_lot(lot)) {
+        LOG_LUA_LINE("_set_field on invalid LOT '%u'", lot);
+        return 0;
+    }
+
+    if (!smlua_cobject_allowlist_contains(lot, pointer)) {
+        LOG_LUA_LINE("_set_field received a pointer not in allow list. '%u', '%llu", lot, (u64)pointer);
         return 0;
     }
 
