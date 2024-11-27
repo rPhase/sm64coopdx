@@ -489,7 +489,7 @@ endif
 
 ZLIB_DIR := lib/src/zlib
 
-COOPNET_DIR := lib/coopnet
+COOPNET_DIR := lib/src/coopnet
 
 # (This is a bit hacky, but a lot of rules implicitly depend
 # on tools and assets, and we use directory globs further down
