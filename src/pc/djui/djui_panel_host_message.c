@@ -24,6 +24,7 @@ void djui_panel_do_host(bool reconnecting, bool playSound) {
 #ifndef COOPNET
     if (configNetworkSystem == NS_COOPNET) { configNetworkSystem = NS_SOCKET; }
 #endif
+    if (configNetworkSystem == NS_COOPNET && configAmountofPlayers == 1) { configNetworkSystem = NS_SOCKET; }
     if (configNetworkSystem >= NS_MAX) { configNetworkSystem = NS_MAX; }
     network_set_system(configNetworkSystem);
 
@@ -35,10 +36,9 @@ void djui_panel_do_host(bool reconnecting, bool playSound) {
     gChangeLevelTransition = gLevelValues.entryLevel;
 
     if (gMarioState->marioObj) vec3f_copy(gMarioState->marioObj->header.gfx.cameraToObject, gGlobalSoundSource);
+    if (playSound) { gDelayedInitSound = CHAR_SOUND_OKEY_DOKEY; }
 
-    play_character_sound(gMarioState, CHAR_SOUND_OKEY_DOKEY);
-    extern void play_transition(s16 transType, s16 time, u8 red, u8 green, u8 blue);
-    play_transition(0x09, 0x14, 0x00, 0x00, 0x00);
+    play_transition(WARP_TRANSITION_FADE_INTO_STAR, 0x14, 0x00, 0x00, 0x00);
 }
 
 void djui_panel_host_message_do_host(UNUSED struct DjuiBase* caller) {
