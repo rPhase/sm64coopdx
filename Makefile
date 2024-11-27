@@ -1689,6 +1689,7 @@ $(ZIP_UNCOMPRESSED): $(EXE) $(APK_FILES)
 	mkdir $(BUILD_DIR)/platform/android/android/assets/ && \
 	cp -r mods $(BUILD_DIR)/platform/android/android/assets/ && \
 	cp -r lang $(BUILD_DIR)/platform/android/android/assets/ && \
+  cp -r palettes $(BUILD_DIR)/platform/android/android/assets/ && \
 	cp $(PREFIX)/lib/libc++_shared.so $(BUILD_DIR)/platform/android/android/lib/$(ARCH_APK)/ && \
 	cp $(EXE) $(BUILD_DIR)/platform/android/android/lib/$(ARCH_APK)/ && \
 	cd $(BUILD_DIR)/platform/android/android && \
