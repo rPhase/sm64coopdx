@@ -41,7 +41,7 @@ ENHANCE_LEVEL_TEXTURES ?= 1
 # Enable Discord Game SDK (used for Discord invites)
 DISCORD_SDK ?= 0
 # Enable CoopNet SDK (used for CoopNet server hosting)
-COOPNET ?= 0
+COOPNET ?= 1
 # Enable docker build workarounds
 DOCKERBUILD ?= 0
 # Sets your optimization level for building.
@@ -533,12 +533,12 @@ ifeq ($(filter clean distclean print-%,$(MAKECMDGOALS)),)
   endif
 
   # Make coopnet
-  #ifeq ($(TARGET_FOSS),1)
-    #DUMMY != $(MAKE) -C $(COOPNET_DIR) >&2 || echo FAIL
-    #ifeq ($(DUMMY),FAIL)
-      #$(error Failed to build coopnet)
-    #endif
-  #endif
+  ifeq ($(TARGET_FOSS),1)
+    DUMMY != $(MAKE) -C $(COOPNET_DIR) >&2 || echo FAIL
+    ifeq ($(DUMMY),FAIL)
+      $(error Failed to build coopnet)
+    endif
+  endif
 
   $(info Building Game...)
 
