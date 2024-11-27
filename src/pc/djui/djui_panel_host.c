@@ -20,12 +20,12 @@ static struct DjuiInputbox* sInputboxPassword = NULL;
 
 static void djui_panel_host_network_system_change(UNUSED struct DjuiBase* base) {
 #ifndef COOPNET
-    {
+    /*{
         struct DjuiSelectionbox* selectionbox = (struct DjuiSelectionbox*) base;
         if (*selectionbox->value == NS_COOPNET) {
             selectionbox->value = NS_SOCKET;
         }
-    }
+    }*/
 #endif
 
     djui_base_set_visible(&sRectPort->base, (configNetworkSystem == NS_SOCKET));
