@@ -67,7 +67,7 @@ ALIGNED8 const u8 texture_touch_z[] = {
 
 // Misc Buttons
 ALIGNED8 const u8 texture_touch_chat[] = {
-#include "textures/touchcontrols/touch_button_chat.rgba16.rgba16.inc.c"
+#include "textures/touchcontrols/touch_button_chat.rgba16.inc.c"
 };
 ALIGNED8 const u8 texture_touch_playerlist[] = {
 #include "textures/touchcontrols/touch_button_playerlist.rgba16.inc.c"
