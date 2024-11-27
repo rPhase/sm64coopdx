@@ -434,7 +434,8 @@ void render_touch_controls(void) {
         pos = get_pos(&configControlElements[i], 0);
         if (pos.y == HIDE_POS) continue;
         size = configControlElements[i].size[0];
-        select_joystick_tex_base();
+        //select_joystick_tex_base();
+        select_joystick_tex();
         switch (ControlElements[i].type) {
             case Joystick:
                 DrawSprite(pos.x, pos.y, 3);
