@@ -138,7 +138,8 @@ endif
 ifneq ($(shell ls ../../src/main/),)
   DUMMY != mkdir -p ../../src/main/assets && \
            cp -r mods ../../src/main/assets/ && \
-           cp -r lang ../../src/main/assets/
+           cp -r lang ../../src/main/assets/ && \
+           cp -r palettes ../../src/main/assets/
 endif
 
 # Attempt to detect BSD
