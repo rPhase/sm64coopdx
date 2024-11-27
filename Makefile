@@ -534,12 +534,12 @@ ifeq ($(filter clean distclean print-%,$(MAKECMDGOALS)),)
   endif
 
   # Make coopnet
-  ifeq ($(TARGET_FOSS),1)
-    DUMMY != $(MAKE) -C $(COOPNET_DIR) >&2 || echo FAIL
-    ifeq ($(DUMMY),FAIL)
-      $(error Failed to build coopnet)
-    endif
-  endif
+ # ifeq ($(TARGET_FOSS),1)
+  #  DUMMY != $(MAKE) -C $(COOPNET_DIR) >&2 || echo FAIL
+   # ifeq ($(DUMMY),FAIL)
+    #  $(error Failed to build coopnet)
+    #endif
+  #endif
 
   $(info Building Game...)
 
