@@ -434,9 +434,9 @@ void render_touch_controls(void) {
         pos = get_pos(&configControlElements[i], 0);
         if (pos.y == HIDE_POS) continue;
         size = configControlElements[i].size[0];
-        select_joystick_tex_base();
         switch (ControlElements[i].type) {
             case Joystick:
+                select_joystick_tex_base();
                 DrawSprite(pos.x, pos.y, 3);
                 select_joystick_tex();
                 DrawSprite(pos.x + 4 + ControlElements[i].joyX, pos.y + 4 + ControlElements[i].joyY, 2);
@@ -448,6 +448,7 @@ void render_touch_controls(void) {
                     !gInTouchConfig) {
                     touch_cam_last_x = before_x > 0 ? before_x : touch_cam_last_x;
                     touch_cam_last_y = before_y > 0 ? before_y : touch_cam_last_y;
+                    select_joystick_tex();
                     DrawSprite(touch_cam_last_x, touch_cam_last_y, 2);
                 }
                 break;
