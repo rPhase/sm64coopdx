@@ -8,10 +8,10 @@
 #include "pc/lua/smlua.h"
 #include "pc/mods/mods_utils.h"
 #include "pc/debuglog.h"
+#include "pc/fs/fs.h"
 #ifdef __ANDROID__
-bool path_exists(char* path) {
-    struct stat sb = { 0 };
-    return (stat(path, &sb) == 0);
+bool path_exists(const char* path) {
+    return fs_sys_path_exists(path);
 }
 #include "pc/utils/misc.h"
 
