@@ -9,6 +9,10 @@
 #include "pc/mods/mods_utils.h"
 #include "pc/debuglog.h"
 #ifdef __ANDROID__
+bool path_exists(char* path) {
+    struct stat sb = { 0 };
+    return (stat(path, &sb) == 0);
+}
 #include "pc/utils/misc.h"
 
 #define MAX_CACHED_KEYS 100
