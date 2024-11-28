@@ -1117,7 +1117,7 @@ ifeq ($(COOPNET),1)
   else ifeq ($(TARGET_FOSS),0)
     LDFLAGS += -Llib/coopnet/linux -l:libcoopnet.a -l:libjuice.a
   else
-    LDFLAGS += -Llib/coopnet/linux -l:libcoopnet.a -l:libjuice.a
+    LDFLAGS += -L$(COOPNET_DIR)/bin -L$(COOPNET_DIR)/lib/libjuice -l:libcoopnet.a -l:libjuice.a
   endif
 endif
 
