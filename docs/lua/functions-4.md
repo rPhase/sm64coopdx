@@ -1230,24 +1230,6 @@
 <br />
 
 
-## [mod_storage_clear](#mod_storage_clear)
-
-### Lua Example
-`local booleanValue = mod_storage_clear()`
-
-### Parameters
-- None
-
-### Returns
-- `boolean`
-
-### C Prototype
-`bool mod_storage_clear(void);`
-
-[:arrow_up_small:](#)
-
-<br />
-
 ## [mod_storage_load](#mod_storage_load)
 
 ### Lua Example
@@ -1303,26 +1285,6 @@
 
 ### C Prototype
 `f32 mod_storage_load_number(const char* key);`
-
-[:arrow_up_small:](#)
-
-<br />
-
-## [mod_storage_remove](#mod_storage_remove)
-
-### Lua Example
-`local booleanValue = mod_storage_remove(key)`
-
-### Parameters
-| Field | Type |
-| ----- | ---- |
-| key | `string` |
-
-### Returns
-- `boolean`
-
-### C Prototype
-`bool mod_storage_remove(const char* key);`
 
 [:arrow_up_small:](#)
 

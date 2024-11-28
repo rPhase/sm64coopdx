@@ -20782,21 +20782,6 @@ int smlua_func_update_all_mario_stars(UNUSED lua_State* L) {
  // mod_storage.h //
 ///////////////////
 
-int smlua_func_mod_storage_clear(UNUSED lua_State* L) {
-    if (L == NULL) { return 0; }
-
-    int top = lua_gettop(L);
-    if (top != 0) {
-        LOG_LUA_LINE("Improper param count for '%s': Expected %u, Received %u", "mod_storage_clear", 0, top);
-        return 0;
-    }
-
-
-    lua_pushboolean(L, mod_storage_clear());
-
-    return 1;
-}
-
 int smlua_func_mod_storage_load(lua_State* L) {
     if (L == NULL) { return 0; }
 
@@ -20844,23 +20829,6 @@ int smlua_func_mod_storage_load_number(lua_State* L) {
     if (!gSmLuaConvertSuccess) { LOG_LUA("Failed to convert parameter %u for function '%s'", 1, "mod_storage_load_number"); return 0; }
 
     lua_pushnumber(L, mod_storage_load_number(key));
-
-    return 1;
-}
-
-int smlua_func_mod_storage_remove(lua_State* L) {
-    if (L == NULL) { return 0; }
-
-    int top = lua_gettop(L);
-    if (top != 1) {
-        LOG_LUA_LINE("Improper param count for '%s': Expected %u, Received %u", "mod_storage_remove", 1, top);
-        return 0;
-    }
-
-    const char* key = smlua_to_string(L, 1);
-    if (!gSmLuaConvertSuccess) { LOG_LUA("Failed to convert parameter %u for function '%s'", 1, "mod_storage_remove"); return 0; }
-
-    lua_pushboolean(L, mod_storage_remove(key));
 
     return 1;
 }
@@ -34415,11 +34383,9 @@ void smlua_bind_functions_autogen(void) {
     smlua_bind_function(L, "update_all_mario_stars", smlua_func_update_all_mario_stars);
 
     // mod_storage.h
-    smlua_bind_function(L, "mod_storage_clear", smlua_func_mod_storage_clear);
     smlua_bind_function(L, "mod_storage_load", smlua_func_mod_storage_load);
     smlua_bind_function(L, "mod_storage_load_bool", smlua_func_mod_storage_load_bool);
     smlua_bind_function(L, "mod_storage_load_number", smlua_func_mod_storage_load_number);
-    smlua_bind_function(L, "mod_storage_remove", smlua_func_mod_storage_remove);
     smlua_bind_function(L, "mod_storage_save", smlua_func_mod_storage_save);
     smlua_bind_function(L, "mod_storage_save_bool", smlua_func_mod_storage_save_bool);
     smlua_bind_function(L, "mod_storage_save_number", smlua_func_mod_storage_save_number);

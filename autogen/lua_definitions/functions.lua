@@ -5403,11 +5403,6 @@ function update_all_mario_stars()
     -- ...
 end
 
---- @return boolean
-function mod_storage_clear()
-    -- ...
-end
-
 --- @param key string
 --- @return string
 function mod_storage_load(key)
@@ -5423,12 +5418,6 @@ end
 --- @param key string
 --- @return number
 function mod_storage_load_number(key)
-    -- ...
-end
-
---- @param key string
---- @return boolean
-function mod_storage_remove(key)
     -- ...
 end
 
