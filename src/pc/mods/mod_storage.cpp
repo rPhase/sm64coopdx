@@ -17,7 +17,6 @@ extern "C" {
 #include "pc/debuglog.h"
 }
 #define C_FIELD extern "C"
-#ifdef __ANDROID__
 #include "pc/utils/misc.h"
 
 #define MAX_CACHED_KEYS 100
@@ -56,7 +55,6 @@ C_FIELD void cache_key(char key[], char value[]) {
         }
     }
 }
-#endif
 
 void strdelete(char string[], char substr[]) {
     // i is used to loop through the string
