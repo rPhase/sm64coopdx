@@ -7,6 +7,8 @@
 //extern "C" {
 #endif
 
+#include <stdbool.h>
+
 #define MAX_KEYS 512
 #define MAX_KEY_VALUE_LENGTH 512
 #define SAVE_DIRECTORY "sav"
