@@ -15,7 +15,7 @@ extern "C" {
 #include "pc/lua/smlua.h"
 #include "pc/mods/mods_utils.h"
 #include "pc/debuglog.h"
-#include "fs.h"
+#include "pc/fs/fs.h"
 }
 #define C_FIELD extern "C"
 #include "pc/utils/misc.h"
@@ -164,7 +164,7 @@ C_FIELD bool mod_storage_save(const char *key, const char *value) {
     }
     if (!fs_sys_dir_exists(savPath)) { fs_sys_mkdir(savPath); }
 
-    bool exists = path_exists(filename);
+    bool exists = fs_sys_path_exists(filename);
     file = fopen(filename, exists ? "r+" : "w");
     cfg = ConfigNew();
     if (exists) {
