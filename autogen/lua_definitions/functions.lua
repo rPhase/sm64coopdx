@@ -5414,9 +5414,35 @@ function mod_storage_load(key)
 end
 
 --- @param key string
+--- @return boolean
+function mod_storage_load_bool(key)
+    -- ...
+end
+
+--- @param key string
+--- @return number
+function mod_storage_load_number(key)
+    -- ...
+end
+
+--- @param key string
 --- @param value string
 --- @return boolean
 function mod_storage_save(key, value)
+    -- ...
+end
+
+--- @param key string
+--- @param value number
+--- @return boolean
+function mod_storage_save_number(key, value)
+    -- ...
+end
+
+--- @param key string
+--- @param value number
+--- @return boolean
+function mod_storage_save_number(key, value)
     -- ...
 end
 
