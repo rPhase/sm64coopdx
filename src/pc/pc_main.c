@@ -400,7 +400,7 @@ int main(int argc, char *argv[]) {
     const char *gamedir = gCLIOpts.GameDir[0] ? gCLIOpts.GameDir : FS_BASEDIR;
 #endif
     const char *userpath = gCLIOpts.SavePath[0] ? gCLIOpts.SavePath : sys_user_path();
-    fs_init(sys_ropaths, gamedir, userpath);
+    fs_init(gamedir);
 
     // initialize djui
     djui_init();
