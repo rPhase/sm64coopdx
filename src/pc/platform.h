@@ -8,7 +8,7 @@
 /* Platform-specific functions and whatnot */
 
 #ifdef TARGET_ANDROID
-#define ANDROID_APPNAME "com.maniscat2.sm64coopdx"
+#define ANDROID_APPNAME "com.owokitty.sm64excoop"
 #endif
 
 #define SYS_MAX_PATH 4096 // FIXME: define this on different platforms
