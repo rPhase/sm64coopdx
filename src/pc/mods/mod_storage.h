@@ -4,7 +4,7 @@
 #include <PR/ultratypes.h>
 
 #ifdef __cplusplus
-extern "C" {
+//extern "C" {
 #endif
 
 #define MAX_KEYS 512
@@ -20,15 +20,15 @@ const char *mod_storage_load(const char* key);
 f32 mod_storage_load_number(const char* key);
 bool mod_storage_load_bool(const char* key);
 
-char *key_cached(const char* key, const char* value);
-void cache_key(const char* key, const char* value);
+#ifdef __ANDROID__
 void key_cache_init(void);
+#endif
 
 //bool mod_storage_remove(const char* key);
 //bool mod_storage_clear(void);
 
 #ifdef __cplusplus
-}
+//}
 #endif
 
 #endif // MOD_STORAGE_H
