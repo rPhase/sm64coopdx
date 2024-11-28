@@ -3,11 +3,12 @@
 #include <stdio.h>
 #include <ctype.h>
 #include "pc/platform.h"
-//#include "pc/configini.h" // for writing
+#include "pc/configini.h" // for writing
 #include "pc/ini.h" // for parsing
 #include "pc/lua/smlua.h"
 #include "pc/mods/mods_utils.h"
 #include "pc/debuglog.h"
+#include <stdbool.h>
 #ifdef __ANDROID__
 #include "pc/utils/misc.h"
 
@@ -144,7 +145,7 @@ bool mod_storage_save(const char *key, const char *value) {
 #endif
 
     FILE *file;
-   // Config *cfg = NULL;
+    Config *cfg = NULL;
     char *filename;
     filename = (char *)malloc((SYS_MAX_PATH - 1) * sizeof(char));
     mod_storage_get_filename(filename);
@@ -160,9 +161,9 @@ bool mod_storage_save(const char *key, const char *value) {
 
     bool exists = fs_sys_path_exists(filename);
     file = fopen(filename, exists ? "r+" : "w");
-   // cfg = ConfigNew();
+    cfg = ConfigNew();
     if (exists) {
-     /*   if (ConfigReadFile(filename, &cfg) != CONFIG_OK) {
+        if (ConfigReadFile(filename, &cfg) != CONFIG_OK) {
             ConfigFree(cfg);
             fclose(file);
             free(filename);
@@ -174,7 +175,7 @@ bool mod_storage_save(const char *key, const char *value) {
             fclose(file);
             free(filename);
             return false;
-        }*/
+        }
     }
 
     char lowerKey[MAX_KEY_VALUE_LENGTH];
@@ -184,16 +185,33 @@ bool mod_storage_save(const char *key, const char *value) {
         lowerKey[i] = tolower(lowerKey[i]);
     }
 
-    //ConfigRemoveKey(cfg, "storage", lowerKey);
-    //ConfigRemoveKey(cfg, "storage", key);
-   // ConfigAddString(cfg, "storage", key, value);
+    ConfigRemoveKey(cfg, "storage", lowerKey);
+    ConfigRemoveKey(cfg, "storage", key);
+    ConfigAddString(cfg, "storage", key, value);
 
     fclose(file);
-    //ConfigPrintToFile(cfg, filename);
-   // ConfigFree(cfg);
+    ConfigPrintToFile(cfg, filename);
+    ConfigFree(cfg);
     free(filename);
 
     return true;
+}
+
+bool mod_storage_save_number(const char* key, f32 value) {
+    // Store string results in a temporary buffer
+    // this assumes mod_storage_load will only ever be called by Lua
+    static char str[MAX_KEY_VALUE_LENGTH];
+    if (floor(value) == value) {
+        snprintf(str, MAX_KEY_VALUE_LENGTH, "%lld", (s64)value);
+    } else {
+        snprintf(str, MAX_KEY_VALUE_LENGTH, "%f", value);
+    }
+
+    return mod_storage_save(key, str);
+}
+
+bool mod_storage_save_bool(const char* key, bool value) {
+    return mod_storage_save(key, value ? "true" : "false");
 }
 
 const char *mod_storage_load(const char *key) {
@@ -243,4 +261,18 @@ const char *mod_storage_load(const char *key) {
 #endif
 
     return value;
+}
+
+f32 mod_storage_load_number(const char* key) {
+    const char* value = mod_storage_load(key);
+    if (value == NULL) { return 0; }
+
+    return strtof(value, NULL);
+}
+
+bool mod_storage_load_bool(const char* key) {
+    const char* value = mod_storage_load(key);
+    if (value == NULL) { return false; }
+
+    return !strcmp(value, "true");
 }
