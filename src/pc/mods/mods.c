@@ -299,7 +299,7 @@ void mods_refresh_local(void) {
     mods_clear(&gLocalMods);
 
 #ifdef __ANDROID__
-    key_cache_init();
+    //key_cache_init();
 #endif
 
     // load mods
