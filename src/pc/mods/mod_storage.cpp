@@ -15,6 +15,7 @@ extern "C" {
 #include "pc/lua/smlua.h"
 #include "pc/mods/mods_utils.h"
 #include "pc/debuglog.h"
+#include "fs.h"
 }
 #define C_FIELD extern "C"
 #include "pc/utils/misc.h"
@@ -34,7 +35,7 @@ C_FIELD void key_cache_init(void) {
     }
 }
 
-C_FIELD char *key_cached(char key[], char value[]) {
+C_FIELD char *key_cached(const char* key, const char* value) {
     for (u32 i = 0; i < MAX_CACHED_KEYS; i++) {
         if (strncmp(key, sCachedKeys[i].key, MAX_KEY_VALUE_LENGTH) == 0) {
             if (value) {
@@ -46,7 +47,7 @@ C_FIELD char *key_cached(char key[], char value[]) {
     return NULL;
 }
 
-C_FIELD void cache_key(char key[], char value[]) {
+C_FIELD void cache_key(const char* key, const char* value) {
     for (u32 i = 0; i < MAX_CACHED_KEYS; i++) {
         if (strncmp("", sCachedKeys[i].key, MAX_KEY_VALUE_LENGTH) == 0) {
             snprintf(sCachedKeys[i].key, MAX_KEY_VALUE_LENGTH, "%s", key);
@@ -144,11 +145,9 @@ C_FIELD bool mod_storage_save(const char *key, const char *value) {
         return false;
     }
 
-#ifdef __ANDROID__
     if (!key_cached(key, value)) {
         cache_key(key, value);
     }
-#endif
 
     FILE *file;
     Config *cfg = NULL;
@@ -244,7 +243,7 @@ C_FIELD const char *mod_storage_load(const char *key) {
     static char value[MAX_KEY_VALUE_LENGTH];
     ini_t *storage;
 
-    if (!path_exists(filename)) {
+    if (!fs_sys_path_exists(filename)) {
         free(filename);
         return NULL;
     }
