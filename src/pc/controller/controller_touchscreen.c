@@ -440,7 +440,7 @@ void render_touch_controls(void) {
                 select_joystick_tex();
                 DrawSprite(pos.x + 4 + ControlElements[i].joyX, pos.y + 4 + ControlElements[i].joyY, 2);
                 break;
-            case Mouse:
+            /*case Mouse:
                 if ((before_x > 0 || before_y > 0) &&
                     ControlElements[i].touchID &&
                     configCameraMouse &&
@@ -449,7 +449,7 @@ void render_touch_controls(void) {
                     touch_cam_last_y = before_y > 0 ? before_y : touch_cam_last_y;
                     DrawSprite(touch_cam_last_x, touch_cam_last_y, 2);
                 }
-                break;
+                break;*/
             case Button:
                 if (ControlElements[i].touchID) {
                     select_char_texture(ControlElements[i].buttonTexture.buttonDown);
