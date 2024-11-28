@@ -366,6 +366,9 @@ void touch_up(struct TouchEvent* event) {
 
 static void select_button_texture(int dark) {
     gDPPipeSync(gDisplayListHead++);
+    gDPTileSync(gDisplayListHead++),
+    gDPSetTile(gDisplayListHead++, G_IM_FMT_RGBA, G_IM_SIZ_16b, 8, 0, G_TX_RENDERTILE, 0, G_TX_CLAMP, 5, G_TX_NOLOD, G_TX_CLAMP, 5, G_TX_NOLOD),
+    gDPSetTileSize(gDisplayListHead++, 0, 0, 0, (16 - 1) << G_TEXTURE_IMAGE_FRAC, (16 - 1) << G_TEXTURE_IMAGE_FRAC),
     
     if (!dark) {
         gDPSetTextureImage(gDisplayListHead++, G_IM_FMT_RGBA, G_IM_SIZ_16b, 1, touch_textures[TEXTURE_TOUCH_JOYSTICK]);
@@ -379,6 +382,9 @@ static void select_button_texture(int dark) {
 
 static void select_joystick_tex_base(void) {
     gDPPipeSync(gDisplayListHead++);
+    gDPTileSync(gDisplayListHead++),
+    gDPSetTile(gDisplayListHead++, G_IM_FMT_RGBA, G_IM_SIZ_16b, 8, 0, G_TX_RENDERTILE, 0, G_TX_CLAMP, 5, G_TX_NOLOD, G_TX_CLAMP, 5, G_TX_NOLOD),
+    gDPSetTileSize(gDisplayListHead++, 0, 0, 0, (32 - 1) << G_TEXTURE_IMAGE_FRAC, (32 - 1) << G_TEXTURE_IMAGE_FRAC),
     
     gDPSetTextureImage(gDisplayListHead++, G_IM_FMT_RGBA, G_IM_SIZ_16b, 1, touch_textures[TEXTURE_TOUCH_JOYSTICK_BASE]);
 
@@ -387,6 +393,9 @@ static void select_joystick_tex_base(void) {
 
 static void select_joystick_tex(void) {
     gDPPipeSync(gDisplayListHead++);
+    gDPTileSync(gDisplayListHead++),
+    gDPSetTile(gDisplayListHead++, G_IM_FMT_RGBA, G_IM_SIZ_16b, 8, 0, G_TX_RENDERTILE, 0, G_TX_CLAMP, 5, G_TX_NOLOD, G_TX_CLAMP, 5, G_TX_NOLOD),
+    gDPSetTileSize(gDisplayListHead++, 0, 0, 0, (16 - 1) << G_TEXTURE_IMAGE_FRAC, (16 - 1) << G_TEXTURE_IMAGE_FRAC),
     
     gDPSetTextureImage(gDisplayListHead++, G_IM_FMT_RGBA, G_IM_SIZ_16b, 1, touch_textures[TEXTURE_TOUCH_JOYSTICK]);
 
