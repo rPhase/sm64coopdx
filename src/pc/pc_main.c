@@ -373,6 +373,9 @@ void* main_game_init(UNUSED void* dummy) {
     audio_init();
     sound_init();
     network_player_init();
+    configfile_load();
+
+    legacy_folder_handler();
     //mumble_init();
 
     if (!gGfxInited) {
@@ -395,6 +398,12 @@ int SDL_main(int argc, char *argv[]) {
 #else
 int main(int argc, char *argv[]) {
 #endif
+
+    // initialize djui
+    djui_init();
+    djui_unicode_init();
+    djui_init_late();
+    djui_console_message_dequeue();
 
     // handle terminal arguments
     if (!parse_cli_opts(argc, argv)) { return 0; }
@@ -421,9 +430,9 @@ int main(int argc, char *argv[]) {
     fs_init(gCLIOpts.savePath[0] ? gCLIOpts.savePath : sys_user_path());
 #endif
 
-    configfile_load();
+   // configfile_load();
 
-    legacy_folder_handler();
+    //legacy_folder_handler();
 
     // create the window almost straight away
     if (!gGfxInited) {
@@ -477,12 +486,6 @@ int main(int argc, char *argv[]) {
 #ifdef LOADING_SCREEN_SUPPORTED
     loading_screen_reset();
 #endif
-
-    // initialize djui
-    djui_init();
-    djui_unicode_init();
-    djui_init_late();
-    djui_console_message_dequeue();
 
     //show_update_popup();
 
