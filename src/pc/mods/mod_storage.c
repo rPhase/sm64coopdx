@@ -8,7 +8,6 @@
 #include "pc/lua/smlua.h"
 #include "pc/mods/mods_utils.h"
 #include "pc/debuglog.h"
-#include <stdbool.h>
 #ifdef __ANDROID__
 #include "pc/utils/misc.h"
 
@@ -159,7 +158,7 @@ bool mod_storage_save(const char *key, const char *value) {
     }
     if (!fs_sys_dir_exists(savPath)) { fs_sys_mkdir(savPath); }
 
-    bool exists = fs_sys_path_exists(filename);
+    bool exists = path_exists(filename);
     file = fopen(filename, exists ? "r+" : "w");
     cfg = ConfigNew();
     if (exists) {
@@ -197,23 +196,6 @@ bool mod_storage_save(const char *key, const char *value) {
     return true;
 }
 
-bool mod_storage_save_number(const char* key, f32 value) {
-    // Store string results in a temporary buffer
-    // this assumes mod_storage_load will only ever be called by Lua
-    static char str[MAX_KEY_VALUE_LENGTH];
-    if (floor(value) == value) {
-        snprintf(str, MAX_KEY_VALUE_LENGTH, "%lld", (s64)value);
-    } else {
-        snprintf(str, MAX_KEY_VALUE_LENGTH, "%f", value);
-    }
-
-    return mod_storage_save(key, str);
-}
-
-bool mod_storage_save_bool(const char* key, bool value) {
-    return mod_storage_save(key, value ? "true" : "false");
-}
-
 const char *mod_storage_load(const char *key) {
     if (strlen(key) > MAX_KEY_VALUE_LENGTH) {
         LOG_LUA_LINE("Too long of a key for mod_storage_load()");
@@ -238,7 +220,7 @@ const char *mod_storage_load(const char *key) {
     static char value[MAX_KEY_VALUE_LENGTH];
     ini_t *storage;
 
-    if (!fs_sys_path_exists(filename)) {
+    if (!path_exists(filename)) {
         free(filename);
         return NULL;
     }
@@ -261,18 +243,4 @@ const char *mod_storage_load(const char *key) {
 #endif
 
     return value;
-}
-
-f32 mod_storage_load_number(const char* key) {
-    const char* value = mod_storage_load(key);
-    if (value == NULL) { return 0; }
-
-    return strtof(value, NULL);
-}
-
-bool mod_storage_load_bool(const char* key) {
-    const char* value = mod_storage_load(key);
-    if (value == NULL) { return false; }
-
-    return !strcmp(value, "true");
 }
