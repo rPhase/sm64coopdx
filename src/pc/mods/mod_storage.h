@@ -20,8 +20,8 @@ const char *mod_storage_load(const char* key);
 f32 mod_storage_load_number(const char* key);
 bool mod_storage_load_bool(const char* key);
 
-bool mod_storage_remove(const char* key);
-bool mod_storage_clear(void);
+//bool mod_storage_remove(const char* key);
+//bool mod_storage_clear(void);
 
 #ifdef __cplusplus
 }
