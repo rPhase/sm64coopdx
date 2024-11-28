@@ -445,7 +445,7 @@ void render_touch_controls(void) {
         select_joystick_tex_base();
         switch (ControlElements[i].type) {
             case Joystick:
-                DrawSprite(pos.x, pos.y, 2);
+                DrawSprite(pos.x, pos.y, 3);
                 select_joystick_tex();
                 DrawSprite(pos.x + 4 + ControlElements[i].joyX, pos.y + 4 + ControlElements[i].joyY, 2);
                 break;
