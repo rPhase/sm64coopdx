@@ -1329,10 +1329,10 @@
 
 <br />
 
-## [mod_storage_save_number](#mod_storage_save_number)
+## [mod_storage_save_bool](#mod_storage_save_bool)
 
 ### Lua Example
-`local booleanValue = mod_storage_save_number(key, value)`
+`local booleanValue = mod_storage_save_bool(key, value)`
 
 ### Parameters
 | Field | Type |
@@ -1344,7 +1344,7 @@
 - `boolean`
 
 ### C Prototype
-`bool mod_storage_save_number(const char* key, f32 value);`
+`bool mod_storage_save_bool(const char* key, f32 value);`
 
 [:arrow_up_small:](#)
 

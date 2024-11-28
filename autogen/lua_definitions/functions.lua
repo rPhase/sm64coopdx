@@ -5435,7 +5435,7 @@ end
 --- @param key string
 --- @param value number
 --- @return boolean
-function mod_storage_save_number(key, value)
+function mod_storage_save_bool(key, value)
     -- ...
 end
 

@@ -11,7 +11,7 @@
 
 bool mod_storage_save(const char *key, const char *value);
 bool mod_storage_save_number(const char* key, f32 value);
-bool mod_storage_save_number(const char* key, f32 value);
+bool mod_storage_save_bool(const char* key, f32 value);
 f32 mod_storage_load_number(const char* key);
 bool mod_storage_load_bool(const char* key);
 const char *mod_storage_load(const char *key);
