@@ -359,9 +359,6 @@ void* main_game_init(UNUSED void* dummy) {
     audio_init();
     sound_init();
     network_player_init();
-    configfile_load();
-
-    legacy_folder_handler();
     //mumble_init();
 
     if (!gGfxInited) {
@@ -385,29 +382,6 @@ int SDL_main(int argc, char *argv[]) {
 int main(int argc, char *argv[]) {
 #endif
 
-#ifdef TARGET_ANDROID
-    char gamedir[SYS_MAX_PATH] = { 0 };
-    const char *basedir = get_gamedir();
-    snprintf(gamedir, sizeof(gamedir), "%s/%s", 
-             basedir, /*gCLIOpts.GameDir[0] ? gCLIOpts.GameDir :*/ FS_BASEDIR);
-    if (stat(gamedir, NULL) == -1) {
-        mkdir(gamedir, 0770);
-    }
-    // Extract lang files and default mods from the apk and copy them to basedir
-    // TODO: some way to inhibit this on launch if the apk doesn't contain updated/differing files?
-    SDL_AndroidCopyAssetFilesToDir(basedir);
-#else
-    const char *gamedir = /*gCLIOpts.GameDir[0] ? gCLIOpts.GameDir : */FS_BASEDIR;
-#endif
-    const char *userpath = gCLIOpts.savePath[0] ? gCLIOpts.savePath : sys_user_path();
-    fs_init(userpath);
-
-    // initialize djui
-    djui_init();
-    djui_unicode_init();
-    djui_init_late();
-    djui_console_message_dequeue();
-
     // handle terminal arguments
     if (!parse_cli_opts(argc, argv)) { return 0; }
 
@@ -430,12 +404,26 @@ int main(int argc, char *argv[]) {
         fs_init(sys_user_path());
     }
 #else
-    fs_init(gCLIOpts.savePath[0] ? gCLIOpts.savePath : sys_user_path());
+#ifdef TARGET_ANDROID
+    char gamedir[SYS_MAX_PATH] = { 0 };
+    const char *basedir = get_gamedir();
+    snprintf(gamedir, sizeof(gamedir), "%s/%s", 
+             basedir,/* gCLIOpts.GameDir[0] ? gCLIOpts.GameDir :*/ FS_BASEDIR);
+    if (stat(gamedir, NULL) == -1) {
+        mkdir(gamedir, 0770);
+    }
+    // Extract lang files and default mods from the apk and copy them to basedir
+    // TODO: some way to inhibit this on launch if the apk doesn't contain updated/differing files?
+    SDL_AndroidCopyAssetFilesToDir(basedir);
+#else
+    const char *gamedir = /*gCLIOpts.GameDir[0] ? gCLIOpts.GameDir :*/ FS_BASEDIR;
+#endif
+    fs_init(sys_user_path());
 #endif
 
-   // configfile_load();
+    configfile_load();
 
-    //legacy_folder_handler();
+    legacy_folder_handler();
 
     // create the window almost straight away
     if (!gGfxInited) {
@@ -489,6 +477,12 @@ int main(int argc, char *argv[]) {
 #ifdef LOADING_SCREEN_SUPPORTED
     loading_screen_reset();
 #endif
+
+    // initialize djui
+    djui_init();
+    djui_unicode_init();
+    djui_init_late();
+    djui_console_message_dequeue();
 
     //show_update_popup();
 
