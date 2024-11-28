@@ -3,16 +3,12 @@
 #include <stdio.h>
 #include <ctype.h>
 #include "pc/platform.h"
-#include "pc/configini.h" // for writing
+//#include "pc/configini.h" // for writing
 #include "pc/ini.h" // for parsing
 #include "pc/lua/smlua.h"
 #include "pc/mods/mods_utils.h"
 #include "pc/debuglog.h"
-#include "pc/fs/fs.h"
 #ifdef __ANDROID__
-bool path_exists(const char* path) {
-    return fs_sys_path_exists(path);
-}
 #include "pc/utils/misc.h"
 
 #define MAX_CACHED_KEYS 100
@@ -148,7 +144,7 @@ bool mod_storage_save(const char *key, const char *value) {
 #endif
 
     FILE *file;
-    Config *cfg = NULL;
+   // Config *cfg = NULL;
     char *filename;
     filename = (char *)malloc((SYS_MAX_PATH - 1) * sizeof(char));
     mod_storage_get_filename(filename);
@@ -162,11 +158,11 @@ bool mod_storage_save(const char *key, const char *value) {
     }
     if (!fs_sys_dir_exists(savPath)) { fs_sys_mkdir(savPath); }
 
-    bool exists = path_exists(filename);
+    bool exists = fs_sys_path_exists(filename);
     file = fopen(filename, exists ? "r+" : "w");
-    cfg = ConfigNew();
+   // cfg = ConfigNew();
     if (exists) {
-        if (ConfigReadFile(filename, &cfg) != CONFIG_OK) {
+     /*   if (ConfigReadFile(filename, &cfg) != CONFIG_OK) {
             ConfigFree(cfg);
             fclose(file);
             free(filename);
@@ -178,7 +174,7 @@ bool mod_storage_save(const char *key, const char *value) {
             fclose(file);
             free(filename);
             return false;
-        }
+        }*/
     }
 
     char lowerKey[MAX_KEY_VALUE_LENGTH];
@@ -188,13 +184,13 @@ bool mod_storage_save(const char *key, const char *value) {
         lowerKey[i] = tolower(lowerKey[i]);
     }
 
-    ConfigRemoveKey(cfg, "storage", lowerKey);
-    ConfigRemoveKey(cfg, "storage", key);
-    ConfigAddString(cfg, "storage", key, value);
+    //ConfigRemoveKey(cfg, "storage", lowerKey);
+    //ConfigRemoveKey(cfg, "storage", key);
+   // ConfigAddString(cfg, "storage", key, value);
 
     fclose(file);
-    ConfigPrintToFile(cfg, filename);
-    ConfigFree(cfg);
+    //ConfigPrintToFile(cfg, filename);
+   // ConfigFree(cfg);
     free(filename);
 
     return true;
@@ -224,7 +220,7 @@ const char *mod_storage_load(const char *key) {
     static char value[MAX_KEY_VALUE_LENGTH];
     ini_t *storage;
 
-    if (!path_exists(filename)) {
+    if (!fs_sys_path_exists(filename)) {
         free(filename);
         return NULL;
     }
