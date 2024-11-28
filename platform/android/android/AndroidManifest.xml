@@ -3,7 +3,7 @@
     android:installLocation="auto"
     android:compileSdkVersion="33"
     android:compileSdkVersionCodename="13"
-    package="com.owokitty.sm64excoop"
+    package="com.maniscat2.sm64coopdx"
     platformBuildVersionCode="33"
     platformBuildVersionName="13"
     android:minSdkVersion="21"
@@ -44,7 +44,7 @@
         android:hardwareAccelerated="true"
         android:requestLegacyExternalStorage="true">
         <activity
-            android:name="com.owokitty.sm64excoop.sm64excoopActivity"
+            android:name="com.maniscat2.sm64coopdx.sm64coopdxActivity"
             android:exported="true"
             android:launchMode="singleInstance"
             android:configChanges="keyboard|keyboardHidden|layoutDirection|locale|navigation|orientation|screenLayout|screenSize|smallestScreenSize|uiMode"
