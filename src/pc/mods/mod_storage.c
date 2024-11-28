@@ -8,7 +8,10 @@
 #include "pc/lua/smlua.h"
 #include "pc/mods/mods_utils.h"
 #include "pc/debuglog.h"
-#include <stdbool.h>
+//#include <stdbool.h> //doesnt work??
+#define false 0
+#define true 1
+typedef int bool;
 #ifdef __ANDROID__
 #include "pc/utils/misc.h"
 
