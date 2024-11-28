@@ -102,6 +102,11 @@ enum ControlElementType {
     Button
 };
 
+struct ButtonState {
+    u8 buttonUp;
+    u8 buttonDown;
+};
+
 struct ControlElement {
     enum ControlElementType type;
     SDL_TouchID touchID; //0 = not being touched, 1+ = Finger being used
@@ -109,7 +114,7 @@ struct ControlElement {
     int joyX, joyY;
     //Button
     int buttonID;
-    u8 character;
+    struct ButtonState buttonTexture;
     int slideTouch;
 };
 
