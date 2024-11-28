@@ -1196,12 +1196,9 @@
 <br />
 
 - mod_storage.h
+   - [key_cache_init](functions-4.md#key_cache_init)
    - [mod_storage_load](functions-4.md#mod_storage_load)
-   - [mod_storage_load_bool](functions-4.md#mod_storage_load_bool)
-   - [mod_storage_load_number](functions-4.md#mod_storage_load_number)
    - [mod_storage_save](functions-4.md#mod_storage_save)
-   - [mod_storage_save_bool](functions-4.md#mod_storage_save_bool)
-   - [mod_storage_save_number](functions-4.md#mod_storage_save_number)
 
 <br />
 
