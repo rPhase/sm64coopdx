@@ -451,10 +451,12 @@ void render_touch_controls(void) {
                 }
                 break;
             case Button:
-                //if (ControlElements[i].touchID)
-                /*select_button_texture(1);
-                DrawSprite(pos.x - 8, pos.y, 1 + size / 100);*/
-                select_char_texture(ControlElements[i].character);
+                if (ControlElements[i].touchID) {
+                    select_char_texture(ControlElements[i].buttonTexture.buttonDown);
+                } else {
+                    select_char_texture(ControlElements[i].buttonTexture.buttonUp);
+                }
+
                 DrawSprite(pos.x, pos.y, size / 100);
                 break;
         }
@@ -470,7 +472,7 @@ void render_touch_controls(void) {
                 (i == TOUCH_SNAP && configElementSnap))
                 select_button_texture(1);
             DrawSprite(pos.x - 8, pos.y, 1 + size / 100);
-            select_char_texture(ControlConfigElements[i].character);
+            select_char_texture(ControlConfigElements[i].buttonTexture.buttonUp);
             DrawSprite(pos.x, pos.y, size / 100);
         }
         // trash icon
