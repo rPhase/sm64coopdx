@@ -20878,7 +20878,7 @@ int smlua_func_mod_storage_save_bool(lua_State* L) {
 
     const char* key = smlua_to_string(L, 1);
     if (!gSmLuaConvertSuccess) { LOG_LUA("Failed to convert parameter %u for function '%s'", 1, "mod_storage_save_bool"); return 0; }
-    f32 value = smlua_to_number(L, 2);
+    bool value = smlua_to_boolean(L, 2);
     if (!gSmLuaConvertSuccess) { LOG_LUA("Failed to convert parameter %u for function '%s'", 2, "mod_storage_save_bool"); return 0; }
 
     lua_pushboolean(L, mod_storage_save_bool(key, value));

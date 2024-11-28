@@ -5433,7 +5433,7 @@ function mod_storage_save(key, value)
 end
 
 --- @param key string
---- @param value number
+--- @param value boolean
 --- @return boolean
 function mod_storage_save_bool(key, value)
     -- ...

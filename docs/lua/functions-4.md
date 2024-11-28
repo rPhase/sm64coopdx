@@ -1338,13 +1338,13 @@
 | Field | Type |
 | ----- | ---- |
 | key | `string` |
-| value | `number` |
+| value | `boolean` |
 
 ### Returns
 - `boolean`
 
 ### C Prototype
-`bool mod_storage_save_bool(const char* key, f32 value);`
+`bool mod_storage_save_bool(const char* key, bool value);`
 
 [:arrow_up_small:](#)
 
