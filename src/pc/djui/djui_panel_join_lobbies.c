@@ -111,15 +111,15 @@ void djui_panel_join_query(uint64_t aLobbyId, UNUSED uint64_t aOwnerId, uint16_t
     #ifdef PLATFORM_COMPAT
         if (strstr(aVersion, "v36") || strstr(aVersion, "beta")) { return; }
     #else
-    if (strcmp(sPassword, "") != 0) {
+    if (strcmp(sPassword, "") == 0) {
         if (strstr(aVersion, "34") || strstr(aVersion, "35") || strstr(aVersion, "v36") || strstr(aVersion, "v37")) {
             return; 
-        } 
-    } else if (strcmp(sPassword, "") == 0) {
+        } else if (strcmp(sPassword, "") == 0) {
             if (strstr(aVersion, "34") || strstr(aVersion, "35") || strstr(aVersion, "v36")) {
                 return;
             }
         }
+    }
     #endif
 
     char playerText[64] = "";
