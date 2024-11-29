@@ -9,6 +9,7 @@
 #include "pc/platform.h"
 #include "game/level_update.h"
 #include "game/area.h"
+#include "sm64.h"
 
 static unsigned int sPalettePresetIndex = 0;
 static unsigned int sCurrentPlayerPart = PANTS;
@@ -312,7 +313,8 @@ static void djui_panel_player_edit_palette_create(struct DjuiBase* caller) {
         djui_button_create(body, DLANG(MENU, BACK), DJUI_BUTTON_STYLE_BACK, djui_panel_menu_back);
 
         {
-            djui_checkbox_create(body, "Toggle Wear Cap", &ToggleWearCap, NULL);
+            struct DjuiCheckbox* checkbox1 = djui_checkbox_create(body, "Toggle Wear Cap", &ToggleWearCap, NULL);
+            djui_base_set_visible(checkbox1->base, gMarioStates[0].action == ACT_IDLE);
         }
     }
 
@@ -461,7 +463,8 @@ void djui_panel_player_create(struct DjuiBase* caller) {
         djui_button_create(body, DLANG(MENU, BACK), DJUI_BUTTON_STYLE_BACK, djui_panel_menu_back);
 
         {
-            djui_checkbox_create(body, "Toggle Wear Cap", &ToggleWearCap, NULL);
+            struct DjuiCheckbox* checkbox1 = djui_checkbox_create(body, "Toggle Wear Cap", &ToggleWearCap, NULL);
+            djui_base_set_visible(checkbox1->base, gMarioStates[0].action == ACT_IDLE);
         }
     }
 
