@@ -10898,7 +10898,7 @@ void cutscene_palette_editor(struct Camera *c) {
     //static bool pressed = false;
     if (ToggleWearCap) {
         if (m->action == ACT_IDLE) {
-            if (m->flags & MARIO_CAP_ON_HEAD) == 0 {
+            if ((m->flags & MARIO_CAP_ON_HEAD) == 0) {
                 set_mario_action(m, ACT_PUTTING_ON_CAP, 0); // Add palette editor action arg
             }
         }
