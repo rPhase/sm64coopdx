@@ -106,15 +106,16 @@ void djui_panel_join_query(uint64_t aLobbyId, UNUSED uint64_t aOwnerId, uint16_t
     if (!sLobbyLayout) { return; }
     if (!sLobbyPaginated) { return; }
     if (aMaxConnections > MAX_PLAYERS) { return; }
-    if (strcmp(sPassword, "") == 0) {
+    if (strcmp(sPassword, "") != 0) {
         if (strstr(aVersion, "34") || strstr(aVersion, "35") || strstr(aVersion, "v36") || strstr(aVersion, "v37")) {
             return; 
-        } else if (strcmp(sPassword, "") == 0) {
+        } 
+    } else if (strcmp(sPassword, "") == 0) {
             if (strstr(aVersion, "34") || strstr(aVersion, "35") || strstr(aVersion, "v36")) {
                 return;
-            }
         }
     }
+    
     char playerText[64] = "";
     snprintf(playerText, 63, "%u/%u", aConnections, aMaxConnections);
 
