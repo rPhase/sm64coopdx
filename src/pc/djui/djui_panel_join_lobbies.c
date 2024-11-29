@@ -107,7 +107,7 @@ void djui_panel_join_query(uint64_t aLobbyId, UNUSED uint64_t aOwnerId, uint16_t
     if (!sLobbyLayout) { return; }
     if (!sLobbyPaginated) { return; }
     if (aMaxConnections > MAX_PLAYERS) { return; }
-    if (strstr(aVersion, "v36") || strstr(aVersion, "beta")) { return; }
+    if (strstr(aVersion, "v36") || strstr(aVersion, "beta"))  { return; }
 
     char playerText[64] = "";
     snprintf(playerText, 63, "%u/%u", aConnections, aMaxConnections);
@@ -207,8 +207,9 @@ void djui_panel_join_lobbies_create(struct DjuiBase* caller, const char* passwor
             djui_base_set_size(&text->base, 1, 1);
             djui_text_set_alignment(text, DJUI_HALIGN_CENTER, DJUI_VALIGN_CENTER);
         }
-
-        djui_selectionbox_create(body, "Platform"/* Replace with DLANG(LOBBIES, PLATFORM)*/, gameVersionChoices, MAX_PLATFORM_VERSION, &configGameVersion, NULL);
+        #ifdef PLATFORM_COMPAT
+            djui_selectionbox_create(body, "Platform"/* Replace with DLANG(LOBBIES, PLATFORM)*/, gameVersionChoices, MAX_PLATFORM_VERSION, &configGameVersion, NULL);
+        #endif
         if (!private) { djui_button_create(body, DLANG(RULES, RULES), DJUI_BUTTON_STYLE_NORMAL, djui_panel_rules_create); }
 
         struct DjuiRect* rect2 = djui_rect_container_create(body, 64);
