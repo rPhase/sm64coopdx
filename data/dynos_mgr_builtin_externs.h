@@ -709,7 +709,7 @@ extern ALIGNED8 const Texture texture_touch_z_pressed[];
 extern ALIGNED8 const Texture texture_touch_chat[];
 extern ALIGNED8 const Texture texture_touch_chat_pressed[];
 extern ALIGNED8 const Texture texture_touch_playerlist[];
-extern ALIGNED8 const Texture texture_touch_playerlist_presse[];
+extern ALIGNED8 const Texture texture_touch_playerlist_pressed[];
 extern ALIGNED8 const Texture texture_touch_console[];
 extern ALIGNED8 const Texture texture_touch_console_pressed[];
 extern ALIGNED8 const Texture texture_touch_check[];
