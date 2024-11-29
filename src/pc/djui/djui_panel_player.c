@@ -314,7 +314,7 @@ static void djui_panel_player_edit_palette_create(struct DjuiBase* caller) {
 
         {
             struct DjuiCheckbox* checkbox1 = djui_checkbox_create(body, "Toggle Wear Cap", &ToggleWearCap, NULL);
-            djui_base_set_visible(&checkbox1->base, gMarioStates[0].action == ACT_IDLE);
+            djui_base_set_visible(&checkbox1->base, gMarioState->action == ACT_IDLE);
         }
     }
 
@@ -464,7 +464,7 @@ void djui_panel_player_create(struct DjuiBase* caller) {
 
         {
             struct DjuiCheckbox* checkbox1 = djui_checkbox_create(body, "Toggle Wear Cap", &ToggleWearCap, NULL);
-            djui_base_set_visible(&checkbox1->base, gMarioStates[0].action == ACT_IDLE);
+            djui_base_set_visible(&checkbox1->base, gMarioState->action == ACT_IDLE);
         }
     }
 
