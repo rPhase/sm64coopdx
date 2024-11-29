@@ -416,10 +416,6 @@ static void select_char_texture(u8 num) {
     gSPDisplayList(gDisplayListHead++, dl_hud_img_load_tex_block);
 }
 
-static const* get_button_texture(struct ControlElement controlElement) {
-    return controlElement.touchID ? controlElement.buttonTexture.buttonDown : controlElement.buttonTexture.buttonUp;
-}
-
 void render_button_texture(Vtx *vtx, const u8 *texture, u32 fmt, u32 siz, s32 texW, s32 texH, s32 x, s32 y, s32 w, s32 h, s32 tileX, s32 tileY, s32 tileW, s32 tileH) {
     create_dl_ortho_matrix();
     if (!vtx) {
@@ -494,7 +490,12 @@ void render_touch_controls(void) {
                 }
                 break;*/
             case Button:
-                render_button_texture(NULL, get_button_texture(ControlElements[i]), G_IM_FMT_RGBA, G_IM_SIZ_16b, 16, 16, pos.x, pos.y, 1 + size / 100, 1 + size / 100, 0, 0, 16, 16);
+                if (.touchID) {
+                    u8 buttonTexture = ControlElements[i].buttonTexture.buttonDown;
+                } else {
+                    u8 buttonTexture = ControlElements[i].buttonTexture.buttonUp;
+                }
+                render_button_texture(NULL, buttonTexture, G_IM_FMT_RGBA, G_IM_SIZ_16b, 16, 16, pos.x, pos.y, 1 + size / 100, 1 + size / 100, 0, 0, 16, 16);
                 //DrawSprite(pos.x, pos.y, 1 + size / 100);
                 break;
         }
