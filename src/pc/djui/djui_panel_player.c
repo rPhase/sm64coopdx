@@ -224,7 +224,7 @@ static void djui_panel_player_edit_palette_destroy(struct DjuiBase* caller) {
     (*sSavedDestroy)(caller);
 }
 
-void reload_player_palette(void) { 
+void reload_player_palette(struct DjuiBase* caller) { 
     djui_panel_shutdown();
     djui_panel_pause_create(NULL);
     djui_panel_player_create(NULL);
