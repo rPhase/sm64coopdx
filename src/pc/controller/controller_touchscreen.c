@@ -417,11 +417,11 @@ static void select_char_texture(u8 num) {
 }
 
 static void DrawSprite(s32 x, s32 y, int scaling) {
-        gSPTextureRectangle(gDisplayListHead++, x - (16 << scaling), y - (16 << scaling), x + (15 << scaling), y + (15 << scaling), G_TX_RENDERTILE, 0, 0, 4 << (11 - scaling), 1 << (11 - scaling));
+    gSPTextureRectangle(gDisplayListHead++, x - ((scaling * 8) << scaling), y - ((scaling * 8) << scaling), x + ((scaling * 8 - 1) << scaling), y + ((scaling * 8 - 1) << scaling), G_TX_RENDERTILE, 0, 0, 4 << (11 - scaling), 1 << (11 - scaling));
 }
 
 static void DrawSpriteTexJoyBase(s32 x, s32 y, int scaling) {
-        gSPTextureRectangle(gDisplayListHead++, x - (31 << scaling), y - (31 << scaling), x + (31 << scaling), y + (31 << scaling), G_TX_RENDERTILE, -1, -1, 4 << (11 - scaling), 1 << (11 - scaling));
+    gSPTextureRectangle(gDisplayListHead++, x - (31 << scaling), y - (31 << scaling), x + (31 << scaling), y + (31 << scaling), G_TX_RENDERTILE, -1, -1, 4 << (11 - scaling), 1 << (11 - scaling));
 }
 
 void render_touch_controls(void) {
