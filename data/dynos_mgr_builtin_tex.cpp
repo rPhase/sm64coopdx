@@ -703,7 +703,7 @@ static const struct BuiltinTexInfo sDynosBuiltinTexs[] = {
     define_builtin_tex(texture_touch_dpad_left, "textures/touchcontrols/touch_button_dpad_left.rgba16.png", 16, 16, 16),
     define_builtin_tex(texture_touch_dpad_left_pressed, "textures/touchcontrols/touch_button_dpad_left_pressed.rgba16.png", 16, 16, 16),
     define_builtin_tex(texture_touch_dpad_right, "textures/touchcontrols/touch_button_dpad_right.rgba16.png", 16, 16, 16),
-    define_builtin_tex(texture_touch_dpad_right_presse, "textures/touchcontrols/touch_button_dpad_right_pressed.rgba16.png", 16, 16, 16),
+    define_builtin_tex(texture_touch_dpad_right_pressed, "textures/touchcontrols/touch_button_dpad_right_pressed.rgba16.png", 16, 16, 16),
     define_builtin_tex(texture_touch_a, "textures/touchcontrols/touch_button_a.rgba16.png", 16, 16, 16),
     define_builtin_tex(texture_touch_a_pressed, "textures/touchcontrols/touch_button_a_pressed.rgba16.png", 16, 16, 16),
     define_builtin_tex(texture_touch_b, "textures/touchcontrols/touch_button_b.rgba16.png", 16, 16, 16),

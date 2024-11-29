@@ -689,7 +689,7 @@ extern ALIGNED8 const Texture texture_touch_dpad_down_pressed[];
 extern ALIGNED8 const Texture texture_touch_dpad_left[];
 extern ALIGNED8 const Texture texture_touch_dpad_left_pressed[];
 extern ALIGNED8 const Texture texture_touch_dpad_right[];
-extern ALIGNED8 const Texture texture_touch_dpad_right_presse[];
+extern ALIGNED8 const Texture texture_touch_dpad_right_pressed[];
 extern ALIGNED8 const Texture texture_touch_a[];
 extern ALIGNED8 const Texture texture_touch_a_pressed[];
 extern ALIGNED8 const Texture texture_touch_b[];
