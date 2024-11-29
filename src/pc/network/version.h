@@ -4,7 +4,7 @@
 #define SM64COOPDX_VERSION "v1.0.4"
 
 // internal version
-#define VERSION_TEXT "v"
+#define VERSION_TEXT "beta android"
 #define VERSION_NUMBER 37
 #define MINOR_VERSION_NUMBER 3
 

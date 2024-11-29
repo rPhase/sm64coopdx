@@ -330,20 +330,6 @@ void game_exit(void) {
 }
 # define FS_BASEDIR "res"
 void* main_game_init(UNUSED void* dummy) {
-#ifdef TARGET_ANDROID
-    char gamedir[SYS_MAX_PATH] = { 0 };
-    const char *basedir = get_gamedir();
-    snprintf(gamedir, sizeof(gamedir), "%s/%s", 
-             basedir,/* gCLIOpts.GameDir[0] ? gCLIOpts.GameDir :*/ FS_BASEDIR);
-    if (stat(gamedir, NULL) == -1) {
-        mkdir(gamedir, 0770);
-    }
-    // Extract lang files and default mods from the apk and copy them to basedir
-    // TODO: some way to inhibit this on launch if the apk doesn't contain updated/differing files?
-    SDL_AndroidCopyAssetFilesToDir(basedir);
-#else
-    const char *gamedir = /*gCLIOpts.GameDir[0] ? gCLIOpts.GameDir :*/ FS_BASEDIR;
-#endif
     // load language
     if (!djui_language_init(configLanguage)) { snprintf(configLanguage, MAX_CONFIG_STRING, "%s", ""); }
 
@@ -394,6 +380,23 @@ void* main_game_init(UNUSED void* dummy) {
 int SDL_main(int argc, char *argv[]) {
 #else
 int main(int argc, char *argv[]) {
+#endif
+
+// create com.owokitty.sm64excoop folder
+
+#ifdef TARGET_ANDROID
+    char gamedir[SYS_MAX_PATH] = { 0 };
+    const char *basedir = get_gamedir();
+    snprintf(gamedir, sizeof(gamedir), "%s/%s", 
+             basedir,/* gCLIOpts.GameDir[0] ? gCLIOpts.GameDir :*/ FS_BASEDIR);
+    if (stat(gamedir, NULL) == -1) {
+        mkdir(gamedir, 0770);
+    }
+    // Extract lang files and default mods from the apk and copy them to basedir
+    // TODO: some way to inhibit this on launch if the apk doesn't contain updated/differing files?
+    SDL_AndroidCopyAssetFilesToDir(basedir);
+#else
+    const char *gamedir = /*gCLIOpts.GameDir[0] ? gCLIOpts.GameDir :*/ FS_BASEDIR;
 #endif
 
     // handle terminal arguments
