@@ -118,7 +118,7 @@ void djui_panel_join_query(uint64_t aLobbyId, UNUSED uint64_t aOwnerId, uint16_t
 
     char version[MAX_VERSION_LENGTH] = { 0 };
     snprintf(version, MAX_VERSION_LENGTH, "%s", get_version_online());
-    bool disabled = (strcmp(version, aVersion) != 0)
+    bool disabled = (strcmp(version, aVersion) != 0);
     if (disabled) {
         snprintf(mode, 64, "\\#ff0000\\[%s]", aVersion);
     }
