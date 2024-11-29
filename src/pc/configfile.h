@@ -136,6 +136,7 @@ extern unsigned int configDjuiScale;
 // other
 extern unsigned int configRulesVersion;
 extern bool         configCompressOnStartup;
+extern unsigned int         configGameVersion;
 
 // secrets
 extern bool configExCoopTheme;

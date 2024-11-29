@@ -201,6 +201,7 @@ unsigned int configDjuiScale                      = 0;
 // other
 unsigned int configRulesVersion                   = 0;
 bool         configCompressOnStartup              = false;
+unsigned int configGameVersion                    = 0;
 
 // secrets
 bool configExCoopTheme = false;
@@ -421,6 +422,7 @@ static const struct ConfigOption options[] = {
     // other
     {.name = "rules_version",                  .type = CONFIG_TYPE_UINT,   .uintValue   = &configRulesVersion},
     {.name = "compress_on_startup",            .type = CONFIG_TYPE_BOOL,   .boolValue   = &configCompressOnStartup},
+    {.name = "game_version",                   .type = CONFIG_TYPE_UINT,   .uintValue   = &configGameVersion},
 };
 
 struct SecretConfigOption {

@@ -11,6 +11,7 @@
 #include "pc/utils/misc.h"
 #include "pc/configfile.h"
 #include "pc/debuglog.h"
+#include "pc/network/version.h"
 #include "macros.h"
 
 #ifdef COOPNET
@@ -106,15 +107,8 @@ void djui_panel_join_query(uint64_t aLobbyId, UNUSED uint64_t aOwnerId, uint16_t
     if (!sLobbyLayout) { return; }
     if (!sLobbyPaginated) { return; }
     if (aMaxConnections > MAX_PLAYERS) { return; }
-    if (strcmp(sPassword, "") == 0) {
-        if (strstr(aVersion, "34") || strstr(aVersion, "35") || strstr(aVersion, "v36") || strstr(aVersion, "v37")) {
-            return; 
-        } else if (strcmp(sPassword, "") == 0) {
-            if (strstr(aVersion, "34") || strstr(aVersion, "35") || strstr(aVersion, "v36")) {
-                return;
-            }
-        }
-    }
+    if (strstr(aVersion, "v36") || strstr(aVersion, "beta")) { return; }
+
     char playerText[64] = "";
     snprintf(playerText, 63, "%u/%u", aConnections, aMaxConnections);
 
@@ -124,7 +118,7 @@ void djui_panel_join_query(uint64_t aLobbyId, UNUSED uint64_t aOwnerId, uint16_t
 
     char version[MAX_VERSION_LENGTH] = { 0 };
     snprintf(version, MAX_VERSION_LENGTH, "%s", get_version_online());
-    bool disabled = (strcmp(version, aVersion) != 0 && !strstr(aVersion, "v37"));
+    bool disabled = (strcmp(version, aVersion) != 0)
     if (disabled) {
         snprintf(mode, 64, "\\#ff0000\\[%s]", aVersion);
     }
@@ -214,6 +208,7 @@ void djui_panel_join_lobbies_create(struct DjuiBase* caller, const char* passwor
             djui_text_set_alignment(text, DJUI_HALIGN_CENTER, DJUI_VALIGN_CENTER);
         }
 
+        djui_selectionbox_create(body, "Platform"/* Replace with DLANG(LOBBIES, PLATFORM)*/, gameVersionChoices, MAX_PLATFORM_VERSION, &configGameVersion, NULL);
         if (!private) { djui_button_create(body, DLANG(RULES, RULES), DJUI_BUTTON_STYLE_NORMAL, djui_panel_rules_create); }
 
         struct DjuiRect* rect2 = djui_rect_container_create(body, 64);

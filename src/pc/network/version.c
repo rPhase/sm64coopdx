@@ -1,9 +1,16 @@
 #include <stdio.h>
 #include "version.h"
 #include "types.h"
+#include "pc/configfile.h"
 
 static char sVersionString[MAX_VERSION_LENGTH] = { 0 };
 static char sOnlineVersionString[MAX_VERSION_LENGTH] = { 0 };
+
+char *gameVersionChoices[MAX_PLATFORM_VERSION] = {
+    "PC",
+    "Android",
+    "All"
+}
 
 const char* get_version(void) {
 #if defined(VERSION_US)
@@ -17,9 +24,9 @@ const char* get_version(void) {
 const char* get_version_online(void) {
 #if defined(VERSION_US)
     if (MINOR_VERSION_NUMBER > 0) {
-        snprintf(sOnlineVersionString, MAX_VERSION_LENGTH, "%s%d.%d", VERSION_TEXT, VERSION_NUMBER, MINOR_VERSION_NUMBER);
+        snprintf(sOnlineVersionString, MAX_VERSION_LENGTH, "%s %d.%d", VERSION_TEXT, VERSION_NUMBER, MINOR_VERSION_NUMBER);
     } else {
-        snprintf(sOnlineVersionString, MAX_VERSION_LENGTH, "%s%d", VERSION_TEXT, VERSION_NUMBER);
+        snprintf(sOnlineVersionString, MAX_VERSION_LENGTH, "%s %d", VERSION_TEXT, VERSION_NUMBER);
     }
 #else
     if (MINOR_VERSION_NUMBER > 0) {

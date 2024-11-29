@@ -3,8 +3,11 @@
 
 #define SM64COOPDX_VERSION "v1.0.4"
 
+extern char *gameVersionChoices[];
+
 // internal version
-#define VERSION_TEXT "beta android"
+#define MAX_PLATFORM_VERSION 3
+#define VERSION_TEXT gameVersionChoices[configGameVersion]
 #define VERSION_NUMBER 37
 #define MINOR_VERSION_NUMBER 3
 
