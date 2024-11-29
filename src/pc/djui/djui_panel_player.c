@@ -224,6 +224,10 @@ static void djui_panel_player_edit_palette_destroy(struct DjuiBase* caller) {
     (*sSavedDestroy)(caller);
 }
 
+void reload_player_palette(void) { 
+    sReloadPalettePresetSelection = true;
+}
+
 static void djui_panel_player_edit_palette_create(struct DjuiBase* caller) {
     gDjuiInPlayerMenu = true;
 
@@ -313,7 +317,7 @@ static void djui_panel_player_edit_palette_create(struct DjuiBase* caller) {
         djui_button_create(body, DLANG(MENU, BACK), DJUI_BUTTON_STYLE_BACK, djui_panel_menu_back);
 
         {
-            struct DjuiCheckbox* checkbox1 = djui_checkbox_create(body, "Toggle Wear Cap", &ToggleWearCap, NULL);
+            struct DjuiCheckbox* checkbox1 = djui_checkbox_create(body, "Toggle Wear Cap", &ToggleWearCap, reload_player_palette);
             djui_base_set_visible(&checkbox1->base, gMarioState->action == ACT_IDLE);
         }
     }
@@ -463,7 +467,7 @@ void djui_panel_player_create(struct DjuiBase* caller) {
         djui_button_create(body, DLANG(MENU, BACK), DJUI_BUTTON_STYLE_BACK, djui_panel_menu_back);
 
         {
-            struct DjuiCheckbox* checkbox1 = djui_checkbox_create(body, "Toggle Wear Cap", &ToggleWearCap, NULL);
+            struct DjuiCheckbox* checkbox1 = djui_checkbox_create(body, "Toggle Wear Cap", &ToggleWearCap, reload_player_palette);
             djui_base_set_visible(&checkbox1->base, gMarioState->action == ACT_IDLE);
         }
     }
