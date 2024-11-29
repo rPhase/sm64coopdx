@@ -470,7 +470,7 @@ void render_touch_controls(void) {
                     select_char_texture(ControlElements[i].buttonTexture.buttonUp);
                 }
 
-                DrawSprite(pos.x, pos.y, size / 100);
+                DrawSprite(pos.x, pos.y, 1 + size / 100);
                 break;
         }
     }
