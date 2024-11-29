@@ -10,7 +10,7 @@ char *gameVersionChoices[MAX_PLATFORM_VERSION] = {
     "PC",
     "Android",
     "All"
-}
+};
 
 const char* get_version(void) {
 #if defined(VERSION_US)
