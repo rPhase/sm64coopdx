@@ -27,7 +27,6 @@ static struct DjuiRect *sColorRect = NULL;
 
 struct DjuiText* gDjuiPaletteToggle = NULL;
 s8 ToggleWearCap = FALSE;
-u8 ToggleWearCapToggle = TRUE;
 
 void djui_panel_player_create(struct DjuiBase* caller);
 
