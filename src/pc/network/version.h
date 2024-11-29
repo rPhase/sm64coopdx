@@ -6,7 +6,7 @@
 // #define PLATFORM_COMPAT
 
 #ifdef PLATFORM_COMPAT
-extern char *gameVersionChoices[];
+    extern char *gameVersionChoices[];
 
     // internal version
     #define MAX_PLATFORM_VERSION 3
