@@ -225,7 +225,7 @@ static void djui_panel_player_edit_palette_destroy(struct DjuiBase* caller) {
 }
 
 void reload_player_palette(void) { 
-    sReloadPalettePresetSelection = true;
+    djui_panel_player_create(NULL);
 }
 
 static void djui_panel_player_edit_palette_create(struct DjuiBase* caller) {
