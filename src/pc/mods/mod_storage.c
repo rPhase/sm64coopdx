@@ -1,8 +1,7 @@
-/*#include "mod_storage.h"
+#include "mod_storage.h"
 
 #include <stdio.h>
-#include "pc/mini.h"
-extern "C" {
+#include <ctype.h>
 #include "pc/platform.h"
 #include "pc/configini.h" // for writing
 #include "pc/ini.h" // for parsing
@@ -10,11 +9,8 @@ extern "C" {
 #include "pc/mods/mods_utils.h"
 #include "pc/debuglog.h"
 #include <stdbool.h>
-#include "pc/fs/fs.h"
-#include "pc/utils/misc.h"
-#include <ctype.h>
-}
 #ifdef __ANDROID__
+#include "pc/utils/misc.h"
 
 #define MAX_CACHED_KEYS 100
 typedef struct CachedKey {
@@ -24,16 +20,14 @@ typedef struct CachedKey {
 
 static CachedKey sCachedKeys[MAX_CACHED_KEYS];
 
-extern "C" {
 void key_cache_init(void) {
     for (u32 i = 0; i < MAX_CACHED_KEYS; i++) {
         snprintf(sCachedKeys[i].key, MAX_KEY_VALUE_LENGTH, "%s", "");
         snprintf(sCachedKeys[i].value, MAX_KEY_VALUE_LENGTH, "%s", "");
     }
 }
-}
 
-char *key_cached(const char *key, const char * value) {
+char *key_cached(char key[], char value[]) {
     for (u32 i = 0; i < MAX_CACHED_KEYS; i++) {
         if (strncmp(key, sCachedKeys[i].key, MAX_KEY_VALUE_LENGTH) == 0) {
             if (value) {
@@ -45,7 +39,7 @@ char *key_cached(const char *key, const char * value) {
     return NULL;
 }
 
-void cache_key(const char * key, const char * value) {
+void cache_key(char key[], char value[]) {
     for (u32 i = 0; i < MAX_CACHED_KEYS; i++) {
         if (strncmp("", sCachedKeys[i].key, MAX_KEY_VALUE_LENGTH) == 0) {
             snprintf(sCachedKeys[i].key, MAX_KEY_VALUE_LENGTH, "%s", key);
@@ -133,7 +127,7 @@ void mod_storage_get_filename(char* dest) {
     strcat(dest, SAVE_EXTENSION); // append SAVE_EXTENSION
     normalize_path(dest); // fix any out of place slashes
 }
-extern "C" {
+
 bool mod_storage_save(const char *key, const char *value) {
     if (strlen(key) > MAX_KEY_VALUE_LENGTH || strlen(value) > MAX_KEY_VALUE_LENGTH) {
         LOG_LUA_LINE("Too long of a key and or value for mod_storage_save()");
@@ -282,55 +276,3 @@ bool mod_storage_load_bool(const char* key) {
 
     return !strcmp(value, "true");
 }
-
-#define Mod_Storage_Get_Filename mod_storage_get_filename
-#define Char_Valid char_valid
-#define path_exists fs_sys_path_exists
-
-bool mod_storage_remove(const char* key) {
-    if (gLuaActiveMod == NULL) { return false; }
-    if (strlen(key) > MAX_KEY_VALUE_LENGTH) { return false; }
-    if (!Char_Valid((char *)key)) { return false; }
-
-    char filename[SYS_MAX_PATH] = { 0 };
-    Mod_Storage_Get_Filename(filename);
-    if (!fs_sys_path_exists(filename)) { return false; }
-
-    mINI::INIFile file(filename);
-    mINI::INIStructure ini;
-    file.read(ini);
-
-    if (ini["storage"].remove(key)) {
-        file.write(ini);
-        file.generate(ini);
-        return true;
-    }
-
-    return false;
-}
-
-bool mod_storage_clear(void) {
-    char filename[SYS_MAX_PATH] = {0};
-    Mod_Storage_Get_Filename(filename);
-
-    if (!path_exists(filename)) {
-        return false;
-    }
-
-    mINI::INIFile file(filename);
-    mINI::INIStructure ini;
-    file.read(ini);
-
-    if (ini["storage"].size() == 0) {
-        return false;
-    }
-
-    ini["storage"].clear();
-
-    file.write(ini);
-
-    file.generate(ini);
-
-    return true;
-}
-}*/
