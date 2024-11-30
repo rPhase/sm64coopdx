@@ -192,7 +192,7 @@ const char *mod_storage_load(const char *key) {
 
 }
 
-double mod_storage_load_number(const char *key) {
+f32 mod_storage_load_number(const char *key) {
     const char *value = mod_storage_load(key);
     if (value == NULL) { return 0; }
 
