@@ -149,7 +149,7 @@ bool mod_storage_save(const char *key, const char *value) {
     return true;
 }
 
-bool mod_storage_save_number(const char* key, double value) {
+bool mod_storage_save_number(const char* key, f32 value) {
     return mod_storage_save(key, std::to_string(value).c_str());
 }
 
