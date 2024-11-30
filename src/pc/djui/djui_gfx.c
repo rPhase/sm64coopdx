@@ -56,7 +56,7 @@ f32 djui_gfx_get_scale(void) {
             case 1:  return hhH * 0.5f;
             case 2:  return hhH * 0.85f;
             case 3:  return hhH * 1.0f;
-            case 4:  return hhH * 1.15f;
+            case 4:  return hhH * 1.0f;
             default: return hhH * 1.0f;
         }
     }

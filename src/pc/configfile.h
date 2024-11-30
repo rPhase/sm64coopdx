@@ -137,6 +137,7 @@ extern unsigned int configDjuiScale;
 extern unsigned int configRulesVersion;
 extern bool         configCompressOnStartup;
 extern unsigned int         configGameVersion;
+extern bool         configAndroidBiggerButtons;
 
 // secrets
 extern bool configExCoopTheme;

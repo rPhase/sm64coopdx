@@ -23,6 +23,8 @@
 #include "controller_touchscreen.h"
 #include "controller_touchscreen_textures.h"
 
+#include "configfile.h"
+
 // Mouselook
 s16 before_x = 0;
 s16 before_y = 0;
@@ -470,7 +472,11 @@ void render_touch_controls(void) {
                     select_char_texture(ControlElements[i].buttonTexture.buttonUp);
                 }
 
-                DrawSprite(pos.x, pos.y, 1 + size / 100);
+                if (configAndroidBiggerButtons) {
+                    DrawSprite(pos.x, pos.y, 1 + size / 100);
+                } else {
+                    DrawSprite(pos.x, pos.y, size / 100);
+                }
                 break;
         }
     }
