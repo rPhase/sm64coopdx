@@ -36,7 +36,7 @@ void key_cache_init(void) {
 }
 }
 
-char *key_cached(char key[], char value[]) {
+char *key_cached(const char *key, const char * value) {
     for (u32 i = 0; i < MAX_CACHED_KEYS; i++) {
         if (strncmp(key, sCachedKeys[i].key, MAX_KEY_VALUE_LENGTH) == 0) {
             if (value) {
@@ -48,7 +48,7 @@ char *key_cached(char key[], char value[]) {
     return NULL;
 }
 
-void cache_key(char key[], char value[]) {
+void cache_key(const char * key, const char * value) {
     for (u32 i = 0; i < MAX_CACHED_KEYS; i++) {
         if (strncmp("", sCachedKeys[i].key, MAX_KEY_VALUE_LENGTH) == 0) {
             snprintf(sCachedKeys[i].key, MAX_KEY_VALUE_LENGTH, "%s", key);
@@ -150,11 +150,11 @@ bool mod_storage_save(const char *key, const char *value) {
 }
 
 bool mod_storage_save_number(const char* key, double value) {
-    return Mod_Storage_Save(key, std::to_string(value).c_str());
+    return mod_storage_save(key, std::to_string(value).c_str());
 }
 
 bool mod_storage_save_bool(const char* key, bool value) {
-    return Mod_Storage_Save(key, value ? "true" : "false");
+    return mod_storage_save(key, value ? "true" : "false");
 }
 
 const char *mod_storage_load(const char *key) {
@@ -193,14 +193,14 @@ const char *mod_storage_load(const char *key) {
 }
 
 double mod_storage_load_number(const char *key) {
-    const char *value = Mod_Storage_Load(key);
+    const char *value = mod_storage_load(key);
     if (value == NULL) { return 0; }
 
     return std::strtod(value, nullptr);
 }
 
 bool mod_storage_load_bool(const char *key) {
-    const char *value = Mod_Storage_Load(key);
+    const char *value = mod_storage_load(key);
     if (value == NULL) { return false; }
 
     return !strcmp(value, "true");
@@ -209,7 +209,7 @@ bool mod_storage_load_bool(const char *key) {
 bool mod_storage_remove(const char* key) {
     if (gLuaActiveMod == NULL) { return false; }
     if (strlen(key) > MAX_KEY_VALUE_LENGTH) { return false; }
-    if (!char_valid((char *)key)) { return false; }
+    if (!Char_Valid((char *)key)) { return false; }
 
     char filename[SYS_MAX_PATH] = { 0 };
     Mod_Storage_Get_Filename(filename);
