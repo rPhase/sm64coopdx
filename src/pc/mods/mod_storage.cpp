@@ -12,6 +12,7 @@ extern "C" {
 #include "pc/mods/mods_utils.h"
 #include "pc/fs/fs.h"
 #include "pc/debuglog.h"
+#include "pc/ini.h"
 }
 
 #define path_exists fs_sys_path_exists
@@ -159,12 +160,14 @@ bool mod_storage_save_bool(const char* key, bool value) {
 
 const char *mod_storage_load(const char *key) {
     if (strlen(key) > MAX_KEY_VALUE_LENGTH) {
+        LOG_LUA_LINE("Too long of a key for mod_storage_load()");
         return NULL;
     }
-    if (!Char_Valid((char *)key)) {
+    if (!char_valid((char *)key)) {
+        LOG_LUA_LINE("Invalid key passed to mod_storage_save()");
         return NULL;
     }
-    
+
 #ifdef __ANDROID__
     char *cached_value = NULL;
     cached_value = key_cached(key, NULL);
@@ -173,22 +176,35 @@ const char *mod_storage_load(const char *key) {
     }
 #endif
 
-    char filename[SYS_MAX_PATH] = {0};
-    Mod_Storage_Get_Filename(filename);
+    char *filename;
+    filename = (char *)malloc((SYS_MAX_PATH - 1) * sizeof(char));
+    mod_storage_get_filename(filename);
+    static char value[MAX_KEY_VALUE_LENGTH];
+    ini_t *storage;
 
-    if (!path_exists(filename)) {
+    if (!fs_sys_path_exists(filename)) {
+        free(filename);
         return NULL;
     }
 
-    mINI::INIFile file(filename);
-    mINI::INIStructure ini;
-    file.read(ini);
+    storage = ini_load(filename);
+    if (storage == NULL) {
+        ini_free(storage);
+        free(filename);
+        return NULL;
+    }
+    snprintf(value, MAX_KEY_VALUE_LENGTH, "%s", ini_get(storage, "storage", key));
 
-/*#ifdef __ANDROID__
+    ini_free(storage);
+    free(filename);
+
+    if (strstr(value, "(null)") != NULL) { return NULL; }
+
+#ifdef __ANDROID__
     cache_key(key, value);
-#endif*/
+#endif
 
-    return const_cast<char*>(ini["storage"][key].c_str());
+    return value;
 }
 
 f32 mod_storage_load_number(const char *key) {
