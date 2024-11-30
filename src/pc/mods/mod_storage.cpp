@@ -184,12 +184,11 @@ const char *mod_storage_load(const char *key) {
     mINI::INIStructure ini;
     file.read(ini);
 
-    return const_cast<char*>(ini["storage"][key].c_str());
-
-#ifdef __ANDROID__
+/*#ifdef __ANDROID__
     cache_key(key, value);
-#endif
+#endif*/
 
+    return const_cast<char*>(ini["storage"][key].c_str());
 }
 
 f32 mod_storage_load_number(const char *key) {
