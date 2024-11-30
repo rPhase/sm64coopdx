@@ -163,7 +163,7 @@ const char *mod_storage_load(const char *key) {
         LOG_LUA_LINE("Too long of a key for mod_storage_load()");
         return NULL;
     }
-    if (!char_valid((char *)key)) {
+    if (!Char_Valid((char *)key)) {
         LOG_LUA_LINE("Invalid key passed to mod_storage_save()");
         return NULL;
     }
@@ -178,7 +178,7 @@ const char *mod_storage_load(const char *key) {
 
     char *filename;
     filename = (char *)malloc((SYS_MAX_PATH - 1) * sizeof(char));
-    mod_storage_get_filename(filename);
+    Mod_Storage_Get_Filename(filename);
     static char value[MAX_KEY_VALUE_LENGTH];
     ini_t *storage;
 
