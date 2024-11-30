@@ -284,7 +284,7 @@ bool mod_storage_load_bool(const char* key) {
 }
 
 #define Mod_Storage_Get_Filename mod_storage_get_filename
-#define mod_storage_get_filename char_valid
+#define Char_Valid char_valid
 #define path_exists fs_sys_path_exists
 
 bool mod_storage_remove(const char* key) {
