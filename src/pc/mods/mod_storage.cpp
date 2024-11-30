@@ -1,7 +1,6 @@
 #include "mod_storage.h"
 
 #include <stdio.h>
-#include <ctype.h>
 #include "pc/mini.h"
 extern "C" {
 #include "pc/platform.h"
@@ -12,9 +11,10 @@ extern "C" {
 #include "pc/debuglog.h"
 #include <stdbool.h>
 #include "pc/fs/fs.h"
+#include "pc/utils/misc.h"
+#include <ctype.h>
 }
 #ifdef __ANDROID__
-#include "pc/utils/misc.h"
 
 #define MAX_CACHED_KEYS 100
 typedef struct CachedKey {
