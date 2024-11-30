@@ -27,8 +27,14 @@ The wiki is made using GitHub's wiki feature, you can go to the wiki tab or clic
 ## How to Play?
 
 Get a zip from this repo's releases, Extract it and install the APK.
+
+
 Copy your ROM to com.maniscat2.sm64coopdx (at internal storage).
+
+
 Rename it to baserom.us.z64
+
+
 Open the game, The game should load and you'll be able to play!
 
 ## Discord
