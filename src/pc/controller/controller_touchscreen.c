@@ -23,7 +23,7 @@
 #include "controller_touchscreen.h"
 #include "controller_touchscreen_textures.h"
 
-#include "configfile.h"
+#include "pc/configfile.h"
 
 // Mouselook
 s16 before_x = 0;
