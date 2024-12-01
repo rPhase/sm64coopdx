@@ -150,7 +150,7 @@ ALIGNED8 const u8 texture_touch_trash[] = {
 #include "textures/touchcontrols/touch_trash.rgba16.inc.c"
 };
 
-const Texture *const touch_textures[TOUCH_TEXTURE_COUNT] = {
+const u8 *touch_textures[TOUCH_TEXTURE_COUNT] = {
     texture_touch_joystick,
     texture_touch_joystick_base,
     texture_touch_c_up,

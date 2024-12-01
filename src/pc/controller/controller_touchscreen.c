@@ -459,17 +459,17 @@ void render_touch_controls(void) {
                 if (ControlElements[i].touchID) {
                     //select_char_texture(ControlElements[i].buttonTexture.buttonDown);
                     if (configAndroidBiggerButtons) {
-                    DrawSprite(ControlElements[i].buttonTexture.buttonDown, pos.x, pos.y, 1 + size / 100);
+                    DrawSprite(touch_textures[ControlElements[i].buttonTexture.buttonDown], pos.x, pos.y, 1 + size / 100);
                 } else {
-                    DrawSpriteControlElements[i].buttonTexture.buttonDown, (pos.x, pos.y, size / 100);
+                    DrawSprite(touch_textures[ControlElements[i].buttonTexture.buttonDown], (pos.x, pos.y, size / 100));
                 }
 
                 } else {
                     //select_char_texture(ControlElements[i].buttonTexture.buttonUp);
                     if (configAndroidBiggerButtons) {
-                    DrawSprite(ControlElements[i].buttonTexture.buttonUp, pos.x, pos.y, 1 + size / 100);
+                    DrawSprite(touch_textures[ControlElements[i].buttonTexture.buttonUp], pos.x, pos.y, 1 + size / 100);
                 } else {
-                    DrawSprite(ControlElements[i].buttonTexture.buttonUp, pos.x, pos.y, size / 100);
+                    DrawSprite(touch_textures[ControlElements[i].buttonTexture.buttonUp], pos.x, pos.y, size / 100);
                 }
             }
                 break;
@@ -485,9 +485,9 @@ void render_touch_controls(void) {
             if (ControlConfigElements[i].touchID || 
                 (i == TOUCH_SNAP && configElementSnap))
                 //select_button_texture(1);
-            DrawSprite(touch_textures[TEXTURE_TOUCH_JOYSTICK], pos.x - 8, pos.y, 1 + size / 100);
+            //DrawSprite(touch_textures[TEXTURE_TOUCH_JOYSTICK], pos.x - 8, pos.y, 1 + size / 100);
             //select_char_texture(ControlConfigElements[i].buttonTexture.buttonUp);
-            DrawSprite(ControlConfigElements[i].buttonTexture.buttonUp, pos.x, pos.y, size / 100);
+            //DrawSprite(ControlConfigElements[i].buttonTexture.buttonUp, pos.x, pos.y, size / 100);
         }
         // trash icon
         select_char_texture(TEXTURE_TOUCH_TRASH);

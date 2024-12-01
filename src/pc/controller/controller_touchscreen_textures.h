@@ -53,7 +53,7 @@ enum TouchTextureIndex {
     TOUCH_TEXTURE_COUNT,
 };
 
-extern const Texture *const touch_textures[TOUCH_TEXTURE_COUNT];
+const u8 *touch_textures[TOUCH_TEXTURE_COUNT];
 
 #endif
 #endif
