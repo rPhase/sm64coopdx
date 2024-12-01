@@ -4,8 +4,10 @@ local sNightSequences = {}
 local mod_storage_remove,mod_storage_load_bool,math_floor,mod_storage_save_number,mod_storage_load_number,type,error,network_is_moderator,network_is_server,string_format,djui_hud_is_pause_menu_created,smlua_audio_utils_replace_sequence,fade_volume_scale,set_background_music,obj_mark_for_deletion = mod_storage_remove,mod_storage_load_bool,math.floor,mod_storage_save_number,mod_storage_load_number,type,error,network_is_moderator,network_is_server,string.format,djui_hud_is_pause_menu_created,smlua_audio_utils_replace_sequence,fade_volume_scale,set_background_music,obj_mark_for_deletion
 
 -- purge legacy fields
-mod_storage_remove("ampm")
-mod_storage_remove("night-music")
+--#ifndef __ANDROID__
+--[[mod_storage_remove("ampm")
+mod_storage_remove("night-music")]]
+--#endif
 
 use24h = mod_storage_load_bool("24h")
 
