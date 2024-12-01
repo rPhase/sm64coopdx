@@ -165,7 +165,7 @@ function update_night_music()
     end
 end
 
---[[ @param obj Object
+--- @param obj Object
 --- Function to delete an object if it's dark out, meant to be used in behaviors
 function delete_at_dark(obj)
     if obj == nil then
@@ -179,4 +179,4 @@ function delete_at_dark(obj)
     if overrideDelete ~= nil and type(overrideDelete) == "boolean" then delete = overrideDelete end
 
     if delete then obj_mark_for_deletion(obj) end
-end]]
+end
