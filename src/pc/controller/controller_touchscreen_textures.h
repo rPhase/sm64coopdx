@@ -55,9 +55,14 @@ enum TouchTextureIndex {
 
 //excoop ver
 
-ALIGNED8 const u8 texture_excoop_touch[];
+ALIGNED8 const u8 texture_excoop_touch[] = {
+#include "textures/touchcontrols/touch_button.rgba16.inc.c"
+};
 
-ALIGNED8 const u8 texture_excoop_touchdark[];
+ALIGNED8 const u8 texture_excoop_touchdark[] = {
+#include "textures/touchcontrols/touch_button_dark.rgba16.inc.c"
+};
+
 
 extern const Texture *const touch_textures[TOUCH_TEXTURE_COUNT];
 
