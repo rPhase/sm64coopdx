@@ -96,17 +96,26 @@ void legacy_folder_handler(void) {
     rename_tmp_folder();
 }
 
+const char *romlistname[16] = {
+    "baserom.us.z64",
+    "Super Mario 64 (USA).z64",
+    "Super Mario 64 (USA) [!].z64",
+    "Super Mario 64 (U) [!].z64",
+    "Super Mario 64.z64",
+};
+
 bool main_rom_handler(void) {
     static char path[SYS_MAX_PATH] = { 0 };
 
     const char *basedir = get_gamedir();
-    snprintf(path, sizeof(path), "%s/user/baserom.us.z64", basedir);
-    if (fs_sys_file_exists(path)) {
-        gRomIsValid = true;
-        //foundHash = true
-        snprintf(gRomFilename, SYS_MAX_PATH, "%s", path);
+    for (s32 indexrom = 0; indexrom < ARRAY_COUNT(romlistname); indexrom++) {
+        snprintf(path, sizeof(path), "%s/user/%s", basedir, romlistname[indexrom]);
+        if (fs_sys_file_exists(path)) {
+            gRomIsValid = true;
+            // foundHash = true
+            snprintf(gRomFilename, SYS_MAX_PATH, "%s", path);
+            return gRomIsValid;
+        }
     }
-
-    return gRomIsValid;
 }
 }
