@@ -115,7 +115,6 @@ struct ControlElement {
     //Button
     int buttonID;
     struct ButtonState buttonTexture;
-    u8 character;
     int slideTouch;
 };
 
