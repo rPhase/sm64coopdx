@@ -116,7 +116,7 @@ void djui_panel_display_create(struct DjuiBase* caller) {
         char* drawDistanceChoices[6] = { DLANG(DISPLAY, D0P5X), DLANG(DISPLAY, D1X), DLANG(DISPLAY, D1P5X), DLANG(DISPLAY, D3X), DLANG(DISPLAY, D10X), DLANG(DISPLAY, D100X) };
         djui_selectionbox_create(body, DLANG(DISPLAY, DRAW_DISTANCE), drawDistanceChoices, 6, &configDrawDistance, NULL);
         djui_checkbox_create(body, "Bigger Touch Controls", &configAndroidBiggerButtons, NULL);
-        djui_checkbox_create(body, "sm64ex-coop Touch Controls", &configAndroidExcoopControl, NULL);
+        //djui_checkbox_create(body, "sm64ex-coop Touch Controls", &configAndroidExcoopControl, NULL);
         djui_button_create(body, DLANG(MENU, BACK), DJUI_BUTTON_STYLE_BACK, djui_panel_menu_back);
 
         sRestartText = djui_text_create(body, "");
