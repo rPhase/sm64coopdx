@@ -379,6 +379,18 @@ static void select_button_texture(int dark) {
     gSPDisplayList(gDisplayListHead++, dl_hud_img_load_tex_block);
 }
 
+static void select_button_textureEXCOOP(int dark) {
+    gDPPipeSync(gDisplayListHead++);
+    
+    if (!dark) {
+        gDPSetTextureImage(gDisplayListHead++, G_IM_FMT_RGBA, G_IM_SIZ_16b, 1, texture_excoop_touch);
+    } else {
+        gDPSetTextureImage(gDisplayListHead++, G_IM_FMT_RGBA, G_IM_SIZ_16b, 1, texture_excoop_touchdark);
+    }
+
+    gSPDisplayList(gDisplayListHead++, dl_hud_img_load_tex_block);
+}
+
 const Gfx dl_tex_joystick_base_uv[] = {
     gsDPSetTile(G_IM_FMT_RGBA, G_IM_SIZ_16b_LOAD_BLOCK, 0, 0, 7, 0, G_TX_WRAP | G_TX_NOMIRROR, 0, 0, G_TX_WRAP | G_TX_NOMIRROR, 0, 0),
 	gsDPLoadBlock(7, 0, 0, 1023, 256),
@@ -445,27 +457,78 @@ void render_touch_controls(void) {
     s32 size;
     // All normal elements
     for (u32 i = 0; i < ControlElementsLength; i++) {
+        if (configAndroidExcoopControl) {
+            ControlElements[TOUCH_A].buttonTexture.buttonUp = "a";
+            ControlElements[TOUCH_B].buttonTexture.buttonUp = "b";
+            ControlElements[TOUCH_X].buttonTexture.buttonUp = "x";
+            ControlElements[TOUCH_Y].buttonTexture.buttonUp = "y";
+            ControlElements[TOUCH_L].buttonTexture.buttonUp = "l";
+            ControlElements[TOUCH_R].buttonTexture.buttonUp = "r";
+            ControlElements[TOUCH_Z].buttonTexture.buttonUp = "z";
+            ControlElements[TOUCH_PLAYERLIST].buttonTexture.buttonDown = "p";
+        } else {
+            ControlElements[TOUCH_A].buttonTexture.buttonUp = TEXTURE_TOUCH_A;
+            ControlElements[TOUCH_B].buttonTexture.buttonUp = TEXTURE_TOUCH_B;
+            ControlElements[TOUCH_X].buttonTexture.buttonUp = TEXTURE_TOUCH_X;
+            ControlElements[TOUCH_Y].buttonTexture.buttonUp = TEXTURE_TOUCH_Y;
+            ControlElements[TOUCH_L].buttonTexture.buttonUp = TEXTURE_TOUCH_L;
+            ControlElements[TOUCH_R].buttonTexture.buttonUp = TEXTURE_TOUCH_R;
+            ControlElements[TOUCH_Z].buttonTexture.buttonUp = TEXTURE_TOUCH_Z;
+            
+        }
         pos = get_pos(&configControlElements[i], 0);
         if (pos.y == HIDE_POS) continue;
         size = configControlElements[i].size[0];
-        select_joystick_tex_base();
+        if (configAndroidExcoopControl) {
+            select_button_textureEXCOOP(0);
+        } else {
+            select_joystick_tex_base();
+        }
         switch (ControlElements[i].type) {
             case Joystick:
-                DrawSpriteTexJoyBase(pos.x, pos.y, 2);
-                select_joystick_tex();
+                if (configAndroidExcoopControl) {
+                    DrawSprite(pos.x, pos.y, 3);
+                } else {
+                    DrawSpriteTexJoyBase(pos.x, pos.y, 2);
+                }
+
+                if (!configAndroidExcoopControl) {
+                    select_joystick_tex();
+                } else {
+                    select_button_textureEXCOOP(0);
+                }
                 DrawSprite(pos.x + 4 + ControlElements[i].joyX, pos.y + 4 + ControlElements[i].joyY, 2);
                 break;
-            /*case Mouse:
-                if ((before_x > 0 || before_y > 0) &&
-                    ControlElements[i].touchID &&
-                    configCameraMouse &&
-                    !gInTouchConfig) {
-                    touch_cam_last_x = before_x > 0 ? before_x : touch_cam_last_x;
-                    touch_cam_last_y = before_y > 0 ? before_y : touch_cam_last_y;
-                    DrawSprite(touch_cam_last_x, touch_cam_last_y, 2);
+            case Mouse:
+                if (configAndroidExcoopControl) {
+                    select_button_textureEXCOOP(0);
+                    if ((before_x > 0 || before_y > 0) &&
+                        ControlElements[i].touchID &&
+                        configCameraMouse &&
+                        !gInTouchConfig) {
+                        touch_cam_last_x = before_x > 0 ? before_x : touch_cam_last_x;
+                        touch_cam_last_y = before_y > 0 ? before_y : touch_cam_last_y;
+                        DrawSprite(touch_cam_last_x, touch_cam_last_y, 2);
+                    }
                 }
-                break;*/
+                break;
             case Button:
+            if (configAndroidExcoopControl) {
+                if (ControlElements[i].touchID) {
+                    select_button_textureEXCOOP(1);
+                } else {
+                    select_button_textureEXCOOP(1);
+                }
+                DrawSprite(pos.x - 8, pos.y, 1 + size / 100);
+                select_char_texture(ControlElements[i].buttonTexture.buttonUp);
+                if (configAndroidBiggerButtons) {
+                    DrawSprite(pos.x, pos.y, 1 + size / 100);
+                } else {
+                    DrawSprite(pos.x, pos.y, size / 100);
+                }
+                
+                }
+            } else {
                 if (ControlElements[i].touchID) {
                     select_char_texture(ControlElements[i].buttonTexture.buttonDown);
                 } else {
@@ -477,19 +540,21 @@ void render_touch_controls(void) {
                 } else {
                     DrawSprite(pos.x, pos.y, size / 100);
                 }
-                break;
+            }
+            break;
         }
-    }
+        
+
     // Config-only elements
     if (gInTouchConfig) {
         for (u32 i = 0; i < ControlConfigElementsLength; i++) {
             pos = get_pos(&configControlConfigElements[i], 0);
             if (pos.y == HIDE_POS) continue;
             size = configControlConfigElements[i].size[0];
-            select_button_texture(0);
+            select_button_textureEXCOOP(0);
             if (ControlConfigElements[i].touchID || 
                 (i == TOUCH_SNAP && configElementSnap))
-                select_button_texture(1);
+                select_button_textureEXCOOP(1);
             DrawSprite(pos.x - 8, pos.y, 1 + size / 100);
             select_char_texture(ControlConfigElements[i].buttonTexture.buttonUp);
             DrawSprite(pos.x, pos.y, size / 100);

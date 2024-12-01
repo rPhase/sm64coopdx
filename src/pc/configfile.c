@@ -203,6 +203,7 @@ unsigned int configRulesVersion                   = 0;
 bool         configCompressOnStartup              = false;
 unsigned int configGameVersion                    = 0;
 bool         configAndroidBiggerButtons           = true;
+bool         configAndroidExcoopControl           = true;
 
 // secrets
 bool configExCoopTheme = false;
@@ -425,6 +426,7 @@ static const struct ConfigOption options[] = {
     {.name = "compress_on_startup",            .type = CONFIG_TYPE_BOOL,   .boolValue   = &configCompressOnStartup},
     {.name = "game_version",                   .type = CONFIG_TYPE_UINT,   .uintValue   = &configGameVersion},
     {.name = "android_bigger_buttons",            .type = CONFIG_TYPE_BOOL,   .boolValue   = &configAndroidBiggerButtons},
+    {.name = "android_excoop_cont",            .type = CONFIG_TYPE_BOOL,   .boolValue   = &configAndroidExcoopControl},
 };
 
 struct SecretConfigOption {

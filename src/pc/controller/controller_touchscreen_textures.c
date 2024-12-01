@@ -150,6 +150,16 @@ ALIGNED8 const u8 texture_touch_trash[] = {
 #include "textures/touchcontrols/touch_trash.rgba16.inc.c"
 };
 
+//excoop ver
+
+ALIGNED8 const u8 texture_excoop_touch[] = {
+#include "textures/touchcontrols/touch_button.rgba16.inc.c"
+};
+
+ALIGNED8 const u8 texture_excoop_touchdark[] = {
+#include "textures/touchcontrols/touch_button_dark.rgba16.inc.c"
+};
+
 const Texture *const touch_textures[TOUCH_TEXTURE_COUNT] = {
     texture_touch_joystick,
     texture_touch_joystick_base,
