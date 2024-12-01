@@ -25,8 +25,6 @@
 
 #include "pc/configfile.h"
 
-#include "pc/djui/djui_hud_utils.h"
-
 // Mouselook
 s16 before_x = 0;
 s16 before_y = 0;
@@ -420,8 +418,8 @@ static void select_char_texture(u8 num) {
     gSPDisplayList(gDisplayListHead++, dl_hud_img_load_tex_block);
 }
 
-static void DrawSprite(const u8* texInfo, f32 x, f32 y, f32 scaling) {
-    djui_hud_render_texture_raw(texInfo, 8, 16, 16, x, y, scaling, scaling);
+static void DrawSprite(s32 x, s32 y, int scaling) {
+    gSPTextureRectangle(gDisplayListHead++, x - (16 << scaling), y - (16 << scaling), x + (15 << scaling), y + (15 << scaling), G_TX_RENDERTILE, 0, 0, 4 << (11 - scaling), 1 << (11 - scaling));
 }
 
 static void DrawSpriteTexJoyBase(s32 x, s32 y, int scaling) {
@@ -430,6 +428,18 @@ static void DrawSpriteTexJoyBase(s32 x, s32 y, int scaling) {
 
 void render_touch_controls(void) {
     if ((gGamepadActive && configAutohideTouch) || !gGameInited) return;
+    Mtx *mtx;
+
+    mtx = alloc_display_list(sizeof(*mtx));
+
+    if (mtx == NULL) {
+        return;
+    }
+
+    guOrtho(mtx, 0.0f, SCREEN_WIDTH, 0.0f, SCREEN_HEIGHT, -10.0f, 10.0f, 1.0f);
+    gSPPerspNormalize((Gfx *) (gDisplayListHead++), 0xFFFF);
+    gSPMatrix(gDisplayListHead++, VIRTUAL_TO_PHYSICAL(mtx), G_MTX_PROJECTION | G_MTX_LOAD | G_MTX_NOPUSH);
+    gSPDisplayList(gDisplayListHead++, dl_hud_img_begin);
 
     struct Position pos;
     s32 size;
@@ -441,9 +451,9 @@ void render_touch_controls(void) {
         select_joystick_tex_base();
         switch (ControlElements[i].type) {
             case Joystick:
-                //DrawSpriteTexJoyBase(pos.x, pos.y, 2);
-                //select_joystick_tex();
-                DrawSprite(&touch_textures[TEXTURE_TOUCH_JOYSTICK], pos.x + 4 + ControlElements[i].joyX, pos.y + 4 + ControlElements[i].joyY, 2);
+                DrawSpriteTexJoyBase(pos.x, pos.y, 2);
+                select_joystick_tex();
+                DrawSprite(pos.x + 4 + ControlElements[i].joyX, pos.y + 4 + ControlElements[i].joyY, 2);
                 break;
             /*case Mouse:
                 if ((before_x > 0 || before_y > 0) &&
@@ -452,26 +462,21 @@ void render_touch_controls(void) {
                     !gInTouchConfig) {
                     touch_cam_last_x = before_x > 0 ? before_x : touch_cam_last_x;
                     touch_cam_last_y = before_y > 0 ? before_y : touch_cam_last_y;
-                    DrawSprite(&touch_cam_last_x, touch_cam_last_y, 2);
+                    DrawSprite(touch_cam_last_x, touch_cam_last_y, 2);
                 }
                 break;*/
             case Button:
                 if (ControlElements[i].touchID) {
-                    //select_char_texture(ControlElements[i].buttonTexture.buttonDown);
-                    if (configAndroidBiggerButtons) {
-                    DrawSprite(&touch_textures[ControlElements[i].buttonTexture.buttonDown], pos.x, pos.y, 1 + size / 1);
+                    select_char_texture(ControlElements[i].buttonTexture.buttonDown);
                 } else {
-                    DrawSprite(&touch_textures[ControlElements[i].buttonTexture.buttonDown], pos.x, pos.y, size / 1);
+                    select_char_texture(ControlElements[i].buttonTexture.buttonUp);
                 }
 
+                if (configAndroidBiggerButtons) {
+                    DrawSprite(pos.x, pos.y, 1 + size / 100);
                 } else {
-                    //select_char_texture(ControlElements[i].buttonTexture.buttonUp);
-                    if (configAndroidBiggerButtons) {
-                    DrawSprite(&touch_textures[ControlElements[i].buttonTexture.buttonUp], pos.x, pos.y, 1 + size / 1);
-                } else {
-                    DrawSprite(&touch_textures[ControlElements[i].buttonTexture.buttonUp], pos.x, pos.y, size / 1);
+                    DrawSprite(pos.x, pos.y, size / 100);
                 }
-            }
                 break;
         }
     }
@@ -481,17 +486,17 @@ void render_touch_controls(void) {
             pos = get_pos(&configControlConfigElements[i], 0);
             if (pos.y == HIDE_POS) continue;
             size = configControlConfigElements[i].size[0];
-            //select_button_texture(0);
+            select_button_texture(0);
             if (ControlConfigElements[i].touchID || 
-                (i == TOUCH_SNAP && configElementSnap)) 
+                (i == TOUCH_SNAP && configElementSnap))
                 select_button_texture(1);
-            //DrawSprite(&touch_textures[TEXTURE_TOUCH_JOYSTICK], pos.x - 8, pos.y, 1 + size / 100);
-            //select_char_texture(ControlConfigElements[i].buttonTexture.buttonUp);
-            //DrawSprite(&ControlConfigElements[i].buttonTexture.buttonUp, pos.x, pos.y, size / 100);
+            DrawSprite(pos.x - 8, pos.y, 1 + size / 100);
+            select_char_texture(ControlConfigElements[i].buttonTexture.buttonUp);
+            DrawSprite(pos.x, pos.y, size / 100);
         }
         // trash icon
         select_char_texture(TEXTURE_TOUCH_TRASH);
-        DrawSprite(&touch_textures[TEXTURE_TOUCH_TRASH] ,SCREEN_WIDTH_API / 2, SCREEN_HEIGHT_API / 2, 2);
+        DrawSprite(SCREEN_WIDTH_API / 2, SCREEN_HEIGHT_API / 2, 2);
     }
 
     gSPDisplayList(gDisplayListHead++, dl_hud_img_end);
