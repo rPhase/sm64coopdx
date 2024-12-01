@@ -24,7 +24,7 @@ local sDncHooks = {
     [DNC_HOOK_SET_FOG_INTENSITY] = {},
     [DNC_HOOK_SET_DISPLAY_TIME_COLOR] = {},
     [DNC_HOOK_SET_DISPLAY_TIME_POS] = {},
-    [DNC_HOOK_DELETE_AT_DARK] = {},
+    --[DNC_HOOK_DELETE_AT_DARK] = {},
     [DNC_HOOK_SET_TIME] = {},
     [DNC_HOOK_SET_SKYBOX_MODEL] = {}
 }
@@ -598,7 +598,7 @@ _G.dayNightCycleApi = {
     get_time_scale = get_time_scale,
     set_time_scale = set_time_scale,
     get_time_string = get_time_string,
-    delete_at_dark = delete_at_dark,
+    --delete_at_dark = delete_at_dark,
     show_day_night_cycle = show_day_night_cycle,
     should_play_night_music = should_play_night_music,
     night_music_register = night_music_register,
@@ -679,7 +679,7 @@ _G.dayNightCycleApi = {
         -- * Called whenever `delete_at_dark` is run
         -- * Parameters: `Object` obj, `boolean` shouldDelete
         -- * Return: `boolean`
-        DNC_HOOK_DELETE_AT_DARK = DNC_HOOK_DELETE_AT_DARK,
+        --DNC_HOOK_DELETE_AT_DARK = DNC_HOOK_DELETE_AT_DARK,
         -- * Called whenever `/time set` or `/time add` is ran
         -- * Parameters: `number` oldTime, `number` newTime
         -- * Return: nil
