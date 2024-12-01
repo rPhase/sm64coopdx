@@ -441,7 +441,7 @@ void render_touch_controls(void) {
     gSPMatrix(gDisplayListHead++, VIRTUAL_TO_PHYSICAL(mtx), G_MTX_PROJECTION | G_MTX_LOAD | G_MTX_NOPUSH);
     gSPDisplayList(gDisplayListHead++, dl_hud_img_begin);
 
-    gDPSetBlendColor(255, 255, 255, configTouchControlAlpha);
+    gDPSetBlendColor(gDisplayListHead++, 255, 255, 255, configTouchControlAlpha);
 
     struct Position pos;
     s32 size;
