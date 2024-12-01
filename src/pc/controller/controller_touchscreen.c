@@ -461,7 +461,7 @@ void render_touch_controls(void) {
                     if (configAndroidBiggerButtons) {
                     DrawSprite(touch_textures[ControlElements[i].buttonTexture.buttonDown], pos.x, pos.y, 1 + size / 100);
                 } else {
-                    DrawSprite(touch_textures[ControlElements[i].buttonTexture.buttonDown], (pos.x, pos.y, size / 100));
+                    DrawSprite(touch_textures[ControlElements[i].buttonTexture.buttonDown], pos.x, pos.y, size / 100);
                 }
 
                 } else {
@@ -483,8 +483,8 @@ void render_touch_controls(void) {
             size = configControlConfigElements[i].size[0];
             //select_button_texture(0);
             if (ControlConfigElements[i].touchID || 
-                (i == TOUCH_SNAP && configElementSnap))
-                //select_button_texture(1);
+                (i == TOUCH_SNAP && configElementSnap)) 
+                select_button_texture(1);
             //DrawSprite(touch_textures[TEXTURE_TOUCH_JOYSTICK], pos.x - 8, pos.y, 1 + size / 100);
             //select_char_texture(ControlConfigElements[i].buttonTexture.buttonUp);
             //DrawSprite(ControlConfigElements[i].buttonTexture.buttonUp, pos.x, pos.y, size / 100);
