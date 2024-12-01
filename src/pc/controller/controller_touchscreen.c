@@ -439,10 +439,12 @@ void render_touch_controls(void) {
 
     guOrtho(mtx, 0.0f, SCREEN_WIDTH, 0.0f, SCREEN_HEIGHT, -10.0f, 10.0f, 1.0f);
     gSPPerspNormalize((Gfx *) (gDisplayListHead++), 0xFFFF);
-    gSPMatrix(gDisplayListHead++, VIRTUAL_TO_PHYSICAL(mtx), G_MTX_PROJECTION | G_MTX_LOAD | G_MTX_NOPUSH);
+    gSPMatrix(gDisplayListHead++, VIRTUAL_TO_PHYSICAL(mtx), G_MTX_MODELVIEW | G_MTX_MUL | G_MTX_PUSH);
     gSPDisplayList(gDisplayListHead++, dl_hud_img_begin);
 
-    gDPSetBlendColor(gDisplayListHead++, 255, 255, 255, configTouchControlAlpha);
+    gDPSetEnvColor(gDisplayListHead++, 255, 255, 255, configTouchControlAlpha);
+
+    gSPPopMatrix(gDisplayListHead++, G_MTX_MODELVIEW);
 
     struct Position pos;
     s32 size;
