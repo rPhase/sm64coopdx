@@ -443,7 +443,7 @@ void render_touch_controls(void) {
             case Joystick:
                 //DrawSpriteTexJoyBase(pos.x, pos.y, 2);
                 //select_joystick_tex();
-                DrawSprite(touch_textures[TEXTURE_TOUCH_JOYSTICK], pos.x + 4 + ControlElements[i].joyX, pos.y + 4 + ControlElements[i].joyY, 2);
+                DrawSprite(&touch_textures[TEXTURE_TOUCH_JOYSTICK], pos.x + 4 + ControlElements[i].joyX, pos.y + 4 + ControlElements[i].joyY, 2);
                 break;
             /*case Mouse:
                 if ((before_x > 0 || before_y > 0) &&
@@ -452,24 +452,24 @@ void render_touch_controls(void) {
                     !gInTouchConfig) {
                     touch_cam_last_x = before_x > 0 ? before_x : touch_cam_last_x;
                     touch_cam_last_y = before_y > 0 ? before_y : touch_cam_last_y;
-                    DrawSprite(touch_cam_last_x, touch_cam_last_y, 2);
+                    DrawSprite(&touch_cam_last_x, touch_cam_last_y, 2);
                 }
                 break;*/
             case Button:
                 if (ControlElements[i].touchID) {
                     //select_char_texture(ControlElements[i].buttonTexture.buttonDown);
                     if (configAndroidBiggerButtons) {
-                    DrawSprite(touch_textures[ControlElements[i].buttonTexture.buttonDown], pos.x, pos.y, 1 + size / 1);
+                    DrawSprite(&touch_textures[ControlElements[i].buttonTexture.buttonDown], pos.x, pos.y, 1 + size / 1);
                 } else {
-                    DrawSprite(touch_textures[ControlElements[i].buttonTexture.buttonDown], pos.x, pos.y, size / 1);
+                    DrawSprite(&touch_textures[ControlElements[i].buttonTexture.buttonDown], pos.x, pos.y, size / 1);
                 }
 
                 } else {
                     //select_char_texture(ControlElements[i].buttonTexture.buttonUp);
                     if (configAndroidBiggerButtons) {
-                    DrawSprite(touch_textures[ControlElements[i].buttonTexture.buttonUp], pos.x, pos.y, 1 + size / 1);
+                    DrawSprite(&touch_textures[ControlElements[i].buttonTexture.buttonUp], pos.x, pos.y, 1 + size / 1);
                 } else {
-                    DrawSprite(touch_textures[ControlElements[i].buttonTexture.buttonUp], pos.x, pos.y, size / 1);
+                    DrawSprite(&touch_textures[ControlElements[i].buttonTexture.buttonUp], pos.x, pos.y, size / 1);
                 }
             }
                 break;
@@ -485,13 +485,13 @@ void render_touch_controls(void) {
             if (ControlConfigElements[i].touchID || 
                 (i == TOUCH_SNAP && configElementSnap)) 
                 select_button_texture(1);
-            //DrawSprite(touch_textures[TEXTURE_TOUCH_JOYSTICK], pos.x - 8, pos.y, 1 + size / 100);
+            //DrawSprite(&touch_textures[TEXTURE_TOUCH_JOYSTICK], pos.x - 8, pos.y, 1 + size / 100);
             //select_char_texture(ControlConfigElements[i].buttonTexture.buttonUp);
-            //DrawSprite(ControlConfigElements[i].buttonTexture.buttonUp, pos.x, pos.y, size / 100);
+            //DrawSprite(&ControlConfigElements[i].buttonTexture.buttonUp, pos.x, pos.y, size / 100);
         }
         // trash icon
         select_char_texture(TEXTURE_TOUCH_TRASH);
-        DrawSprite(touch_textures[TEXTURE_TOUCH_TRASH] ,SCREEN_WIDTH_API / 2, SCREEN_HEIGHT_API / 2, 2);
+        DrawSprite(&touch_textures[TEXTURE_TOUCH_TRASH] ,SCREEN_WIDTH_API / 2, SCREEN_HEIGHT_API / 2, 2);
     }
 
     gSPDisplayList(gDisplayListHead++, dl_hud_img_end);
