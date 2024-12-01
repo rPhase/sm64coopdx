@@ -465,7 +465,7 @@ void render_touch_controls(void) {
             ControlElements[TOUCH_L].buttonTexture.buttonUp = "l";
             ControlElements[TOUCH_R].buttonTexture.buttonUp = "r";
             ControlElements[TOUCH_Z].buttonTexture.buttonUp = "z";
-            ControlElements[TOUCH_PLAYERLIST].buttonTexture.buttonDown = "p";
+            ControlElements[TOUCH_PLAYERLIST].buttonTexture.buttonUp = "p";
         } else {
             ControlElements[TOUCH_A].buttonTexture.buttonUp = TEXTURE_TOUCH_A;
             ControlElements[TOUCH_B].buttonTexture.buttonUp = TEXTURE_TOUCH_B;
