@@ -69,20 +69,20 @@ ConfigControlElement configControlConfigElements[CONTROL_CONFIG_ELEMENT_COUNT] =
 static struct ControlElement ControlElements[CONTROL_ELEMENT_COUNT] = {
 [TOUCH_STICK] =      {.type = Joystick},
 [TOUCH_MOUSE] =      {.type = Mouse},
-[TOUCH_A] =          {.type = Button, .buttonTexture = { .buttonUp = TEXTURE_TOUCH_A,          .buttonDown = TEXTURE_TOUCH_A_PRESSED },          .buttonID = A_BUTTON},
-[TOUCH_B] =          {.type = Button, .buttonTexture = { .buttonUp = TEXTURE_TOUCH_B,          .buttonDown = TEXTURE_TOUCH_B_PRESSED },          .buttonID = B_BUTTON},
-[TOUCH_X] =          {.type = Button, .buttonTexture = { .buttonUp = TEXTURE_TOUCH_X,          .buttonDown = TEXTURE_TOUCH_X_PRESSED },          .buttonID = X_BUTTON},
-[TOUCH_Y] =          {.type = Button, .buttonTexture = { .buttonUp = TEXTURE_TOUCH_Y,          .buttonDown = TEXTURE_TOUCH_Y_PRESSED },          .buttonID = Y_BUTTON},
-[TOUCH_START] =      {.type = Button, .buttonTexture = { .buttonUp = TEXTURE_TOUCH_START,      .buttonDown = TEXTURE_TOUCH_START_PRESSED },      .buttonID = START_BUTTON},
-[TOUCH_L] =          {.type = Button, .buttonTexture = { .buttonUp = TEXTURE_TOUCH_L,          .buttonDown = TEXTURE_TOUCH_L_PRESSED },          .buttonID = L_TRIG},
-[TOUCH_R] =          {.type = Button, .buttonTexture = { .buttonUp = TEXTURE_TOUCH_R,          .buttonDown = TEXTURE_TOUCH_R_PRESSED },          .buttonID = R_TRIG},
-[TOUCH_Z] =          {.type = Button, .buttonTexture = { .buttonUp = TEXTURE_TOUCH_Z,          .buttonDown = TEXTURE_TOUCH_Z_PRESSED },          .buttonID = Z_TRIG},
+[TOUCH_A] =          {.type = Button, .buttonTexture = { .buttonUp = TEXTURE_TOUCH_A,          .buttonDown = TEXTURE_TOUCH_A_PRESSED }, .character = 'a',          .buttonID = A_BUTTON},
+[TOUCH_B] =          {.type = Button, .buttonTexture = { .buttonUp = TEXTURE_TOUCH_B,          .buttonDown = TEXTURE_TOUCH_B_PRESSED }, .character = 'b',           .buttonID = B_BUTTON},
+[TOUCH_X] =          {.type = Button, .buttonTexture = { .buttonUp = TEXTURE_TOUCH_X,          .buttonDown = TEXTURE_TOUCH_X_PRESSED }, .character = 'x',        .buttonID = X_BUTTON},
+[TOUCH_Y] =          {.type = Button, .buttonTexture = { .buttonUp = TEXTURE_TOUCH_Y,          .buttonDown = TEXTURE_TOUCH_Y_PRESSED }, .character = 'y',         .buttonID = Y_BUTTON},
+[TOUCH_START] =      {.type = Button, .buttonTexture = { .buttonUp = TEXTURE_TOUCH_START,      .buttonDown = TEXTURE_TOUCH_START_PRESSED }, .character = 's',     .buttonID = START_BUTTON},
+[TOUCH_L] =          {.type = Button, .buttonTexture = { .buttonUp = TEXTURE_TOUCH_L,          .buttonDown = TEXTURE_TOUCH_L_PRESSED }, .character = 'l',        .buttonID = L_TRIG},
+[TOUCH_R] =          {.type = Button, .buttonTexture = { .buttonUp = TEXTURE_TOUCH_R,          .buttonDown = TEXTURE_TOUCH_R_PRESSED }, .character = 'r',         .buttonID = R_TRIG},
+[TOUCH_Z] =          {.type = Button, .buttonTexture = { .buttonUp = TEXTURE_TOUCH_Z,          .buttonDown = TEXTURE_TOUCH_Z_PRESSED }, .character = 'z',          .buttonID = Z_TRIG},
 [TOUCH_CUP] =        {.type = Button, .buttonTexture = { .buttonUp = TEXTURE_TOUCH_C_UP,       .buttonDown = TEXTURE_TOUCH_C_UP_PRESSED },       .buttonID = U_CBUTTONS},
 [TOUCH_CDOWN] =      {.type = Button, .buttonTexture = { .buttonUp = TEXTURE_TOUCH_C_DOWN,     .buttonDown = TEXTURE_TOUCH_C_DOWN_PRESSED },     .buttonID = D_CBUTTONS},
 [TOUCH_CLEFT] =      {.type = Button, .buttonTexture = { .buttonUp = TEXTURE_TOUCH_C_LEFT,     .buttonDown = TEXTURE_TOUCH_C_LEFT_PRESSED },     .buttonID = L_CBUTTONS},
 [TOUCH_CRIGHT] =     {.type = Button, .buttonTexture = { .buttonUp = TEXTURE_TOUCH_C_RIGHT,    .buttonDown = TEXTURE_TOUCH_C_RIGHT_PRESSED },    .buttonID = R_CBUTTONS},
 [TOUCH_CHAT] =       {.type = Button, .buttonTexture = { .buttonUp = TEXTURE_TOUCH_CHAT,       .buttonDown = TEXTURE_TOUCH_CHAT_PRESSED },       .buttonID = CHAT_BUTTON},
-[TOUCH_PLAYERLIST] = {.type = Button, .buttonTexture = { .buttonUp = TEXTURE_TOUCH_PLAYERLIST, .buttonDown = TEXTURE_TOUCH_PLAYERLIST_PRESSED }, .buttonID = PLAYERLIST_BUTTON},
+[TOUCH_PLAYERLIST] = {.type = Button, .buttonTexture = { .buttonUp = TEXTURE_TOUCH_PLAYERLIST, .buttonDown = TEXTURE_TOUCH_PLAYERLIST_PRESSED }, .character = 'p', .buttonID = PLAYERLIST_BUTTON},
 [TOUCH_DUP] =        {.type = Button, .buttonTexture = { .buttonUp = TEXTURE_TOUCH_DPAD_UP,    .buttonDown = TEXTURE_TOUCH_DPAD_UP_PRESSED },    .buttonID = U_JPAD},
 [TOUCH_DDOWN] =      {.type = Button, .buttonTexture = { .buttonUp = TEXTURE_TOUCH_DPAD_DOWN,  .buttonDown = TEXTURE_TOUCH_DPAD_DOWN_PRESSED },  .buttonID = D_JPAD},
 [TOUCH_DLEFT] =      {.type = Button, .buttonTexture = { .buttonUp = TEXTURE_TOUCH_DPAD_LEFT,  .buttonDown = TEXTURE_TOUCH_DPAD_LEFT_PRESSED },  .buttonID = L_JPAD},
@@ -457,25 +457,6 @@ void render_touch_controls(void) {
     s32 size;
     // All normal elements
     for (u32 i = 0; i < ControlElementsLength; i++) {
-        if (configAndroidExcoopControl) {
-            ControlElements[TOUCH_A].buttonTexture.buttonUp = "a";
-            ControlElements[TOUCH_B].buttonTexture.buttonUp = "b";
-            ControlElements[TOUCH_X].buttonTexture.buttonUp = "x";
-            ControlElements[TOUCH_Y].buttonTexture.buttonUp = "y";
-            ControlElements[TOUCH_L].buttonTexture.buttonUp = "l";
-            ControlElements[TOUCH_R].buttonTexture.buttonUp = "r";
-            ControlElements[TOUCH_Z].buttonTexture.buttonUp = "z";
-            ControlElements[TOUCH_PLAYERLIST].buttonTexture.buttonUp = "p";
-        } else {
-            ControlElements[TOUCH_A].buttonTexture.buttonUp = TEXTURE_TOUCH_A;
-            ControlElements[TOUCH_B].buttonTexture.buttonUp = TEXTURE_TOUCH_B;
-            ControlElements[TOUCH_X].buttonTexture.buttonUp = TEXTURE_TOUCH_X;
-            ControlElements[TOUCH_Y].buttonTexture.buttonUp = TEXTURE_TOUCH_Y;
-            ControlElements[TOUCH_L].buttonTexture.buttonUp = TEXTURE_TOUCH_L;
-            ControlElements[TOUCH_R].buttonTexture.buttonUp = TEXTURE_TOUCH_R;
-            ControlElements[TOUCH_Z].buttonTexture.buttonUp = TEXTURE_TOUCH_Z;
-            
-        }
         pos = get_pos(&configControlElements[i], 0);
         if (pos.y == HIDE_POS) continue;
         size = configControlElements[i].size[0];
@@ -520,7 +501,7 @@ void render_touch_controls(void) {
                     select_button_textureEXCOOP(1);
                 }
                 DrawSprite(pos.x - 8, pos.y, 1 + size / 100);
-                select_char_texture(ControlElements[i].buttonTexture.buttonUp);
+                select_char_texture(ControlElements[i].character);
                 if (configAndroidBiggerButtons) {
                     DrawSprite(pos.x, pos.y, 1 + size / 100);
                 } else {
