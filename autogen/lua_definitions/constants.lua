@@ -12488,12 +12488,6 @@ SPTASK_STATE_FINISHED = 3
 SPTASK_STATE_FINISHED_DP = 4
 
 --- @type integer
-MAX_PLATFORM_VERSION = 3
-
---- @type integer
-MAX_PLATFORM_VERSION = 3
-
---- @type integer
 MAX_VERSION_LENGTH = 32
 
 --- @type integer
@@ -12517,8 +12511,5 @@ VERSION_REGION = "SH"
 --- @type string
 VERSION_REGION = "US"
 
---- @type integer
-VERSION_TEXT = gameVersionChoices[configGameVersion]
-
 --- @type string
-VERSION_TEXT = "beta android"
+VERSION_TEXT = "v"
