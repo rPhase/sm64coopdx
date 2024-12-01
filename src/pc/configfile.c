@@ -204,6 +204,7 @@ bool         configCompressOnStartup              = false;
 unsigned int configGameVersion                    = 0;
 bool         configAndroidBiggerButtons           = true;
 bool         configAndroidExcoopControl           = true;
+unsigned int configTouchControlAlpha              = 255;
 
 // secrets
 bool configExCoopTheme = false;
@@ -427,6 +428,7 @@ static const struct ConfigOption options[] = {
     {.name = "game_version",                   .type = CONFIG_TYPE_UINT,   .uintValue   = &configGameVersion},
     {.name = "android_bigger_buttons",            .type = CONFIG_TYPE_BOOL,   .boolValue   = &configAndroidBiggerButtons},
     {.name = "android_excoop_cont",            .type = CONFIG_TYPE_BOOL,   .boolValue   = &configAndroidExcoopControl},
+    {.name = "android_touch_opacity",                       .type = CONFIG_TYPE_UINT, .uintValue = &configTouchControlAlpha},
 };
 
 struct SecretConfigOption {
