@@ -434,6 +434,7 @@ void render_touch_controls(void) {
 
     if (mtx == NULL) {
         return;
+    }
     
 
     guOrtho(mtx, 0.0f, SCREEN_WIDTH, 0.0f, SCREEN_HEIGHT, -10.0f, 10.0f, 1.0f);
