@@ -508,7 +508,6 @@ void render_touch_controls(void) {
                     DrawSprite(pos.x, pos.y, size / 100);
                 }
                 
-                }
             } else {
                 if (ControlElements[i].touchID) {
                     select_char_texture(ControlElements[i].buttonTexture.buttonDown);
@@ -546,6 +545,7 @@ void render_touch_controls(void) {
     }
 
     gSPDisplayList(gDisplayListHead++, dl_hud_img_end);
+}
 }
 
 static void touchscreen_init(void) {
