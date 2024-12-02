@@ -509,9 +509,9 @@ void render_touch_controls(void) {
                 } else {
                     //select_char_texture(ControlElements[i].buttonTexture.buttonUp);
                     if (configAndroidBiggerButtons) {
-                    DrawSprite((u8*ControlElements[i].buttonTexture.buttonUp), pos.x, pos.y, 1 + size / 100);
+                    DrawSprite(((u8*)ControlElements[i].buttonTexture.buttonUp), pos.x, pos.y, 1 + size / 100);
                 } else {
-                    DrawSprite((u8*ControlElements[i].buttonTexture.buttonUp), pos.x, pos.y, size / 100);
+                    DrawSprite(((u8*)ControlElements[i].buttonTexture.buttonUp), pos.x, pos.y, size / 100);
                 }
                 }
                 break;
