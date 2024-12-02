@@ -433,7 +433,7 @@ static void DrawSpriteTexJoyBase(s32 x, s32 y, int scaling) {
 }
 
 void render_touch_controls(void) {
-    struct TouchEvent *event;
+    struct TouchEvent event;
     if ((gGamepadActive && configAutohideTouch) || !gGameInited) return;
     Mtx *mtx;
 
