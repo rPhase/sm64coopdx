@@ -205,8 +205,8 @@ void touch_down(struct TouchEvent* event) {
                     ControlElements[i].touchID = event->touchID;
                     lastElementGrabbed = i;
                     if (!gInTouchConfig) {
-                        ControlElements[i].joyX = clamp2(CORRECT_TOUCH_X(event->x), -(pos.x*pos.x + pos.y*pos.y), (pos.x*pos.x + pos.y*pos.y)) - pos.x;
-                        ControlElements[i].joyY = clamp2(CORRECT_TOUCH_Y(event->y), -(pos.x*pos.x + pos.y*pos.y), (pos.x*pos.x + pos.y*pos.y)) - pos.y;
+                        ControlElements[i].joyX = CORRECT_TOUCH_X(event->x) - pos.x;
+                        ControlElements[i].joyY = CORRECT_TOUCH_Y(event->y) - pos.y;
                     }
                     break;
                 case Mouse:
@@ -459,7 +459,7 @@ void render_touch_controls(void) {
             case Joystick:
                 DrawSpriteTexJoyBase(pos.x, pos.y, 2);
                 select_joystick_tex();
-                DrawSprite(pos.x + 4 + ControlElements[i].joyX, pos.y + 4 + ControlElements[i].joyY, 2);
+                DrawSprite(clamp2(pos.x + ControlElements[i].joyX, -(pos.x*pos.x + pos.y*pos.y), (pos.x*pos.x + pos.y*pos.y)) + 4, clamp2(pos.x + ControlElements[i].joyX, -(pos.x*pos.x + pos.y*pos.y), (pos.x*pos.x + pos.y*pos.y)) + 4, 2);
                 break;
             /*case Mouse:
                 if ((before_x > 0 || before_y > 0) &&
