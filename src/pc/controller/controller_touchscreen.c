@@ -417,7 +417,7 @@ static void select_char_texture(u8 num) {
 
     gSPDisplayList(gDisplayListHead++, dl_hud_img_load_tex_block);
 }
-
+#include "pc/djui/djui_gfx.h"
 static void DrawSprite(u8*tex, s32 x, s32 y, int scaling) {
     Mtx *mtx;
 
@@ -434,6 +434,7 @@ static void DrawSprite(u8*tex, s32 x, s32 y, int scaling) {
               G_MTX_MODELVIEW | G_MTX_MUL | G_MTX_PUSH);
 
     gDPSetTextureImage(gDisplayListHead++, G_IM_FMT_RGBA, G_IM_SIZ_16b, 1, &tex);
+    gSPDisplayList(gDisplayListHead++, dl_djui_image);
     
     gSPPopMatrix(gDisplayListHead++, G_MTX_MODELVIEW);
 }
