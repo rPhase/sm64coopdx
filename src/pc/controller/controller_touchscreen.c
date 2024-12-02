@@ -476,7 +476,7 @@ void render_touch_controls(void) {
                 DrawSpriteTexJoyBase(pos.x, pos.y, 2);
                 select_joystick_tex();
                 vec2f_normalize(ControlElements[i].joy);
-                DrawSprite(pos.x + ControlElements[i].joy[0] + 4, pos.y + ControlElements[i].joy[1] + 4, 2);
+                DrawSprite(pos.x + (ControlElements[i].joy[0] * size) + 4, pos.y + (ControlElements[i].joy[1] * size) + 4, 2);
                 break;
             /*case Mouse:
                 if ((before_x > 0 || before_y > 0) &&
