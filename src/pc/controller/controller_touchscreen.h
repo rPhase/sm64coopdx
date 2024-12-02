@@ -3,8 +3,6 @@
 #ifdef TOUCH_CONTROLS
 #include "pc/configfile.h"
 
-#include "types.h"
-
 #define HIDE_POS -1000
 
 #define CHAT_BUTTON 0x001C
@@ -113,7 +111,7 @@ struct ControlElement {
     enum ControlElementType type;
     SDL_TouchID touchID; //0 = not being touched, 1+ = Finger being used
     //Joystick
-    struct Vec2f joy;
+    Vec2f joy;
     //Button
     int buttonID;
     struct ButtonState buttonTexture;
