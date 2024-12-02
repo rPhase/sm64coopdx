@@ -430,7 +430,7 @@ Gfx touchsetup_default_gfx[] = {
 	gsDPPipeSync(),
 	gsDPSetCombineLERP(0, 0, 0, TEXEL0, 0, 0, 0, ENVIRONMENT, 0, 0, 0, TEXEL0, 0, 0, 0, ENVIRONMENT),
     gsDPSetCycleType(G_CYC_COPY),
-    gsDPSetTexturePersp(G_TP_NONE),
+    //gsDPSetTexturePersp(G_TP_NONE),
 	gsSPEndDisplayList(),
 };
 
