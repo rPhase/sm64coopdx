@@ -432,15 +432,20 @@ static void DrawSpriteTexJoyBase(s32 x, s32 y, int scaling) {
     gSPTextureRectangle(gDisplayListHead++, x - (32 << scaling), y - (32 << scaling), x + (31 << scaling), y + (31 << scaling), G_TX_RENDERTILE, 0, 0, 4 << (11 - scaling), 1 << (11 - scaling));
 }
 
-s32 normalize_vectors(s32 x, s32 y, float dX, float dY) {
-    float divisor = fabsf(dX) + fabsf(dY);
-    if (divisor == 0) {
+void *vec2f_normalize(int x, int y, int xOry) {
+    f32 div = sqrtf(x * x + y * y);
+    if (div == 0) {
         return 0;
-    } else {
-        return sqrt(x*x + y*y)/divisor;
     }
+
+    f32 invsqrt = 1.0f / div;
+
+    x *= invsqrt;
+    y *= invsqrt;
+    return xOry == 0 ? x : y;
 }
 
+vec3f_normalize
 void render_touch_controls(void) {
     struct TouchEvent event;
     if ((gGamepadActive && configAutohideTouch) || !gGameInited) return;
@@ -469,8 +474,9 @@ void render_touch_controls(void) {
             case Joystick:
                 DrawSpriteTexJoyBase(pos.x, pos.y, 2);
                 select_joystick_tex();
-                s32 normalizedVector = normalize_vectors(ControlElements[i].joyX, ControlElements[i].joyY, event.x, event.y);
-                DrawSprite(pos.x + clamp2(ControlElements[i].joyX, -normalizedVector, normalizedVector) + 4, pos.y + clamp2(ControlElements[i].joyY, -normalizedVector, normalizedVector) + 4, 2);
+                f32 normalizedX = vec2f_normalize(ControlElements[i].joyX, ControlElements[i].joyY, 0);
+                f32 normalizedY = vec2f_normalize(ControlElements[i].joyX, ControlElements[i].joyY, 1);
+                DrawSprite(pos.x + normalizedX + 4, pos.y + normalizedY + 4, 2);
                 break;
             /*case Mouse:
                 if ((before_x > 0 || before_y > 0) &&
