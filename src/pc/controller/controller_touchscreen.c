@@ -433,6 +433,7 @@ static void DrawSpriteTexJoyBase(s32 x, s32 y, int scaling) {
 }
 
 void render_touch_controls(void) {
+    struct TouchEvent *event;
     if ((gGamepadActive && configAutohideTouch) || !gGameInited) return;
     Mtx *mtx;
 
@@ -459,7 +460,7 @@ void render_touch_controls(void) {
             case Joystick:
                 DrawSpriteTexJoyBase(pos.x, pos.y, 2);
                 select_joystick_tex();
-                s32 normalizedVector = sqrt(ControlElements[i].joyX*ControlElements[i].joyX + ControlElements[i].joyY*ControlElements[i].joyY)/((abs(ControlElements[i].joyX) + abs(ControlElements[i].joyY))/size);
+                s32 normalizedVector = sqrt(ControlElements[i].joyX*ControlElements[i].joyX + ControlElements[i].joyY*ControlElements[i].joyY)/(event->x + event->y);
                 DrawSprite(pos.x + clamp2(ControlElements[i].joyX, -normalizedVector, normalizedVector) + 4, pos.y + clamp2(ControlElements[i].joyY, -normalizedVector, normalizedVector) + 4, 2);
                 break;
             /*case Mouse:
