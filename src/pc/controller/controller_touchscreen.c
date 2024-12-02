@@ -433,7 +433,7 @@ Gfx touchsetup_default_gfx[] = {
 };
 
 void mod_controltouch_opac(u8 alpha) {
-    gDPSetEnvColor(gDisplayListHead++, 255, 255, 255, alpha),
+    gDPSetEnvColor(gDisplayListHead++, 255, 255, 255, alpha);
 }
 
 #include "pc/configfile.h"
