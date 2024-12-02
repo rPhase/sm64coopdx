@@ -427,12 +427,13 @@ static void DrawSpriteTexJoyBase(s32 x, s32 y, int scaling) {
 }
 
 Gfx touchsetup_default_gfx[] = {
-	gsDPPipeSync(),
-	gsDPSetCombineLERP(0, 0, 0, TEXEL0, 0, 0, 0, ENVIRONMENT, 0, 0, 0, TEXEL0, 0, 0, 0, ENVIRONMENT),
+    gsDPPipeSync(),
     //gsDPSetCycleType(G_CYC_COPY),
     gsDPSetTexturePersp(G_TP_NONE),
-	gsSPEndDisplayList(),
-};
+    //gsDPSetAlphaCompare(G_AC_THRESHOLD),
+   // gsDPSetBlendColor(255, 255, 255, 255),
+    gsSPEndDisplayList(),
+}
 
 void mod_controltouch_opac(u8 alpha) {
     gDPSetEnvColor(gDisplayListHead++, 255, 255, 255, alpha);
@@ -452,7 +453,7 @@ void render_touch_controls(void) {
 
     guOrtho(mtx, 0.0f, SCREEN_WIDTH, 0.0f, SCREEN_HEIGHT, -10.0f, 10.0f, 1.0f);
     gSPPerspNormalize((Gfx *) (gDisplayListHead++), 0xFFFF);
-    gSPMatrix(gDisplayListHead++, VIRTUAL_TO_PHYSICAL(mtx),  G_MTX_MODELVIEW | G_MTX_LOAD | G_MTX_NOPUSH);
+    gSPMatrix(gDisplayListHead++, VIRTUAL_TO_PHYSICAL(mtx),  G_MTX_MODELVIEW | G_MTX_MUL | G_MTX_PUSH);
     gSPDisplayList(gDisplayListHead++, touchsetup_default_gfx);
 
     mod_controltouch_opac(configTouchControlAlpha);
@@ -516,6 +517,7 @@ void render_touch_controls(void) {
     }
 
     //gSPDisplayList(gDisplayListHead++, dl_hud_img_end);
+    gSPPopMatrix(gDisplayListHead++, G_MTX_MODELVIEW);
 }
 
 static void touchscreen_init(void) {
