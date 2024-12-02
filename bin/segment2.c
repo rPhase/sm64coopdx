@@ -1772,7 +1772,7 @@ const Gfx dl_hud_img_begin[] = {
     gsDPSetCycleType(G_CYC_COPY),
     gsDPSetTexturePersp(G_TP_NONE),
     gsDPSetAlphaCompare(G_AC_THRESHOLD),
-    gsDPSetBlendColor(255, 255, 255, 255),
+    gsDPSetBlendColor(255, 255, 255, 70),
 #if defined(VERSION_EU) || defined(VERSION_SH)
     gsDPSetRenderMode(G_RM_NOOP, G_RM_NOOP2),
 #endif
