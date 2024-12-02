@@ -426,6 +426,23 @@ static void DrawSpriteTexJoyBase(s32 x, s32 y, int scaling) {
     gSPTextureRectangle(gDisplayListHead++, x - (32 << scaling), y - (32 << scaling), x + (31 << scaling), y + (31 << scaling), G_TX_RENDERTILE, 0, 0, 4 << (11 - scaling), 1 << (11 - scaling));
 }
 
+const Gfx dl_hud_img_begin_TOUCH[] = {
+    gsDPPipeSync(),
+
+    gsDPSetTexturePersp(G_TP_NONE),
+    gsDPSetAlphaCompare(G_AC_THRESHOLD),
+    gsDPSetBlendColor(255, 255, 255, 255),
+#if defined(VERSION_EU) || defined(VERSION_SH)
+    gsDPSetRenderMode(G_RM_NOOP, G_RM_NOOP2),
+#endif
+#ifdef VERSION_EU
+    gsDPSetTextureFilter(G_TF_POINT),
+#elif defined(VERSION_JP) || defined(VERSION_US)
+    gsDPSetRenderMode(G_RM_AA_XLU_SURF, G_RM_AA_XLU_SURF2),
+#endif
+    gsSPEndDisplayList(),
+};
+
 void render_touch_controls(void) {
     if ((gGamepadActive && configAutohideTouch) || !gGameInited) return;
     Mtx *mtx;
@@ -439,7 +456,7 @@ void render_touch_controls(void) {
     guOrtho(mtx, 0.0f, SCREEN_WIDTH, 0.0f, SCREEN_HEIGHT, -10.0f, 10.0f, 1.0f);
     gSPPerspNormalize((Gfx *) (gDisplayListHead++), 0xFFFF);
     gSPMatrix(gDisplayListHead++, VIRTUAL_TO_PHYSICAL(mtx), G_MTX_PROJECTION | G_MTX_LOAD | G_MTX_NOPUSH);
-    gSPDisplayList(gDisplayListHead++, dl_hud_img_begin);
+    gSPDisplayList(gDisplayListHead++, dl_hud_img_begin_TOUCH);
 
     struct Position pos;
     s32 size;
