@@ -427,9 +427,14 @@ static void DrawSpriteTexJoyBase(s32 x, s32 y, int scaling) {
 }
 
 Gfx touchsetup_default_gfx[] = {
-    gsSPGeometryMode(G_LIGHTING, 0),
+    //gsSPSetGeometryMode(G_FOG),
+	gsSPClearGeometryMode(G_CULL_BACK),
 	gsDPPipeSync(),
-	gsDPSetCombineLERP(TEXEL0, 0, SHADE, 0, TEXEL0, 0, PRIMITIVE, 0, TEXEL0, 0, SHADE, 0, TEXEL0, 0, PRIMITIVE, 0),
+	gsDPSetCombineLERP(0, 0, 0, SHADE, 0, 0, 0, 1, COMBINED, 0, PRIMITIVE, 0, COMBINED, 0, PRIMITIVE, 0),
+	gsDPSetAlphaDither(G_AD_NOISE),
+	gsDPSetCycleType(G_CYC_2CYCLE),
+	gsDPPipelineMode(G_PM_NPRIMITIVE),
+	gsDPSetRenderMode(G_RM_FOG_SHADE_A, G_RM_AA_ZB_XLU_SURF2),
 	gsSPEndDisplayList(),
 };
 
