@@ -109,7 +109,7 @@ void exit_control_config() {
         djui_panel_main_create(NULL);
 }
 
-s32 clamp(s32 val, s32 min, s32 max) {
+s32 clamp2(s32 val, s32 min, s32 max) {
     if (val < min) { return min; }
     if (val > max) { return max; }
     return val;
@@ -205,8 +205,8 @@ void touch_down(struct TouchEvent* event) {
                     ControlElements[i].touchID = event->touchID;
                     lastElementGrabbed = i;
                     if (!gInTouchConfig) {
-                        ControlElements[i].joyX = clamp(CORRECT_TOUCH_X(event->x), -(pos.x*pos.x + pos.y*pos.y), (pos.x*pos.x + pos.y*pos.y)) - pos.x;
-                        ControlElements[i].joyY = clamp(CORRECT_TOUCH_Y(event->y), -(pos.x*pos.x + pos.y*pos.y), (pos.x*pos.x + pos.y*pos.y)) - pos.y;
+                        ControlElements[i].joyX = clamp2(CORRECT_TOUCH_X(event->x), -(pos.x*pos.x + pos.y*pos.y), (pos.x*pos.x + pos.y*pos.y)) - pos.x;
+                        ControlElements[i].joyY = clamp2(CORRECT_TOUCH_Y(event->y), -(pos.x*pos.x + pos.y*pos.y), (pos.x*pos.x + pos.y*pos.y)) - pos.y;
                     }
                     break;
                 case Mouse:
