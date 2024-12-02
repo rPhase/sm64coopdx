@@ -459,7 +459,7 @@ void render_touch_controls(void) {
             case Joystick:
                 DrawSpriteTexJoyBase(pos.x, pos.y, 2);
                 select_joystick_tex();
-                DrawSprite(pos.x + clamp2(ControlElements[i].joyX, -sqrt(ControlElements[i].joyX*ControlElements[i].joyX + ControlElements[i].joyY*ControlElements[i].joyY)/2, sqrt(ControlElements[i].joyX*ControlElements[i].joyX + ControlElements[i].joyY*ControlElements[i].joyY)/2) + 4, pos.y + clamp2(ControlElements[i].joyY, -sqrt(ControlElements[i].joyX*ControlElements[i].joyX + ControlElements[i].joyY*ControlElements[i].joyY)/2, sqrt(ControlElements[i].joyX*ControlElements[i].joyX + ControlElements[i].joyY*ControlElements[i].joyY)/2) + 4, 2);
+                DrawSprite(pos.x + clamp2(ControlElements[i].joyX, sqrt(ControlElements[i].joyX*ControlElements[i].joyX + ControlElements[i].joyY*ControlElements[i].joyY)/2, -sqrt(ControlElements[i].joyX*ControlElements[i].joyX + ControlElements[i].joyY*ControlElements[i].joyY)/2) + 4, pos.y + clamp2(ControlElements[i].joyY, sqrt(ControlElements[i].joyX*ControlElements[i].joyX + ControlElements[i].joyY*ControlElements[i].joyY)/2, -sqrt(ControlElements[i].joyX*ControlElements[i].joyX + ControlElements[i].joyY*ControlElements[i].joyY)/2) + 4, 2);
                 break;
             /*case Mouse:
                 if ((before_x > 0 || before_y > 0) &&
