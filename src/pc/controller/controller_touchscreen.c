@@ -460,7 +460,7 @@ void render_touch_controls(void) {
             case Joystick:
                 DrawSpriteTexJoyBase(pos.x, pos.y, 2);
                 select_joystick_tex();
-                s32 normalizedVector = sqrt(ControlElements[i].joyX*ControlElements[i].joyX + ControlElements[i].joyY*ControlElements[i].joyY)/((pos.x-event.x) + (pos.y-event.y));
+                s32 normalizedVector = sqrt(ControlElements[i].joyX*ControlElements[i].joyX + ControlElements[i].joyY*ControlElements[i].joyY)/(CORRECT_TOUCH_X(event.x) + (CORRECT_TOUCH_Y(event.y)));
                 DrawSprite(pos.x + clamp2(ControlElements[i].joyX, -normalizedVector, normalizedVector) + 4, pos.y + clamp2(ControlElements[i].joyY, -normalizedVector, normalizedVector) + 4, 2);
                 break;
             /*case Mouse:
