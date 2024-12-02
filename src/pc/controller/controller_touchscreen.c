@@ -429,6 +429,7 @@ static void DrawSpriteTexJoyBase(s32 x, s32 y, int scaling) {
 Gfx touchsetup_default_gfx[] = {
 	gsDPPipeSync(),
 	gsDPSetCombineLERP(0, 0, 0, TEXEL0, 0, 0, 0, ENVIRONMENT, 0, 0, 0, TEXEL0, 0, 0, 0, ENVIRONMENT),
+    gsDPSetRenderMode(G_RM_AA_XLU_SURF, G_RM_AA_XLU_SURF2),
 	gsSPEndDisplayList(),
 };
 
