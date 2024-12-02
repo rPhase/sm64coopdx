@@ -207,6 +207,8 @@ void touch_down(struct TouchEvent* event) {
                     if (!gInTouchConfig) {
                         ControlElements[i].joy[0] = CORRECT_TOUCH_X(event->x) - pos.x;
                         ControlElements[i].joy[1] = CORRECT_TOUCH_Y(event->y) - pos.y;
+                        ControlElements[i].joyRaw[0] = CORRECT_TOUCH_X(event->x) - pos.x;
+                        ControlElements[i].joyRaw[1] = CORRECT_TOUCH_Y(event->y) - pos.y;
                     }
                     break;
                 case Mouse:
@@ -250,6 +252,8 @@ void touch_motion(struct TouchEvent* event) {
                         if (configPhantomTouch && !TRIGGER_DETECT(size * 2)) {
                             ControlElements[i].joy[0] = 0;
                             ControlElements[i].joy[1] = 0;
+                            ControlElements[i].joyRaw[0] = 0;
+                            ControlElements[i].joyRaw[1] = 0;
                             ControlElements[i].touchID = 0;
                             break;
                         }
@@ -265,6 +269,8 @@ void touch_motion(struct TouchEvent* event) {
                             y = - size / 2;
                         ControlElements[i].joy[0] = x;
                         ControlElements[i].joy[1] = y;
+                        ControlElements[i].joyRaw[0] = x;
+                        ControlElements[i].joyRaw[1] = y;
                         break;
                     case Mouse:
                         if (configPhantomTouch && !TRIGGER_DETECT(size)) {
@@ -329,6 +335,8 @@ static void handle_touch_up(u32 i) { // separated for when the layout changes
         case Joystick:
             ControlElements[i].joy[0] = 0;
             ControlElements[i].joy[1] = 0;
+            ControlElements[i].joyRaw[0] = 0;
+            ControlElements[i].joyRaw[1] = 0;
             break;
         case Mouse:
             touch_x = before_x = 0;
@@ -476,7 +484,7 @@ void render_touch_controls(void) {
                 DrawSpriteTexJoyBase(pos.x, pos.y, 2);
                 select_joystick_tex();
                 vec2f_normalize(ControlElements[i].joy);
-                DrawSprite(pos.x + (ControlElements[i].joy[0] * size) + 4, pos.y + (ControlElements[i].joy[1] * size) + 4, 2);
+                DrawSprite(pos.x + (ControlElements[i].joyRaw[0] * (ControlElements[i].joy[0] * size/2)) + 4, pos.y + (ControlElements[i].joyRaw[1] * (ControlElements[i].joy[1] * size/2)) + 4, 2);
                 break;
             /*case Mouse:
                 if ((before_x > 0 || before_y > 0) &&
@@ -536,6 +544,8 @@ static void touchscreen_init(void) {
         ControlElements[i].touchID = 0;
         ControlElements[i].joy[0] = 0;
         ControlElements[i].joy[1] = 0;
+        ControlElements[i].joyRaw[0] = 0;
+        ControlElements[i].joyRaw[1] = 0;
         ControlElements[i].slideTouch = 0;
     }
 }

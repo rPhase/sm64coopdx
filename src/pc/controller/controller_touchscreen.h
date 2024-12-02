@@ -112,6 +112,7 @@ struct ControlElement {
     SDL_TouchID touchID; //0 = not being touched, 1+ = Finger being used
     //Joystick
     Vec2f joy;
+    Vec2f joyRaw;
     //Button
     int buttonID;
     struct ButtonState buttonTexture;
