@@ -427,19 +427,13 @@ static void DrawSpriteTexJoyBase(s32 x, s32 y, int scaling) {
 }
 
 Gfx touchsetup_default_gfx[] = {
-    //gsSPSetGeometryMode(G_FOG),
-	gsSPClearGeometryMode(G_CULL_BACK),
 	gsDPPipeSync(),
-	gsDPSetCombineLERP(0, 0, 0, SHADE, 0, 0, 0, 1, COMBINED, 0, PRIMITIVE, 0, COMBINED, 0, PRIMITIVE, 0),
-	gsDPSetAlphaDither(G_AD_NOISE),
-	gsDPSetCycleType(G_CYC_2CYCLE),
-	gsDPPipelineMode(G_PM_NPRIMITIVE),
-	gsDPSetRenderMode(G_RM_FOG_SHADE_A, G_RM_AA_ZB_XLU_SURF2),
+	gsDPSetCombineLERP(0, 0, 0, ENVIRONMENT, 0, 0, 0, ENVIRONMENT, 0, 0, 0, ENVIRONMENT, 0, 0, 0, ENVIRONMENT),
 	gsSPEndDisplayList(),
 };
 
 void mod_controltouch_opac(u8 alpha) {
-    gDPSetPrimColor(gDisplayListHead++, 0, 0, 255, 255, 255, alpha);
+    gDPSetEnvColor(gDisplayListHead++, 255, 255, 255, alpha),
 }
 
 #include "pc/configfile.h"
@@ -519,7 +513,7 @@ void render_touch_controls(void) {
         DrawSprite(SCREEN_WIDTH_API / 2, SCREEN_HEIGHT_API / 2, 2);
     }
 
-    gSPDisplayList(gDisplayListHead++, dl_hud_img_end);
+    //gSPDisplayList(gDisplayListHead++, dl_hud_img_end);
 }
 
 static void touchscreen_init(void) {
