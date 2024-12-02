@@ -418,6 +418,7 @@ static void select_char_texture(u8 num) {
     gSPDisplayList(gDisplayListHead++, dl_hud_img_load_tex_block);
 }
 #include "pc/djui/djui_gfx.h"
+extern const Gfx dl_djui_image[];
 static void DrawSprite(u8*tex, s32 x, s32 y, int scaling) {
     Mtx *mtx;
 
