@@ -199,8 +199,8 @@ void touch_down(struct TouchEvent* event) {
                     ControlElements[i].touchID = event->touchID;
                     lastElementGrabbed = i;
                     if (!gInTouchConfig) {
-                        ControlElements[i].joyX = CORRECT_TOUCH_X(event->x) - pos.x;
-                        ControlElements[i].joyY = CORRECT_TOUCH_Y(event->y) - pos.y;
+                        ControlElements[i].joyX = clamp(CORRECT_TOUCH_X(event->x), -(pos.x^2 + pos.y^2), (pos.x^2 + pos.y^2)) - pos.x;
+                        ControlElements[i].joyY = clamp(CORRECT_TOUCH_Y(event->y), -(pos.x^2 + pos.y^2), (pos.x^2 + pos.y^2)) - pos.y;
                     }
                     break;
                 case Mouse:
