@@ -109,12 +109,6 @@ void exit_control_config() {
         djui_panel_main_create(NULL);
 }
 
-s32 clamp2(s32 val, s32 min, s32 max) {
-    if (val < min) { return min; }
-    if (val > max) { return max; }
-    return val;
-}
-
 struct Position get_pos(ConfigControlElement *config, u32 idx) {
     struct Position ret;
     switch (config->anchor[idx]) {
@@ -205,10 +199,8 @@ void touch_down(struct TouchEvent* event) {
                     ControlElements[i].touchID = event->touchID;
                     lastElementGrabbed = i;
                     if (!gInTouchConfig) {
-                        ControlElements[i].joy[0] = CORRECT_TOUCH_X(event->x) - pos.x;
-                        ControlElements[i].joy[1] = CORRECT_TOUCH_Y(event->y) - pos.y;
-                        ControlElements[i].joyRaw[0] = CORRECT_TOUCH_X(event->x) - pos.x;
-                        ControlElements[i].joyRaw[1] = CORRECT_TOUCH_Y(event->y) - pos.y;
+                        ControlElements[i].joyX = CORRECT_TOUCH_X(event->x) - pos.x;
+                        ControlElements[i].joyY = CORRECT_TOUCH_Y(event->y) - pos.y;
                     }
                     break;
                 case Mouse:
@@ -250,10 +242,8 @@ void touch_motion(struct TouchEvent* event) {
                 switch (ControlElements[i].type) {
                     case Joystick:
                         if (configPhantomTouch && !TRIGGER_DETECT(size * 2)) {
-                            ControlElements[i].joy[0] = 0;
-                            ControlElements[i].joy[1] = 0;
-                            ControlElements[i].joyRaw[0] = 0;
-                            ControlElements[i].joyRaw[1] = 0;
+                            ControlElements[i].joyX = 0;
+                            ControlElements[i].joyY = 0;
                             ControlElements[i].touchID = 0;
                             break;
                         }
@@ -267,10 +257,8 @@ void touch_motion(struct TouchEvent* event) {
                             y = size / 2;
                         if (pos.y - size / 2 > CORRECT_TOUCH_Y(event->y))
                             y = - size / 2;
-                        ControlElements[i].joy[0] = x;
-                        ControlElements[i].joy[1] = y;
-                        ControlElements[i].joyRaw[0] = x;
-                        ControlElements[i].joyRaw[1] = y;
+                        ControlElements[i].joyX = x;
+                        ControlElements[i].joyY = y;
                         break;
                     case Mouse:
                         if (configPhantomTouch && !TRIGGER_DETECT(size)) {
@@ -333,10 +321,8 @@ static void handle_touch_up(u32 i) { // separated for when the layout changes
     if (pos.y == HIDE_POS) return;
     switch (ControlElements[i].type) {
         case Joystick:
-            ControlElements[i].joy[0] = 0;
-            ControlElements[i].joy[1] = 0;
-            ControlElements[i].joyRaw[0] = 0;
-            ControlElements[i].joyRaw[1] = 0;
+            ControlElements[i].joyX = 0;
+            ControlElements[i].joyY = 0;
             break;
         case Mouse:
             touch_x = before_x = 0;
@@ -431,32 +417,49 @@ static void select_char_texture(u8 num) {
 
     gSPDisplayList(gDisplayListHead++, dl_hud_img_load_tex_block);
 }
+#include "pc/djui/djui_gfx.h"
+extern const Gfx dl_djui_image[];
+static void DrawSprite(u8*tex, s32 x, s32 y, int scaling) {
+    Mtx *mtx;
 
-static void DrawSprite(s32 x, s32 y, int scaling) {
-    gSPTextureRectangle(gDisplayListHead++, x - (16 << scaling), y - (16 << scaling), x + (15 << scaling), y + (15 << scaling), G_TX_RENDERTILE, 0, 0, 4 << (11 - scaling), 1 << (11 - scaling));
+    mtx = alloc_display_list(sizeof(Mtx));
+
+    if (mtx == NULL) {
+        return;
+    }
+
+    guTranslate(mtx, (f32) x, (f32) y, 0);
+    guScale(mtx, scaling, scaling, scaling);
+
+    gSPMatrix(gDisplayListHead++, VIRTUAL_TO_PHYSICAL(mtx++),
+              G_MTX_MODELVIEW | G_MTX_MUL | G_MTX_PUSH);
+
+    gDPSetTextureImage(gDisplayListHead++, G_IM_FMT_RGBA, G_IM_SIZ_16b, 1, &tex);
+    gSPDisplayList(gDisplayListHead++, dl_djui_image);
+    
+    gSPPopMatrix(gDisplayListHead++, G_MTX_MODELVIEW);
 }
 
 static void DrawSpriteTexJoyBase(s32 x, s32 y, int scaling) {
     gSPTextureRectangle(gDisplayListHead++, x - (32 << scaling), y - (32 << scaling), x + (31 << scaling), y + (31 << scaling), G_TX_RENDERTILE, 0, 0, 4 << (11 - scaling), 1 << (11 - scaling));
 }
 
-void *vec2f_normalize(Vec2f dest) {
-    f32 div = sqrtf(dest[0] * dest[0] + dest[1] * dest[1]);
-    if (div == 0) {
-        dest[0] = 0;
-        dest[1] = 0;
-        return dest;
-    }
+Gfx touchsetup_default_gfx[] = {
+    gsDPPipeSync(),
+    //gsDPSetCycleType(G_CYC_COPY),
+    gsDPSetTexturePersp(G_TP_NONE),
+    //gsDPSetAlphaCompare(G_AC_THRESHOLD),
+   // gsDPSetBlendColor(255, 255, 255, 255),
+    gsSPEndDisplayList(),
+};
 
-    f32 invsqrt = 1.0f / div;
-
-    dest[0] *= invsqrt;
-    dest[1] *= invsqrt;
-    return dest;
+void mod_controltouch_opac(u8 alpha) {
+    gDPSetEnvColor(gDisplayListHead++, 255, 255, 255, alpha);
 }
 
+#include "pc/configfile.h"
+
 void render_touch_controls(void) {
-    struct TouchEvent event;
     if ((gGamepadActive && configAutohideTouch) || !gGameInited) return;
     Mtx *mtx;
 
@@ -468,8 +471,10 @@ void render_touch_controls(void) {
 
     guOrtho(mtx, 0.0f, SCREEN_WIDTH, 0.0f, SCREEN_HEIGHT, -10.0f, 10.0f, 1.0f);
     gSPPerspNormalize((Gfx *) (gDisplayListHead++), 0xFFFF);
-    gSPMatrix(gDisplayListHead++, VIRTUAL_TO_PHYSICAL(mtx), G_MTX_PROJECTION | G_MTX_LOAD | G_MTX_NOPUSH);
-    gSPDisplayList(gDisplayListHead++, dl_hud_img_begin);
+    gSPMatrix(gDisplayListHead++, VIRTUAL_TO_PHYSICAL(mtx),  G_MTX_PROJECTION | G_MTX_MUL | G_MTX_NOPUSH);
+    gSPDisplayList(gDisplayListHead++, touchsetup_default_gfx);
+
+    mod_controltouch_opac(configTouchControlAlpha);
 
     struct Position pos;
     s32 size;
@@ -483,8 +488,7 @@ void render_touch_controls(void) {
             case Joystick:
                 DrawSpriteTexJoyBase(pos.x, pos.y, 2);
                 select_joystick_tex();
-                vec2f_normalize(ControlElements[i].joy);
-                DrawSprite(pos.x + (ControlElements[i].joyRaw[0] * (ControlElements[i].joy[0] * size/2)) + 4, pos.y + (ControlElements[i].joyRaw[1] * (ControlElements[i].joy[1] * size/2)) + 4, 2);
+                //DrawSprite(pos.x + 4 + ControlElements[i].joyX, pos.y + 4 + ControlElements[i].joyY, 2);
                 break;
             /*case Mouse:
                 if ((before_x > 0 || before_y > 0) &&
@@ -498,15 +502,19 @@ void render_touch_controls(void) {
                 break;*/
             case Button:
                 if (ControlElements[i].touchID) {
-                    select_char_texture(ControlElements[i].buttonTexture.buttonDown);
+                    //select_char_texture(ControlElements[i].buttonTexture.buttonDown);
+                    if (configAndroidBiggerButtons) {
+                    DrawSprite(((u8*)ControlElements[i].buttonTexture.buttonDown), pos.x, pos.y, 1 + size / 100);
                 } else {
-                    select_char_texture(ControlElements[i].buttonTexture.buttonUp);
+                    DrawSprite(((u8*)ControlElements[i].buttonTexture.buttonDown), pos.x, pos.y, size / 100);
                 }
-
-                if (configAndroidBiggerButtons) {
-                    DrawSprite(pos.x, pos.y, 1 + size / 100);
                 } else {
-                    DrawSprite(pos.x, pos.y, size / 100);
+                    //select_char_texture(ControlElements[i].buttonTexture.buttonUp);
+                    if (configAndroidBiggerButtons) {
+                    DrawSprite(((u8*)ControlElements[i].buttonTexture.buttonUp), pos.x, pos.y, 1 + size / 100);
+                } else {
+                    DrawSprite(((u8*)ControlElements[i].buttonTexture.buttonUp), pos.x, pos.y, size / 100);
+                }
                 }
                 break;
         }
@@ -521,31 +529,30 @@ void render_touch_controls(void) {
             if (ControlConfigElements[i].touchID || 
                 (i == TOUCH_SNAP && configElementSnap))
                 select_button_texture(1);
-            DrawSprite(pos.x - 8, pos.y, 1 + size / 100);
+            //DrawSprite(pos.x - 8, pos.y, 1 + size / 100);
             select_char_texture(ControlConfigElements[i].buttonTexture.buttonUp);
-            DrawSprite(pos.x, pos.y, size / 100);
+            //DrawSprite(pos.x, pos.y, size / 100);
         }
         // trash icon
         select_char_texture(TEXTURE_TOUCH_TRASH);
-        DrawSprite(SCREEN_WIDTH_API / 2, SCREEN_HEIGHT_API / 2, 2);
+       // DrawSprite(SCREEN_WIDTH_API / 2, SCREEN_HEIGHT_API / 2, 2);
     }
 
-    gSPDisplayList(gDisplayListHead++, dl_hud_img_end);
+    //gSPDisplayList(gDisplayListHead++, dl_hud_img_end);
+   // gSPPopMatrix(gDisplayListHead++, G_MTX_MODELVIEW);
 }
 
 static void touchscreen_init(void) {
     for (u32 i = 0; i < ControlConfigElementsLength; i++) {
         ControlConfigElements[i].touchID = 0;
-        ControlConfigElements[i].joy[0] = 0;
-        ControlConfigElements[i].joy[1] = 0;
+        ControlConfigElements[i].joyX = 0;
+        ControlConfigElements[i].joyY = 0;
         ControlConfigElements[i].slideTouch = 0;
     }
     for (u32 i = 0; i < ControlElementsLength; i++) {
         ControlElements[i].touchID = 0;
-        ControlElements[i].joy[0] = 0;
-        ControlElements[i].joy[1] = 0;
-        ControlElements[i].joyRaw[0] = 0;
-        ControlElements[i].joyRaw[1] = 0;
+        ControlElements[i].joyX = 0;
+        ControlElements[i].joyY = 0;
         ControlElements[i].slideTouch = 0;
     }
 }
@@ -595,9 +602,9 @@ static void touchscreen_read(OSContPad *pad) {
             if (pos.y == HIDE_POS) continue;
             switch (ControlElements[i].type) {
                 case Joystick:
-                    if (ControlElements[i].joy[0] || ControlElements[i].joy[1]) {
-                        pad->stick_x = (ControlElements[i].joy[0] + size / 2) * 255 / size - 128;
-                        pad->stick_y = (-ControlElements[i].joy[1] + size / 2) * 255 / size - 128; //inverted for some reason
+                    if (ControlElements[i].joyX || ControlElements[i].joyY) {
+                        pad->stick_x = (ControlElements[i].joyX + size / 2) * 255 / size - 128;
+                        pad->stick_y = (-ControlElements[i].joyY + size / 2) * 255 / size - 128; //inverted for some reason
                     }
                     break;
                 case Mouse:

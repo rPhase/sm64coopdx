@@ -111,8 +111,7 @@ struct ControlElement {
     enum ControlElementType type;
     SDL_TouchID touchID; //0 = not being touched, 1+ = Finger being used
     //Joystick
-    Vec2f joy;
-    Vec2f joyRaw;
+    int joyX, joyY;
     //Button
     int buttonID;
     struct ButtonState buttonTexture;
