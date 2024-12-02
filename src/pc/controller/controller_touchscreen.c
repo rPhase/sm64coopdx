@@ -432,7 +432,7 @@ static void DrawSpriteTexJoyBase(s32 x, s32 y, int scaling) {
     gSPTextureRectangle(gDisplayListHead++, x - (32 << scaling), y - (32 << scaling), x + (31 << scaling), y + (31 << scaling), G_TX_RENDERTILE, 0, 0, 4 << (11 - scaling), 1 << (11 - scaling));
 }
 
-void *vec2f_normalize(int x, int y, int xOry) {
+f32 *vec2f_normalize(int x, int y, int xOry) {
     f32 div = sqrtf(x * x + y * y);
     if (div == 0) {
         return 0;
@@ -445,7 +445,6 @@ void *vec2f_normalize(int x, int y, int xOry) {
     return xOry == 0 ? x : y;
 }
 
-vec3f_normalize
 void render_touch_controls(void) {
     struct TouchEvent event;
     if ((gGamepadActive && configAutohideTouch) || !gGameInited) return;
