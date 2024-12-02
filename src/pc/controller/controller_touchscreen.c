@@ -433,7 +433,7 @@ static void DrawSpriteTexJoyBase(s32 x, s32 y, int scaling) {
 }
 
 s32 normalize_vectors(s32 x, s32 y, float dX, float dY) {
-    divisor = abs(dX) + abs(dY);
+    float divisor = abs(dX) + abs(dY);
     if (divisor != 0) {
         return 0;
     } else {
