@@ -433,7 +433,7 @@ Gfx touchsetup_default_gfx[] = {
     //gsDPSetAlphaCompare(G_AC_THRESHOLD),
    // gsDPSetBlendColor(255, 255, 255, 255),
     gsSPEndDisplayList(),
-}
+};
 
 void mod_controltouch_opac(u8 alpha) {
     gDPSetEnvColor(gDisplayListHead++, 255, 255, 255, alpha);
