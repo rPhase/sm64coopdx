@@ -382,7 +382,7 @@ int SDL_main(int argc, char *argv[]) {
 int main(int argc, char *argv[]) {
 #endif
 
-// create com.owokitty.sm64excoop folder
+// create com.maniscat2.sm64coopdx folder
 
 #ifdef TARGET_ANDROID
     char gamedir[SYS_MAX_PATH] = { 0 };

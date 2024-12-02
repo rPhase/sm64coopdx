@@ -310,7 +310,7 @@ void mods_refresh_local(void) {
     // from the path I have chosen for my Android app as a replacement for the
     // "relative to executable" mods folder found on Windows, MacOS and Linux distros that have
     // traditional default permissions.
-    // (/storage/emulated/0/com.owokitty.sm64excoop/mods)
+    // (/storage/emulated/0/com.maniscat2.sm64coopdx/mods)
     const char* gamedir = get_gamedir();
     char defaultModsPath[SYS_MAX_PATH] = { 0 };
     snprintf(defaultModsPath, sizeof(defaultModsPath), "%s/%s", 
