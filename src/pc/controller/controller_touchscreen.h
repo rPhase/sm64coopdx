@@ -3,6 +3,8 @@
 #ifdef TOUCH_CONTROLS
 #include "pc/configfile.h"
 
+#include "types.h"
+
 #define HIDE_POS -1000
 
 #define CHAT_BUTTON 0x001C
