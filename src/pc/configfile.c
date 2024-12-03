@@ -139,9 +139,9 @@ bool         configBackgroundGamepad              = true;
 bool         configDisableGamepads                = false;
 bool         configUseStandardKeyBindingsChat     = false;
 // free camera settings
-bool         configEnableCamera                   = false;
+bool         configEnableCamera                   = true;
 bool         configCameraAnalog                   = false;
-bool         configCameraMouse                    = false;
+bool         configCameraMouse                    = true;
 bool         configCameraInvertX                  = false;
 bool         configCameraInvertY                  = true;
 unsigned int configCameraXSens                    = 50;
