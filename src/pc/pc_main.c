@@ -399,6 +399,9 @@ int main(int argc, char *argv[]) {
     configfile_load();
 
     legacy_folder_handler();
+    if (configCopyAssetstoGamedir) {
+        SDL_AndroidCopyAssetFilesToDir(basedir);
+    }
 #else
     const char *gamedir = /*gCLIOpts.GameDir[0] ? gCLIOpts.GameDir :*/ FS_BASEDIR;
 #endif
@@ -425,12 +428,6 @@ int main(int argc, char *argv[]) {
         fs_init(sys_user_path());
     }
 #endif
-
-//#ifdef TARGET_ANDROID
-    if (configCopyAssetstoGamedir) {
-        SDL_AndroidCopyAssetFilesToDir(basedir);
-    }
-//#endif
 
     // create the window almost straight away
     if (!gGfxInited) {
