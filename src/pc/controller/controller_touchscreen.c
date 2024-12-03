@@ -496,9 +496,9 @@ void render_touch_controls(void) {
                 if (!ControlElements[i].touchID) {
 
                 if (configAndroidBiggerButtons) {
-                    DrawSprite(i, pos.x, pos.y, 1 + size / 100);
+                    DrawSprite(i, pos.x, pos.y, 1);
                 } else {
-                    DrawSprite(i, pos.x, pos.y, size / 100);
+                    DrawSprite(i, pos.x, pos.y, 1);
                 }
                 }
                 break;
