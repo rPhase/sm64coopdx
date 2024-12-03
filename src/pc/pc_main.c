@@ -426,6 +426,12 @@ int main(int argc, char *argv[]) {
     }
 #endif
 
+//#ifdef TARGET_ANDROID
+    if (configCopyAssetstoGamedir) {
+        SDL_AndroidCopyAssetFilesToDir(basedir);
+    }
+//#endif
+
     // create the window almost straight away
     if (!gGfxInited) {
         gfx_init(&WAPI, &RAPI, TITLE);
@@ -508,12 +514,6 @@ int main(int argc, char *argv[]) {
     } else {
         network_init(NT_NONE, false);
     }
-
-#ifdef TARGET_ANDROID
-    if (configCopyAssetstoGamedir) {
-        SDL_AndroidCopyAssetFilesToDir(basedir);
-    }
-#endif
 
     // main loop
     while (true) {
