@@ -66,7 +66,6 @@ ConfigControlElement configControlConfigElements[CONTROL_CONFIG_ELEMENT_COUNT] =
 };
 
 #include "pc/djui/djui_hud_utils.h"
-#include "controller_touchscreen_tex_def.c"
 
 // Normal Buttons
 extern ALIGNED8 const u8 texture_touch_a[];
