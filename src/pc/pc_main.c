@@ -399,7 +399,9 @@ int main(int argc, char *argv[]) {
     configfile_load();
 
     legacy_folder_handler();
-    SDL_AndroidCopyAssetFilesToDir(basedir);
+    if (configCopyAssetstoGamedir) {
+        SDL_AndroidCopyAssetFilesToDir(basedir);
+    }
 #else
     const char *gamedir = /*gCLIOpts.GameDir[0] ? gCLIOpts.GameDir :*/ FS_BASEDIR;
 #endif
