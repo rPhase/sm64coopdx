@@ -394,7 +394,11 @@ int main(int argc, char *argv[]) {
     }
     // Extract lang files and default mods from the apk and copy them to basedir
     // TODO: some way to inhibit this on launch if the apk doesn't contain updated/differing files?
-    SDL_AndroidCopyAssetFilesToDir(basedir);
+    configfile_load();
+    legacy_folder_handler();
+    if (configCopyAssetstoGamedir) {
+        SDL_AndroidCopyAssetFilesToDir(basedir);
+    }
 #else
     const char *gamedir = /*gCLIOpts.GameDir[0] ? gCLIOpts.GameDir :*/ FS_BASEDIR;
 #endif
@@ -423,10 +427,6 @@ int main(int argc, char *argv[]) {
 #else
     fs_init(gCLIOpts.savePath[0] ? gCLIOpts.savePath : sys_user_path());
 #endif
-
-    configfile_load();
-
-    legacy_folder_handler();
 
     // create the window almost straight away
     if (!gGfxInited) {

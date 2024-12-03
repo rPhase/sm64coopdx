@@ -58,6 +58,7 @@ void djui_panel_misc_create(struct DjuiBase* caller) {
         djui_button_create(body, DLANG(MISC, MENU_OPTIONS), DJUI_BUTTON_STYLE_NORMAL, djui_panel_main_menu_create);
         djui_button_create(body, DLANG(MISC, INFORMATION), DJUI_BUTTON_STYLE_NORMAL, djui_panel_info_create);
         djui_button_create(body, DLANG(MISC, DEBUG), DJUI_BUTTON_STYLE_NORMAL, djui_panel_options_debug_create);
+        djui_checkbox_create(body, "Copy assets to Gamedir", &configCopyAssetstoGamedir, NULL);
 
 #ifndef HANDHELD
 #if defined(_WIN32) || defined(_WIN64)

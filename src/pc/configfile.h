@@ -140,6 +140,7 @@ extern unsigned int         configGameVersion;
 extern bool         configAndroidBiggerButtons;
 extern bool         configAndroidExcoopControl;
 extern unsigned int configTouchControlAlpha;
+extern bool configCopyAssetstoGamedir;
 
 // secrets
 extern bool configExCoopTheme;
