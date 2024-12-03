@@ -68,6 +68,10 @@ ConfigControlElement configControlConfigElements[CONTROL_CONFIG_ELEMENT_COUNT] =
 #include "pc/djui/djui_hud_utils.h"
 #include "controller_touchscreen_tex_def.c"
 
+// Normal Buttons
+extern ALIGNED8 const u8 texture_touch_a[];
+
+
 #define TOUCH_CONTROL_DEFINE_DJUI(BUTTONNAME, BITSIZE, W, H) { (u8*)texture_touch_##BUTTONNAME##,      BITSIZE, W, H, "touch_button_" #BUTTONNAME     }
 
 static struct TextureInfo touchcontrol_texDJUI[] = {
