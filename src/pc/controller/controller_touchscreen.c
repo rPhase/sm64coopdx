@@ -1,6 +1,6 @@
 //Feel free to use it in your port too, but please keep authorship!
 //Touch Controls made by: VDavid003
-//#ifdef TOUCH_CONTROLS
+#ifdef TOUCH_CONTROLS
 #include <ultra64.h>
 #include <PR/ultratypes.h>
 #include <PR/gbi.h>
@@ -586,8 +586,8 @@ static void select_char_texture(u8 num) {
     gSPDisplayList(gDisplayListHead++, dl_hud_img_load_tex_block);
 }
 
-static void DrawSprite(s32 button, s32 x, s32 y, int scaling) {
-    if (touchcontrol_texDJUI[button] != NULL) djui_hud_render_texture(touchcontrol_texDJUI[button], x, y, scaling, scaling)
+static void DrawSprite(s32 button, s32 x, s32 y, f32 scaling) {
+    if (touchcontrol_texDJUI[button] != NULL) djui_hud_render_texture(touchcontrol_texDJUI[button], x, y, scaling, scaling);
 }
 
 static void DrawSpriteTexJoyBase(s32 x, s32 y, int scaling) {
