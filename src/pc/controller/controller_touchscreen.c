@@ -219,7 +219,7 @@ ALIGNED8 const u8 texture_touch_trash[] = {
 };
 
 static struct TextureInfo touchcontrol_texDJUI[] = {
-    { (u8*)texture_touch_a, 8, 16, 16, "touch_button_a"|
+    { (u8*)texture_touch_a, 8, 16, 16, "touch_button_a"}
     /*[TOUCH_A] = TOUCH_CONTROL_DEFINE_DJUI(a, 8, 16, 16),
     [TOUCH_B] = TOUCH_CONTROL_DEFINE_DJUI(b, 8, 16, 16),
     [TOUCH_X] = TOUCH_CONTROL_DEFINE_DJUI(x, 8, 16, 16),
