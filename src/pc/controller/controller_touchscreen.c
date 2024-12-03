@@ -588,7 +588,7 @@ static void select_char_texture(u8 num) {
 }
 
 static void DrawSprite(s32 button, s32 x, s32 y, f32 scaling) {
-    if (touchcontrol_texDJUI[button] != NULL) djui_hud_render_texture(&touchcontrol_texDJUI[button], x, y, scaling, scaling);
+    if (touchcontrol_texDJUI[button]) djui_hud_render_texture(&touchcontrol_texDJUI[button], x, y, scaling, scaling);
 }
 
 static void DrawSpriteTexJoyBase(s32 x, s32 y, int scaling) {
