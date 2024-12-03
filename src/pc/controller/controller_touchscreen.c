@@ -1,6 +1,6 @@
 //Feel free to use it in your port too, but please keep authorship!
 //Touch Controls made by: VDavid003
-#ifdef TOUCH_CONTROLS
+//#ifdef TOUCH_CONTROLS
 #include <ultra64.h>
 #include <PR/ultratypes.h>
 #include <PR/gbi.h>
@@ -64,6 +64,25 @@ ConfigControlElement configControlElementsLast[CONTROL_ELEMENT_COUNT] = {
 ConfigControlElement configControlConfigElements[CONTROL_CONFIG_ELEMENT_COUNT] = {
 #include "controller_touchscreen_config_layouts.inc"
 };
+
+#include "pc/djui/djui_hud_utils.h"
+
+#define TOUCH_CONTROL_DEFINE_DJUI(BUTTONNAME, BITSIZE, W, H) { (u8*)texture_touch_##BUTTONNAME##,      BITSIZE, W, H, "touch_button_" #BUTTONNAME     }
+
+static struct TextureInfo touchcontrol_texDJUI[] = {
+    [TOUCH_A] = TOUCH_CONTROL_DEFINE_DJUI(a, 8, 16, 16),
+    [TOUCH_B] = TOUCH_CONTROL_DEFINE_DJUI(b, 8, 16, 16),
+    [TOUCH_X] = TOUCH_CONTROL_DEFINE_DJUI(x, 8, 16, 16),
+    [TOUCH_Y] = TOUCH_CONTROL_DEFINE_DJUI(y, 8, 16, 16),
+    [TOUCH_START] = TOUCH_CONTROL_DEFINE_DJUI(start, 8, 16, 16),
+    [TOUCH_L] = TOUCH_CONTROL_DEFINE_DJUI(l, 8, 16, 16),
+    [TOUCH_R] = TOUCH_CONTROL_DEFINE_DJUI(r, 8, 16, 16),
+    [TOUCH_Z] = TOUCH_CONTROL_DEFINE_DJUI(z, 8, 16, 16),
+    [TOUCH_CHAT] = TOUCH_CONTROL_DEFINE_DJUI(chat, 8, 16, 16),
+    [TOUCH_PLAYERLIST] = TOUCH_CONTROL_DEFINE_DJUI(playerlist, 8, 16, 16),
+    [TOUCH_CONSOLE] = TOUCH_CONTROL_DEFINE_DJUI(console, 8, 16, 16),
+};
+
 
 // This order must match configControlElements and ConfigControlElementIndex
 static struct ControlElement ControlElements[CONTROL_ELEMENT_COUNT] = {
@@ -418,17 +437,18 @@ static void select_char_texture(u8 num) {
     gSPDisplayList(gDisplayListHead++, dl_hud_img_load_tex_block);
 }
 
-static void DrawSprite(s32 x, s32 y, int scaling) {
-    gSPTextureRectangle(gDisplayListHead++, x - (16 << scaling), y - (16 << scaling), x + (15 << scaling), y + (15 << scaling), G_TX_RENDERTILE, 0, 0, 4 << (11 - scaling), 1 << (11 - scaling));
+static void DrawSprite(s32 button, s32 x, s32 y, int scaling) {
+    if (touchcontrol_texDJUI[button] != NULL) djui_hud_render_texture(touchcontrol_texDJUI[button], x, y, scaling, scaling)
 }
 
 static void DrawSpriteTexJoyBase(s32 x, s32 y, int scaling) {
     gSPTextureRectangle(gDisplayListHead++, x - (32 << scaling), y - (32 << scaling), x + (31 << scaling), y + (31 << scaling), G_TX_RENDERTILE, 0, 0, 4 << (11 - scaling), 1 << (11 - scaling));
 }
 
+
 void render_touch_controls(void) {
     if ((gGamepadActive && configAutohideTouch) || !gGameInited) return;
-    Mtx *mtx;
+    /*Mtx *mtx;
 
     mtx = alloc_display_list(sizeof(*mtx));
 
@@ -439,7 +459,9 @@ void render_touch_controls(void) {
     guOrtho(mtx, 0.0f, SCREEN_WIDTH, 0.0f, SCREEN_HEIGHT, -10.0f, 10.0f, 1.0f);
     gSPPerspNormalize((Gfx *) (gDisplayListHead++), 0xFFFF);
     gSPMatrix(gDisplayListHead++, VIRTUAL_TO_PHYSICAL(mtx), G_MTX_PROJECTION | G_MTX_LOAD | G_MTX_NOPUSH);
-    gSPDisplayList(gDisplayListHead++, dl_hud_img_begin);
+    gSPDisplayList(gDisplayListHead++, dl_hud_img_begin);*/
+
+    djui_hud_set_resolution(RESOLUTION_N64);
 
     struct Position pos;
     s32 size;
@@ -448,12 +470,12 @@ void render_touch_controls(void) {
         pos = get_pos(&configControlElements[i], 0);
         if (pos.y == HIDE_POS) continue;
         size = configControlElements[i].size[0];
-        select_joystick_tex_base();
+        //select_joystick_tex_base();
         switch (ControlElements[i].type) {
             case Joystick:
-                DrawSpriteTexJoyBase(pos.x, pos.y, 2);
-                select_joystick_tex();
-                DrawSprite(pos.x + 4 + ControlElements[i].joyX, pos.y + 4 + ControlElements[i].joyY, 2);
+                //DrawSpriteTexJoyBase(pos.x, pos.y, 2);
+                //select_joystick_tex();
+                //DrawSprite(pos.x + 4 + ControlElements[i].joyX, pos.y + 4 + ControlElements[i].joyY, 2);
                 break;
             /*case Mouse:
                 if ((before_x > 0 || before_y > 0) &&
@@ -466,16 +488,13 @@ void render_touch_controls(void) {
                 }
                 break;*/
             case Button:
-                if (ControlElements[i].touchID) {
-                    select_char_texture(ControlElements[i].buttonTexture.buttonDown);
-                } else {
-                    select_char_texture(ControlElements[i].buttonTexture.buttonUp);
-                }
+                if (!ControlElements[i].touchID) {
 
                 if (configAndroidBiggerButtons) {
-                    DrawSprite(pos.x, pos.y, 1 + size / 100);
+                    DrawSprite(i, pos.x, pos.y, 1 + size / 100);
                 } else {
-                    DrawSprite(pos.x, pos.y, size / 100);
+                    DrawSprite(i, pos.x, pos.y, size / 100);
+                }
                 }
                 break;
         }
@@ -486,20 +505,20 @@ void render_touch_controls(void) {
             pos = get_pos(&configControlConfigElements[i], 0);
             if (pos.y == HIDE_POS) continue;
             size = configControlConfigElements[i].size[0];
-            select_button_texture(0);
+            //select_button_texture(0);
             if (ControlConfigElements[i].touchID || 
                 (i == TOUCH_SNAP && configElementSnap))
-                select_button_texture(1);
-            DrawSprite(pos.x - 8, pos.y, 1 + size / 100);
-            select_char_texture(ControlConfigElements[i].buttonTexture.buttonUp);
-            DrawSprite(pos.x, pos.y, size / 100);
+                //select_button_texture(1);
+            //DrawSprite(pos.x - 8, pos.y, 1 + size / 100);
+            //select_char_texture(ControlConfigElements[i].buttonTexture.buttonUp);
+            //DrawSprite(pos.x, pos.y, size / 100);
         }
         // trash icon
-        select_char_texture(TEXTURE_TOUCH_TRASH);
-        DrawSprite(SCREEN_WIDTH_API / 2, SCREEN_HEIGHT_API / 2, 2);
+        //select_char_texture(TEXTURE_TOUCH_TRASH);
+        //DrawSprite(SCREEN_WIDTH_API / 2, SCREEN_HEIGHT_API / 2, 2);
     }
 
-    gSPDisplayList(gDisplayListHead++, dl_hud_img_end);
+    //gSPDisplayList(gDisplayListHead++, dl_hud_img_end);
 }
 
 static void touchscreen_init(void) {
