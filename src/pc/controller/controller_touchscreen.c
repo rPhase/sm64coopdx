@@ -69,6 +69,155 @@ ConfigControlElement configControlConfigElements[CONTROL_CONFIG_ELEMENT_COUNT] =
 
 #define TOUCH_CONTROL_DEFINE_DJUI(BUTTONNAME, BITSIZE, W, H) { (u8*)texture_touch_##BUTTONNAME##,      BITSIZE, W, H, "touch_button_" #BUTTONNAME     }
 
+// Joystick
+ALIGNED8 const u8 texture_touch_joystick[] = {
+#include "textures/touchcontrols/touch_joystick.rgba16.inc.c"
+};
+ALIGNED8 const u8 texture_touch_joystick_base[] = {
+#include "textures/touchcontrols/touch_joystick_base.rgba16.inc.c"
+};
+
+// C Buttons
+ALIGNED8 const u8 texture_touch_c_up[] = {
+#include "textures/touchcontrols/touch_button_c_up.rgba16.inc.c"
+};
+ALIGNED8 const u8 texture_touch_c_up_pressed[] = {
+#include "textures/touchcontrols/touch_button_c_up_pressed.rgba16.inc.c"
+};
+ALIGNED8 const u8 texture_touch_c_down[] = {
+#include "textures/touchcontrols/touch_button_c_down.rgba16.inc.c"
+};
+ALIGNED8 const u8 texture_touch_c_down_pressed[] = {
+#include "textures/touchcontrols/touch_button_c_down_pressed.rgba16.inc.c"
+};
+ALIGNED8 const u8 texture_touch_c_left[] = {
+#include "textures/touchcontrols/touch_button_c_left.rgba16.inc.c"
+};
+ALIGNED8 const u8 texture_touch_c_left_pressed[] = {
+#include "textures/touchcontrols/touch_button_c_left_pressed.rgba16.inc.c"
+};
+ALIGNED8 const u8 texture_touch_c_right[] = {
+#include "textures/touchcontrols/touch_button_c_right.rgba16.inc.c"
+};
+ALIGNED8 const u8 texture_touch_c_right_pressed[] = {
+#include "textures/touchcontrols/touch_button_c_right_pressed.rgba16.inc.c"
+};
+
+// D-Pad Buttons
+ALIGNED8 const u8 texture_touch_dpad_up[] = {
+#include "textures/touchcontrols/touch_button_dpad_up.rgba16.inc.c"
+};
+ALIGNED8 const u8 texture_touch_dpad_up_pressed[] = {
+#include "textures/touchcontrols/touch_button_dpad_up_pressed.rgba16.inc.c"
+};
+ALIGNED8 const u8 texture_touch_dpad_down[] = {
+#include "textures/touchcontrols/touch_button_dpad_down.rgba16.inc.c"
+};
+ALIGNED8 const u8 texture_touch_dpad_down_pressed[] = {
+#include "textures/touchcontrols/touch_button_dpad_down_pressed.rgba16.inc.c"
+};
+ALIGNED8 const u8 texture_touch_dpad_left[] = {
+#include "textures/touchcontrols/touch_button_dpad_left.rgba16.inc.c"
+};
+ALIGNED8 const u8 texture_touch_dpad_left_pressed[] = {
+#include "textures/touchcontrols/touch_button_dpad_left_pressed.rgba16.inc.c"
+};
+ALIGNED8 const u8 texture_touch_dpad_right[] = {
+#include "textures/touchcontrols/touch_button_dpad_right.rgba16.inc.c"
+};
+ALIGNED8 const u8 texture_touch_dpad_right_pressed[] = {
+#include "textures/touchcontrols/touch_button_dpad_right_pressed.rgba16.inc.c"
+};
+
+// Normal Buttons
+ALIGNED8 const u8 texture_touch_a[] = {
+#include "textures/touchcontrols/touch_button_a.rgba16.inc.c"
+};
+ALIGNED8 const u8 texture_touch_a_pressed[] = {
+#include "textures/touchcontrols/touch_button_a_pressed.rgba16.inc.c"
+};
+ALIGNED8 const u8 texture_touch_b[] = {
+#include "textures/touchcontrols/touch_button_b.rgba16.inc.c"
+};
+ALIGNED8 const u8 texture_touch_b_pressed[] = {
+#include "textures/touchcontrols/touch_button_b_pressed.rgba16.inc.c"
+};
+ALIGNED8 const u8 texture_touch_x[] = {
+#include "textures/touchcontrols/touch_button_x.rgba16.inc.c"
+};
+ALIGNED8 const u8 texture_touch_x_pressed[] = {
+#include "textures/touchcontrols/touch_button_x_pressed.rgba16.inc.c"
+};
+ALIGNED8 const u8 texture_touch_y[] = {
+#include "textures/touchcontrols/touch_button_y.rgba16.inc.c"
+};
+ALIGNED8 const u8 texture_touch_y_pressed[] = {
+#include "textures/touchcontrols/touch_button_y_pressed.rgba16.inc.c"
+};
+ALIGNED8 const u8 texture_touch_start[] = {
+#include "textures/touchcontrols/touch_button_start.rgba16.inc.c"
+};
+ALIGNED8 const u8 texture_touch_start_pressed[] = {
+#include "textures/touchcontrols/touch_button_start_pressed.rgba16.inc.c"
+};
+
+// Trigger Buttons
+ALIGNED8 const u8 texture_touch_l[] = {
+#include "textures/touchcontrols/touch_button_l.rgba16.inc.c"
+};
+ALIGNED8 const u8 texture_touch_l_pressed[] = {
+#include "textures/touchcontrols/touch_button_l_pressed.rgba16.inc.c"
+};
+ALIGNED8 const u8 texture_touch_r[] = {
+#include "textures/touchcontrols/touch_button_r.rgba16.inc.c"
+};
+ALIGNED8 const u8 texture_touch_r_pressed[] = {
+#include "textures/touchcontrols/touch_button_r_pressed.rgba16.inc.c"
+};
+ALIGNED8 const u8 texture_touch_z[] = {
+#include "textures/touchcontrols/touch_button_z.rgba16.inc.c"
+};
+ALIGNED8 const u8 texture_touch_z_pressed[] = {
+#include "textures/touchcontrols/touch_button_z_pressed.rgba16.inc.c"
+};
+
+// Misc Buttons
+ALIGNED8 const u8 texture_touch_chat[] = {
+#include "textures/touchcontrols/touch_button_chat.rgba16.inc.c"
+};
+ALIGNED8 const u8 texture_touch_chat_pressed[] = {
+#include "textures/touchcontrols/touch_button_chat_pressed.rgba16.inc.c"
+};
+ALIGNED8 const u8 texture_touch_playerlist[] = {
+#include "textures/touchcontrols/touch_button_playerlist.rgba16.inc.c"
+};
+ALIGNED8 const u8 texture_touch_playerlist_pressed[] = {
+#include "textures/touchcontrols/touch_button_playerlist_pressed.rgba16.inc.c"
+};
+ALIGNED8 const u8 texture_touch_console[] = {
+#include "textures/touchcontrols/touch_button_console.rgba16.inc.c"
+};
+ALIGNED8 const u8 texture_touch_console_pressed[] = {
+#include "textures/touchcontrols/touch_button_console_pressed.rgba16.inc.c"
+};
+
+// Editor Buttons
+ALIGNED8 const u8 texture_touch_check[] = {
+#include "textures/touchcontrols/touch_check.rgba16.inc.c"
+};
+ALIGNED8 const u8 texture_touch_cross[] = {
+#include "textures/touchcontrols/touch_cross.rgba16.inc.c"
+};
+ALIGNED8 const u8 texture_touch_reset[] = {
+#include "textures/touchcontrols/touch_reset.rgba16.inc.c"
+};
+ALIGNED8 const u8 texture_touch_snap[] = {
+#include "textures/touchcontrols/touch_snap.rgba16.inc.c"
+};
+ALIGNED8 const u8 texture_touch_trash[] = {
+#include "textures/touchcontrols/touch_trash.rgba16.inc.c"
+};
+
 static struct TextureInfo touchcontrol_texDJUI[] = {
     [TOUCH_A] = TOUCH_CONTROL_DEFINE_DJUI(a, 8, 16, 16),
     [TOUCH_B] = TOUCH_CONTROL_DEFINE_DJUI(b, 8, 16, 16),
