@@ -139,7 +139,8 @@ ifneq ($(shell ls ../../src/main/),)
   DUMMY != mkdir -p ../../src/main/assets && \
            cp -r mods ../../src/main/assets/ && \
            cp -r lang ../../src/main/assets/ && \
-           cp -r palettes ../../src/main/assets/
+           cp -r palettes ../../src/main/assets/ && \
+           cp -r dynos ../../src/main/assets/
 endif
 
 # Attempt to detect BSD
@@ -1690,6 +1691,7 @@ $(ZIP_UNCOMPRESSED): $(EXE) $(APK_FILES)
 	cp -r mods $(BUILD_DIR)/platform/android/android/assets/ && \
 	cp -r lang $(BUILD_DIR)/platform/android/android/assets/ && \
   cp -r palettes $(BUILD_DIR)/platform/android/android/assets/ && \
+  cp -r dynos $(BUILD_DIR)/platform/android/android/assets/ && \
 	cp $(PREFIX)/lib/libc++_shared.so $(BUILD_DIR)/platform/android/android/lib/$(ARCH_APK)/ && \
 	cp $(EXE) $(BUILD_DIR)/platform/android/android/lib/$(ARCH_APK)/ && \
 	cd $(BUILD_DIR)/platform/android/android && \
