@@ -108,19 +108,7 @@ void djui_panel_join_query(uint64_t aLobbyId, UNUSED uint64_t aOwnerId, uint16_t
     if (!sLobbyPaginated) { return; }
     if (aMaxConnections > MAX_PLAYERS) { return; }
 
-    #ifdef PLATFORM_COMPAT
-        if (strstr(aVersion, "v36") || strstr(aVersion, "beta")) { return; }
-    #else
-    if (strcmp(sPassword, "") == 0) {
-        if (strstr(aVersion, "34") || strstr(aVersion, "35") || strstr(aVersion, "v36") || strstr(aVersion, "v37")) {
-            return; 
-        } else if (strcmp(sPassword, "") == 0) {
-            if (strstr(aVersion, "34") || strstr(aVersion, "35") || strstr(aVersion, "v36")) {
-                return;
-            }
-        }
-    }
-    #endif
+    if (strstr(aVersion, "v36") || strstr(aVersion, "35") || strstr(aVersion, "34") /*|| strstr(aVersion, "beta")*/) { return; }
 
     char playerText[64] = "";
     snprintf(playerText, 63, "%u/%u", aConnections, aMaxConnections);
@@ -131,11 +119,7 @@ void djui_panel_join_query(uint64_t aLobbyId, UNUSED uint64_t aOwnerId, uint16_t
 
     char version[MAX_VERSION_LENGTH] = { 0 };
     snprintf(version, MAX_VERSION_LENGTH, "%s", get_version_online());
-#ifdef PLATFORM_COMPAT
-    bool disabled = (strcmp(version, aVersion) != 0);
-    #else
     bool disabled = (strcmp(version, aVersion) != 0 && !strstr(aVersion, "v37"));
-#endif
     if (disabled) {
         snprintf(mode, 64, "\\#ff0000\\[%s]", aVersion);
     }
