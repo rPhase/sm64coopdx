@@ -425,8 +425,6 @@ static void DrawSprite(u8 num, s32 x, s32 y, int scaling) {
         drawingsprite = (u8*)touch_textures[num];
     } else if (num < 87) { // unknown
         drawingsprite = (u8*)touch_textures[TEXTURE_TOUCH_CONSOLE];
-    } else { // letters
-        drawingsprite = main_hud_lut[num - 87];
     }
     gDPSetEnvColor(gDisplayListHead++, 0xFF, 0xFF, 0xFF, 0xFF);
     render_hud_icon(NULL, drawingsprite, G_IM_FMT_RGBA, G_IM_SIZ_16b, 16, 16, x, y, 16, 16, 0, 0, 16, 16);
