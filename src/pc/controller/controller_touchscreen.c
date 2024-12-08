@@ -470,7 +470,7 @@ void render_touch_controls(void) {
                 render_hud_icon(NULL, touch_textures[TEXTURE_TOUCH_JOYSTICK_BASE], G_IM_FMT_RGBA, G_IM_SIZ_16b, 32, 32, pos.x, pos.y, 32, 32, 0, 0, 32, 32);
                 //DrawSpriteTexJoyBase(pos.x, pos.y, 2);
                 //select_joystick_tex();
-                render_hud_icon(NULL, touch_textures[TEXTURE_TOUCH_JOYSTICK], G_IM_FMT_RGBA, G_IM_SIZ_16b, 16, 16, pos.x + (8 / size * 100) + ControlElements[i].joyX, pos.y + (8 / size * 100) + ControlElements[i].joyY, 16, 16, 0, 0, 16, 16);
+                render_hud_icon(NULL, touch_textures[TEXTURE_TOUCH_JOYSTICK], G_IM_FMT_RGBA, G_IM_SIZ_16b, 16, 16, 20 + (8 / size * 100)/* + ControlElements[i].joyX*/, 20 + (8 / size * 100)/* + ControlElements[i].joyY*/, 16, 16, 0, 0, 16, 16);
                 //DrawSprite(pos.x + (8 / size * 100) + ControlElements[i].joyX, pos.y + (8 / size * 100) + ControlElements[i].joyY, 2);
                 break;
             /*case Mouse:
