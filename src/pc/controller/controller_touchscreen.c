@@ -18,7 +18,7 @@
 #include "pc/djui/djui_panel_main.h"
 #include "pc/djui/djui_console.h"
 #include "pc/network/network.h"
-#include "hud.h"
+#include "src/game/hud.h"
 
 #include "controller_api.h"
 #include "controller_touchscreen.h"
