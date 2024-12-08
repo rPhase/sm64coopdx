@@ -422,15 +422,13 @@ static void select_char_texture(u8 num) {
 static void DrawSprite(u8 num, s32 x, s32 y, int scaling) {
     u8*drawingsprite;
     if (num < TOUCH_TEXTURE_COUNT) { // touchscreen symbols
-        drawingsprite = touch_textures[num];
+        drawingsprite = (u8*)touch_textures[num];
     } else if (num < 87) { // unknown
-        drawingsprite = touch_textures[TEXTURE_TOUCH_CONSOLE];
+        drawingsprite = (u8*)touch_textures[TEXTURE_TOUCH_CONSOLE];
     } else { // letters
         drawingsprite = main_hud_lut[num - 87];
     }
-    if (drawingsprite) {
-        render_hud_icon(NULL, drawingsprite, G_IM_FMT_RGBA, G_IM_SIZ_16b, 16, 16, x, y, 16, 16, 0, 0, 16, 16);
-    }
+    render_hud_icon(NULL, drawingsprite, G_IM_FMT_RGBA, G_IM_SIZ_16b, 16, 16, x, y, 16, 16, 0, 0, 16, 16);
 }
 
 static void DrawSpriteTexJoyBase(s32 x, s32 y, int scaling) {
