@@ -417,7 +417,7 @@ static void select_char_texture(u8 num) {
 
     gSPDisplayList(gDisplayListHead++, dl_hud_img_load_tex_block);*/
 }
-
+#include "src/pc/configfile.h"
 #include "src/game/hud.h"
 static void DrawSprite(u8 num, s32 x, s32 y, int scaling) {
     u8*drawingsprite;
@@ -426,7 +426,7 @@ static void DrawSprite(u8 num, s32 x, s32 y, int scaling) {
     } else if (num < 87) { // unknown
         drawingsprite = (u8*)touch_textures[TEXTURE_TOUCH_CONSOLE];
     }
-    gDPSetEnvColor(gDisplayListHead++, 0xFF, 0xFF, 0xFF, 0xFF);
+    gDPSetEnvColor(gDisplayListHead++, 0xFF, 0xFF, 0xFF, configTouchControlAlpha);
     render_hud_icon(NULL, drawingsprite, G_IM_FMT_RGBA, G_IM_SIZ_16b, 16, 16, x, y, 16, 16, 0, 0, 16, 16);
 }
 
