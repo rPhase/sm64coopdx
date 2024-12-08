@@ -18,7 +18,6 @@
 #include "pc/djui/djui_panel_main.h"
 #include "pc/djui/djui_console.h"
 #include "pc/network/network.h"
-#include "src/game/hud.h"
 
 #include "controller_api.h"
 #include "controller_touchscreen.h"
@@ -381,11 +380,10 @@ static void select_button_texture(int dark) {
 }
 
 const Gfx dl_tex_joystick_base_uv[] = {
-    gsDPSetTile(G_IM_FMT_RGBA, G_IM_SIZ_16b, 0, 0, G_TX_LOADTILE, 0, G_TX_WRAP | G_TX_NOMIRROR, 4, G_TX_NOLOD, G_TX_WRAP | G_TX_NOMIRROR, 4, G_TX_NOLOD),
-    gsDPLoadSync(),
-    gsDPLoadBlock(G_TX_LOADTILE, 0, 0, 32 * 32 - 1, CALC_DXT(16, G_IM_SIZ_16b_BYTES)),
-    gsDPSetTile(G_IM_FMT_RGBA, G_IM_SIZ_16b, 4, 0, G_TX_RENDERTILE, 0, G_TX_CLAMP, 4, G_TX_NOLOD, G_TX_CLAMP, 4, G_TX_NOLOD),
-    gsDPSetTileSize(0, 0, 0, (32 - 1) << G_TEXTURE_IMAGE_FRAC, (32 - 1) << G_TEXTURE_IMAGE_FRAC),
+    gsDPSetTile(G_IM_FMT_RGBA, G_IM_SIZ_16b_LOAD_BLOCK, 0, 0, 7, 0, G_TX_WRAP | G_TX_NOMIRROR, 0, 0, G_TX_WRAP | G_TX_NOMIRROR, 0, 0),
+	gsDPLoadBlock(7, 0, 0, 1023, 256),
+	gsDPSetTile(G_IM_FMT_RGBA, G_IM_SIZ_16b, 8, 0, 0, 0, G_TX_WRAP | G_TX_NOMIRROR, 5, 0, G_TX_WRAP | G_TX_NOMIRROR, 5, 0),
+	gsDPSetTileSize(0, 0, 0, 124, 124),
     gsSPEndDisplayList(),
 };
 
@@ -407,11 +405,10 @@ static void select_joystick_tex(void) {
 }
 
 const Gfx dl_hud_img_load_tex_blockTOUCH[] = {
-    gsDPSetTile(G_IM_FMT_RGBA, G_IM_SIZ_16b, 0, 0, G_TX_LOADTILE, 0, G_TX_WRAP | G_TX_NOMIRROR, 4, G_TX_NOLOD, G_TX_WRAP | G_TX_NOMIRROR, 4, G_TX_NOLOD),
-    gsDPLoadSync(),
-    gsDPLoadBlock(G_TX_LOADTILE, 0, 0, 16 * 16 - 1, CALC_DXT(16, G_IM_SIZ_16b_BYTES)),
-    gsDPSetTile(G_IM_FMT_RGBA, G_IM_SIZ_16b, 4, 0, G_TX_RENDERTILE, 0, G_TX_CLAMP, 4, G_TX_NOLOD, G_TX_CLAMP, 4, G_TX_NOLOD),
-    gsDPSetTileSize(0, 0, 0, (16 - 1) << G_TEXTURE_IMAGE_FRAC, (16 - 1) << G_TEXTURE_IMAGE_FRAC),
+    gsDPSetTile(G_IM_FMT_RGBA, G_IM_SIZ_16b_LOAD_BLOCK, 0, 0, 7, 0, G_TX_WRAP | G_TX_NOMIRROR, 0, 0, G_TX_WRAP | G_TX_NOMIRROR, 0, 0),
+	gsDPLoadBlock(7, 0, 0, 255, 512),
+	gsDPSetTile(G_IM_FMT_RGBA, G_IM_SIZ_16b, 4, 0, 0, 0, G_TX_CLAMP | G_TX_NOMIRROR, 4, 0, G_TX_CLAMP | G_TX_NOMIRROR, 4, 0),
+	gsDPSetTileSize(0, 0, 0, 60, 60),
     gsSPEndDisplayList(),
 };
 
@@ -431,64 +428,31 @@ static void select_char_texture(u8 num) {
 #include "src/pc/configfile.h"
 static void DrawSprite(s32 x, s32 y, int scaling) {
     gDPSetEnvColor(gDisplayListHead++, 0xFF, 0xFF, 0xFF, configTouchControlAlpha);
-    gSPTextureRectangle(gDisplayListHead++, x - (16 << scaling), y - (16 << scaling), x + (16 << scaling), y + (16 << scaling), G_TX_RENDERTILE, 0, 0, 4 << (11 - scaling), 1 << (11 - scaling));
+    gSPTextureRectangle(gDisplayListHead++, x - (15 << scaling), y - (15 << scaling), x + (15 << scaling), y + (15 << scaling), G_TX_RENDERTILE, 0, 0, 4 << (11 - scaling), 1 << (11 - scaling));
 }
 
 static void DrawSpriteTexJoyBase(s32 x, s32 y, int scaling) {
-    gSPTextureRectangle(gDisplayListHead++, x - (32 << scaling), y - (32 << scaling), x + (16 << scaling), y + (16 << scaling), G_TX_RENDERTILE, 0, 0, 4 << (11 - scaling), 1 << (11 - scaling));
-}
-
-#define SCREEN_TOP_Y 240
-
-void create_dl_ortho_matrix_2(void) {
-    Mtx *matrix = (Mtx *) alloc_display_list(sizeof(Mtx));
-
-    if (matrix == NULL) {
-        return;
-    }
-
-    create_dl_identity_matrix();
-
-    guOrtho(matrix, 0.0f, SCREEN_WIDTH_API, 0.0f, SCREEN_HEIGHT_API, -10.0f, 10.0f, 1.0f);
-
-    // Should produce G_RDPHALF_1 in Fast3D
-    gSPPerspNormalize(gDisplayListHead++, 0xFFFF);
-
-    gSPMatrix(gDisplayListHead++, VIRTUAL_TO_PHYSICAL(matrix), G_MTX_PROJECTION | G_MTX_MUL | G_MTX_NOPUSH)
-}
-
-void render_button(Vtx *vtx, const u8 *texture, u32 fmt, u32 siz, s32 texW, s32 texH, s32 x, s32 y, s32 w, s32 h, s32 tileX, s32 tileY, s32 tileW, s32 tileH) {
-
-    s32 adjustedY = SCREEN_HEIGHT_API - y + 50;
-    s32 adjustedX = SCREEN_WIDTH_API + x;
-    create_dl_ortho_matrix_2();
-    if (!vtx) {
-        vtx = alloc_display_list(sizeof(Vtx) * 4);
-        vtx[0] = (Vtx) {{{ adjustedX,     adjustedY - h, 0 }, 0, {  tileX          << 5, (tileY + tileH) << 5 }, { 0xFF, 0xFF, 0xFF, 0xFF }}};
-        vtx[1] = (Vtx) {{{ adjustedX + w, adjustedY - h, 0 }, 0, { (tileX + tileW) << 5, (tileY + tileH) << 5 }, { 0xFF, 0xFF, 0xFF, 0xFF }}};
-        vtx[2] = (Vtx) {{{ adjustedX + w, adjustedY,     0 }, 0, { (tileX + tileW) << 5,  tileY          << 5 }, { 0xFF, 0xFF, 0xFF, 0xFF }}};
-        vtx[3] = (Vtx) {{{ adjustedX,     adjustedY,     0 }, 0, {  tileX          << 5,  tileY          << 5 }, { 0xFF, 0xFF, 0xFF, 0xFF }}};
-    }
-    gSPClearGeometryMode(gDisplayListHead++, G_LIGHTING);
-    gDPSetCombineMode(gDisplayListHead++, G_CC_FADEA, G_CC_FADEA);
-    gDPSetRenderMode(gDisplayListHead++, G_RM_XLU_SURF, G_RM_XLU_SURF2);
-    gDPSetTextureFilter(gDisplayListHead++, G_TF_POINT);
-    gDPSetEnvColor(gDisplayListHead++, 0xFF, 0xFF, 0xFF, configTouchControlAlpha);
-    gSPTexture(gDisplayListHead++, 0xFFFF, 0xFFFF, 0, G_TX_RENDERTILE, G_ON);
-    switch (siz) {
-        case G_IM_SIZ_4b:  gDPLoadTextureBlock(gDisplayListHead++, texture, fmt, G_IM_SIZ_4b,  texW, texH, 0, G_TX_CLAMP, G_TX_CLAMP, 0, 0, 0, 0); break;
-        case G_IM_SIZ_8b:  gDPLoadTextureBlock(gDisplayListHead++, texture, fmt, G_IM_SIZ_8b,  texW, texH, 0, G_TX_CLAMP, G_TX_CLAMP, 0, 0, 0, 0); break;
-        case G_IM_SIZ_16b: gDPLoadTextureBlock(gDisplayListHead++, texture, fmt, G_IM_SIZ_16b, texW, texH, 0, G_TX_CLAMP, G_TX_CLAMP, 0, 0, 0, 0); break;
-        case G_IM_SIZ_32b: gDPLoadTextureBlock(gDisplayListHead++, texture, fmt, G_IM_SIZ_32b, texW, texH, 0, G_TX_CLAMP, G_TX_CLAMP, 0, 0, 0, 0); break;
-    }
-    gSPVertex(gDisplayListHead++, vtx, 4, 0);
-    gSP2Triangles(gDisplayListHead++, 0, 1, 2, 0x0, 0, 2, 3, 0x0);
-    gSPTexture(gDisplayListHead++, 0xFFFF, 0xFFFF, 0, G_TX_RENDERTILE, G_OFF);
-    gDPSetCombineMode(gDisplayListHead++, G_CC_SHADE, G_CC_SHADE);
+    gSPTextureRectangle(gDisplayListHead++, x - (31 << scaling), y - (31 << scaling), x + (31 << scaling), y + (31 << scaling), G_TX_RENDERTILE, 0, 0, 4 << (11 - scaling), 1 << (11 - scaling));
 }
 
 void render_touch_controls(void) {
     if ((gGamepadActive && configAutohideTouch) || !gGameInited) return;
+    Mtx *mtx;
+
+    mtx = alloc_display_list(sizeof(*mtx));
+
+    if (mtx == NULL) {
+        return;
+    }
+
+    guOrtho(mtx, 0.0f, SCREEN_WIDTH, 0.0f, SCREEN_HEIGHT, -10.0f, 10.0f, 1.0f);
+    gSPPerspNormalize((Gfx *) (gDisplayListHead++), 0xFFFF);
+    gSPMatrix(gDisplayListHead++, VIRTUAL_TO_PHYSICAL(mtx), G_MTX_PROJECTION | G_MTX_LOAD | G_MTX_NOPUSH);
+    gSPClearGeometryMode(gDisplayListHead++, G_LIGHTING);
+    gDPSetCombineMode(gDisplayListHead++, G_CC_FADEA, G_CC_FADEA);
+    gDPSetRenderMode(gDisplayListHead++, G_RM_XLU_SURF, G_RM_XLU_SURF2);
+    gDPSetTextureFilter(gDisplayListHead++, G_TF_POINT);
+    gSPTexture(gDisplayListHead++, 0xFFFF, 0xFFFF, 0, G_TX_RENDERTILE, G_ON);
 
     struct Position pos;
     s32 size;
@@ -500,11 +464,9 @@ void render_touch_controls(void) {
         select_joystick_tex_base();
         switch (ControlElements[i].type) {
             case Joystick:
-                render_button(NULL, touch_textures[TEXTURE_TOUCH_JOYSTICK_BASE], G_IM_FMT_RGBA, G_IM_SIZ_16b, 32, 32, configControlElements[i].x[0], configControlElements[i].y[0], size, size, 0, 0, 32, 32);
-                //DrawSpriteTexJoyBase(pos.x, pos.y, 2);
-                //select_joystick_tex();
-                render_button(NULL, touch_textures[TEXTURE_TOUCH_JOYSTICK], G_IM_FMT_RGBA, G_IM_SIZ_16b, 16, 16, configControlElements[i].x[0] + size/4 + ControlElements[i].joyX, configControlElements[i].y[0] + size/4 + ControlElements[i].joyY, size/2, size/2, 0, 0, 16, 16);
-                //DrawSprite(pos.x + (8 / size * 100) + ControlElements[i].joyX, pos.y + (8 / size * 100) + ControlElements[i].joyY, 2);
+                DrawSpriteTexJoyBase(pos.x, pos.y, 2);
+                select_joystick_tex();
+                DrawSprite(pos.x + 4 + ControlElements[i].joyX, pos.y + 4 + ControlElements[i].joyY, 2);
                 break;
             /*case Mouse:
                 if ((before_x > 0 || before_y > 0) &&
@@ -518,16 +480,16 @@ void render_touch_controls(void) {
                 break;*/
             case Button:
                 if (ControlElements[i].touchID) {
-                    render_button(NULL, touch_textures[ControlElements[i].buttonTexture.buttonDown], G_IM_FMT_RGBA, G_IM_SIZ_16b, 16, 16, configControlElements[i].x[0], configControlElements[i].y[0], size, size, 0, 0, 16, 16);
+                    select_char_texture(ControlElements[i].buttonTexture.buttonDown);
                 } else {
-                    render_button(NULL, touch_textures[ControlElements[i].buttonTexture.buttonUp], G_IM_FMT_RGBA, G_IM_SIZ_16b, 16, 16, configControlElements[i].x[0], configControlElements[i].y[0], size, size, 0, 0, 16, 16);
+                    select_char_texture(ControlElements[i].buttonTexture.buttonUp);
                 }
 
-                /*if (configAndroidBiggerButtons) {
-                    //DrawSprite(pos.x, pos.y, 1 + size / 100);
+                if (configAndroidBiggerButtons) {
+                    DrawSprite(pos.x, pos.y, 1 + size / 100);
                 } else {
-                    //DrawSprite(pos.x, pos.y, size / 100);
-                }*/
+                    DrawSprite(pos.x, pos.y, size / 100);
+                }
                 break;
         }
     }
@@ -549,6 +511,10 @@ void render_touch_controls(void) {
         select_char_texture(TEXTURE_TOUCH_TRASH);
         DrawSprite(SCREEN_WIDTH_API / 2, SCREEN_HEIGHT_API / 2, 2);
     }
+
+    //gSPDisplayList(gDisplayListHead++, dl_hud_img_end);
+    gSPTexture(gDisplayListHead++, 0xFFFF, 0xFFFF, 0, G_TX_RENDERTILE, G_OFF);
+    gDPSetCombineMode(gDisplayListHead++, G_CC_SHADE, G_CC_SHADE);
 }
 
 static void touchscreen_init(void) {
