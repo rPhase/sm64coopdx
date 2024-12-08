@@ -515,10 +515,10 @@ void render_touch_controls(void) {
         select_joystick_tex_base();
         switch (ControlElements[i].type) {
             case Joystick:
-                render_button(NULL, touch_textures[TEXTURE_TOUCH_JOYSTICK_BASE], G_IM_FMT_RGBA, G_IM_SIZ_16b, 32, 32, 24, 600, 12, 12, 0, 0, 32, 32);
+                render_button(NULL, touch_textures[TEXTURE_TOUCH_JOYSTICK_BASE], G_IM_FMT_RGBA, G_IM_SIZ_16b, 32, 32, 12, 800, 256, 256, 0, 0, 32, 32);
                 //DrawSpriteTexJoyBase(pos.x, pos.y, 2);
                 //select_joystick_tex();
-                render_button(NULL, touch_textures[TEXTURE_TOUCH_JOYSTICK], G_IM_FMT_RGBA, G_IM_SIZ_16b, 16, 16, 24 + 6 + ControlElements[i].joyX, 600 + 6 + ControlElements[i].joyY, 6, 6, 0, 0, 16, 16);
+                render_button(NULL, touch_textures[TEXTURE_TOUCH_JOYSTICK], G_IM_FMT_RGBA, G_IM_SIZ_16b, 16, 16, 12 + 128 + ControlElements[i].joyX, 800 + 128 + ControlElements[i].joyY, 128, 128, 0, 0, 16, 16);
                 //DrawSprite(pos.x + (8 / size * 100) + ControlElements[i].joyX, pos.y + (8 / size * 100) + ControlElements[i].joyY, 2);
                 break;
             /*case Mouse:
