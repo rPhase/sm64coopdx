@@ -424,7 +424,7 @@ void render_touch_controls(void) {
         pos = get_pos(&configControlElements[i], 0);
         if (pos.y == HIDE_POS) continue;
         size = configControlElements[i].size;
-        select_joystick_tex_base();
+        //select_joystick_tex_base();
         switch (ControlElements[i].type) {
             case Joystick:
                 render_button(NULL, touch_textures[TEXTURE_TOUCH_JOYSTICK_BASE], G_IM_FMT_RGBA, G_IM_SIZ_16b, 32, 32, configControlElements[i].x, configControlElements[i].y, size, size, 0, 0, 32, 32);
@@ -461,16 +461,16 @@ void render_touch_controls(void) {
             pos = get_pos(&configControlConfigElements[i], 0);
             if (pos.y == HIDE_POS) continue;
             size = configControlConfigElements[i].size;
-            select_button_texture(0);
+            //select_button_texture(0);
             if (ControlConfigElements[i].touchID || 
                 (i == TOUCH_SNAP && configElementSnap))
-                select_button_texture(1);
+                //select_button_texture(1);
             //DrawSprite(pos.x - 8, pos.y, 1 + size / 100);
-            select_char_texture(ControlConfigElements[i].buttonTexture.buttonUp);
+            //select_char_texture(ControlConfigElements[i].buttonTexture.buttonUp);
             //DrawSprite(pos.x, pos.y, size / 100);
         }
         // trash icon
-        select_char_texture(TEXTURE_TOUCH_TRASH);
+        //select_char_texture(TEXTURE_TOUCH_TRASH);
         //DrawSprite(SCREEN_WIDTH_API / 2, SCREEN_HEIGHT_API / 2, 2);
     }
 }
