@@ -473,6 +473,7 @@ void render_button(Vtx *vtx, const u8 *texture, u32 fmt, u32 siz, s32 texW, s32 
     gDPSetCombineMode(gDisplayListHead++, G_CC_FADEA, G_CC_FADEA);
     gDPSetRenderMode(gDisplayListHead++, G_RM_XLU_SURF, G_RM_XLU_SURF2);
     gDPSetTextureFilter(gDisplayListHead++, G_TF_POINT);
+    gDPSetEnvColor(gDisplayListHead++, 0xFF, 0xFF, 0xFF, configTouchControlAlpha);
     gSPTexture(gDisplayListHead++, 0xFFFF, 0xFFFF, 0, G_TX_RENDERTILE, G_ON);
     switch (siz) {
         case G_IM_SIZ_4b:  gDPLoadTextureBlock(gDisplayListHead++, texture, fmt, G_IM_SIZ_4b,  texW, texH, 0, G_TX_CLAMP, G_TX_CLAMP, 0, 0, 0, 0); break;
@@ -488,22 +489,6 @@ void render_button(Vtx *vtx, const u8 *texture, u32 fmt, u32 siz, s32 texW, s32 
 
 void render_touch_controls(void) {
     if ((gGamepadActive && configAutohideTouch) || !gGameInited) return;
-    Mtx *mtx;
-
-    mtx = alloc_display_list(sizeof(*mtx));
-
-    if (mtx == NULL) {
-        return;
-    }
-
-    guOrtho(mtx, 0.0f, SCREEN_WIDTH, 0.0f, SCREEN_HEIGHT, -10.0f, 10.0f, 1.0f);
-    gSPPerspNormalize((Gfx *) (gDisplayListHead++), 0xFFFF);
-    gSPMatrix(gDisplayListHead++, VIRTUAL_TO_PHYSICAL(mtx), G_MTX_PROJECTION | G_MTX_LOAD | G_MTX_NOPUSH);
-    gSPClearGeometryMode(gDisplayListHead++, G_LIGHTING);
-    gDPSetCombineMode(gDisplayListHead++, G_CC_FADEA, G_CC_FADEA);
-    gDPSetRenderMode(gDisplayListHead++, G_RM_XLU_SURF, G_RM_XLU_SURF2);
-    gDPSetTextureFilter(gDisplayListHead++, G_TF_POINT);
-    gSPTexture(gDisplayListHead++, 0xFFFF, 0xFFFF, 0, G_TX_RENDERTILE, G_ON);
 
     struct Position pos;
     s32 size;
@@ -564,10 +549,6 @@ void render_touch_controls(void) {
         select_char_texture(TEXTURE_TOUCH_TRASH);
         DrawSprite(SCREEN_WIDTH_API / 2, SCREEN_HEIGHT_API / 2, 2);
     }
-
-    //gSPDisplayList(gDisplayListHead++, dl_hud_img_end);
-    gSPTexture(gDisplayListHead++, 0xFFFF, 0xFFFF, 0, G_TX_RENDERTILE, G_OFF);
-    gDPSetCombineMode(gDisplayListHead++, G_CC_SHADE, G_CC_SHADE);
 }
 
 static void touchscreen_init(void) {
