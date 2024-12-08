@@ -167,9 +167,9 @@ void move_touch_element(struct TouchEvent * event, enum ConfigControlElementInde
         y > 400 && y < 560) {
         anchor = CONTROL_ELEMENT_HIDDEN;
     }
-    configControlElements[i].x[0] = x;
-    configControlElements[i].y[0] = y;
-    configControlElements[i].anchor[0] = anchor;
+    configControlElements[i].x = x;
+    configControlElements[i].y = y;
+    configControlElements[i].anchor = anchor;
 }
 
 void touch_down(struct TouchEvent* event) {
@@ -181,7 +181,7 @@ void touch_down(struct TouchEvent* event) {
         for(u32 i = 0; i < ControlConfigElementsLength; i++) {
             pos = get_pos(&configControlConfigElements[i], 0);
             if (pos.y == HIDE_POS) continue;
-            size = configControlConfigElements[i].size[0];
+            size = configControlConfigElements[i].size;
             if (!TRIGGER_DETECT(size)) continue;
             ControlConfigElements[i].touchID = event->touchID;
             if (ControlConfigElements[i].buttonID == SNAP_BUTTON)
@@ -193,7 +193,7 @@ void touch_down(struct TouchEvent* event) {
         if (ControlElements[i].touchID == 0) {
             pos = get_pos(&configControlElements[i], 0);
             if (pos.y == HIDE_POS) continue;
-            size = configControlElements[i].size[0];
+            size = configControlElements[i].size;
             if (!TRIGGER_DETECT(size)) continue;
             switch (ControlElements[i].type) {
                 case Joystick:
@@ -227,7 +227,7 @@ void touch_motion(struct TouchEvent* event) {
     for(u32 i = 0; i < ControlElementsLength; i++) {
         pos = get_pos(&configControlElements[i], 0);
         if (pos.y == HIDE_POS) continue;
-        size = configControlElements[i].size[0];
+        size = configControlElements[i].size;
         // config mode
         if (gInTouchConfig) {
             if (ControlElements[i].touchID == event->touchID &&
@@ -340,7 +340,7 @@ static void handle_touch_up(u32 i) { // separated for when the layout changes
                 // toggle size of buttons on double-tap
                 if (double_tap_timer - double_tap_timer_last < 10) {
                     double_tap_timer_last = 0;
-                    u32 *size = &configControlElements[i].size[0];
+                    u32 *size = &configControlElements[i].size;
                     *size = *size > 120 ? 120 : 220;
                 }
             }
@@ -367,80 +367,7 @@ void touch_up(struct TouchEvent* event) {
 
 // Sprite drawing code stolen from src/game/print.c
 
-static void select_button_texture(int dark) {
-    gDPPipeSync(gDisplayListHead++);
-    
-    if (!dark) {
-        gDPSetTextureImage(gDisplayListHead++, G_IM_FMT_RGBA, G_IM_SIZ_16b, 1, touch_textures[TEXTURE_TOUCH_JOYSTICK]);
-    } else {
-        //dark but not in yet
-        gDPSetTextureImage(gDisplayListHead++, G_IM_FMT_RGBA, G_IM_SIZ_16b, 1, touch_textures[TEXTURE_TOUCH_JOYSTICK]);
-    }
-
-    gSPDisplayList(gDisplayListHead++, dl_hud_img_load_tex_block);
-}
-
-const Gfx dl_tex_joystick_base_uv[] = {
-    gsDPSetTile(G_IM_FMT_RGBA, G_IM_SIZ_16b, 0, 0, G_TX_LOADTILE, 0, G_TX_WRAP | G_TX_NOMIRROR, 4, G_TX_NOLOD, G_TX_WRAP | G_TX_NOMIRROR, 4, G_TX_NOLOD),
-    gsDPLoadSync(),
-    gsDPLoadBlock(G_TX_LOADTILE, 0, 0, 32 * 32 - 1, CALC_DXT(16, G_IM_SIZ_16b_BYTES)),
-    gsDPSetTile(G_IM_FMT_RGBA, G_IM_SIZ_16b, 4, 0, G_TX_RENDERTILE, 0, G_TX_CLAMP, 4, G_TX_NOLOD, G_TX_CLAMP, 4, G_TX_NOLOD),
-    gsDPSetTileSize(0, 0, 0, (32 - 1) << G_TEXTURE_IMAGE_FRAC, (32 - 1) << G_TEXTURE_IMAGE_FRAC),
-    gsSPEndDisplayList(),
-};
-
-
-static void select_joystick_tex_base(void) {
-    gDPPipeSync(gDisplayListHead++);
-    
-    gDPSetTextureImage(gDisplayListHead++, G_IM_FMT_RGBA, G_IM_SIZ_16b, 1, touch_textures[TEXTURE_TOUCH_JOYSTICK_BASE]);
-
-    gSPDisplayList(gDisplayListHead++, dl_tex_joystick_base_uv);
-}
-
-static void select_joystick_tex(void) {
-    gDPPipeSync(gDisplayListHead++);
-    
-    gDPSetTextureImage(gDisplayListHead++, G_IM_FMT_RGBA, G_IM_SIZ_16b, 1, touch_textures[TEXTURE_TOUCH_JOYSTICK]);
-
-    gSPDisplayList(gDisplayListHead++, dl_hud_img_load_tex_block);
-}
-
-const Gfx dl_hud_img_load_tex_blockTOUCH[] = {
-    gsDPSetTile(G_IM_FMT_RGBA, G_IM_SIZ_16b, 0, 0, G_TX_LOADTILE, 0, G_TX_WRAP | G_TX_NOMIRROR, 4, G_TX_NOLOD, G_TX_WRAP | G_TX_NOMIRROR, 4, G_TX_NOLOD),
-    gsDPLoadSync(),
-    gsDPLoadBlock(G_TX_LOADTILE, 0, 0, 16 * 16 - 1, CALC_DXT(16, G_IM_SIZ_16b_BYTES)),
-    gsDPSetTile(G_IM_FMT_RGBA, G_IM_SIZ_16b, 4, 0, G_TX_RENDERTILE, 0, G_TX_CLAMP, 4, G_TX_NOLOD, G_TX_CLAMP, 4, G_TX_NOLOD),
-    gsDPSetTileSize(0, 0, 0, (16 - 1) << G_TEXTURE_IMAGE_FRAC, (16 - 1) << G_TEXTURE_IMAGE_FRAC),
-    gsSPEndDisplayList(),
-};
-
-static void select_char_texture(u8 num) {
-    gDPPipeSync(gDisplayListHead++);
-
-    if (num < TOUCH_TEXTURE_COUNT) { // touchscreen symbols
-        gDPSetTextureImage(gDisplayListHead++, G_IM_FMT_RGBA, G_IM_SIZ_16b, 1, touch_textures[num]);
-    } else if (num < 87) { // unknown
-        gDPSetTextureImage(gDisplayListHead++, G_IM_FMT_RGBA, G_IM_SIZ_16b, 1, touch_textures[TEXTURE_TOUCH_CONSOLE]);
-    } else { // letters
-        gDPSetTextureImage(gDisplayListHead++, G_IM_FMT_RGBA, G_IM_SIZ_16b, 1, main_hud_lut[num - 87]);
-    }
-
-    gSPDisplayList(gDisplayListHead++, dl_hud_img_load_tex_blockTOUCH);
-}
-#include "src/pc/configfile.h"
-static void DrawSprite(s32 x, s32 y, int scaling) {
-    gDPSetEnvColor(gDisplayListHead++, 0xFF, 0xFF, 0xFF, configTouchControlAlpha);
-    gSPTextureRectangle(gDisplayListHead++, x - (16 << scaling), y - (16 << scaling), x + (16 << scaling), y + (16 << scaling), G_TX_RENDERTILE, 0, 0, 4 << (11 - scaling), 1 << (11 - scaling));
-}
-
-static void DrawSpriteTexJoyBase(s32 x, s32 y, int scaling) {
-    gSPTextureRectangle(gDisplayListHead++, x - (32 << scaling), y - (32 << scaling), x + (16 << scaling), y + (16 << scaling), G_TX_RENDERTILE, 0, 0, 4 << (11 - scaling), 1 << (11 - scaling));
-}
-
-#define SCREEN_TOP_Y 240
-
-void create_dl_ortho_matrix_2(void) {
+void create_dl_ortho_matrix_api(void) {
     Mtx *matrix = (Mtx *) alloc_display_list(sizeof(Mtx));
 
     if (matrix == NULL) {
@@ -461,7 +388,7 @@ void render_button(Vtx *vtx, const u8 *texture, u32 fmt, u32 siz, s32 texW, s32 
 
     s32 adjustedY = SCREEN_HEIGHT_API - y;
     s32 adjustedX = GFX_DIMENSIONS_RECT_FROM_LEFT_EDGE(x);
-    create_dl_ortho_matrix_2();
+    create_dl_ortho_matrix_api();
     if (!vtx) {
         vtx = alloc_display_list(sizeof(Vtx) * 4);
         vtx[0] = (Vtx) {{{ adjustedX,     adjustedY - h, 0 }, 0, {  tileX          << 5, (tileY + tileH) << 5 }, { 0xFF, 0xFF, 0xFF, 0xFF }}};
@@ -496,15 +423,12 @@ void render_touch_controls(void) {
     for (u32 i = 0; i < ControlElementsLength; i++) {
         pos = get_pos(&configControlElements[i], 0);
         if (pos.y == HIDE_POS) continue;
-        size = configControlElements[i].size[0];
+        size = configControlElements[i].size;
         select_joystick_tex_base();
         switch (ControlElements[i].type) {
             case Joystick:
-                render_button(NULL, touch_textures[TEXTURE_TOUCH_JOYSTICK_BASE], G_IM_FMT_RGBA, G_IM_SIZ_16b, 32, 32, 12, 800, 256, 256, 0, 0, 32, 32);
-                //DrawSpriteTexJoyBase(pos.x, pos.y, 2);
-                //select_joystick_tex();
-                render_button(NULL, touch_textures[TEXTURE_TOUCH_JOYSTICK], G_IM_FMT_RGBA, G_IM_SIZ_16b, 16, 16, 12 + 128 + ControlElements[i].joyX, 800 + 128 + ControlElements[i].joyY, 128, 128, 0, 0, 16, 16);
-                //DrawSprite(pos.x + (8 / size * 100) + ControlElements[i].joyX, pos.y + (8 / size * 100) + ControlElements[i].joyY, 2);
+                render_button(NULL, touch_textures[TEXTURE_TOUCH_JOYSTICK_BASE], G_IM_FMT_RGBA, G_IM_SIZ_16b, 32, 32, configControlElements[i].x, configControlElements[i].y, size, size, 0, 0, 32, 32);
+                render_button(NULL, touch_textures[TEXTURE_TOUCH_JOYSTICK], G_IM_FMT_RGBA, G_IM_SIZ_16b, 16, 16, configControlElements[i].x + size/4 + ControlElements[i].joyX, configControlElements[i].y + size/4 + ControlElements[i].joyY, size/2, size/2, 0, 0, 16, 16);
                 break;
             /*case Mouse:
                 if ((before_x > 0 || before_y > 0) &&
@@ -536,7 +460,7 @@ void render_touch_controls(void) {
         for (u32 i = 0; i < ControlConfigElementsLength; i++) {
             pos = get_pos(&configControlConfigElements[i], 0);
             if (pos.y == HIDE_POS) continue;
-            size = configControlConfigElements[i].size[0];
+            size = configControlConfigElements[i].size;
             select_button_texture(0);
             if (ControlConfigElements[i].touchID || 
                 (i == TOUCH_SNAP && configElementSnap))
@@ -582,19 +506,19 @@ static void touchscreen_read(OSContPad *pad) {
                     case CANCEL_BUTTON:
                         ControlConfigElements[i].touchID = 0;
                         for (u32 i = 0; i < CONTROL_ELEMENT_COUNT; i++) {
-                            configControlElements[i].x[0] = configControlElementsLast[i].x[0];
-                            configControlElements[i].y[0] = configControlElementsLast[i].y[0];
-                            configControlElements[i].size[0] = configControlElementsLast[i].size[0];
-                            configControlElements[i].anchor[0] = configControlElementsLast[i].anchor[0];
+                            configControlElements[i].x = configControlElementsLast[i].x;
+                            configControlElements[i].y = configControlElementsLast[i].y;
+                            configControlElements[i].size = configControlElementsLast[i].size;
+                            configControlElements[i].anchor = configControlElementsLast[i].anchor;
                         }
                         exit_control_config();
                         break;
                     case RESET_BUTTON:
                         for (u32 i = 0; i < CONTROL_ELEMENT_COUNT; i++) {
-                            configControlElements[i].x[0] = configControlElementsDefault[i].x[0];
-                            configControlElements[i].y[0] = configControlElementsDefault[i].y[0];
-                            configControlElements[i].size[0] = configControlElementsDefault[i].size[0];
-                            configControlElements[i].anchor[0] = configControlElementsDefault[i].anchor[0];
+                            configControlElements[i].x = configControlElementsDefault[i].x;
+                            configControlElements[i].y = configControlElementsDefault[i].y;
+                            configControlElements[i].size = configControlElementsDefault[i].size;
+                            configControlElements[i].anchor = configControlElementsDefault[i].anchor;
                         }
                     case SNAP_BUTTON:
                     default:
@@ -607,7 +531,7 @@ static void touchscreen_read(OSContPad *pad) {
     else {
         for(u32 i = 0; i < ControlElementsLength; i++) {
             pos = get_pos(&configControlElements[i], 0);
-            size = configControlElements[i].size[0];
+            size = configControlElements[i].size;
             if (pos.y == HIDE_POS) continue;
             switch (ControlElements[i].type) {
                 case Joystick:
