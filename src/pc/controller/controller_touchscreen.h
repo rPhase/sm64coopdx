@@ -16,8 +16,8 @@
 #define CONTROL_ELEMENT_COUNT 21
 #define CONTROL_CONFIG_ELEMENT_COUNT 4
 
-#define SCREEN_WIDTH_API 1920
-#define SCREEN_HEIGHT_API 1080
+#define SCREEN_WIDTH_API 1280
+#define SCREEN_HEIGHT_API 960
 
 #define LEFT_EDGE ((int)floorf(SCREEN_WIDTH_API / 2 - SCREEN_HEIGHT_API / 2 * gfx_current_dimensions.aspect_ratio))
 #define RIGHT_EDGE ((int)ceilf(SCREEN_WIDTH_API / 2 + SCREEN_HEIGHT_API / 2 * gfx_current_dimensions.aspect_ratio))
@@ -69,8 +69,8 @@ enum ConfigControlConfigElementIndex {
 };
 
 typedef struct {
-    u32 x, y, size;
-    enum ConfigControlElementAnchor anchor;
+    u32 x[MAX_BINDS], y[MAX_BINDS], size[MAX_BINDS];
+    enum ConfigControlElementAnchor anchor[MAX_BINDS];
 } ConfigControlElement;
 
 extern ConfigControlElement configControlElements[];

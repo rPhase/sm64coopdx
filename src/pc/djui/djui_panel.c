@@ -268,10 +268,10 @@ void djui_panel_shutdown_touchconfig(struct DjuiBase* caller) {
     gDjuiPanelPauseCreated = false;
     djui_cursor_set_visible(false);
     for (u32 i = 0; i < CONTROL_ELEMENT_COUNT; i++) {
-        configControlElementsLast[i].x = configControlElements[i].x;
-        configControlElementsLast[i].y = configControlElements[i].y;
-        configControlElementsLast[i].size = configControlElements[i].size;
-        configControlElementsLast[i].anchor = configControlElements[i].anchor;
+        configControlElementsLast[i].x[0] = configControlElements[i].x[0];
+        configControlElementsLast[i].y[0] = configControlElements[i].y[0];
+        configControlElementsLast[i].size[0] = configControlElements[i].size[0];
+        configControlElementsLast[i].anchor[0] = configControlElements[i].anchor[0];
     }
     gInTouchConfig = true;
     sShuttingDown = false;
