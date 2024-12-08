@@ -462,9 +462,8 @@ void render_touch_controls(void) {
             if (configControlConfigElements[i].y == HIDE_POS) continue;
             size = configControlConfigElements[i].size;
             //select_button_texture(0);
-            if (ControlConfigElements[i].touchID || 
-                (i == TOUCH_SNAP && configElementSnap))
-                //select_button_texture(1);
+            //if (ControlConfigElements[i].touchID || (i == TOUCH_SNAP && configElementSnap))
+            //select_button_texture(1);
             //DrawSprite(pos.x - 8, pos.y, 1 + size / 100);
             //select_char_texture(ControlConfigElements[i].buttonTexture.buttonUp);
             //DrawSprite(pos.x, pos.y, size / 100);
