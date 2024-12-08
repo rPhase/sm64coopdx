@@ -408,7 +408,7 @@ const Gfx dl_hud_img_load_tex_blockTOUCH[] = {
     gsDPSetTile(G_IM_FMT_RGBA, G_IM_SIZ_16b_LOAD_BLOCK, 0, 0, 7, 0, G_TX_WRAP | G_TX_NOMIRROR, 0, 0, G_TX_WRAP | G_TX_NOMIRROR, 0, 0),
 	gsDPLoadBlock(7, 0, 0, 255, 512),
 	gsDPSetTile(G_IM_FMT_RGBA, G_IM_SIZ_16b, 4, 0, 0, 0, G_TX_CLAMP | G_TX_NOMIRROR, 4, 0, G_TX_CLAMP | G_TX_NOMIRROR, 4, 0),
-	gsDPSetTileSize(0, 0, 0, 60, 60),,
+	gsDPSetTileSize(0, 0, 0, 60, 60),
     gsSPEndDisplayList(),
 };
 
