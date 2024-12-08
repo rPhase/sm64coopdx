@@ -467,10 +467,10 @@ void render_touch_controls(void) {
         select_joystick_tex_base();
         switch (ControlElements[i].type) {
             case Joystick:
-                render_hud_icon(NULL, touch_textures[TEXTURE_TOUCH_JOYSTICK_BASE], G_IM_FMT_RGBA, G_IM_SIZ_16b, 32, 32, 20, 20, 32, 32, 0, 0, 32, 32);
+                render_hud_icon(NULL, touch_textures[TEXTURE_TOUCH_JOYSTICK_BASE], G_IM_FMT_RGBA, G_IM_SIZ_16b, 32, 32, GFX_DIMENSIONS_RECT_FROM_LEFT_EDGE(22), HUD_TOP_Y + 100, 32, 32, 0, 0, 32, 32);
                 //DrawSpriteTexJoyBase(pos.x, pos.y, 2);
                 //select_joystick_tex();
-                render_hud_icon(NULL, touch_textures[TEXTURE_TOUCH_JOYSTICK], G_IM_FMT_RGBA, G_IM_SIZ_16b, 16, 16, 20 + (8 / size * 100)/* + ControlElements[i].joyX*/, 20 + (8 / size * 100)/* + ControlElements[i].joyY*/, 16, 16, 0, 0, 16, 16);
+                render_hud_icon(NULL, touch_textures[TEXTURE_TOUCH_JOYSTICK], G_IM_FMT_RGBA, G_IM_SIZ_16b, 16, 16, GFX_DIMENSIONS_RECT_FROM_LEFT_EDGE(30), HUD_TOP_Y + 108,/*20 + (8 / size * 100) + ControlElements[i].joyX, 20 + (8 / size * 100) + ControlElements[i].joyY*,*/ 16, 16, 0, 0, 16, 16);
                 //DrawSprite(pos.x + (8 / size * 100) + ControlElements[i].joyX, pos.y + (8 / size * 100) + ControlElements[i].joyY, 2);
                 break;
             /*case Mouse:
