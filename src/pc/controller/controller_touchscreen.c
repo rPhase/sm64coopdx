@@ -467,10 +467,10 @@ void render_touch_controls(void) {
         select_joystick_tex_base();
         switch (ControlElements[i].type) {
             case Joystick:
-                render_hud_icon(NULL, touch_textures[TEXTURE_TOUCH_JOYSTICK_BASE], G_IM_FMT_RGBA, G_IM_SIZ_16b, 32, 32, GFX_DIMENSIONS_RECT_FROM_LEFT_EDGE(22), HUD_TOP_Y + 16, 32, 32, 0, 0, 32, 32);
+                render_hud_icon(NULL, touch_textures[TEXTURE_TOUCH_JOYSTICK_BASE], G_IM_FMT_RGBA, G_IM_SIZ_16b, 32, 32, GFX_DIMENSIONS_RECT_FROM_LEFT_EDGE(22), HUD_TOP_Y + 32, 64, 64, 0, 0, 32, 32);
                 //DrawSpriteTexJoyBase(pos.x, pos.y, 2);
                 //select_joystick_tex();
-                render_hud_icon(NULL, touch_textures[TEXTURE_TOUCH_JOYSTICK], G_IM_FMT_RGBA, G_IM_SIZ_16b, 16, 16, GFX_DIMENSIONS_RECT_FROM_LEFT_EDGE(30), HUD_TOP_Y + 24,/*20 + (8 / size * 100) + ControlElements[i].joyX, 20 + (8 / size * 100) + ControlElements[i].joyY*,*/ 16, 16, 0, 0, 16, 16);
+                render_hud_icon(NULL, touch_textures[TEXTURE_TOUCH_JOYSTICK], G_IM_FMT_RGBA, G_IM_SIZ_16b, 16, 16, GFX_DIMENSIONS_RECT_FROM_LEFT_EDGE(22 + 16), HUD_TOP_Y + 16,/*20 + (8 / size * 100) + ControlElements[i].joyX, 20 + (8 / size * 100) + ControlElements[i].joyY*,*/ 32, 32, 0, 0, 16, 16);
                 //DrawSprite(pos.x + (8 / size * 100) + ControlElements[i].joyX, pos.y + (8 / size * 100) + ControlElements[i].joyY, 2);
                 break;
             /*case Mouse:
@@ -485,15 +485,15 @@ void render_touch_controls(void) {
                 break;*/
             case Button:
                 if (ControlElements[i].touchID) {
-                    select_char_texture(ControlElements[i].buttonTexture.buttonDown);
+                    //select_char_texture(ControlElements[i].buttonTexture.buttonDown);
                 } else {
-                    select_char_texture(ControlElements[i].buttonTexture.buttonUp);
+                    //select_char_texture(ControlElements[i].buttonTexture.buttonUp);
                 }
 
                 if (configAndroidBiggerButtons) {
-                    DrawSprite(pos.x, pos.y, 1 + size / 100);
+                    //DrawSprite(pos.x, pos.y, 1 + size / 100);
                 } else {
-                    DrawSprite(pos.x, pos.y, size / 100);
+                    //DrawSprite(pos.x, pos.y, size / 100);
                 }
                 break;
         }
