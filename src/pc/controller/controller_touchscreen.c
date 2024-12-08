@@ -465,13 +465,13 @@ void render_touch_controls(void) {
             if (ControlConfigElements[i].touchID || 
                 (i == TOUCH_SNAP && configElementSnap))
                 select_button_texture(1);
-            DrawSprite(pos.x - 8, pos.y, 1 + size / 100);
+            //DrawSprite(pos.x - 8, pos.y, 1 + size / 100);
             select_char_texture(ControlConfigElements[i].buttonTexture.buttonUp);
-            DrawSprite(pos.x, pos.y, size / 100);
+            //DrawSprite(pos.x, pos.y, size / 100);
         }
         // trash icon
         select_char_texture(TEXTURE_TOUCH_TRASH);
-        DrawSprite(SCREEN_WIDTH_API / 2, SCREEN_HEIGHT_API / 2, 2);
+        //DrawSprite(SCREEN_WIDTH_API / 2, SCREEN_HEIGHT_API / 2, 2);
     }
 }
 
