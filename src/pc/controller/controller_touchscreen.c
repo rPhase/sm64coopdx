@@ -459,7 +459,7 @@ void create_dl_ortho_matrix_2(void) {
 
 void render_button(Vtx *vtx, const u8 *texture, u32 fmt, u32 siz, s32 texW, s32 texH, s32 x, s32 y, s32 w, s32 h, s32 tileX, s32 tileY, s32 tileW, s32 tileH) {
 
-    s32 adjustedY = SCREEN_HEIGHT_API - y - 25;
+    s32 adjustedY = SCREEN_HEIGHT_API - y + 50;
     s32 adjustedX = GFX_DIMENSIONS_RECT_FROM_LEFT_EDGE(x);
     create_dl_ortho_matrix_2();
     if (!vtx) {
@@ -518,16 +518,16 @@ void render_touch_controls(void) {
                 break;*/
             case Button:
                 if (ControlElements[i].touchID) {
-                    //select_char_texture(ControlElements[i].buttonTexture.buttonDown);
+                    render_button(NULL, touch_textures[ControlElements[i].buttonTexture.buttonDown], G_IM_FMT_RGBA, G_IM_SIZ_16b, 16, 16, configControlElements[i].x[0], configControlElements[i].y[0], size, size, 0, 0, 16, 16);
                 } else {
-                    //select_char_texture(ControlElements[i].buttonTexture.buttonUp);
+                    render_button(NULL, touch_textures[ControlElements[i].buttonTexture.buttonUp], G_IM_FMT_RGBA, G_IM_SIZ_16b, 16, 16, configControlElements[i].x[0], configControlElements[i].y[0], size, size, 0, 0, 16, 16);
                 }
 
-                if (configAndroidBiggerButtons) {
+                /*if (configAndroidBiggerButtons) {
                     //DrawSprite(pos.x, pos.y, 1 + size / 100);
                 } else {
                     //DrawSprite(pos.x, pos.y, size / 100);
-                }
+                }*/
                 break;
         }
     }
