@@ -460,7 +460,7 @@ void create_dl_ortho_matrix_2(void) {
 void render_button(Vtx *vtx, const u8 *texture, u32 fmt, u32 siz, s32 texW, s32 texH, s32 x, s32 y, s32 w, s32 h, s32 tileX, s32 tileY, s32 tileW, s32 tileH) {
 
     s32 adjustedY = SCREEN_HEIGHT_API - y;
-    s32 adjustedX = SCREEN_WIDTH_API + x;
+    s32 adjustedX = GFX_DIMENSIONS_RECT_FROM_LEFT_EDGE(x);
     create_dl_ortho_matrix_2();
     if (!vtx) {
         vtx = alloc_display_list(sizeof(Vtx) * 4);
@@ -500,10 +500,10 @@ void render_touch_controls(void) {
         select_joystick_tex_base();
         switch (ControlElements[i].type) {
             case Joystick:
-                render_button(NULL, touch_textures[TEXTURE_TOUCH_JOYSTICK_BASE], G_IM_FMT_RGBA, G_IM_SIZ_16b, 32, 32, configControlElements[i].x[0], configControlElements[i].y[0], size, size, 0, 0, 32, 32);
+                render_button(NULL, touch_textures[TEXTURE_TOUCH_JOYSTICK_BASE], G_IM_FMT_RGBA, G_IM_SIZ_16b, 32, 32, configControlElements[i].x[0], configControlElements[i].y[0] + 16, size, size, 0, 0, 32, 32);
                 //DrawSpriteTexJoyBase(pos.x, pos.y, 2);
                 //select_joystick_tex();
-                render_button(NULL, touch_textures[TEXTURE_TOUCH_JOYSTICK], G_IM_FMT_RGBA, G_IM_SIZ_16b, 16, 16, configControlElements[i].x[0] + size/4 + ControlElements[i].joyX, configControlElements[i].y[0] + size/4 + ControlElements[i].joyY, size/2, size/2, 0, 0, 16, 16);
+                render_button(NULL, touch_textures[TEXTURE_TOUCH_JOYSTICK], G_IM_FMT_RGBA, G_IM_SIZ_16b, 16, 16, configControlElements[i].x[0] + size/4 + ControlElements[i].joyX, configControlElements[i].y[0] + size/4 + ControlElements[i].joyY + 16, size/2, size/2, 0, 0, 16, 16);
                 //DrawSprite(pos.x + (8 / size * 100) + ControlElements[i].joyX, pos.y + (8 / size * 100) + ControlElements[i].joyY, 2);
                 break;
             /*case Mouse:
