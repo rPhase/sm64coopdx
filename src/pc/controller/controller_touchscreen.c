@@ -437,7 +437,38 @@ static void DrawSprite(s32 x, s32 y, int scaling) {
 static void DrawSpriteTexJoyBase(s32 x, s32 y, int scaling) {
     gSPTextureRectangle(gDisplayListHead++, x - (32 << scaling), y - (32 << scaling), x + (16 << scaling), y + (16 << scaling), G_TX_RENDERTILE, 0, 0, 4 << (11 - scaling), 1 << (11 - scaling));
 }
+
 #define HUD_TOP_Y 209
+
+void render_button(Vtx *vtx, const u8 *texture, u32 fmt, u32 siz, s32 texW, s32 texH, s32 x, s32 y, s32 w, s32 h, s32 tileX, s32 tileY, s32 tileW, s32 tileH) {
+
+    s32 adjustedY = HUD_TOP_Y + y
+    s32 adjustedX = GFX_DIMENSIONS_RECT_FROM_LEFT_EDGE(x)
+    create_dl_ortho_matrix();
+    if (!vtx) {
+        vtx = alloc_display_list(sizeof(Vtx) * 4);
+        vtx[0] = (Vtx) {{{ adjustedX,     adjustedY - h, 0 }, 0, {  tileX          << 5, (tileY + tileH) << 5 }, { 0xFF, 0xFF, 0xFF, 0xFF }}};
+        vtx[1] = (Vtx) {{{ adjustedX + w, adjustedY - h, 0 }, 0, { (tileX + tileW) << 5, (tileY + tileH) << 5 }, { 0xFF, 0xFF, 0xFF, 0xFF }}};
+        vtx[2] = (Vtx) {{{ adjustedX + w, adjustedY,     0 }, 0, { (tileX + tileW) << 5,  tileY          << 5 }, { 0xFF, 0xFF, 0xFF, 0xFF }}};
+        vtx[3] = (Vtx) {{{ adjustedX,     adjustedY,     0 }, 0, {  tileX          << 5,  tileY          << 5 }, { 0xFF, 0xFF, 0xFF, 0xFF }}};
+    }
+    gSPClearGeometryMode(gDisplayListHead++, G_LIGHTING);
+    gDPSetCombineMode(gDisplayListHead++, G_CC_FADEA, G_CC_FADEA);
+    gDPSetRenderMode(gDisplayListHead++, G_RM_XLU_SURF, G_RM_XLU_SURF2);
+    gDPSetTextureFilter(gDisplayListHead++, G_TF_POINT);
+    gSPTexture(gDisplayListHead++, 0xFFFF, 0xFFFF, 0, G_TX_RENDERTILE, G_ON);
+    switch (siz) {
+        case G_IM_SIZ_4b:  gDPLoadTextureBlock(gDisplayListHead++, texture, fmt, G_IM_SIZ_4b,  texW, texH, 0, G_TX_CLAMP, G_TX_CLAMP, 0, 0, 0, 0); break;
+        case G_IM_SIZ_8b:  gDPLoadTextureBlock(gDisplayListHead++, texture, fmt, G_IM_SIZ_8b,  texW, texH, 0, G_TX_CLAMP, G_TX_CLAMP, 0, 0, 0, 0); break;
+        case G_IM_SIZ_16b: gDPLoadTextureBlock(gDisplayListHead++, texture, fmt, G_IM_SIZ_16b, texW, texH, 0, G_TX_CLAMP, G_TX_CLAMP, 0, 0, 0, 0); break;
+        case G_IM_SIZ_32b: gDPLoadTextureBlock(gDisplayListHead++, texture, fmt, G_IM_SIZ_32b, texW, texH, 0, G_TX_CLAMP, G_TX_CLAMP, 0, 0, 0, 0); break;
+    }
+    gSPVertex(gDisplayListHead++, vtx, 4, 0);
+    gSP2Triangles(gDisplayListHead++, 0, 1, 2, 0x0, 0, 2, 3, 0x0);
+    gSPTexture(gDisplayListHead++, 0xFFFF, 0xFFFF, 0, G_TX_RENDERTILE, G_OFF);
+    gDPSetCombineMode(gDisplayListHead++, G_CC_SHADE, G_CC_SHADE);
+}
+
 void render_touch_controls(void) {
     if ((gGamepadActive && configAutohideTouch) || !gGameInited) return;
     Mtx *mtx;
@@ -467,10 +498,10 @@ void render_touch_controls(void) {
         select_joystick_tex_base();
         switch (ControlElements[i].type) {
             case Joystick:
-                render_hud_icon(NULL, touch_textures[TEXTURE_TOUCH_JOYSTICK_BASE], G_IM_FMT_RGBA, G_IM_SIZ_16b, 32, 32, GFX_DIMENSIONS_RECT_FROM_LEFT_EDGE(22), HUD_TOP_Y + 32, 64, 64, 0, 0, 32, 32);
+                render_button(NULL, touch_textures[TEXTURE_TOUCH_JOYSTICK_BASE], G_IM_FMT_RGBA, G_IM_SIZ_16b, 32, 32, 50, 50, 64, 64, 0, 0, 32, 32);
                 //DrawSpriteTexJoyBase(pos.x, pos.y, 2);
                 //select_joystick_tex();
-                render_hud_icon(NULL, touch_textures[TEXTURE_TOUCH_JOYSTICK], G_IM_FMT_RGBA, G_IM_SIZ_16b, 16, 16, GFX_DIMENSIONS_RECT_FROM_LEFT_EDGE(22 + 16), HUD_TOP_Y + 16,/*20 + (8 / size * 100) + ControlElements[i].joyX, 20 + (8 / size * 100) + ControlElements[i].joyY*,*/ 32, 32, 0, 0, 16, 16);
+                render_button(NULL, touch_textures[TEXTURE_TOUCH_JOYSTICK], G_IM_FMT_RGBA, G_IM_SIZ_16b, 16, 16, 66, 66,/*20 + (8 / size * 100) + ControlElements[i].joyX, 20 + (8 / size * 100) + ControlElements[i].joyY*,*/ 32, 32, 0, 0, 16, 16);
                 //DrawSprite(pos.x + (8 / size * 100) + ControlElements[i].joyX, pos.y + (8 / size * 100) + ControlElements[i].joyY, 2);
                 break;
             /*case Mouse:
