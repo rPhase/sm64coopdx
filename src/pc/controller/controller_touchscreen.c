@@ -442,8 +442,8 @@ static void DrawSpriteTexJoyBase(s32 x, s32 y, int scaling) {
 
 void render_button(Vtx *vtx, const u8 *texture, u32 fmt, u32 siz, s32 texW, s32 texH, s32 x, s32 y, s32 w, s32 h, s32 tileX, s32 tileY, s32 tileW, s32 tileH) {
 
-    s32 adjustedY = HUD_TOP_Y + y
-    s32 adjustedX = GFX_DIMENSIONS_RECT_FROM_LEFT_EDGE(x)
+    s32 adjustedY = HUD_TOP_Y + y;
+    s32 adjustedX = GFX_DIMENSIONS_RECT_FROM_LEFT_EDGE(x);
     create_dl_ortho_matrix();
     if (!vtx) {
         vtx = alloc_display_list(sizeof(Vtx) * 4);
