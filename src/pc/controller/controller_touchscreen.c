@@ -408,14 +408,12 @@ static void select_char_texture(u8 num) {
     gDPPipeSync(gDisplayListHead++);
 
     if (num < TOUCH_TEXTURE_COUNT) { // touchscreen symbols
-        gDPSetTextureImage(gDisplayListHead++, G_IM_FMT_RGBA, G_IM_SIZ_16b, 1, touch_textures[num]);
+        //gDPSetTextureImage(gDisplayListHead++, G_IM_FMT_RGBA, G_IM_SIZ_16b, 1, touch_textures[num]);
+        gDPLoadTextureBlock(gDisplayListHead++, touch_textures[num], G_IM_FMT_RGBA, G_IM_SIZ_16b, 16, 16, 0, G_TX_CLAMP, G_TX_CLAMP, 0, 0, 0, 0);
     } else if (num < 87) { // unknown
-        gDPSetTextureImage(gDisplayListHead++, G_IM_FMT_RGBA, G_IM_SIZ_16b, 1, touch_textures[TEXTURE_TOUCH_CONSOLE]);
-    } else { // letters
-        gDPSetTextureImage(gDisplayListHead++, G_IM_FMT_RGBA, G_IM_SIZ_16b, 1, main_hud_lut[num - 87]);
+        //gDPSetTextureImage(gDisplayListHead++, G_IM_FMT_RGBA, G_IM_SIZ_16b, 1, touch_textures[TEXTURE_TOUCH_CONSOLE]);
+        gDPLoadTextureBlock(gDisplayListHead++, touch_textures[TEXTURE_TOUCH_CONSOLE], G_IM_FMT_RGBA, G_IM_SIZ_16b, 16, 16, 0, G_TX_CLAMP, G_TX_CLAMP, 0, 0, 0, 0);
     }
-
-    gSPDisplayList(gDisplayListHead++, dl_hud_img_load_tex_block);
 }
 #include "src/pc/configfile.h"
 static void DrawSprite(s32 x, s32 y, int scaling) {
