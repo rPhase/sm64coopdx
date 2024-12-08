@@ -18,6 +18,7 @@
 #include "pc/djui/djui_panel_main.h"
 #include "pc/djui/djui_console.h"
 #include "pc/network/network.h"
+#include "hud.h"
 
 #include "controller_api.h"
 #include "controller_touchscreen.h"
@@ -433,32 +434,6 @@ static void DrawSprite(s32 x, s32 y, int scaling) {
     gSPTextureRectangle(gDisplayListHead++, x - (16 << scaling), y - (16 << scaling), x + (16 << scaling), y + (16 << scaling), G_TX_RENDERTILE, 0, 0, 4 << (11 - scaling), 1 << (11 - scaling));
 }
 
-void render_buttons(Vtx *vtx, const u8 *texture, u32 fmt, u32 siz, s32 texW, s32 texH, s32 x, s32 y, s32 w, s32 h, s32 tileX, s32 tileY, s32 tileW, s32 tileH) {
-    create_dl_ortho_matrix();
-    if (!vtx) {
-        vtx = alloc_display_list(sizeof(Vtx) * 4);
-        vtx[0] = (Vtx) {{{ x,     y - h, 0 }, 0, {  tileX          << 5, (tileY + tileH) << 5 }, { 0xFF, 0xFF, 0xFF, 0xFF }}};
-        vtx[1] = (Vtx) {{{ x + w, y - h, 0 }, 0, { (tileX + tileW) << 5, (tileY + tileH) << 5 }, { 0xFF, 0xFF, 0xFF, 0xFF }}};
-        vtx[2] = (Vtx) {{{ x + w, y,     0 }, 0, { (tileX + tileW) << 5,  tileY          << 5 }, { 0xFF, 0xFF, 0xFF, 0xFF }}};
-        vtx[3] = (Vtx) {{{ x,     y,     0 }, 0, {  tileX          << 5,  tileY          << 5 }, { 0xFF, 0xFF, 0xFF, 0xFF }}};
-    }
-    gSPClearGeometryMode(gDisplayListHead++, G_LIGHTING);
-    gDPSetCombineMode(gDisplayListHead++, G_CC_FADEA, G_CC_FADEA);
-    gDPSetRenderMode(gDisplayListHead++, G_RM_XLU_SURF, G_RM_XLU_SURF2);
-    gDPSetTextureFilter(gDisplayListHead++, G_TF_POINT);
-    gSPTexture(gDisplayListHead++, 0xFFFF, 0xFFFF, 0, G_TX_RENDERTILE, G_ON);
-    switch (siz) {
-        case G_IM_SIZ_4b:  gDPLoadTextureBlock(gDisplayListHead++, texture, fmt, G_IM_SIZ_4b,  texW, texH, 0, G_TX_CLAMP, G_TX_CLAMP, 0, 0, 0, 0); break;
-        case G_IM_SIZ_8b:  gDPLoadTextureBlock(gDisplayListHead++, texture, fmt, G_IM_SIZ_8b,  texW, texH, 0, G_TX_CLAMP, G_TX_CLAMP, 0, 0, 0, 0); break;
-        case G_IM_SIZ_16b: gDPLoadTextureBlock(gDisplayListHead++, texture, fmt, G_IM_SIZ_16b, texW, texH, 0, G_TX_CLAMP, G_TX_CLAMP, 0, 0, 0, 0); break;
-        case G_IM_SIZ_32b: gDPLoadTextureBlock(gDisplayListHead++, texture, fmt, G_IM_SIZ_32b, texW, texH, 0, G_TX_CLAMP, G_TX_CLAMP, 0, 0, 0, 0); break;
-    }
-    gSPVertex(gDisplayListHead++, vtx, 4, 0);
-    gSP2Triangles(gDisplayListHead++, 0, 1, 2, 0x0, 0, 2, 3, 0x0);
-    gSPTexture(gDisplayListHead++, 0xFFFF, 0xFFFF, 0, G_TX_RENDERTILE, G_OFF);
-    gDPSetCombineMode(gDisplayListHead++, G_CC_SHADE, G_CC_SHADE);
-}
-
 static void DrawSpriteTexJoyBase(s32 x, s32 y, int scaling) {
     gSPTextureRectangle(gDisplayListHead++, x - (32 << scaling), y - (32 << scaling), x + (16 << scaling), y + (16 << scaling), G_TX_RENDERTILE, 0, 0, 4 << (11 - scaling), 1 << (11 - scaling));
 }
@@ -492,11 +467,11 @@ void render_touch_controls(void) {
         select_joystick_tex_base();
         switch (ControlElements[i].type) {
             case Joystick:
-                render_buttons(NULL, touch_textures[TEXTURE_TOUCH_JOYSTICK_BASE], G_IM_FMT_RGBA, G_IM_SIZ_16b, 32, 32, pos.x, pos.y, 32, 32, 0, 0, 32, 32);
+                render_hud_icon(NULL, touch_textures[TEXTURE_TOUCH_JOYSTICK_BASE], G_IM_FMT_RGBA, G_IM_SIZ_16b, 32, 32, pos.x, pos.y, 32, 32, 0, 0, 32, 32);
                 //DrawSpriteTexJoyBase(pos.x, pos.y, 2);
-                select_joystick_tex();
-                render_buttons(NULL, touch_textures[TEXTURE_TOUCH_JOYSTICK], G_IM_FMT_RGBA, G_IM_SIZ_16b, 16, 16, pos.x, pos.y, 16 + (8 / size * 100) + ControlElements[i].joyX, 16 + (8 / size * 100) + ControlElements[i].joyY, 0, 0, 16, 16);
-                //DrawSprite(pos.x + 4 + ControlElements[i].joyX, pos.y + 4 + ControlElements[i].joyY, 2);
+                //select_joystick_tex();
+                render_hud_icon(NULL, touch_textures[TEXTURE_TOUCH_JOYSTICK], G_IM_FMT_RGBA, G_IM_SIZ_16b, 16, 16, pos.x + (8 / size * 100) + ControlElements[i].joyX, pos.y + (8 / size * 100) + ControlElements[i].joyY, 16, 16, 0, 0, 16, 16);
+                //DrawSprite(pos.x + (8 / size * 100) + ControlElements[i].joyX, pos.y + (8 / size * 100) + ControlElements[i].joyY, 2);
                 break;
             /*case Mouse:
                 if ((before_x > 0 || before_y > 0) &&
