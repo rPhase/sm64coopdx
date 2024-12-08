@@ -1,6 +1,6 @@
 //Feel free to use it in your port too, but please keep authorship!
 //Touch Controls made by: VDavid003
-//#ifdef TOUCH_CONTROLS
+#ifdef TOUCH_CONTROLS
 #include <ultra64.h>
 #include <PR/ultratypes.h>
 #include <PR/gbi.h>
