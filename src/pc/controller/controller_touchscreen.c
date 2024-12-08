@@ -404,16 +404,26 @@ static void select_joystick_tex(void) {
     gSPDisplayList(gDisplayListHead++, dl_hud_img_load_tex_block);
 }
 
+const Gfx dl_hud_img_load_tex_blockTOUCH[] = {
+    gsDPSetTile(G_IM_FMT_RGBA, G_IM_SIZ_16b_LOAD_BLOCK, 0, 0, 7, 0, G_TX_WRAP | G_TX_NOMIRROR, 0, 0, G_TX_WRAP | G_TX_NOMIRROR, 0, 0),
+	gsDPLoadBlock(7, 0, 0, 255, 512),
+	gsDPSetTile(G_IM_FMT_RGBA, G_IM_SIZ_16b, 4, 0, 0, 0, G_TX_CLAMP | G_TX_NOMIRROR, 4, 0, G_TX_CLAMP | G_TX_NOMIRROR, 4, 0),
+	gsDPSetTileSize(0, 0, 0, 60, 60),,
+    gsSPEndDisplayList(),
+};
+
 static void select_char_texture(u8 num) {
     gDPPipeSync(gDisplayListHead++);
 
     if (num < TOUCH_TEXTURE_COUNT) { // touchscreen symbols
-        //gDPSetTextureImage(gDisplayListHead++, G_IM_FMT_RGBA, G_IM_SIZ_16b, 1, touch_textures[num]);
-        gDPLoadTextureBlock(gDisplayListHead++, touch_textures[num], G_IM_FMT_RGBA, G_IM_SIZ_16b, 16, 16, 0, G_TX_CLAMP, G_TX_CLAMP, 0, 0, 0, 0);
+        gDPSetTextureImage(gDisplayListHead++, G_IM_FMT_RGBA, G_IM_SIZ_16b, 1, touch_textures[num]);
     } else if (num < 87) { // unknown
-        //gDPSetTextureImage(gDisplayListHead++, G_IM_FMT_RGBA, G_IM_SIZ_16b, 1, touch_textures[TEXTURE_TOUCH_CONSOLE]);
-        gDPLoadTextureBlock(gDisplayListHead++, touch_textures[TEXTURE_TOUCH_CONSOLE], G_IM_FMT_RGBA, G_IM_SIZ_16b, 16, 16, 0, G_TX_CLAMP, G_TX_CLAMP, 0, 0, 0, 0);
+        gDPSetTextureImage(gDisplayListHead++, G_IM_FMT_RGBA, G_IM_SIZ_16b, 1, touch_textures[TEXTURE_TOUCH_CONSOLE]);
+    } else { // letters
+        gDPSetTextureImage(gDisplayListHead++, G_IM_FMT_RGBA, G_IM_SIZ_16b, 1, main_hud_lut[num - 87]);
     }
+
+    gSPDisplayList(gDisplayListHead++, dl_hud_img_load_tex_blockTOUCH);
 }
 #include "src/pc/configfile.h"
 static void DrawSprite(s32 x, s32 y, int scaling) {
