@@ -124,7 +124,11 @@ void djui_panel_join_query(uint64_t aLobbyId, UNUSED uint64_t aOwnerId, uint16_t
     }
 
     struct DjuiBase* layoutBase = &sLobbyLayout->base;
+#ifdef TOUCH_CONTROLS
+    struct DjuiLobbyEntry* entry = djui_lobby_entry_create(layoutBase, (char*)aHostName, (char*)mode, playerText, (char*)aDescription, disabled, djui_panel_select_lobby, djui_lobby_on_hover, NULL);
+#else
     struct DjuiLobbyEntry* entry = djui_lobby_entry_create(layoutBase, (char*)aHostName, (char*)mode, playerText, (char*)aDescription, disabled, djui_panel_join_lobby, djui_lobby_on_hover, djui_lobby_on_hover_end);
+#endif
     entry->base.tag = (s64)aLobbyId;
     djui_paginated_update_page_buttons(sLobbyPaginated);
 }
