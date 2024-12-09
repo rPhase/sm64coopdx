@@ -427,7 +427,6 @@ static void select_char_texture(u8 num) {
 }
 #include "src/pc/configfile.h"
 static void DrawSprite(s32 x, s32 y, int scaling) {
-    gDPSetEnvColor(gDisplayListHead++, 0xFF, 0xFF, 0xFF, configTouchControlAlpha);
     gSPTextureRectangle(gDisplayListHead++, x - (15 << scaling), y - (15 << scaling), x + (15 << scaling), y + (15 << scaling), G_TX_RENDERTILE, 0, 0, 4 << (11 - scaling), 1 << (11 - scaling));
 }
 
@@ -437,21 +436,12 @@ static void DrawSpriteTexJoyBase(s32 x, s32 y, int scaling) {
 
 void render_touch_controls(void) {
     if ((gGamepadActive && configAutohideTouch) || !gGameInited) return;
-    Mtx *mtx;
 
-    mtx = alloc_display_list(sizeof(*mtx));
-
-    if (mtx == NULL) {
-        return;
-    }
-
-    guOrtho(mtx, 0.0f, SCREEN_WIDTH, 0.0f, SCREEN_HEIGHT, -10.0f, 10.0f, 1.0f);
-    gSPPerspNormalize((Gfx *) (gDisplayListHead++), 0xFFFF);
-    gSPMatrix(gDisplayListHead++, VIRTUAL_TO_PHYSICAL(mtx), G_MTX_PROJECTION | G_MTX_LOAD | G_MTX_NOPUSH);
+    create_dl_ortho_matrix();
     gSPClearGeometryMode(gDisplayListHead++, G_LIGHTING);
-    gSPSetGeometryMode(gDisplayListHead++, G_TEXTURE_GEN);
     gDPSetCombineMode(gDisplayListHead++, G_CC_FADEA, G_CC_FADEA);
     gDPSetRenderMode(gDisplayListHead++, G_RM_XLU_SURF, G_RM_XLU_SURF2);
+    gDPSetEnvColor(gDisplayListHead++, 0xFF, 0xFF, 0xFF, configTouchControlAlpha);
     gDPSetTextureFilter(gDisplayListHead++, G_TF_POINT);
     gSPTexture(gDisplayListHead++, 0xFFFF, 0xFFFF, 0, G_TX_RENDERTILE, G_ON);
 
