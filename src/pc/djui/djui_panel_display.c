@@ -110,15 +110,12 @@ void djui_panel_display_create(struct DjuiBase* caller) {
             else if (maxMsaa >= 4)  { choiceCount = 3; }
 
             char* msaaChoices[5] = { DLANG(DISPLAY, OFF), "2x", "4x", "8x", "16x" };
-            //msaa = djui_selectionbox_create(body, DLANG(DISPLAY, ANTIALIASING), msaaChoices, choiceCount, &sMsaaSelection, djui_panel_display_msaa_change);
+            msaa = djui_selectionbox_create(body, DLANG(DISPLAY, ANTIALIASING), msaaChoices, choiceCount, &sMsaaSelection, djui_panel_display_msaa_change);
         }
 
         char* drawDistanceChoices[6] = { DLANG(DISPLAY, D0P5X), DLANG(DISPLAY, D1X), DLANG(DISPLAY, D1P5X), DLANG(DISPLAY, D3X), DLANG(DISPLAY, D10X), DLANG(DISPLAY, D100X) };
         djui_selectionbox_create(body, DLANG(DISPLAY, DRAW_DISTANCE), drawDistanceChoices, 6, &configDrawDistance, NULL);
         djui_checkbox_create(body, "Bigger Touch Controls", &configAndroidBiggerButtons, NULL);
-        djui_slider_create(body, "Touch Controls Red", &configTouchControlRed, 1, 255, NULL);
-        djui_slider_create(body, "Touch Controls Green", &configTouchControlGreen, 1, 255, NULL);
-        djui_slider_create(body, "Touch Controls Blue", &configTouchControlBlue, 1, 255, NULL);
         djui_slider_create(body, "Touch Controls Opacity", &configTouchControlAlpha, 1, 255, NULL);
         djui_button_create(body, DLANG(MENU, BACK), DJUI_BUTTON_STYLE_BACK, djui_panel_menu_back);
 
