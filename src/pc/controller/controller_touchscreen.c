@@ -431,7 +431,7 @@ static void DrawSprite(s32 x, s32 y, int scaling) {
 }
 
 static void DrawSpriteTexJoyBase(s32 x, s32 y, int scaling) {
-    gSPTextureRectangle(gDisplayListHead++, x - (31 << scaling), y - (31 << scaling), x + (31 << scaling), y + (31 << scaling), G_TX_RENDERTILE, 0, 0, 4 << (11 - scaling), 1 << (11 - scaling));
+    gSPTextureRectangle(gDisplayListHead++, x - (32 << scaling), y - (31 << scaling), x + (32 << scaling), y + (31 << scaling), G_TX_RENDERTILE, 0, 0, 4 << (9 - scaling), 1 << (11 - scaling));
 }
 
 void render_touch_controls(void) {
