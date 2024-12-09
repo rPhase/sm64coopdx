@@ -427,11 +427,11 @@ static void select_char_texture(u8 num) {
 }
 #include "src/pc/configfile.h"
 static void DrawSprite(s32 x, s32 y, int scaling) {
-    gSPTextureRectangle(gDisplayListHead++, x - (16 << scaling), y - (15 << scaling), x + (16 << scaling), y + (15 << scaling), G_TX_RENDERTILE, 0, 0, 4 << (9 - scaling), 1 << (11 - scaling));
+    gSPTextureRectangle(gDisplayListHead++, x - (16 << scaling), y - (16 << scaling), x + (16 << scaling), y + (16 << scaling), G_TX_RENDERTILE, 0, 0, 4 << (9 - scaling), 1 << (11 - scaling));
 }
 
 static void DrawSpriteTexJoyBase(s32 x, s32 y, int scaling) {
-    gSPTextureRectangle(gDisplayListHead++, x - (32 << scaling), y - (31 << scaling), x + (32 << scaling), y + (31 << scaling), G_TX_RENDERTILE, 0, 0, 4 << (9 - scaling), 1 << (11 - scaling));
+    gSPTextureRectangle(gDisplayListHead++, x - (32 << scaling), y - (32 << scaling), x + (32 << scaling), y + (32 << scaling), G_TX_RENDERTILE, 0, 0, 4 << (9 - scaling), 1 << (11 - scaling));
 }
 
 void render_touch_controls(void) {
