@@ -204,6 +204,9 @@ bool         configCompressOnStartup              = false;
 unsigned int configGameVersion                    = 0;
 bool         configAndroidBiggerButtons           = true;
 bool         configAndroidExcoopControl           = true;
+unsigned int configTouchControlRed                = 255;
+unsigned int configTouchControlGreen              = 255;
+unsigned int configTouchControlBlue               = 255;
 unsigned int configTouchControlAlpha              = 255;
 bool configCopyAssetstoGamedir                    = true;
 
@@ -427,10 +430,13 @@ static const struct ConfigOption options[] = {
     {.name = "rules_version",                  .type = CONFIG_TYPE_UINT,   .uintValue   = &configRulesVersion},
     {.name = "compress_on_startup",            .type = CONFIG_TYPE_BOOL,   .boolValue   = &configCompressOnStartup},
     {.name = "game_version",                   .type = CONFIG_TYPE_UINT,   .uintValue   = &configGameVersion},
-    {.name = "android_bigger_buttons",            .type = CONFIG_TYPE_BOOL,   .boolValue   = &configAndroidBiggerButtons},
+    {.name = "android_bigger_buttons",         .type = CONFIG_TYPE_BOOL,   .boolValue   = &configAndroidBiggerButtons},
     {.name = "android_excoop_cont",            .type = CONFIG_TYPE_BOOL,   .boolValue   = &configAndroidExcoopControl},
-    {.name = "android_touch_opacity",                       .type = CONFIG_TYPE_UINT, .uintValue = &configTouchControlAlpha},
-    {.name = "android_copy_assets_to_gamedir",            .type = CONFIG_TYPE_BOOL,   .boolValue   = &configCopyAssetstoGamedir}
+    {.name = "android_touch_red",              .type = CONFIG_TYPE_UINT,   .uintValue   = &configTouchControlRed},
+    {.name = "android_touch_green",            .type = CONFIG_TYPE_UINT,   .uintValue   = &configTouchControlGreen},
+    {.name = "android_touch_blue",             .type = CONFIG_TYPE_UINT,   .uintValue   = &configTouchControlBlue},
+    {.name = "android_touch_opacity",          .type = CONFIG_TYPE_UINT,   .uintValue   = &configTouchControlAlpha},
+    {.name = "android_copy_assets_to_gamedir", .type = CONFIG_TYPE_BOOL,   .boolValue   = &configCopyAssetstoGamedir}
 };
 
 struct SecretConfigOption {
