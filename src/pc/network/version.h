@@ -14,7 +14,7 @@
 #else
     // internal version
     #define MAX_PLATFORM_VERSION 3
-    #define VERSION_TEXT "beta android"
+    #define VERSION_TEXT "v"
 #endif
 
 #define VERSION_NUMBER 37

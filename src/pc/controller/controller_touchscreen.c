@@ -404,14 +404,6 @@ static void select_joystick_tex(void) {
     gSPDisplayList(gDisplayListHead++, dl_hud_img_load_tex_block);
 }
 
-const Gfx dl_hud_img_load_tex_blockTOUCH[] = {
-    gsDPSetTile(G_IM_FMT_RGBA, G_IM_SIZ_16b_LOAD_BLOCK, 0, 0, 7, 0, G_TX_WRAP | G_TX_NOMIRROR, 0, 0, G_TX_WRAP | G_TX_NOMIRROR, 0, 0),
-	gsDPLoadBlock(7, 0, 0, 255, 512),
-	gsDPSetTile(G_IM_FMT_RGBA, G_IM_SIZ_16b, 4, 0, 0, 0, G_TX_CLAMP | G_TX_NOMIRROR, 4, 0, G_TX_CLAMP | G_TX_NOMIRROR, 4, 0),
-	gsDPSetTileSize(0, 0, 0, 60, 60),
-    gsSPEndDisplayList(),
-};
-
 static void select_char_texture(u8 num) {
     gDPPipeSync(gDisplayListHead++);
 
@@ -423,16 +415,15 @@ static void select_char_texture(u8 num) {
         gDPSetTextureImage(gDisplayListHead++, G_IM_FMT_RGBA, G_IM_SIZ_16b, 1, main_hud_lut[num - 87]);
     }
 
-    gSPDisplayList(gDisplayListHead++, dl_hud_img_load_tex_blockTOUCH);
+    gSPDisplayList(gDisplayListHead++, dl_hud_img_load_tex_block);
 }
-#include "src/pc/configfile.h"
+
 static void DrawSprite(s32 x, s32 y, int scaling) {
-    gDPSetEnvColor(gDisplayListHead++, 0xFF, 0xFF, 0xFF, configTouchControlAlpha);
-    gSPTextureRectangle(gDisplayListHead++, x - (15 << scaling), y - (15 << scaling), x + (15 << scaling), y + (15 << scaling), G_TX_RENDERTILE, 0, 0, 4 << (11 - scaling), 1 << (11 - scaling));
+    gSPTextureRectangle(gDisplayListHead++, x - (16 << scaling), y - (16 << scaling), x + (15 << scaling), y + (15 << scaling), G_TX_RENDERTILE, 0, 0, 4 << (11 - scaling), 1 << (11 - scaling));
 }
 
 static void DrawSpriteTexJoyBase(s32 x, s32 y, int scaling) {
-    gSPTextureRectangle(gDisplayListHead++, x - (31 << scaling), y - (31 << scaling), x + (31 << scaling), y + (31 << scaling), G_TX_RENDERTILE, 0, 0, 4 << (11 - scaling), 1 << (11 - scaling));
+    gSPTextureRectangle(gDisplayListHead++, x - (32 << scaling), y - (32 << scaling), x + (31 << scaling), y + (31 << scaling), G_TX_RENDERTILE, 0, 0, 4 << (11 - scaling), 1 << (11 - scaling));
 }
 
 void render_touch_controls(void) {
@@ -448,11 +439,7 @@ void render_touch_controls(void) {
     guOrtho(mtx, 0.0f, SCREEN_WIDTH, 0.0f, SCREEN_HEIGHT, -10.0f, 10.0f, 1.0f);
     gSPPerspNormalize((Gfx *) (gDisplayListHead++), 0xFFFF);
     gSPMatrix(gDisplayListHead++, VIRTUAL_TO_PHYSICAL(mtx), G_MTX_PROJECTION | G_MTX_LOAD | G_MTX_NOPUSH);
-    gSPClearGeometryMode(gDisplayListHead++, G_LIGHTING);
-    gDPSetCombineMode(gDisplayListHead++, G_CC_FADEA, G_CC_FADEA);
-    gDPSetRenderMode(gDisplayListHead++, G_RM_XLU_SURF, G_RM_XLU_SURF2);
-    gDPSetTextureFilter(gDisplayListHead++, G_TF_POINT);
-    gSPTexture(gDisplayListHead++, 0xFFFF, 0xFFFF, 0, G_TX_RENDERTILE, G_ON);
+    gSPDisplayList(gDisplayListHead++, dl_hud_img_begin);
 
     struct Position pos;
     s32 size;
@@ -512,9 +499,7 @@ void render_touch_controls(void) {
         DrawSprite(SCREEN_WIDTH_API / 2, SCREEN_HEIGHT_API / 2, 2);
     }
 
-    //gSPDisplayList(gDisplayListHead++, dl_hud_img_end);
-    gSPTexture(gDisplayListHead++, 0xFFFF, 0xFFFF, 0, G_TX_RENDERTILE, G_OFF);
-    gDPSetCombineMode(gDisplayListHead++, G_CC_SHADE, G_CC_SHADE);
+    gSPDisplayList(gDisplayListHead++, dl_hud_img_end);
 }
 
 static void touchscreen_init(void) {

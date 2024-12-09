@@ -107,8 +107,7 @@ void djui_panel_join_query(uint64_t aLobbyId, UNUSED uint64_t aOwnerId, uint16_t
     if (!sLobbyLayout) { return; }
     if (!sLobbyPaginated) { return; }
     if (aMaxConnections > MAX_PLAYERS) { return; }
-
-    if (strstr(aVersion, "v36") || strstr(aVersion, "35") || strstr(aVersion, "34") /*|| strstr(aVersion, "beta")*/) { return; }
+    if (strstr(aVersion, "v36") || strstr(aVersion, "beta")) { return; }
 
     char playerText[64] = "";
     snprintf(playerText, 63, "%u/%u", aConnections, aMaxConnections);
@@ -119,17 +118,13 @@ void djui_panel_join_query(uint64_t aLobbyId, UNUSED uint64_t aOwnerId, uint16_t
 
     char version[MAX_VERSION_LENGTH] = { 0 };
     snprintf(version, MAX_VERSION_LENGTH, "%s", get_version_online());
-    bool disabled = (strcmp(version, aVersion) != 0 && !strstr(aVersion, "v37"));
+    bool disabled = strcmp(version, aVersion) != 0;
     if (disabled) {
         snprintf(mode, 64, "\\#ff0000\\[%s]", aVersion);
     }
 
     struct DjuiBase* layoutBase = &sLobbyLayout->base;
-#ifdef TOUCH_CONTROLS
-    struct DjuiLobbyEntry* entry = djui_lobby_entry_create(layoutBase, (char*)aHostName, (char*)mode, playerText, (char*)aDescription, disabled, djui_panel_select_lobby, djui_lobby_on_hover, NULL);
-#else
     struct DjuiLobbyEntry* entry = djui_lobby_entry_create(layoutBase, (char*)aHostName, (char*)mode, playerText, (char*)aDescription, disabled, djui_panel_join_lobby, djui_lobby_on_hover, djui_lobby_on_hover_end);
-#endif
     entry->base.tag = (s64)aLobbyId;
     djui_paginated_update_page_buttons(sLobbyPaginated);
 }
