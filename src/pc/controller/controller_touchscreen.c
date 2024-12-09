@@ -427,7 +427,7 @@ static void select_char_texture(u8 num) {
 }
 #include "src/pc/configfile.h"
 static void DrawSprite(s32 x, s32 y, int scaling) {
-    gSPTextureRectangle(gDisplayListHead++, x - (15 << scaling), y - (15 << scaling), x + (15 << scaling), y + (15 << scaling), G_TX_RENDERTILE, 0, 0, 4 << (11 - scaling), 1 << (11 - scaling));
+    gSPTextureRectangle(gDisplayListHead++, x << 2, y << 2, (x + 15) << 2, (y + 15) << 2, G_TX_RENDERTILE, 0, 0, 4 << 10, 1 << 10);
 }
 
 static void DrawSpriteTexJoyBase(s32 x, s32 y, int scaling) {
