@@ -138,7 +138,7 @@ bool mod_storage_save(const char *key, const char *value) {
         return false;
     }
 
-#ifdef __ANDROID__
+#ifdef TARGET_ANDROID
     if (!key_cached(key, value)) {
         cache_key(key, value);
     }
