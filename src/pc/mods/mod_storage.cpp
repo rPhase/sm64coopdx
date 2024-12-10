@@ -16,6 +16,20 @@
 #include "pc/debuglog.h"
 */
 
+//OG INCLUDE C:
+
+/*
+#include <stdio.h>
+#include <ctype.h>
+#include "pc/platform.h"
+#include "pc/configini.h" // for writing
+#include "pc/ini.h" // for parsing
+#include "pc/lua/smlua.h"
+#include "pc/mods/mods_utils.h"
+#include "pc/debuglog.h"
+#include <stdbool.h>
+*/
+
 extern "C" {
 #include <stdio.h>
 #include <ctype.h>
@@ -73,7 +87,22 @@ C_FIELD void cache_key(const char * key, const char * value) {
 }
 #endif
 
-void strdelete(const char *string, const char *substr[]) {
+
+#include <iostream>
+#include <fstream>
+#include <string>
+#include "pc/mini.h"
+
+extern "C" {
+#include "pc/platform.h"
+#include "pc/mods/mod.h"
+#include "pc/lua/smlua.h"
+#include "pc/mods/mods_utils.h"
+#include "pc/fs/fs.h"
+#include "pc/debuglog.h"
+}
+
+void strdelete(char string[], char substr[]) {
     // i is used to loop through the string
     u16 i = 0;
 
