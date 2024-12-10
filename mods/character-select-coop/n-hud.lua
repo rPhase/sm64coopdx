@@ -32,7 +32,7 @@ local function convert_color(text)
 end
 
 ---@param text string
----@param get_color boolean
+---@param get_color boolean|nil
 ---@return string, string, string, boolean
 local function remove_color(text, get_color)
     local start = text:find("\\")
@@ -281,7 +281,7 @@ local FONT_USER = FONT_NORMAL
 --- Icons can only be seen by users who have the character avalible to them
 function name_from_local_index(localIndex)
     if localIndex == nil then localIndex = 0 end
-    local p = gPlayerSyncTable[localIndex]
+    local p = gCSPlayers[localIndex]
     for i = 1, #characterTable do
         if characterTable[i].saveName == p.saveName then
             return characterTable[i][(p.currAlt and p.currAlt or 1)].name
@@ -296,7 +296,7 @@ end
 --- Icons can only be seen by users who have the character avalible to them
 function color_from_local_index(localIndex)
     if localIndex == nil then localIndex = 0 end
-    local p = gPlayerSyncTable[localIndex]
+    local p = gCSPlayers[localIndex]
     for i = 1, #characterTable do
         if characterTable[i].saveName == p.saveName then
             return characterTable[i][(p.currAlt and p.currAlt or 1)].color
@@ -312,7 +312,7 @@ end
 --- This function can return nil. if this is the case, render `djui_hud_print_text("?", x, y, 1)`
 function life_icon_from_local_index(localIndex)
     if localIndex == nil then localIndex = 0 end
-    local p = gPlayerSyncTable[localIndex]
+    local p = gCSPlayers[localIndex]
     for i = 1, #characterTable do
         local char = characterTable[i]
         if char.saveName == p.saveName then
@@ -334,7 +334,7 @@ function render_life_icon_from_local_index(localIndex, x, y, scale)
     local startColor = djui_hud_get_color()
 
     if type(lifeIcon) == TYPE_STRING then
-        local color = color_from_local_index(0)
+        local color = color_from_local_index(localIndex)
         djui_hud_set_font(FONT_RECOLOR_HUD)
         djui_hud_set_color(color.r/startColor.r*255, color.g/startColor.g*255, color.b/startColor.b*255, startColor.a)
         djui_hud_print_text(lifeIcon, x - scale, y - 11*scale, scale)
@@ -352,7 +352,7 @@ end
 --- Icons can only be seen by users who have the character avalible to them
 function star_icon_from_local_index(localIndex)
     if localIndex == nil then localIndex = 0 end
-    local p = gPlayerSyncTable[localIndex]
+    local p = gCSPlayers[localIndex]
     for i = 1, #characterTable do
         local char = characterTable[i]
         if char.saveName == p.saveName then
@@ -485,14 +485,11 @@ end
 
 -- Act Select Hud --
 local function render_act_select_hud()
-
-    local course, starBhvCount, sVisibleStars -- Localizing variables
-
-    course = gNetworkPlayers[0].currCourseNum
+    local course = gNetworkPlayers[0].currCourseNum
     if gServerSettings.enablePlayersInLevelDisplay == 0 or course == 0 or obj_get_first_with_behavior_id(id_bhvActSelector) == nil then return end
 
-    starBhvCount = count_objects_with_behavior(get_behavior_from_id(id_bhvActSelectorStarType))
-    sVisibleStars = starBhvCount < 7 and starBhvCount or 6
+    local starBhvCount = count_objects_with_behavior(get_behavior_from_id(id_bhvActSelectorStarType))
+    local sVisibleStars = starBhvCount < 6 and starBhvCount or 6
 
     for a = 1, sVisibleStars do
         local x = (139 - sVisibleStars * 17 + a * 34) + (djui_hud_get_screen_width() / 2) - 160 + 0.5
@@ -500,13 +497,29 @@ local function render_act_select_hud()
             local np = gNetworkPlayers[j]
             if np and np.connected and np.currCourseNum == course and np.currActNum == a then
                 djui_hud_render_rect(x - 4, 17, 16, 16)
-                render_life_icon_from_local_index(0, x - 4, 17, 1)
+                render_life_icon_from_local_index(j, x - 4, 17, 1)
                 break
             end
         end
     end
 end
 
+---@param table table
+---@return table
+function zero_index_to_one_index(table)
+    local tableOne = {}
+    for i = 0, #table do
+        tableOne[i+1] = table[i]
+    end
+    return tableOne
+end
+
+local packFilterTotal = 0
+for i = 0, #gActiveMods do
+    if remove_color(gActiveMods[i].name):sub(1, 4) == "[CS]" then
+        packFilterTotal = packFilterTotal + 1
+    end
+end
 function render_playerlist_and_modlist()
 
     -- DjuiTheme Data
@@ -524,55 +537,61 @@ function render_playerlist_and_modlist()
     local y = djui_hud_get_screen_height()/2 - playerListHeight/2
 
     listMargins = 16
+    local playerList = {}
+
+    gNetworkPlayersOne = zero_index_to_one_index(gNetworkPlayers)
+    for index, player in pairs(gNetworkPlayersOne) do
+        if player.connected then
+            playerList[#playerList + 1] = player
+        end
+    end 
 
     local playersString = hudFont and djui_language_get("PLAYER_LIST", "PLAYERS") or generate_rainbow_text(djui_language_get("PLAYER_LIST", "PLAYERS"))
 
     djui_hud_render_header_box(playersString, 0, 0xff, 0xff, 0xff, 0xff, 1, x, y, playerListWidth, playerListHeight, rectColor, borderColor)
     djui_hud_set_font(FONT_USER)
-    for i = 0, #gNetworkPlayers do
-        o = i > (network_player_connected_count() - 1) and i + (network_player_connected_count() - 1) or 0
-        p = math.abs(i - o)
-        np = gNetworkPlayers[i]
-        if gNetworkPlayers[i].name ~= "" then
-            local v = (p % 2) ~= 0 and 16 or 32
-            djui_hud_set_color(v, v, v, 128)
-            local entryWidth = playerListWidth - ((8 + listMargins) * 2)
-            local entryHeight = 32
-            local entryX = x + 8 + listMargins
-            local entryY = y + 124 + 0 + ((entryHeight + 4) * (p - 1))
-            djui_hud_render_rect(entryX, entryY, entryWidth, entryHeight)
+    for i = 1, #playerList do
+        np = playerList[i]
 
-            playerNameColor = {
-                r = 127 + network_player_get_override_palette_color_channel(np, CAP, 0) / 2,
-                g = 127 + network_player_get_override_palette_color_channel(np, CAP, 1) / 2,
-                b = 127 + network_player_get_override_palette_color_channel(np, CAP, 2) / 2
-            }
+        local v = (i % 2) == 0 and 16 or 32
+        djui_hud_set_color(v, v, v, 128)
+        local entryWidth = playerListWidth - ((8 + listMargins) * 2)
+        local entryHeight = 32
+        local entryX = x + 8 + listMargins
+        local entryY = y + 88 + ((entryHeight + 4) * (i-1))
+        djui_hud_render_rect(entryX, entryY, entryWidth, entryHeight)
 
-            djui_hud_set_color(255, 255, 255, 255)
-            render_life_icon_from_local_index(i, entryX, entryY, 2)
-            djui_hud_print_text_with_color(np.name, entryX + 40, entryY, 1, playerNameColor.r, playerNameColor.g, playerNameColor.b, 255)
+        playerNameColor = {
+            r = 127 + network_player_get_override_palette_color_channel(np, CAP, 0) / 2,
+            g = 127 + network_player_get_override_palette_color_channel(np, CAP, 1) / 2,
+            b = 127 + network_player_get_override_palette_color_channel(np, CAP, 2) / 2
+        }
 
-            local levelName = get_level_name(np.currCourseNum, np.currLevelNum, np.currAreaIndex)
-            if levelName then
-                djui_hud_print_text_with_color(levelName, ((entryX + entryWidth) - djui_hud_measure_text((string.gsub(levelName, "\\(.-)\\", "")))) - 126, entryY, 1, 0xdc, 0xdc, 0xdc, 255)
-            end
+        djui_hud_set_color(255, 255, 255, 255)
+        render_life_icon_from_local_index(np.localIndex, entryX, entryY, 2)
+        djui_hud_print_text_with_color(np.name, entryX + 40, entryY, 1, playerNameColor.r, playerNameColor.g, playerNameColor.b, 255)
 
-            if np.currActNum then
-                currActNum = np.currActNum == 99 and "Done" or np.currActNum ~= 0 and "# "..tostring(np.currActNum) or ""
-                printedcurrActNum = currActNum
-                djui_hud_print_text_with_color(printedcurrActNum, entryX + entryWidth - djui_hud_measure_text(printedcurrActNum) - 18, entryY, 1, 0xdc, 0xdc, 0xdc, 255)
-            end
+        local levelName = np.overrideLocation ~= "" and np.overrideLocation or get_level_name(np.currCourseNum, np.currLevelNum, np.currAreaIndex)
+        if levelName then
+            djui_hud_print_text_with_color(levelName, ((entryX + entryWidth) - djui_hud_measure_text((string.gsub(levelName, "\\(.-)\\", "")))) - 126, entryY, 1, 0xdc, 0xdc, 0xdc, 255)
+        end
 
-            if np.description then
-                djui_hud_print_text_with_color(np.description, (entryX + 278) - (djui_hud_measure_text((string.gsub(np.description, "\\(.-)\\", "")))/2), entryY, 1, np.descriptionR, np.descriptionG, np.descriptionB, np.descriptionA)
-            end
+        if np.currActNum then
+            currActNum = np.currActNum == 99 and "Done" or np.currActNum ~= 0 and "# "..tostring(np.currActNum) or ""
+            printedcurrActNum = currActNum
+            djui_hud_print_text_with_color(printedcurrActNum, entryX + entryWidth - djui_hud_measure_text(printedcurrActNum) - 18, entryY, 1, 0xdc, 0xdc, 0xdc, 255)
+        end
+
+        if np.description then
+            djui_hud_print_text_with_color(np.description, (entryX + 278) - (djui_hud_measure_text((string.gsub(np.description, "\\(.-)\\", "")))/2), entryY, 1, np.descriptionR, np.descriptionG, np.descriptionB, np.descriptionA)
         end
     end
 
     -- ModList
 
     local modListWidth = 280
-    local modListHeight = ((#gActiveMods + 1) * 32) + ((#gActiveMods + 1) - 1) * 4 + (32 + 16) + 32 + 32
+    local modsCount = #gActiveMods - packFilterTotal
+    local modListHeight = ((modsCount + 1) * 32) + ((modsCount + 1) - 1) * 4 + (32 + 16) + 32 + 32
     local mX = djui_hud_get_screen_width()/2 + 363
     local mY = djui_hud_get_screen_height()/2 - modListHeight/2
 
@@ -581,26 +600,36 @@ function render_playerlist_and_modlist()
     djui_hud_render_header_box(modsString, 0, 0xff, 0xff, 0xff, 0xff, 1, mX, mY, modListWidth, modListHeight, rectColor, borderColor)
     djui_hud_set_font(FONT_USER)
 
+    local packFilter = 0
     for i = 0, #gActiveMods do
-        v = (i % 2) ~= 0 and 16 or 32
-        djui_hud_set_color(v, v, v, 128)
-        local entryWidth = modListWidth - ((8 + listMargins) * 2)
-        local entryHeight = 32
-        local entryX = mX + 8 + listMargins
-        local entryY = mY + 124 + 0 + ((entryHeight + 4) * (i - 1))
-        djui_hud_render_rect(entryX, entryY, entryWidth, entryHeight)
-        local modName = gActiveMods[i].name
-        local stringSubCount = 23
-        local inColor = false
-        for i = 1, #modName do
-            if modName:sub(i, i) == "\\" then
-                inColor = not inColor
+        -- Filter CS Packs out of modlist
+        if remove_color(gActiveMods[i].name):sub(1, 4) == "[CS]" then
+            packFilter = packFilter + 1
+        else
+            local i = i - packFilter
+            v = (i % 2) ~= 0 and 16 or 32
+            djui_hud_set_color(v, v, v, 128)
+            local entryWidth = modListWidth - ((8 + listMargins) * 2)
+            local entryHeight = 32
+            local entryX = mX + 8 + listMargins
+            local entryY = mY + 124 + 0 + ((entryHeight + 4) * (i - 1))
+            djui_hud_render_rect(entryX, entryY, entryWidth, entryHeight)
+            local modName = gActiveMods[i].name
+            if modName == "Character Select" and packFilterTotal > 0 then
+                modName = modName.." (+"..packFilterTotal..")"
             end
-            if inColor then
-                stringSubCount = stringSubCount + 1
+            local stringSubCount = 23
+            local inColor = false
+            for i = 1, #modName do
+                if modName:sub(i, i) == "\\" then
+                    inColor = not inColor
+                end
+                if inColor then
+                    stringSubCount = stringSubCount + 1
+                end
             end
+            djui_hud_print_text_with_color(modName:sub(1, stringSubCount), entryX, entryY, 1, 0xdc, 0xdc, 0xdc, 255)
         end
-        djui_hud_print_text_with_color(gActiveMods[i].name:sub(1, stringSubCount), entryX, entryY, 1, 0xdc, 0xdc, 0xdc, 255)
     end
 end
 

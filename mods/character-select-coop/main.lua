@@ -1,6 +1,7 @@
 -- name: Character Select
--- description:\\#ffff33\\--- Character Select Coop v1.11 ---\n\n\\#dcdcdc\\A Library / API made to make adding and using Custom Characters as simple as possible!\nUse\\#ffff33\\ /char-select\\#dcdcdc\\ to get started!\n\nCreated by:\\#008800\\ Squishy6094\n\n\\#AAAAFF\\Updates can be found on\nCharacter Select's Github:\n\\#6666FF\\Squishy6094/character-select-coop
+-- description:\\#ffff33\\-- Character Select Coop v1.11.2 --\n\n\\#dcdcdc\\A Library / API made to make adding and using Custom Characters as simple as possible!\nUse\\#ffff33\\ /char-select\\#dcdcdc\\ to get started!\n\nCreated by:\\#008800\\ Squishy6094\n\n\\#AAAAFF\\Updates can be found on\nCharacter Select's Github:\n\\#6666FF\\Squishy6094/character-select-coop
 -- pausable: false
+-- category: cs
 
 if incompatibleClient then return 0 end
 
@@ -139,9 +140,6 @@ characterTable = {
         },
     },
 }
-
-gPlayerSyncTable[0].offset = 0
-gPlayerSyncTable[0].currAlt = 1
 
 characterCaps = {}
 characterCelebrationStar = {}
@@ -554,7 +552,7 @@ local prevBaseCharFrame = gNetworkPlayers[0].modelIndex
 --- @param m MarioState
 local function mario_update(m)
     local np = gNetworkPlayers[m.playerIndex]
-    local p = gPlayerSyncTable[m.playerIndex]
+    local p = gCSPlayers[m.playerIndex]
     if stallFrame == 1 or queueStorageFailsafe then
         failsafe_options()
         if not queueStorageFailsafe then
@@ -574,7 +572,7 @@ local function mario_update(m)
         if djui_hud_is_pause_menu_created() and prevBaseCharFrame ~= np.modelIndex then
             characterTable[1].currAlt = np.modelIndex + 1
             currChar = 1
-            p.presetPalette = false
+            p.presetPalette = 0
         end
         prevBaseCharFrame = np.modelIndex
 
@@ -711,17 +709,17 @@ function set_model(o, model)
     if optionTable[optionTableRef.localModels].toggle == 0 then return end
     if obj_has_behavior_id(o, id_bhvMario) ~= 0 then
         local i = network_local_index_from_global(o.globalPlayerIndex)
-        if gPlayerSyncTable[i].modelId ~= nil and obj_has_model_extended(o, gPlayerSyncTable[i].modelId) == 0 then
+        if gCSPlayers[i].modelId ~= nil and obj_has_model_extended(o, gCSPlayers[i].modelId) == 0 then
             settingModel = true
-            obj_set_model_extended(o, gPlayerSyncTable[i].modelId)
+            obj_set_model_extended(o, gCSPlayers[i].modelId)
             settingModel = false
         end
         return
     end
     if obj_has_behavior_id(o, id_bhvCelebrationStar) ~= 0 and o.parentObj ~= nil then
         local i = network_local_index_from_global(o.parentObj.globalPlayerIndex)
-        local starModel = characterCelebrationStar[gPlayerSyncTable[i].modelId]
-        if gPlayerSyncTable[i].modelId ~= nil and starModel ~= nil and obj_has_model_extended(o, starModel) == 0 and not BowserKey then
+        local starModel = characterCelebrationStar[gCSPlayers[i].modelId]
+        if gCSPlayers[i].modelId ~= nil and starModel ~= nil and obj_has_model_extended(o, starModel) == 0 and not BowserKey then
             settingModel = true
             obj_set_model_extended(o, starModel)
             settingModel = false
@@ -739,7 +737,7 @@ function set_model(o, model)
        model == c.capWingModelId or
        model == c.capMetalModelId or
        model == c.capMetalWingModelId then
-        local capModels = characterCaps[gPlayerSyncTable[i].modelId]
+        local capModels = characterCaps[gCSPlayers[i].modelId]
         if capModels ~= nil then
             local capModel = E_MODEL_NONE
             if model == c.capModelId then
@@ -903,12 +901,13 @@ local function on_hud_render()
         local TEXT_MOVESET = "Has Moveset: "..(character.hasMoveset and "Yes" or "No")
         local TEXT_ALT = "Alt: " .. character.currAlt .. "/" .. #character
         character = characterTable[currChar][character.currAlt]
+        local paletteCount = characterColorPresets[gCSPlayers[0].modelId] ~= nil and #characterColorPresets[gCSPlayers[0].modelId] or 0
         if optionTable[optionTableRef.debugInfo].toggle == 0 then
             -- Actual Description --
             local TEXT_NAME = string_underscore_to_space(character.name)
             local TEXT_CREDIT = "Credit: " .. character.credit
             local TEXT_DESCRIPTION_TABLE = character.description
-            local TEXT_PRESET = "Preset Character Palette: "..(gPlayerSyncTable[0].presetPalette and "On" or "Off")
+            local TEXT_PRESET = "Preset Character Palette: "..(gCSPlayers[0].presetPalette > 0 and (paletteCount > 1 and "("..gCSPlayers[0].presetPalette.."/"..paletteCount..")" or "On") or "Off")
             local TEXT_PREF = "Preferred Character:"
             local TEXT_PREF_LOAD_NAME = string_underscore_to_space(TEXT_PREF_LOAD_NAME)
             if djui_hud_measure_text(TEXT_PREF_LOAD_NAME) / widthScale > 110 then
@@ -944,7 +943,7 @@ local function on_hud_render()
                 end
             end
 
-            local modelId = gPlayerSyncTable[0].modelId and gPlayerSyncTable[0].modelId or defaultModels[gMarioStates[0].character.type]
+            local modelId = gCSPlayers[0].modelId and gCSPlayers[0].modelId or defaultModels[gMarioStates[0].character.type]
             djui_hud_print_text(TEXT_PREF, width - textX - djui_hud_measure_text(TEXT_PREF) * 0.15, height - 22, 0.3)
             if characterColorPresets[modelId] and not stopPalettes then
                 djui_hud_print_text(TEXT_PRESET, width - textX - djui_hud_measure_text(TEXT_PRESET) * 0.15, height - 31, 0.3)
@@ -963,7 +962,7 @@ local function on_hud_render()
             local TEX_LIFE_ICON = character.lifeIcon
             local TEX_STAR_ICON = character.starIcon
             local TEXT_SCALE = "Camera Scale: " .. character.camScale
-            local TEXT_PRESET = "Preset Palette: "..(gPlayerSyncTable[0].presetPalette and "On" or "Off")
+            local TEXT_PRESET = "Preset Palette: ("..gCSPlayers[0].presetPalette.."/"..paletteCount..")"
             local TEXT_PREF = "Preferred: " .. TEXT_PREF_LOAD_NAME .. " ("..TEXT_PREF_LOAD_ALT..")"
             local TEXT_PREF_COLOR = "Pref Color: R-" .. prefCharColor.r .. ", G-" .. prefCharColor.g .. ", B-" .. prefCharColor.b
 
@@ -1030,15 +1029,17 @@ local function on_hud_render()
             djui_hud_print_text(TEXT_TABLE_POS .. currChar, width - x + 8, y, 0.5)
             y = y + 7
             djui_hud_print_text(TEXT_SCALE, width - x + 8, y, 0.5)
-            local modelId = gPlayerSyncTable[0].modelId and gPlayerSyncTable[0].modelId or defaultModels[gMarioStates[0].character.type]
+            local modelId = gCSPlayers[0].modelId and gCSPlayers[0].modelId or defaultModels[gMarioStates[0].character.type]
             y = y + 7
             if characterColorPresets[modelId] ~= nil then
                 djui_hud_print_text(TEXT_PALETTE, width - x + 8, y, 0.5)
                 local x = x - djui_hud_measure_text(TEXT_PALETTE)*0.5
-                for i = 0, #characterColorPresets[modelId] do
+                local currPalette = gCSPlayers[0].presetPalette > 0 and gCSPlayers[0].presetPalette or 1
+                local paletteTable = characterColorPresets[modelId][currPalette]
+                for i = 0, #paletteTable do
                     djui_hud_set_color(menuColor.r, menuColor.g, menuColor.b, 255)
                     djui_hud_render_rect(width - x + 6.5 + (6.5 * i), y + 1.5, 6, 6)
-                    djui_hud_set_color(characterColorPresets[modelId][i].r, characterColorPresets[modelId][i].g, characterColorPresets[modelId][i].g, 255)
+                    djui_hud_set_color(paletteTable[i].r, paletteTable[i].g, paletteTable[i].b, 255)
                     djui_hud_render_rect(width - x + 7 + (6.5 * i), y + 2, 5, 5)
                 end
                 y = y + 7
@@ -1510,7 +1511,7 @@ local function before_mario_update(m)
                         buttonScroll = buttonScrollCap
                     end
                     play_sound(SOUND_MENU_MESSAGE_NEXT_PAGE, cameraToObject)
-                    gPlayerSyncTable[0].presetPalette = false
+                    gCSPlayers[0].presetPalette = 0
                     if currChar > #characterTable then currChar = 1 end
                 end
                 if (controller.buttonPressed & U_JPAD) ~= 0 or (controller.buttonPressed & U_CBUTTONS) ~= 0 or controller.stickY > 60 then
@@ -1532,7 +1533,7 @@ local function before_mario_update(m)
                         buttonScroll = -buttonScrollCap
                     end
                     play_sound(SOUND_MENU_MESSAGE_NEXT_PAGE, cameraToObject)
-                    gPlayerSyncTable[0].presetPalette = false
+                    gCSPlayers[0].presetPalette = 0
                     if currChar < 1 then currChar = #characterTable end
                 end
 
@@ -1572,17 +1573,20 @@ local function before_mario_update(m)
                 if (controller.buttonPressed & START_BUTTON) ~= 0 then
                     options = true
                 end
-                local modelId = gPlayerSyncTable[0].modelId and gPlayerSyncTable[0].modelId or defaultModels[m.character.type]
+                local modelId = gCSPlayers[0].modelId and gCSPlayers[0].modelId or defaultModels[m.character.type]
                 if (controller.buttonPressed & Y_BUTTON) ~= 0 then
                     if characterColorPresets[modelId] and optionTable[optionTableRef.localModels].toggle > 0 and not stopPalettes then
                         play_sound(SOUND_MENU_CLICK_FILE_SELECT, cameraToObject)
-                        gPlayerSyncTable[0].presetPalette = not gPlayerSyncTable[0].presetPalette
+                        gCSPlayers[0].presetPalette = gCSPlayers[0].presetPalette + 1
                         inputStallTimerButton = inputStallToButton
                     else
                         play_sound(SOUND_MENU_CAMERA_BUZZ, cameraToObject)
                         inputStallTimerButton = inputStallToButton
                     end
                 end
+            end
+            if characterColorPresets[gCSPlayers[0].modelId] ~= nil then
+                if #characterColorPresets[gCSPlayers[0].modelId] < gCSPlayers[0].presetPalette then gCSPlayers[0].presetPalette = 0 end
             end
         end
 
@@ -1712,11 +1716,15 @@ local function chat_command(msg)
     end
 
     -- Number Check
-    if tonumber(msg) then
-        msg = tonumber(msg)
-        if msg > 0 and msg <= #characterTable and not characterTable[msg].locked then
-            currChar = msg
-            djui_chat_message_create('Character set to "' .. characterTable[msg].name .. '" Successfully!')
+    msgSplit = string_split(msg)
+    if tonumber(msgSplit[1]) then
+        local charNum = tonumber(msgSplit[1])
+        local altNum = tonumber(msgSplit[2])
+        altNum = altNum and altNum or 1
+        if charNum > 0 and charNum <= #characterTable and not characterTable[charNum].locked then
+            currChar = charNum
+            characterTable[charNum].currAlt = altNum
+            djui_chat_message_create('Character set to "' .. characterTable[charNum][altNum].name .. '" Successfully!')
             return true
         end
     end
