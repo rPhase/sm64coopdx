@@ -5499,10 +5499,10 @@ MARIO_HAND_HOLDING_WING_CAP = 4
 MARIO_HAND_RIGHT_OPEN = 5
 
 --- @type integer
-MAX_KEYS = 255
+MAX_KEYS = 512
 
 --- @type integer
-MAX_KEY_VALUE_LENGTH = 64
+MAX_KEY_VALUE_LENGTH = 512
 
 --- @type integer
 PACKET_LENGTH = 3000
@@ -12488,6 +12488,12 @@ SPTASK_STATE_FINISHED = 3
 SPTASK_STATE_FINISHED_DP = 4
 
 --- @type integer
+MAX_PLATFORM_VERSION = 3
+
+--- @type integer
+MAX_PLATFORM_VERSION = 3
+
+--- @type integer
 MAX_VERSION_LENGTH = 32
 
 --- @type integer
@@ -12510,6 +12516,9 @@ VERSION_REGION = "SH"
 
 --- @type string
 VERSION_REGION = "US"
+
+--- @type integer
+VERSION_TEXT = gameVersionChoices[configGameVersion]
 
 --- @type string
 VERSION_TEXT = "v"
