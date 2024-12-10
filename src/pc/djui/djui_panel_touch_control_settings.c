@@ -10,7 +10,7 @@
 #include "game/hardcoded.h"
 
 void djui_panel_touchcontrol_set_create(struct DjuiBase* caller) {
-    struct DjuiThreePanel* panel = djui_panel_menu_create(DLANG(MISC, MISC_TITLE), false);
+    struct DjuiThreePanel* panel = djui_panel_menu_create("Touch Buttons Graphics", false);
     struct DjuiBase* body = djui_three_panel_get_body(panel);
     {
         djui_slider_create(body, "Touch Controls Red", &configTouchControlRed, 1, 255, NULL);
