@@ -1,5 +1,8 @@
-
 if incompatibleClient then return 0 end
+
+-- localize functions to improve performance - z-palettes.lua
+local network_player_set_override_palette_color,network_player_reset_override_palette = network_player_set_override_palette_color,network_player_reset_override_palette
+
 
 characterColorPresets = {
     [E_MODEL_MARIO] = {
@@ -74,7 +77,19 @@ local function network_player_set_full_override_palette(networkPlayer, colorTabl
     end
 end
 
+--- @param np NetworkPlayer
+local function update_preset_palette(np)
+    local modelId = (gPlayerSyncTable[np.localIndex].modelId)
+    if np.connected and gPlayerSyncTable[0].presetPalette and characterColorPresets[modelId] and not stopPalettes then
+        network_player_set_full_override_palette(np, characterColorPresets[modelId])
+    end
+end
+
+-- API funcs
+_G.charSelect.update_preset_palette = update_preset_palette
+
 local prevChar = currChar
+local prevAlt = 1
 local stallTimer = 5
 
 local prevPresetPalette = {}
@@ -83,6 +98,7 @@ local prevModel = {}
 local function mario_update(m)
     local np = gNetworkPlayers[m.playerIndex]
     local p = gPlayerSyncTable[m.playerIndex]
+    local currAlt = characterTable[currChar].currAlt
     
     if m.playerIndex == 0 and not p.isUpdating then
         p.isUpdating = true
@@ -120,15 +136,16 @@ local function mario_update(m)
     end
     
     if m.playerIndex == 0 then
-        if (menuAndTransition or prevChar ~= currChar) and stallTimer == 0 then
+        if (menuAndTransition or (prevChar ~= currChar or prevAlt ~= currAlt)) and stallTimer == 0 then
             local modelId = p.modelId and p.modelId or defaultModels[m.character.type]
-            if optionTable[optionTableRef.autoPalette].toggle > 0 and optionTable[optionTableRef.localModels].toggle > 0 and (currChar ~= 1 and prevChar ~= currChar and not p.presetPalette) and characterColorPresets[modelId] and not stopPalettes then
+            if optionTable[optionTableRef.autoPalette].toggle > 0 and optionTable[optionTableRef.localModels].toggle > 0 and (currChar ~= 1 and (prevChar ~= currChar or prevAlt ~= currAlt) and not p.presetPalette) and characterColorPresets[modelId] and not stopPalettes then
                 p.presetPalette = true
             end
             if optionTable[optionTableRef.localModels].toggle == 0 then
                 p.presetPalette = false
             end
             prevChar = currChar
+            prevAlt = currAlt
         end
 
         if stallTimer > 0 then
