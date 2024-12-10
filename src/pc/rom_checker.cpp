@@ -48,7 +48,7 @@ inline static void rename_tmp_folder() {
     }
 }
 
-/*static bool is_rom_valid(const std::string romPath) {
+static bool is_rom_valid(const std::string romPath) {
     u8 dataHash[16] = { 0 };
     mod_cache_md5(romPath.c_str(), dataHash);
 
@@ -60,13 +60,14 @@ inline static void rename_tmp_folder() {
     bool foundHash = false;
     for (VanillaMD5 *md5 = sVanillaMD5; md5->localizationName != NULL; md5++) {
         if (md5->md5 == ss.str()) {
-            std::string destPath =
-                fs_get_write_path("") + std::string("baserom.") + md5->localizationName + ".z64";
+            std::string destPath = fs_get_write_path("") + std::string("baserom.") + md5->localizationName + ".z64";
 
             // Copy the rom to the user path
             if (romPath != destPath && !std::filesystem::exists(std::filesystem::path(destPath))) {
-                std::filesystem::copy_file(std::filesystem::path(romPath),
-                                           std::filesystem::path(destPath));
+                std::filesystem::copy_file(
+                    std::filesystem::path(romPath),
+                    std::filesystem::path(destPath)
+                );
             }
 
             snprintf(gRomFilename, SYS_MAX_PATH, "%s", destPath.c_str()); // Load the copied rom
@@ -80,42 +81,23 @@ inline static void rename_tmp_folder() {
 }
 
 inline static bool scan_path_for_rom(const char *dir) {
-    for (const auto &entry : std::filesystem::directory_iterator(dir)) {
+    for (const auto &entry: std::filesystem::directory_iterator(dir)) {
         std::string path = entry.path().generic_string();
         if (str_ends_with(path.c_str(), ".z64")) {
-            if (is_rom_valid(path)) {
-                return true;
-            }
+            if (is_rom_valid(path)) { return true; }
         }
     }
     return false;
-}*/
+}
 
 extern "C" {
 void legacy_folder_handler(void) {
     rename_tmp_folder();
 }
 
-const char *romlistname[16] = {
-    "baserom.us.z64",
-    "Super Mario 64 (USA).z64",
-    "Super Mario 64 (USA) [!].z64",
-    "Super Mario 64 (U) [!].z64",
-    "Super Mario 64.z64",
-};
-
 bool main_rom_handler(void) {
-    static char path[SYS_MAX_PATH] = { 0 };
-
-    const char *basedir = get_gamedir();
-    for (s32 indexrom = 0; indexrom < ARRAY_COUNT(romlistname); indexrom++) {
-        snprintf(path, sizeof(path), "%s/user/%s", basedir, romlistname[indexrom]);
-        if (fs_sys_file_exists(path)) {
-            gRomIsValid = true;
-            // foundHash = true
-            snprintf(gRomFilename, SYS_MAX_PATH, "%s", path);
-            return gRomIsValid;
-        }
-    }
+    if (scan_path_for_rom(fs_get_write_path(""))) { return true; }
+    scan_path_for_rom(sys_user_path());
+    return gRomIsValid;
 }
 }
