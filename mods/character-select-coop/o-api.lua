@@ -49,7 +49,6 @@ end
 local TYPE_INTEGER = "number"
 local TYPE_STRING = "string"
 local TYPE_TABLE = "table"
-local TYPE_TEX_INFO = "userdata"
 local TYPE_FUNCTION = "function"
 
 ---@param name string|nil Underscores turn into Spaces
@@ -58,7 +57,7 @@ local TYPE_FUNCTION = "function"
 ---@param color Color|string|nil {r, g, b}
 ---@param modelInfo ModelExtendedId|integer|nil Use smlua_model_util_get_id()
 ---@param forceChar CharacterType|nil CT_MARIO, CT_LUIGI, CT_TOAD, CT_WALUIGI, CT_WARIO
----@param lifeIcon TextureInfo|string|nil Use get_texture_info()
+---@param lifeIcon TextureInfo|nil Use get_texture_info()
 ---@param camScale integer|nil Zooms the camera based on a multiplier (Default 1.0)
 ---@param offset integer|nil Visually offsets the character
 ---@return integer
@@ -66,33 +65,26 @@ local function character_add(name, description, credit, color, modelInfo, forceC
     if type(description) == TYPE_STRING then
         description = split_text_into_lines(description)
     end
-    if color ~= nil and type(color) == TYPE_STRING then
+    if type(color) == TYPE_STRING then
         color = {r = tonumber(color:sub(1,2), 16), g = tonumber(color:sub(3,4), 16), b = tonumber(color:sub(5,6), 16) }
     end
     if type(offset) ~= TYPE_INTEGER then
         offset = (forceChar == CT_WALUIGI and 25 or 0)
     end
-    if lifeIcon ~= nil and type(lifeIcon) == TYPE_STRING then
-        lifeIcon = lifeIcon:sub(1,1)
-    end
     table_insert(characterTable, {
+        name = type(name) == TYPE_STRING and name or "Untitled",
         saveName = type(name) == TYPE_STRING and string_space_to_underscore(name) or "Untitled",
-        currAlt = 1,
-        hasMoveset = false,
-        locked = false,
+        description = type(description) == TYPE_TABLE and description or {"No description has been provided"},
+        credit = type(credit) == TYPE_STRING and credit or "Unknown",
+        color = type(color) == TYPE_TABLE and color or {r = 255, g = 255, b = 255},
+        model = (modelInfo and modelInfo ~= E_MODEL_ERROR_MODEL) and modelInfo or E_MODEL_ARMATURE,
+        forceChar = forceChar and forceChar or CT_MARIO,
+        offset = offset and offset or 0,
+        lifeIcon = type(lifeIcon) == TYPE_TABLE and lifeIcon or nil,
+        starIcon = gTextures.star,
+        camScale = type(camScale) == TYPE_INTEGER and camScale or 1,
         healthTexture = nil,
-        [1] = {
-            name = type(name) == TYPE_STRING and name or "Untitled",
-            description = type(description) == TYPE_TABLE and description or {"No description has been provided"},
-            credit = type(credit) == TYPE_STRING and credit or "Unknown",
-            color = type(color) == TYPE_TABLE and color or {r = 255, g = 255, b = 255},
-            model = (modelInfo and modelInfo ~= E_MODEL_ERROR_MODEL) and modelInfo or E_MODEL_ARMATURE,
-            forceChar = forceChar and forceChar or CT_MARIO,
-            offset = offset and offset or 0,
-            lifeIcon = (type(lifeIcon) == TYPE_TABLE or type(lifeIcon) == TYPE_TEX_INFO or type(lifeIcon) == TYPE_STRING) and lifeIcon or "?",
-            starIcon = gTextures.star,
-            camScale = type(camScale) == TYPE_INTEGER and camScale or 1,
-        },
+        hasMoveset = false,
     })
     saveNameTable[#characterTable] = characterTable[#characterTable].saveName
     characterMovesets[#characterTable] = {}
@@ -109,7 +101,7 @@ end
 ---@param lifeIcon TextureInfo|nil Use get_texture_info()
 ---@param camScale integer|nil Zooms the camera based on a multiplier (Default 1.0)
 ---@param offset integer|nil Visually offsets the character
-local function character_add_costume(charNum, name, description, credit, color, modelInfo, forceChar, lifeIcon, camScale, offset)
+local function character_edit(charNum, name, description, credit, color, modelInfo, forceChar, lifeIcon, camScale, offset)
     if tonumber(charNum) == nil or charNum > #characterTable or charNum < 0 then return end
     if type(description) == TYPE_STRING then
         description = split_text_into_lines(description)
@@ -120,52 +112,8 @@ local function character_add_costume(charNum, name, description, credit, color, 
     if type(offset) ~= TYPE_INTEGER then
         offset = (forceChar == CT_WALUIGI and 25 or 0)
     end
-    if lifeIcon ~= nil and type(lifeIcon) == TYPE_STRING then
-        lifeIcon = lifeIcon:sub(1,1)
-    end
-    local tableCache = characterTable[charNum][1]
-    table_insert(characterTable[charNum], {
-        name = type(name) == TYPE_STRING and name or tableCache.name,
-        description = type(description) == TYPE_TABLE and description or tableCache.description,
-        credit = type(credit) == TYPE_STRING and credit or tableCache.credit,
-        color = type(color) == TYPE_TABLE and color or tableCache.color,
-        model = (modelInfo and modelInfo ~= E_MODEL_ERROR_MODEL) and modelInfo or tableCache.model,
-        forceChar = type(forceChar) == TYPE_INTEGER and forceChar or tableCache.forceChar,
-        offset = type(offset) == TYPE_INTEGER and offset or tableCache.offset,
-        lifeIcon = (type(lifeIcon) == TYPE_TABLE or type(lifeIcon) == TYPE_TEX_INFO or type(lifeIcon) == TYPE_STRING) and lifeIcon or tableCache.lifeIcon,
-        starIcon = tableCache.starIcon, -- Done to prevent it getting lost in the sauce
-        camScale = type(camScale) == TYPE_INTEGER and camScale or tableCache.camScale,
-    })
-    return #characterTable[charNum]
-end
-
----@param charNum integer Use _G.charSelect.character_get_number_from_string() or _G.charSelect.character_add()'s return value
----@param charAlt integer 
----@param name string|nil Underscores turn into Spaces
----@param description table|string|nil {"string"}
----@param credit string|nil
----@param color Color|nil {r, g, b}
----@param modelInfo ModelExtendedId|integer|nil Use smlua_model_util_get_id()
----@param forceChar integer|CharacterType|nil CT_MARIO, CT_LUIGI, CT_TOAD, CT_WALUIGI, CT_WARIO
----@param lifeIcon TextureInfo|nil Use get_texture_info()
----@param camScale integer|nil Zooms the camera based on a multiplier (Default 1.0)
----@param offset integer|nil Visually offsets the character
-local function character_edit_costume(charNum, charAlt, name, description, credit, color, modelInfo, forceChar, lifeIcon, camScale, offset)
-    if tonumber(charNum) == nil or charNum > #characterTable or charNum < 0 then return end
-    if type(description) == TYPE_STRING then
-        description = split_text_into_lines(description)
-    end
-    if type(color) == TYPE_STRING then
-        color = {r = tonumber(color:sub(1,2), 16), g = tonumber(color:sub(3,4), 16), b = tonumber(color:sub(5,6), 16) }
-    end
-    if type(offset) ~= TYPE_INTEGER then
-        offset = (forceChar == CT_WALUIGI and 25 or 0)
-    end
-    if lifeIcon ~= nil and type(lifeIcon) == TYPE_STRING then
-        lifeIcon = lifeIcon:sub(1,1)
-    end
-    local tableCache = characterTable[charNum][charAlt]
-    characterTable[charNum][charAlt] = characterTable[charNum][charAlt] and {
+    local tableCache = characterTable[charNum]
+    characterTable[charNum] = characterTable[charNum] and {
         name = type(name) == TYPE_STRING and name or tableCache.name,
         saveName = saveNameTable[charNum],
         description = type(description) == TYPE_TABLE and description or tableCache.description,
@@ -174,24 +122,12 @@ local function character_edit_costume(charNum, charAlt, name, description, credi
         model = (modelInfo and modelInfo ~= E_MODEL_ERROR_MODEL) and modelInfo or tableCache.model,
         forceChar = type(forceChar) == TYPE_INTEGER and forceChar or tableCache.forceChar,
         offset = type(offset) == TYPE_INTEGER and offset or tableCache.offset,
-        lifeIcon = (type(lifeIcon) == TYPE_TABLE or type(lifeIcon) == TYPE_TEX_INFO or type(lifeIcon) == TYPE_STRING) and lifeIcon or tableCache.lifeIcon,
+        lifeIcon = type(lifeIcon) == TYPE_TABLE and lifeIcon or tableCache.lifeIcon,
         starIcon = tableCache.starIcon, -- Done to prevent it getting lost in the sauce
         camScale = type(camScale) == TYPE_INTEGER and camScale or tableCache.camScale,
+        healthTexture = tableCache.healthTexture,
+        hasMoveset = tableCache.hasMoveset,
     } or nil
-end
-
----@param charNum integer Use _G.charSelect.character_get_number_from_string() or _G.charSelect.character_add()'s return value
----@param name string|nil Underscores turn into Spaces
----@param description table|string|nil {"string"}
----@param credit string|nil
----@param color Color|nil {r, g, b}
----@param modelInfo ModelExtendedId|integer|nil Use smlua_model_util_get_id()
----@param forceChar integer|CharacterType|nil CT_MARIO, CT_LUIGI, CT_TOAD, CT_WALUIGI, CT_WARIO
----@param lifeIcon TextureInfo|nil Use get_texture_info()
----@param camScale integer|nil Zooms the camera based on a multiplier (Default 1.0)
----@param offset integer|nil Visually offsets the character
-local function character_edit(charNum, name, description, credit, color, modelInfo, forceChar, lifeIcon, camScale, offset)
-    character_edit_costume(charNum, 1, name, description, credit, color, modelInfo, forceChar, lifeIcon, camScale, offset)
 end
 
 ---@param modelInfo ModelExtendedId|integer
@@ -220,11 +156,9 @@ end
 local function character_add_celebration_star(modelInfo, starModel, starIcon)
     characterCelebrationStar[modelInfo] = starModel
     for i = 2, #characterTable do
-        for a = 1, #characterTable[i] do 
-            if characterTable[i][a].model == modelInfo then
-                characterTable[i][a].starIcon = type(starIcon) == TYPE_TABLE and starIcon or gTextures.star
-                return
-            end
+        if characterTable[i].model == modelInfo then
+            characterTable[i].starIcon = type(starIcon) == TYPE_TABLE and starIcon or gTextures.star
+            return
         end
     end
     return false
@@ -259,12 +193,10 @@ local function character_add_animations(modelInfo, animTable)
 end
 
 ---@param tablePos integer|nil
----@param charAlt integer|nil
 ---@return CharacterTable
-local function character_get_current_table(tablePos, charAlt)
+local function character_get_current_table(tablePos)
     tablePos = tablePos and tablePos or currChar
-    charAlt = charAlt and charAlt or 1
-    return characterTable[tablePos][charAlt]
+    return characterTable[tablePos]
 end
 
 --- @param localIndex integer|nil
@@ -282,21 +214,6 @@ local function character_get_current_number(localIndex)
     end
 end
 
---- @param localIndex integer|nil
---- @return integer|nil
-local function character_get_current_costume(localIndex)
-    if localIndex == nil or localIndex == 0 then
-        return characterTable[currChar].currAlt
-    else
-        for i = 1, #characterTable do
-            if characterTable[i].saveName == gPlayerSyncTable[localIndex].saveName then
-                return characterTable[i].currAlt
-            end
-        end
-        return nil
-    end
-end
-
 ---@param charNum integer|nil
 local function character_set_current_number(charNum)
     if type(charNum) ~= TYPE_INTEGER or characterTable[charNum] == nil then return end
@@ -308,10 +225,8 @@ end
 local function character_get_number_from_string(name)
     if type(name) ~= TYPE_STRING then return nil end
     for i = 2, #characterTable do
-        for a = 1, #characterTable[i] do
-            if characterTable[i][a].name == name or characterTable[i][a].name == string_space_to_underscore(name) then
-                return i
-            end
+        if characterTable[i].name == name or characterTable[i].name == string_space_to_underscore(name) then
+            return i
         end
     end
     return nil
@@ -341,17 +256,7 @@ end
 
 ---@return string
 local function version_get()
-    return MOD_VERSION_STRING
-end
-
----@return table
-local function version_get_full()
-    return {
-        api = MOD_VERSION_API,
-        major = MOD_VERSION_MAJOR,
-        minor = MOD_VERSION_MINOR,
-        indev = MOD_VERSION_INDEV
-    }
+    return MOD_VERSION
 end
 
 ---@return boolean
@@ -494,9 +399,7 @@ _G.charSelectExists = true
 _G.charSelect = {
     -- Character Functions --
     character_add = character_add,
-    character_add_costume = character_add_costume,
     character_edit = character_edit,
-    character_edit_costume = character_edit_costume,
     character_add_voice = character_add_voice,
     character_add_caps = character_add_caps,
     character_add_celebration_star = character_add_celebration_star,
@@ -505,15 +408,12 @@ _G.charSelect = {
     character_add_animations = character_add_animations,
     character_get_current_table = character_get_current_table,
     character_get_current_number = character_get_current_number,
-    character_get_current_costume = character_get_current_costume,
     character_get_current_model_number = character_get_current_number, -- Outdated function name, Not recommended for use
     character_set_current_number = character_set_current_number,
     character_get_number_from_string = character_get_number_from_string,
     character_get_voice = character_get_voice,
     character_get_life_icon = life_icon_from_local_index, -- Function located in n-hud.lua
-    character_render_life_icon = render_life_icon_from_local_index, -- Function located in n-hud.lua
     character_get_star_icon = star_icon_from_local_index, -- Function located in n-hud.lua
-    character_render_star_icon = render_star_icon_from_local_index, -- Function located in n-hud.lua
     character_set_locked = character_set_locked,
 
     -- Hud Element Functions --
@@ -524,7 +424,6 @@ _G.charSelect = {
     -- Menu Functions --
     header_set_texture = header_set_texture, -- Function located in main.lua
     version_get = version_get,
-    version_get_full = version_get_full,
     is_menu_open = is_menu_open,
     set_menu_open = set_menu_open,
     is_options_open = is_options_open,

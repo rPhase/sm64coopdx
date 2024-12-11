@@ -2,16 +2,12 @@
 local string_lower,string_format,table_insert,get_date_and_time = string.lower,string.format,table.insert,get_date_and_time
 
 if VERSION_NUMBER < 37 then
-    djui_popup_create("\n\\#FFAAAA\\Character Select requires\n the latest version of CoopDX to use!\n\nYou can find CoopDX here:\n\\#6666FF\\https://sm64coopdx.com", 5)
+    djui_popup_create("\n\\#FFAAAA\\Character Select requires\n CoopDX v1 or higher use!\n\nYou can find CoopDX here:\n\\#6666FF\\https://sm64coopdx.com", 5)
     incompatibleClient = true
     return 0
 end
 
-MOD_VERSION_API = 1
-MOD_VERSION_MAJOR = 11
-MOD_VERSION_MINOR = 0
-MOD_VERSION_INDEV = false
-MOD_VERSION_STRING = tostring(MOD_VERSION_API) .. "." .. tostring(MOD_VERSION_MAJOR) .. (MOD_VERSION_MINOR > 0 and ("." .. tostring(MOD_VERSION_MINOR)) or "") .. (MOD_VERSION_INDEV and " (In-Dev)" or "")
+MOD_VERSION = "1.10"
 
 ommActive = false
 for i in pairs(gActiveMods) do
@@ -129,12 +125,13 @@ end
 
 stopMovesets = false
 
-seasonalEvent = 0
 SEASON_EVENT_BIRTHDAY = 1
 SEASON_EVENT_CHRISTMAS = 2
+
+seasonalEvent = 0
 -- December
-if get_date_and_time().month == 11 then
-    if get_date_and_time().day == 3 then
+if get_date_and_time().month == 12 then
+    if get_date_and_time()().days == 3 then
         -- Character Select's Birthday
         seasonalEvent = SEASON_EVENT_BIRTHDAY
     else

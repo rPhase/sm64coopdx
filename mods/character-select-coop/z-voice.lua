@@ -57,17 +57,13 @@ end
     end
 end]]
 
-local playerSample = {}
-for i = 0, MAX_PLAYERS - 1 do
-    playerSample[i] = nil
-end
+local sample = nil
 
 --- @param m MarioState
 --- @param sound CharacterSound
 local function custom_character_sound(m, sound)
-    local index = m.playerIndex
-    if playerSample[index] ~= nil then
-        audio_sample_stop(playerSample[index])
+    if sample ~= nil then
+        audio_sample_stop(sample)
     end
     if optionTable[optionTableRef.localVoices].toggle == 0 then return NO_SOUND end
 
@@ -83,7 +79,7 @@ local function custom_character_sound(m, sound)
     -- get the sample to play
     local voice = voiceTable[sound]
     if voice == nil then return NO_SOUND end
-    playerSample[index] = voice
+    sample = voice
     -- if there's no pointer then it must be a sound clip table
     if voice._pointer == nil then
         -- run through each sample and load in any samples that haven't been loaded
@@ -93,14 +89,14 @@ local function custom_character_sound(m, sound)
             end
         end
         -- choose a random sample
-        playerSample[index] = voice[math_random(#voice)]
+        sample = voice[math_random(#voice)]
     end
 
     -- play the sample
     if sound == CHAR_SOUND_SNORING1 or sound == CHAR_SOUND_SNORING2 or sound == CHAR_SOUND_SNORING3 then
-        audio_sample_play(playerSample[index], m.pos, 0.5)
+        audio_sample_play(sample, m.pos, 0.5)
     else
-        audio_sample_play(playerSample[index], m.pos, 1.0)
+        audio_sample_play(sample, m.pos, 1.0)
     end
     return NO_SOUND
 end
