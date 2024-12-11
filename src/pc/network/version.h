@@ -3,19 +3,9 @@
 
 #define SM64COOPDX_VERSION "v1.0.4"
 
-// #define PLATFORM_COMPAT
 
-#ifdef PLATFORM_COMPAT
-    extern char *gameVersionChoices[];
-
-    // internal version
-    #define MAX_PLATFORM_VERSION 3
-    #define VERSION_TEXT gameVersionChoices[configGameVersion]
-#else
-    // internal version
-    #define MAX_PLATFORM_VERSION 3
-    #define VERSION_TEXT "v"
-#endif
+// internal version
+#define VERSION_TEXT "v"
 
 #define VERSION_NUMBER 37
 #define MINOR_VERSION_NUMBER 3

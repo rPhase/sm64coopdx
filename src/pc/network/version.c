@@ -6,14 +6,6 @@
 static char sVersionString[MAX_VERSION_LENGTH] = { 0 };
 static char sOnlineVersionString[MAX_VERSION_LENGTH] = { 0 };
 
-#ifdef PLATFORM_COMPAT
-char *gameVersionChoices[MAX_PLATFORM_VERSION] = {
-    "PC",
-    "Android",
-    "All"
-};
-#endif
-
 const char* get_version(void) {
 #if defined(VERSION_US)
     snprintf(sVersionString, MAX_VERSION_LENGTH, "%s", SM64COOPDX_VERSION);

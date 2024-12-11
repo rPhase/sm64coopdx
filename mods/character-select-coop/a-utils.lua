@@ -2,12 +2,16 @@
 local string_lower,string_format,table_insert,get_date_and_time = string.lower,string.format,table.insert,get_date_and_time
 
 if VERSION_NUMBER < 37 then
-    djui_popup_create("\n\\#FFAAAA\\Character Select requires\n CoopDX v1 or higher use!\n\nYou can find CoopDX here:\n\\#6666FF\\https://sm64coopdx.com", 5)
+    djui_popup_create("\n\\#FFAAAA\\Character Select requires\n the latest version of CoopDX to use!\n\nYou can find CoopDX here:\n\\#6666FF\\https://sm64coopdx.com", 5)
     incompatibleClient = true
     return 0
 end
 
-MOD_VERSION = "1.10"
+MOD_VERSION_API = 1
+MOD_VERSION_MAJOR = 11
+MOD_VERSION_MINOR = 2
+MOD_VERSION_INDEV = false
+MOD_VERSION_STRING = tostring(MOD_VERSION_API) .. "." .. tostring(MOD_VERSION_MAJOR) .. (MOD_VERSION_MINOR > 0 and ("." .. tostring(MOD_VERSION_MINOR)) or "") .. (MOD_VERSION_INDEV and " (In-Dev)" or "")
 
 ommActive = false
 for i in pairs(gActiveMods) do
@@ -125,13 +129,12 @@ end
 
 stopMovesets = false
 
+seasonalEvent = 0
 SEASON_EVENT_BIRTHDAY = 1
 SEASON_EVENT_CHRISTMAS = 2
-
-seasonalEvent = 0
 -- December
-if get_date_and_time().month == 12 then
-    if get_date_and_time()().days == 3 then
+if get_date_and_time().month == 11 then
+    if get_date_and_time().day == 3 then
         -- Character Select's Birthday
         seasonalEvent = SEASON_EVENT_BIRTHDAY
     else
@@ -139,3 +142,34 @@ if get_date_and_time().month == 12 then
         seasonalEvent = SEASON_EVENT_CHRISTMAS
     end
 end
+
+-- Dedicated Networking Table for Character Select
+gCSPlayers = {}
+for i = 0, MAX_PLAYERS - 1 do
+    gCSPlayers[i] = {
+        index = network_global_index_from_local(i),
+        saveName = "Default",
+        currAlt = 1,
+        presetPalette = 0,
+        offset = 0,
+        forceChar = 0,
+        modelId = E_MODEL_MARIO,
+        isUpdating = false,
+    }
+end
+
+local stallPacket = 0
+local function update()
+    stallPacket = (stallPacket+1)%5 -- refresh rate (to reduce stress)
+    if stallPacket == 0 then
+        network_send(false, gCSPlayers[0])
+    end
+end
+
+local function on_packet_recieve(data)
+    local index = network_local_index_from_global(data.index)
+    gCSPlayers[index] = data
+end
+
+hook_event(HOOK_ON_PACKET_RECEIVE, on_packet_recieve)
+hook_event(HOOK_UPDATE, update)
