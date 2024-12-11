@@ -249,10 +249,7 @@ local function character_add_palette_preset(modelInfo, paletteTable)
             paletteTableOut[i].b = (type(color) == TYPE_TABLE and color.b ~= nil) and color.b or defaultColors[i].b
         end
     end
-    if characterColorPresets[modelInfo] == nil then
-        characterColorPresets[modelInfo] = {}
-    end
-    table_insert(characterColorPresets[modelInfo], paletteTableOut)
+    characterColorPresets[modelInfo] = paletteTableOut
 end
 
 ---@param modelInfo ModelExtendedId|integer
@@ -270,11 +267,6 @@ local function character_get_current_table(tablePos, charAlt)
     return characterTable[tablePos][charAlt]
 end
 
----@return table
-local function character_get_full_table()
-    return characterTable
-end
-
 --- @param localIndex integer|nil
 --- @return integer|nil
 local function character_get_current_number(localIndex)
@@ -282,7 +274,7 @@ local function character_get_current_number(localIndex)
         return currChar
     else
         for i = 1, #characterTable do
-            if characterTable[i].saveName == gCSPlayers[localIndex].saveName then
+            if characterTable[i].saveName == gPlayerSyncTable[localIndex].saveName then
                 return i
             end
         end
@@ -297,7 +289,7 @@ local function character_get_current_costume(localIndex)
         return characterTable[currChar].currAlt
     else
         for i = 1, #characterTable do
-            if characterTable[i].saveName == gCSPlayers[localIndex].saveName then
+            if characterTable[i].saveName == gPlayerSyncTable[localIndex].saveName then
                 return characterTable[i].currAlt
             end
         end
@@ -327,7 +319,7 @@ end
 
 ---@param m MarioState
 function character_get_voice(m)
-    return characterVoices[gCSPlayers[m.playerIndex].modelId]
+    return characterVoices[gPlayerSyncTable[m.playerIndex].modelId]
 end
 
 ---@param charNum integer|nil
@@ -512,7 +504,6 @@ _G.charSelect = {
     character_add_palette_preset = character_add_palette_preset,
     character_add_animations = character_add_animations,
     character_get_current_table = character_get_current_table,
-    character_get_full_table = character_get_full_table,
     character_get_current_number = character_get_current_number,
     character_get_current_costume = character_get_current_costume,
     character_get_current_model_number = character_get_current_number, -- Outdated function name, Not recommended for use
@@ -552,7 +543,6 @@ _G.charSelect = {
     -- Tables --
     optionTableRef = optionTableRef,
     controller = controller,
-    gCSPlayers = gCSPlayers,
 
     -- Custom Hooks --
     hook_allow_menu_open = hook_allow_menu_open,
