@@ -313,7 +313,7 @@ static void controller_sdl_rumble_play(f32 strength, f32 length) {
 #else
     if (sdl_haptic)
         SDL_HapticRumblePlay(sdl_haptic, strength, (u32)(length * 1000.0f));
-#endif    
+#endif
 }
 
 static void controller_sdl_rumble_stop(void) {
