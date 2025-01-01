@@ -1,4 +1,4 @@
-/*#include <stdio.h>
+#include <stdio.h>
 #include "smlua.h"
 #include "data/dynos_cmap.cpp.h"
 
@@ -33,4 +33,3 @@ CObject *smlua_pointer_user_data_get(uintptr_t pointer) {
     if (pointer == 0) { return NULL; }
     return hmap_get(sPointers, pointer);
 }
-*/
