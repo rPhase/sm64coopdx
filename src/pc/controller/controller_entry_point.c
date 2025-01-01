@@ -14,13 +14,13 @@
 // moved these from sdl controller implementations
 
 static struct ControllerAPI *controller_implementations[] = {
-    #if defined(CAPI_SDL2) || defined(CAPI_SDL1)
+#if defined(CAPI_SDL2) || defined(CAPI_SDL1)
     &controller_sdl,
-    #endif
+#endif
     &controller_keyboard,
-    #ifdef TOUCH_CONTROLS
+#ifdef TOUCH_CONTROLS
     &controller_touchscreen,
-    #endif
+#endif
 };
 
 s32 osContInit(UNUSED OSMesgQueue *mq, u8 *controllerBits, UNUSED OSContStatus *status) {

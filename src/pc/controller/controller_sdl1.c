@@ -42,9 +42,7 @@ enum {
     MAX_AXES,
 };
 
-#ifdef BETTERCAMERA
 extern u8 newcam_mouse;
-#endif
 
 static bool init_ok;
 static SDL_Joystick *sdl_joy;
@@ -127,15 +125,15 @@ static void controller_sdl_init(void) {
                 joy_axis_binds[i] = -1;
     }
 
-#ifdef BETTERCAMERA
-    if (newcam_mouse == 1)
-        SDL_WM_GrabInput(SDL_GRAB_ON);
-    SDL_GetRelativeMouseState(&mouse_x, &mouse_y);
-#endif
+    if (newcam_mouse == 1 && gMenuMode == -1 && !gDjuiChatBoxFocus && !gDjuiConsoleFocus) {
+        controller_mouse_enter_relative();
+    }
+    controller_mouse_read_relative();
 
     controller_sdl_bind();
 
     init_ok = true;
+    mouse_init_ok = true;
 }
 
 static inline void update_button(const int i, const bool new) {
@@ -151,16 +149,19 @@ static inline int16_t get_axis(const int i) {
         return 0;
 }
 
+extern s16 gMenuMode;
 static void controller_sdl_read(OSContPad *pad) {
     if (!init_ok) return;
 
-#ifdef BETTERCAMERA
-    if (newcam_mouse == 1 && sCurrPlayMode != 2)
-        SDL_WM_GrabInput(SDL_GRAB_ON);
-    else
-        SDL_WM_GrabInput(SDL_GRAB_OFF);
-    
-    u32 mouse = SDL_GetRelativeMouseState(&mouse_x, &mouse_y);
+    if (newcam_mouse == 1 && gMenuMode == -1 && !gDjuiChatBoxFocus && !gDjuiConsoleFocus) {
+        controller_mouse_enter_relative();
+    } else {
+        controller_mouse_leave_relative();
+    }
+
+    u32 mouse_prev = mouse_buttons;
+    controller_mouse_read_relative();
+    u32 mouse = mouse_buttons;
 
     if (!gInteractableOverridePad) {
         for (u32 i = 0; i < num_mouse_binds; ++i)
@@ -169,10 +170,9 @@ static void controller_sdl_read(OSContPad *pad) {
     }
 
     // remember buttons that changed from 0 to 1
-    last_mouse = (mouse_buttons ^ mouse) & mouse;
-    mouse_buttons = mouse;
-#endif
+    last_mouse = (mouse_prev ^ mouse) & mouse;
 
+    if (configDisableGamepads) { return; }
     if (!sdl_joy) return;
 
     SDL_JoystickUpdate();
@@ -283,6 +283,7 @@ static void controller_sdl_shutdown(void) {
     }
 
     init_ok = false;
+    mouse_init_ok = false;
 }
 
 struct ControllerAPI controller_sdl = {

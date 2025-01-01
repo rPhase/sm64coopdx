@@ -11,7 +11,7 @@ static bool mouse_relative_prev_cursor_state;
 #include <SDL2/SDL.h>
 #endif
 
-s32 mouse_init_ok;
+bool mouse_init_ok;
 
 u32 mouse_buttons;
 s32 mouse_x;
@@ -21,7 +21,7 @@ u32 mouse_window_buttons;
 s32 mouse_window_x;
 s32 mouse_window_y;
 
-s32 mouse_relative_enabled;
+bool mouse_relative_enabled;
 
 void controller_mouse_read_window(void) {
     if (!mouse_init_ok) { return; }
@@ -75,7 +75,7 @@ void controller_mouse_read_relative(void) {
 
 void controller_mouse_enter_relative(void) {
     if (!mouse_relative_enabled) {
-        mouse_relative_enabled = TRUE;
+        mouse_relative_enabled = true;
 
 #if defined(WAPI_DXGI)
         CURSORINFO ci;
@@ -97,7 +97,7 @@ void controller_mouse_enter_relative(void) {
 
 void controller_mouse_leave_relative(void) {
     if (mouse_relative_enabled) {
-        mouse_relative_enabled = FALSE;
+        mouse_relative_enabled = false;
 
 #if defined(WAPI_DXGI)
         ShowCursor(mouse_relative_prev_cursor_state);

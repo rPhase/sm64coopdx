@@ -6,6 +6,10 @@
 #define FOR_WINDOWS 0
 #endif
 
+#if defined(_WIN32) || defined(_WIN64)
+#include <windows.h>
+#endif
+
 #include <SDL/SDL.h>
 
 #include <stdio.h>
@@ -18,8 +22,8 @@
 #include "../cliopts.h"
 #include "../platform.h"
 
-#include "src/pc/controller/controller_keyboard.h"
-#include "src/pc/controller/controller_bind_mapping.h"
+#include "pc/controller/controller_keyboard.h"
+#include "pc/controller/controller_bind_mapping.h"
 
 // TODO: figure out if this shit even works
 #ifdef VERSION_EU
@@ -91,6 +95,10 @@ static void gfx_sdl_set_mode(void) {
 }
 
 static void gfx_sdl_init(const char *window_title) {
+#if defined(_WIN32) || defined(_WIN64)
+    SetProcessDPIAware();
+#endif
+
     if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER) != 0)
         sys_fatal("Could not init SDL1 video: %s\n", SDL_GetError());
 
@@ -184,15 +192,27 @@ static int gfx_sdl_get_max_msaa(void) {
     return 0;
 }
 
+static void gfx_sdl_set_window_title(const char* title) {
+    SDL_WM_SetCaption(title, NULL);
+}
+
+static void gfx_sdl_reset_window_title(void) {
+    SDL_WM_SetCaption(TITLE, NULL);
+}
+
 static void gfx_sdl_shutdown(void) {
     if (SDL_WasInit(0))
         SDL_Quit();
 }
 
+static bool gfx_sdl_has_focus(void) {
+    return SDL_GetAppState() & SDL_APPINPUTFOCUS;
+}
+
 static void gfx_sdl_start_text_input(void) { return; }
 static void gfx_sdl_stop_text_input(void) { return; }
-static char* gfx_sdl_get_clipboard_text(void) { return NULL; }
-static void gfx_sdl_set_clipboard_text(char* text) { return; }
+static char* gfx_sdl_get_clipboard_text(void) { return ""; }
+static void gfx_sdl_set_clipboard_text(UNUSED const char* text) { return; }
 static void gfx_sdl_set_cursor_visible(bool visible) { SDL_ShowCursor(visible ? SDL_ENABLE : SDL_DISABLE); }
 
 struct GfxWindowManagerAPI gfx_sdl = {
@@ -213,6 +233,9 @@ struct GfxWindowManagerAPI gfx_sdl = {
     gfx_sdl_set_cursor_visible,
     gfx_sdl_delay,
     gfx_sdl_get_max_msaa,
+    gfx_sdl_set_window_title,
+    gfx_sdl_reset_window_title,
+    gfx_sdl_has_focus
 };
 
 #endif // BACKEND_WM
