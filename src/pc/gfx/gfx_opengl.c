@@ -67,7 +67,9 @@ static struct ShaderProgram shader_program_pool[CC_MAX_SHADERS];
 static uint8_t shader_program_pool_size = 0;
 static uint8_t shader_program_pool_index = 0;
 static GLuint opengl_vbo;
+#ifndef TARGET_ANDROID
 static GLuint opengl_vao;
+#endif
 
 static int tex_cache_size = 0;
 static int num_textures = 0;
@@ -709,11 +711,12 @@ static void gfx_opengl_init(void) {
     
     glBindBuffer(GL_ARRAY_BUFFER, opengl_vbo);
 
+#ifndef TARGET_ANDROID
     if (vmajor >= 3 && !is_es) {
         glGenVertexArrays(1, &opengl_vao);
         glBindVertexArray(opengl_vao);
     }
-    
+#endif
     glDepthFunc(GL_LEQUAL);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 }
