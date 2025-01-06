@@ -8,7 +8,7 @@
 /* Platform-specific functions and whatnot */
 
 #ifdef TARGET_ANDROID
-#define ANDROID_APPNAME "com.maniscat2.sm64coopdx"
+#define ANDROID_APPNAME "com.owokitty.sm64excoop"
 #endif
 
 #define SYS_MAX_PATH 4096 // FIXME: define this on different platforms
@@ -31,8 +31,7 @@ bool sys_windows_short_path_from_wcs(char *destPath, size_t destSize, const wcha
 bool sys_windows_short_path_from_mbs(char* destPath, size_t destSize, const char *mbsLongPath);
 #endif
 const char *sys_user_path(void);
-const char *sys_exe_path_dir(void);
-const char *sys_exe_path_file(void);
+const char *sys_exe_path(void);
 const char *sys_file_extension(const char *fpath);
 const char *sys_file_name(const char *fpath);
 void sys_swap_backslashes(char* buffer);
