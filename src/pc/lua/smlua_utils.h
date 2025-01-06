@@ -17,9 +17,6 @@ bool smlua_is_table_empty(int index);
 
 bool smlua_to_boolean(lua_State* L, int index);
 lua_Integer smlua_to_integer(lua_State* L, int index);
-#ifdef __ANDROID__
-u64 smlua_to_unsigned_integer(lua_State* L, int index);
-#endif
 lua_Number smlua_to_number(lua_State* L, int index);
 const char* smlua_to_string(lua_State* L, int index);
 LuaFunction smlua_to_lua_function(lua_State* L, int index);
@@ -57,5 +54,6 @@ void smlua_logline(void);
 void smlua_dump_stack(void);
 void smlua_dump_globals(void);
 void smlua_dump_table(int index);
+void smlua_free(void *ptr);
 
 #endif

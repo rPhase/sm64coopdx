@@ -328,48 +328,38 @@ struct LuaObjectField* smlua_get_custom_field(lua_State* L, u32 lot, int keyInde
 /////////////////////
 
 static int smlua__get_field(lua_State* L) {
-    LUA_STACK_CHECK_BEGIN();
-    if (!smlua_functions_valid_param_count(L, 4)) { return 0; }
+    LUA_STACK_CHECK_BEGIN_NUM(1);
 
-    enum LuaObjectType lot = smlua_to_integer(L, 1);
-    if (!gSmLuaConvertSuccess) { return 0; }
+    const CObject *cobj = lua_touserdata(L, 1);
+    enum LuaObjectType lot = cobj->lot;
+    u64 pointer = (u64)(intptr_t) cobj->pointer;
 
-    // On Android 11+ on aarch64 CPUs, the memory allocator sometimes creates pointers
-    // containing very large addresses, which were not correctly cast from signed to unsigned
-    // at this line. For example, 0xB4000076C685D3B0 became 0xB4000076C685D400; the
-    // 10 LSB lose precision. To fix this, I explicitly cast in increasingly verbose
-    // ways until the value stopped losing precision:
-#ifdef __ANDROID__
-    u64 pointer = smlua_to_unsigned_integer(L, 2);
-#else
-    u64 pointer = smlua_to_integer(L, 2);
-#endif
-    if (!gSmLuaConvertSuccess) { return 0; }
-
-    const char* key = smlua_to_string(L, 3);
-    if (!gSmLuaConvertSuccess) {
+    const char *key = lua_tostring(L, 2);
+    if (!key) {
         LOG_LUA_LINE("Tried to get a non-string field of cobject");
         return 0;
     }
 
-    if (pointer == 0) {
-        LOG_LUA_LINE("_get_field on null pointer");
-        return 0;
+    // Legacy support
+    if (key[0] == '_') {
+        if (strcmp(key, "_lot") == 0) {
+            lua_pushinteger(L, lot);
+            return 1;
+        }
+        if (strcmp(key, "_pointer") == 0) {
+            lua_pushinteger(L, pointer);
+            return 1;
+        }
     }
 
-    if (!smlua_valid_lot(lot)) {
-        LOG_LUA_LINE("_get_field on invalid LOT '%u'", lot);
-        return 0;
-    }
-
-    if (!smlua_cobject_allowlist_contains(lot, pointer)) {
-        LOG_LUA_LINE("_get_field received a pointer not in allow list. '%u', '%llu", lot, (u64)pointer);
+    if (cobj->freed) {
+        LOG_LUA_LINE("_get_field on freed object");
         return 0;
     }
 
     struct LuaObjectField* data = smlua_get_object_field(lot, key);
     if (data == NULL) {
-        data = smlua_get_custom_field(L, lot, 3);
+        data = smlua_get_custom_field(L, lot, 2);
     }
     if (data == NULL) {
         LOG_LUA_LINE("_get_field on invalid key '%s', lot '%d'", key, lot);
@@ -426,42 +416,25 @@ static int smlua__get_field(lua_State* L) {
 
 static int smlua__set_field(lua_State* L) {
     LUA_STACK_CHECK_BEGIN();
-    if (!smlua_functions_valid_param_count(L, 5)) { return 0; }
 
-    enum LuaObjectType lot = smlua_to_integer(L, 1);
-    if (!gSmLuaConvertSuccess) { return 0; }
+    const CObject *cobj = lua_touserdata(L, 1);
+    enum LuaObjectType lot = cobj->lot;
+    u64 pointer = (u64)(intptr_t) cobj->pointer;
 
-#ifdef __ANDROID__
-    u64 pointer = smlua_to_unsigned_integer(L, 2);
-#else
-    u64 pointer = smlua_to_integer(L, 2);
-#endif
-    if (!gSmLuaConvertSuccess) { return 0; }
-
-    const char* key = smlua_to_string(L, 3);
-    if (!gSmLuaConvertSuccess) {
+    const char *key = lua_tostring(L, 2);
+    if (!key) {
         LOG_LUA_LINE("Tried to set a non-string field of cobject");
         return 0;
     }
 
-    if (pointer == 0) {
-        LOG_LUA_LINE("_set_field on null pointer");
-        return 0;
-    }
-
-    if (!smlua_valid_lot(lot)) {
-        LOG_LUA_LINE("_set_field on invalid LOT '%u'", lot);
-        return 0;
-    }
-
-    if (!smlua_cobject_allowlist_contains(lot, pointer)) {
-        LOG_LUA_LINE("_set_field received a pointer not in allow list. '%u', '%llu", lot, (u64)pointer);
+    if (cobj->freed) {
+        LOG_LUA_LINE("_set_field on freed object");
         return 0;
     }
 
     struct LuaObjectField* data = smlua_get_object_field(lot, key);
     if (data == NULL) {
-        data = smlua_get_custom_field(L, lot, 3);
+        data = smlua_get_custom_field(L, lot, 2);
     }
 
     if (data == NULL) {
@@ -477,18 +450,18 @@ static int smlua__set_field(lua_State* L) {
     void* valuePointer = NULL;
     u8* p = ((u8*)(intptr_t)pointer) + data->valueOffset;
     switch (data->valueType) {
-        case LVT_BOOL:*(u8*) p = smlua_to_boolean(L, 4); break;
-        case LVT_U8:  *(u8*) p = smlua_to_integer(L, 4); break;
-        case LVT_U16: *(u16*)p = smlua_to_integer(L, 4); break;
-        case LVT_U32: *(u32*)p = smlua_to_integer(L, 4); break;
-        case LVT_S8:  *(s8*) p = smlua_to_integer(L, 4); break;
-        case LVT_S16: *(s16*)p = smlua_to_integer(L, 4); break;
-        case LVT_S32: *(s32*)p = smlua_to_integer(L, 4); break;
-        case LVT_F32: *(f32*)p = smlua_to_number(L, 4);  break;
-        case LVT_U64: *(s64*)p = smlua_to_integer(L, 4); break;
+        case LVT_BOOL:*(u8*) p = smlua_to_boolean(L, 3); break;
+        case LVT_U8:  *(u8*) p = smlua_to_integer(L, 3); break;
+        case LVT_U16: *(u16*)p = smlua_to_integer(L, 3); break;
+        case LVT_U32: *(u32*)p = smlua_to_integer(L, 3); break;
+        case LVT_S8:  *(s8*) p = smlua_to_integer(L, 3); break;
+        case LVT_S16: *(s16*)p = smlua_to_integer(L, 3); break;
+        case LVT_S32: *(s32*)p = smlua_to_integer(L, 3); break;
+        case LVT_F32: *(f32*)p = smlua_to_number(L, 3);  break;
+        case LVT_U64: *(s64*)p = smlua_to_integer(L, 3); break;
 
         case LVT_COBJECT_P:
-            valuePointer = smlua_to_cobject(L, 4, data->lot);
+            valuePointer = smlua_to_cobject(L, 3, data->lot);
             if (gSmLuaConvertSuccess) {
                 *(u8**)p = valuePointer;
             }
@@ -508,7 +481,7 @@ static int smlua__set_field(lua_State* L) {
         case LVT_OBJECTANIMPOINTER_P:
         case LVT_COLLISION_P:
         case LVT_TRAJECTORY_P:
-            valuePointer = smlua_to_cpointer(L, 4, data->valueType);
+            valuePointer = smlua_to_cpointer(L, 3, data->valueType);
             if (gSmLuaConvertSuccess) {
                 *(u8**)p = valuePointer;
             }
@@ -527,12 +500,68 @@ static int smlua__set_field(lua_State* L) {
     return 1;
 }
 
+int smlua__eq(lua_State *L) {
+    const CObject *a = lua_touserdata(L, 1);
+    const CObject *b = lua_touserdata(L, 2);
+    lua_pushboolean(L, a && b && a->lot == b->lot && a->pointer == b->pointer);
+    return 1;
+}
+
+static int smlua_cpointer_get(lua_State* L) {
+    const CPointer *cptr = lua_touserdata(L, 1);
+    const char *key = lua_tostring(L, 2);
+    if (key == NULL) { return 0; }
+
+    // Legacy support
+    if (key[0] == '_') {
+        if (strcmp(key, "_pointer") == 0) {
+            lua_pushinteger(L, (u64)(intptr_t) cptr->pointer);
+            return 1;
+        }
+        if (strcmp(key, "_lot") == 0) {
+            lua_pushinteger(L, cptr->lvt);
+            return 1;
+        }
+    }
+
+    return 0;
+}
+static int smlua_cpointer_set(UNUSED lua_State* L) { return 0; }
+
   //////////
  // bind //
 //////////
 
 void smlua_cobject_init_globals(void) {
     lua_State* L = gLuaState;
+
+    // Create object pools
+    lua_newtable(L);
+    gSmLuaCObjects = luaL_ref(L, LUA_REGISTRYINDEX);
+    lua_newtable(L);
+    gSmLuaCPointers = luaL_ref(L, LUA_REGISTRYINDEX);
+
+    // Create metatables
+    luaL_newmetatable(L, "CObject");
+    luaL_Reg cObjectMethods[] = {
+        { "__index",    smlua__get_field },
+        { "__newindex", smlua__set_field },
+        { "__eq",       smlua__eq },
+        { "__metatable", NULL },
+        { NULL, NULL }
+    };
+    luaL_setfuncs(L, cObjectMethods, 0);
+    gSmLuaCObjectMetatable = luaL_ref(L, LUA_REGISTRYINDEX);
+    luaL_newmetatable(L, "CPointer");
+    luaL_Reg cPointerMethods[] = {
+        { "__index",    smlua_cpointer_get },
+        { "__newindex", smlua_cpointer_set },
+        { "__eq",       smlua__eq },
+        { "__metatable", NULL },
+        { NULL, NULL }
+    };
+    luaL_setfuncs(L, cPointerMethods, 0);
+    gSmLuaCPointerMetatable = luaL_ref(L, LUA_REGISTRYINDEX);
 
 #define EXPOSE_GLOBAL_ARRAY(lot, ptr, iterator) \
     { \
@@ -626,8 +655,4 @@ void smlua_bind_cobject(void) {
     lua_State* L = gLuaState;
 
     smlua_bind_function(L, "define_custom_obj_fields", smlua_func_define_custom_obj_fields);
-
-    smlua_bind_function(L, "_get_field", smlua__get_field);
-    smlua_bind_function(L, "_set_field", smlua__set_field);
-
 }

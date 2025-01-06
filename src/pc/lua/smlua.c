@@ -23,11 +23,7 @@ void smlua_mod_error(void) {
     if (mod == NULL) { mod = gLuaLastHookMod; }
     if (mod == NULL) { return; }
     char txt[255] = { 0 };
-#ifdef TOUCH_CONTROLS
-    snprintf(txt, 254, "'%s' has script errors! Enable the Lua button in Touch Binds to view.", mod->name);
-#else
-    snprintf(txt, 254, "'%s' has script errors!", mod->name);
-#endif
+    snprintf(txt, 254, "'%s\\#ff0000\\' has script errors!", mod->name);
     static const struct DjuiColor color = { 255, 0, 0, 255 };
     djui_lua_error(txt, color);
 }
@@ -285,8 +281,6 @@ static void smlua_load_script(struct Mod* mod, struct ModFile* file, u16 remoteI
 
 void smlua_init(void) {
     smlua_shutdown();
-    smlua_cobject_allowlist_init();
-    smlua_cpointer_allowlist_init();
 
     gLuaState = luaL_newstate();
     lua_State* L = gLuaState;
@@ -320,37 +314,19 @@ void smlua_init(void) {
     mods_size_enforce(&gActiveMods);
     LOG_INFO("Loading scripts:");
     for (int i = 0; i < gActiveMods.entryCount; i++) {
-        // If I remove these 10 preprocessor defines which evalute to conditional prints
-        // and change absolutely nothing else,
-        // some Lua mods trigger a crash at an unknown point 
-        // in smlua_init() if ANY optimization is enabled
-        // on Android 32-bit with only Termux clang, not gradle build
-        // with DEVELOPMENT=0, DEBUG=0 and OPT_LEVEL=-1 evaluating to -O2
-        // on Samsung Galaxy S III SPH-L710 LineageOS 14.1 Android 7.1.2
-        // I can't find the undefined behavior
-        LOG_INFO("smlua 1");
         struct Mod* mod = gActiveMods.entries[i];
         LOG_INFO("    %s", mod->relativePath);
         gLuaLoadingMod = mod;
-        LOG_INFO("smlua 2");
         gLuaActiveMod = mod;
-        LOG_INFO("smlua 3");
         gLuaLastHookMod = mod;
-        LOG_INFO("smlua 4");
         gLuaLoadingMod->customBehaviorIndex = 0;
-        LOG_INFO("smlua 5");
         gPcDebug.lastModRun = gLuaActiveMod;
-        LOG_INFO("smlua 6");
         for (int j = 0; j < mod->fileCount; j++) {
-            LOG_INFO("smlua 7");
             struct ModFile* file = &mod->files[j];
-            LOG_INFO("smlua 8");
-            if (!str_ends_with(file->relativePath, ".lua")) {
+            if (!(str_ends_with(file->relativePath, ".lua") || str_ends_with(file->relativePath, ".luac"))) {
                 continue;
             }
-            LOG_INFO("smlua 9");
             smlua_load_script(mod, file, i);
-            LOG_INFO("smlua 10");
         }
         gLuaActiveMod = NULL;
         gLuaLoadingMod = NULL;
@@ -384,8 +360,6 @@ void smlua_shutdown(void) {
     smlua_text_utils_reset_all();
     smlua_audio_utils_reset_all();
     audio_custom_shutdown();
-    smlua_cobject_allowlist_shutdown();
-    smlua_cpointer_allowlist_shutdown();
     smlua_clear_hooks();
     smlua_model_util_clear();
     smlua_level_util_reset();
