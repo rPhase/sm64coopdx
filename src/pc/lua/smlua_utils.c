@@ -1,5 +1,5 @@
 #include "smlua.h"
-#include "pc/mods/mods.h"
+#include "src/pc/mods/mods.h"
 #include "audio/external.h"
 
 u8 gSmLuaConvertSuccess = false;
@@ -439,17 +439,6 @@ void smlua_push_object(lua_State* L, u16 lot, void* p) {
         lua_pushnil(L);
         return;
     }
-    LUA_STACK_CHECK_BEGIN_NUM(1);
-
-    uintptr_t key = lot ^ (uintptr_t) p;
-    lua_rawgeti(L, LUA_REGISTRYINDEX, gSmLuaCObjects);
-    lua_pushinteger(L, key);
-    lua_gettable(L, -2);
-    if (lua_isuserdata(L, -1)) {
-        lua_remove(L, -2); // Remove gSmLuaCObjects table
-        return;
-    }
-    lua_pop(L, 1);
 
     // add to allowlist
     smlua_cobject_allowlist_add(lot, (u64)(intptr_t) p);
@@ -469,17 +458,6 @@ void smlua_push_pointer(lua_State* L, u16 lvt, void* p) {
         lua_pushnil(L);
         return;
     }
-    LUA_STACK_CHECK_BEGIN_NUM(1);
-
-    uintptr_t key = lvt ^ (uintptr_t) p;
-    lua_rawgeti(L, LUA_REGISTRYINDEX, gSmLuaCPointers);
-    lua_pushinteger(L, key);
-    lua_gettable(L, -2);
-    if (lua_isuserdata(L, -1)) {
-        lua_remove(L, -2); // Remove gSmLuaCPointers table
-        return;
-    }
-    lua_pop(L, 1);
 
     smlua_cpointer_allowlist_add(lvt, (u64)(intptr_t) p);
 
@@ -567,18 +545,6 @@ lua_Number smlua_get_number_field(int index, const char* name) {
     return val;
 }
 
-const char* smlua_get_string_field(int index, const char* name) {
-    if (lua_type(gLuaState, index) != LUA_TTABLE) {
-        LOG_LUA_LINE("smlua_get_string_field received improper type '%d'", lua_type(gLuaState, index));
-        gSmLuaConvertSuccess = false;
-        return 0;
-    }
-    lua_getfield(gLuaState, index, name);
-    const char* val = smlua_to_string(gLuaState, -1);
-    lua_pop(gLuaState, 1);
-    return val;
-}
-
 LuaFunction smlua_get_function_field(int index, const char *name) {
     if (lua_type(gLuaState, index) != LUA_TTABLE) {
         LOG_LUA_LINE("smlua_get_function_field received improper type '%d'", lua_type(gLuaState, index));
@@ -612,7 +578,7 @@ s64 smlua_get_integer_mod_variable(u16 modIndex, const char* variable) {
         LOG_ERROR("Could not find mod list entry for modIndex: %u", modIndex);
         return 0;
     }
-
+    
     u8 prevSuppress = gSmLuaSuppressErrors;
 
     int prevTop = lua_gettop(L);
@@ -668,7 +634,7 @@ LuaFunction smlua_get_function_mod_variable(u16 modIndex, const char *variable) 
         LOG_ERROR("Could not find mod list entry for modIndex: %u", modIndex);
         return 0;
     }
-
+    
     u8 prevSuppress = gSmLuaSuppressErrors;
 
     int prevTop = lua_gettop(L);
@@ -818,7 +784,7 @@ void smlua_logline(void) {
     int level = 0;
     while (lua_getstack(L, level, &info)) {
         lua_getinfo(L, "nSl", &info);
-        LOG_LUA("    [%d] %s:%d -- %s [%s]",
+        LOG_LUA("  [%d] %s:%d -- %s [%s]",
             level, info.short_src, info.currentline,
             (info.name ? info.name : "<unknown>"), info.what);
         ++level;
