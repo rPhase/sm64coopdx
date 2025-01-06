@@ -68,6 +68,7 @@ static kb_callback_t kb_key_down = NULL;
 static kb_callback_t kb_key_up = NULL;
 static void (*kb_all_keys_up)(void) = NULL;
 static void (*kb_text_input)(char*) = NULL;
+static void (*kb_text_editing)(char*, int) = NULL;
 #ifdef TOUCH_CONTROLS
 static void (*touch_down_callback)(void* event);
 static void (*touch_motion_callback)(void* event);
