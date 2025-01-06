@@ -37,7 +37,7 @@ void smlua_cobject_allowlist_add(u16 lot, u64 pointer) {
     sCachedObjectAllowed[m] = pointer;
 
     if (!sObjectAllowList[m]) {
-        sObjectAllowList[m] = hmap_create();
+        sObjectAllowList[m] = hmap_create(true);
     }
 
     if (!hmap_get(sObjectAllowList[m], pointer)) {
@@ -83,7 +83,7 @@ void smlua_cpointer_allowlist_add(u16 lvt, u64 pointer) {
     sCachedPointerAllowed[lvt] = pointer;
 
     if (!sPointerAllowList[lvt]) {
-        sPointerAllowList[lvt] = hmap_create();
+        sPointerAllowList[lvt] = hmap_create(true);
     }
 
     if (!hmap_get(sPointerAllowList[lvt], pointer)) {
