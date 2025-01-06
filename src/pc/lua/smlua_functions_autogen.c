@@ -19677,23 +19677,6 @@ int smlua_func_key_cache_init(UNUSED lua_State* L) {
     return 1;
 }
 
-int smlua_func_mod_storage_exists(lua_State* L) {
-    if (L == NULL) { return 0; }
-
-    int top = lua_gettop(L);
-    if (top != 1) {
-        LOG_LUA_LINE("Improper param count for '%s': Expected %u, Received %u", "mod_storage_exists", 1, top);
-        return 0;
-    }
-
-    const char* key = smlua_to_string(L, 1);
-    if (!gSmLuaConvertSuccess) { LOG_LUA("Failed to convert parameter %u for function '%s'", 1, "mod_storage_exists"); return 0; }
-
-    lua_pushboolean(L, mod_storage_exists(key));
-
-    return 1;
-}
-
 int smlua_func_mod_storage_load(lua_State* L) {
     if (L == NULL) { return 0; }
 
