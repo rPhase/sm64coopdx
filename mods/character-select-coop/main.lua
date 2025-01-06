@@ -751,9 +751,6 @@ local function mario_update(m)
             smlua_anim_util_set_animation(m.marioObj, animID)
         end
     end
-    if forceChar ~= nil then
-        np.overrideModelIndex = forceChar
-    end
 end
 
 local sCapBhvs = {

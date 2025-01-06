@@ -30,20 +30,6 @@ local function check_sound_exists(sound)
     return false
 end
 
-local TYPE_TABLE = "table"
-local TYPE_USERDATA = "userdata"
-local TYPE_STRING = "string"
-local function check_sound_exists(sound)
-    local soundType = type(sound)
-    if soundType == TYPE_TABLE or soundType == TYPE_USERDATA then
-        return true
-    elseif soundType == TYPE_STRING then
-        --return (mod_file_exists(sound) ~= nil)
-        return true
-    end
-    return false
-end
-
 local function stop_all_custom_character_sounds()
     -- run through each player
     for i = 0, MAX_PLAYERS - 1 do

@@ -178,6 +178,7 @@ local function character_edit_costume(charNum, charAlt, name, description, credi
         lifeIcon = (type(lifeIcon) == TYPE_TABLE or type(lifeIcon) == TYPE_TEX_INFO or type(lifeIcon) == TYPE_STRING) and lifeIcon or tableCache.lifeIcon,
         starIcon = tableCache.starIcon, -- Done to prevent it getting lost in the sauce
         camScale = type(camScale) == TYPE_INTEGER and camScale or tableCache.camScale,
+        healthTexture = tableCache.healthTexture,
     } or nil
 end
 
