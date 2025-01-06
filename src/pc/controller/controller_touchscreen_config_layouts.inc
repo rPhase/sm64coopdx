@@ -4,7 +4,7 @@
                    .anchor = {CONTROL_ELEMENT_LEFT,
                               CONTROL_ELEMENT_HIDDEN,
                               CONTROL_ELEMENT_HIDDEN}},
-[TOUCH_CANCEL] =  {.x =      {206, 80 , 80 },
+[TOUCH_DISCARD] =  {.x =      {206, 80 , 80 },
                    .y =      {700, 290, 290},
                    .size =   {120, 120, 120},
                    .anchor = {CONTROL_ELEMENT_LEFT,

@@ -8,7 +8,7 @@
 #define CHAT_BUTTON 0x001C
 #define PLAYERLIST_BUTTON 0x000F
 #define CONFIRM_BUTTON 0x0001
-#define CANCEL_BUTTON 0x0002
+#define DISCARD_BUTTON 0x0002
 #define RESET_BUTTON 0x0003
 #define SNAP_BUTTON 0x0004
 #define CONSOLE_BUTTON 0x0005
@@ -63,7 +63,7 @@ enum ConfigControlElementIndex {
 
 enum ConfigControlConfigElementIndex {
     TOUCH_CONFIRM,
-    TOUCH_CANCEL,
+    TOUCH_DISCARD,
     TOUCH_RESET,
     TOUCH_SNAP,
 };

@@ -712,10 +712,14 @@ extern ALIGNED8 const Texture texture_touch_playerlist[];
 extern ALIGNED8 const Texture texture_touch_playerlist_pressed[];
 extern ALIGNED8 const Texture texture_touch_console[];
 extern ALIGNED8 const Texture texture_touch_console_pressed[];
-extern ALIGNED8 const Texture texture_touch_check[];
-extern ALIGNED8 const Texture texture_touch_cross[];
+extern ALIGNED8 const Texture texture_touch_confirm[];
+extern ALIGNED8 const Texture texture_touch_confirm_pressed[];
+extern ALIGNED8 const Texture texture_touch_discard[];
+extern ALIGNED8 const Texture texture_touch_discard_pressed[];
 extern ALIGNED8 const Texture texture_touch_reset[];
+extern ALIGNED8 const Texture texture_touch_reset_pressed[];
 extern ALIGNED8 const Texture texture_touch_snap[];
+extern ALIGNED8 const Texture texture_touch_snap_pressed[];
 extern ALIGNED8 const Texture texture_touch_trash[];
 #endif
 extern ALIGNED8 const Texture texture_credits_char_3[];

@@ -92,10 +92,10 @@ static struct ControlElement ControlElements[CONTROL_ELEMENT_COUNT] = {
 
 // config-only elements
 static struct ControlElement ControlConfigElements[CONTROL_CONFIG_ELEMENT_COUNT] = {
-[TOUCH_CONFIRM] =    {.type = Button, .buttonTexture = { .buttonUp = TEXTURE_TOUCH_CHECK, .buttonDown = TEXTURE_TOUCH_CHECK },  .buttonID = CONFIRM_BUTTON},
-[TOUCH_CANCEL] =     {.type = Button, .buttonTexture = { .buttonUp = TEXTURE_TOUCH_CROSS, .buttonDown = TEXTURE_TOUCH_CROSS },  .buttonID = CANCEL_BUTTON},
-[TOUCH_RESET] =      {.type = Button, .buttonTexture = { .buttonUp = TEXTURE_TOUCH_RESET, .buttonDown = TEXTURE_TOUCH_RESET },  .buttonID = RESET_BUTTON},
-[TOUCH_SNAP] =       {.type = Button, .buttonTexture = { .buttonUp = TEXTURE_TOUCH_SNAP,  .buttonDown = TEXTURE_TOUCH_SNAP },   .buttonID = SNAP_BUTTON},
+[TOUCH_CONFIRM] =    {.type = Button, .buttonTexture = { .buttonUp = TEXTURE_TOUCH_CONFIRM, .buttonDown = TEXTURE_TOUCH_CONFIRM_PRESSED },  .buttonID = CONFIRM_BUTTON},
+[TOUCH_DISCARD] =    {.type = Button, .buttonTexture = { .buttonUp = TEXTURE_TOUCH_DISCARD, .buttonDown = TEXTURE_TOUCH_DISCARD_PRESSED },  .buttonID = DISCARD_BUTTON},
+[TOUCH_RESET] =      {.type = Button, .buttonTexture = { .buttonUp = TEXTURE_TOUCH_RESET, .buttonDown = TEXTURE_TOUCH_RESET_PRESSED },  .buttonID = RESET_BUTTON},
+[TOUCH_SNAP] =       {.type = Button, .buttonTexture = { .buttonUp = TEXTURE_TOUCH_SNAP,  .buttonDown = TEXTURE_TOUCH_SNAP_PRESSED },   .buttonID = SNAP_BUTTON},
 };
 
 static u32 ControlElementsLength = sizeof(ControlElements)/sizeof(struct ControlElement);
@@ -490,13 +490,12 @@ void render_touch_controls(void) {
             pos = get_pos(&configControlConfigElements[i], 0);
             if (pos.y == HIDE_POS) continue;
             size = configControlConfigElements[i].size[0];
-            select_button_texture(0);
-            if (ControlConfigElements[i].touchID || 
-                (i == TOUCH_SNAP && configElementSnap))
-                select_button_texture(1);
+            if ((ControlElements[i].touchID) || (i == TOUCH_SNAP && configElementSnap)) {
+                select_char_texture(ControlElements[i].buttonTexture.buttonDown);
+            } else {
+                select_char_texture(ControlElements[i].buttonTexture.buttonUp);
+            }
             DrawSprite(pos.x - 8, pos.y, 1 + size / 100);
-            select_char_texture(ControlConfigElements[i].buttonTexture.buttonUp);
-            DrawSprite(pos.x, pos.y, size / 100);
         }
         // trash icon
         select_char_texture(TEXTURE_TOUCH_TRASH);
@@ -536,7 +535,7 @@ static void touchscreen_read(OSContPad *pad) {
                         configfile_save(configfile_name());
                         exit_control_config();
                         break;
-                    case CANCEL_BUTTON:
+                    case DISCARD_BUTTON:
                         ControlConfigElements[i].touchID = 0;
                         for (u32 i = 0; i < CONTROL_ELEMENT_COUNT; i++) {
                             configControlElements[i].x[0] = configControlElementsLast[i].x[0];
