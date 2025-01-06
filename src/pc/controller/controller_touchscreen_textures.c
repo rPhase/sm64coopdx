@@ -211,6 +211,5 @@ const Texture *const touch_textures[TOUCH_TEXTURE_COUNT] = {
     texture_touch_snap,
     texture_touch_snap_pressed,
     texture_touch_trash,
-    texture_touch_trash_pressed,
 }; 
 #endif
