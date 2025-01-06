@@ -84,6 +84,7 @@ struct ServerSettings gServerSettings = {
     .nametags = TRUE,
     .maxPlayers = MAX_PLAYERS,
     .pauseAnywhere = FALSE,
+    .pvpType = PLAYER_PVP_CLASSIC,
 };
 
 struct NametagsSettings gNametagsSettings = {
@@ -130,6 +131,7 @@ bool network_init(enum NetworkType inNetworkType, bool reconnecting) {
     gServerSettings.nametags = configNametags;
     gServerSettings.maxPlayers = configAmountofPlayers;
     gServerSettings.pauseAnywhere = configPauseAnywhere;
+    gServerSettings.pvpType = configPvpType;
 #if defined(RAPI_DUMMY) || defined(WAPI_DUMMY)
     gServerSettings.headlessServer = (inNetworkType == NT_SERVER);
 #else
@@ -142,8 +144,9 @@ bool network_init(enum NetworkType inNetworkType, bool reconnecting) {
     // initialize the network system
     gNetworkSentJoin = false;
     int rc = gNetworkSystem->initialize(inNetworkType, reconnecting);
-    if (!rc) {
+    if (!rc && inNetworkType != NT_NONE) {
         LOG_ERROR("failed to initialize network system");
+        djui_popup_create(DLANG(NOTIF, DISCONNECT_CLOSED), 2);
         return false;
     }
     if (gNetworkServerAddr != NULL) {
@@ -178,7 +181,9 @@ bool network_init(enum NetworkType inNetworkType, bool reconnecting) {
     configfile_save(configfile_name());
 
 #ifdef DISCORD_SDK
-    discord_activity_update();
+    if (gDiscordInitialized) {
+        discord_activity_update();
+    }
 #endif
 
     LOG_INFO("initialized");
@@ -621,6 +626,11 @@ void network_update(void) {
         }
     }*/
 
+    // Kick the player back to the Main Menu if network init failed
+    if ((gNetworkType == NT_NONE) && !gDjuiInMainMenu) {
+        network_reset_reconnect_and_rehost();
+        network_shutdown(true, false, false, false);
+    }
 }
 
 void network_shutdown(bool sendLeaving, bool exiting, bool popup, bool reconnecting) {
@@ -634,13 +644,13 @@ void network_shutdown(bool sendLeaving, bool exiting, bool popup, bool reconnect
     gNetworkSentJoin = false;
 
     network_forget_all_reliable();
-    if (gNetworkType == NT_NONE) { return; }
-    if (gNetworkSystem == NULL) { LOG_ERROR("no network system attached"); return; }
-
-    if (gNetworkPlayerLocal != NULL && sendLeaving) { network_send_leaving(gNetworkPlayerLocal->globalIndex); }
-    network_player_shutdown(popup);
-    gNetworkSystem->shutdown(reconnecting);
-
+    if (gNetworkSystem == NULL) {
+        LOG_ERROR("no network system attached");
+    } else {
+        if (gNetworkPlayerLocal != NULL && sendLeaving) { network_send_leaving(gNetworkPlayerLocal->globalIndex); }
+        network_player_shutdown(popup);
+        gNetworkSystem->shutdown(reconnecting);
+    }
     if (gNetworkServerAddr != NULL) {
         free(gNetworkServerAddr);
         gNetworkServerAddr = NULL;
@@ -692,6 +702,7 @@ void network_shutdown(bool sendLeaving, bool exiting, bool popup, bool reconnect
     gOverrideAllowToxicGasCamera = FALSE;
     gRomhackCameraAllowDpad = FALSE;
     camera_reset_overrides();
+    free_vtx_scroll_targets();
     dynos_mod_shutdown();
     mods_clear(&gActiveMods);
     mods_clear(&gRemoteMods);
@@ -700,7 +711,6 @@ void network_shutdown(bool sendLeaving, bool exiting, bool popup, bool reconnect
     gChangeLevel = LEVEL_CASTLE_GROUNDS;
     network_player_init();
     camera_set_use_course_specific_settings(true);
-    free_vtx_scroll_targets();
     gMarioStates[0].cap = 0;
     gMarioStates[0].input = 0;
     extern s16 gTTCSpeedSetting;
@@ -755,7 +765,9 @@ void network_shutdown(bool sendLeaving, bool exiting, bool popup, bool reconnect
     djui_lua_error_clear();
 
 #ifdef DISCORD_SDK
-    discord_activity_update();
+    if (gDiscordInitialized) {
+        discord_activity_update();
+    }
 #endif
     packet_ordered_clear_all();
 

@@ -9,6 +9,7 @@
 #include "pc/debuglog.h"
 #include "pc/loading.h"
 #include "pc/fs/fmem.h"
+#include "pc/pc_main.h"
 
 #if defined(_WIN32) || defined(_WIN64)
 #include <windows.h>
@@ -97,6 +98,7 @@ static void mods_local_store_enabled(void) {
         } else {
             prev->next = n;
         }
+        prev = n;
     }
 }
 
@@ -283,7 +285,7 @@ static void mods_load(struct Mods* mods, char* modsBasePath, UNUSED bool isUserM
 
 void mods_refresh_local(void) {
     LOADING_SCREEN_MUTEX(loading_screen_set_segment_text("Refreshing Mod Cache"));
-    mods_local_store_enabled();
+    if (gGameInited) { mods_local_store_enabled(); }
 
     // figure out user path
     bool hasUserPath = true;
@@ -318,7 +320,7 @@ void mods_refresh_local(void) {
     mods_load(&gLocalMods, defaultModsPath, false);
 #else
     char defaultModsPath[SYS_MAX_PATH] = { 0 };
-    snprintf(defaultModsPath, SYS_MAX_PATH, "%s/%s", sys_exe_path(), MOD_DIRECTORY);
+    snprintf(defaultModsPath, SYS_MAX_PATH, "%s/%s", sys_exe_path_dir(), MOD_DIRECTORY);
     mods_load(&gLocalMods, defaultModsPath, false);
 #endif
 
@@ -332,7 +334,7 @@ void mods_refresh_local(void) {
         gLocalMods.size += mod->size;
     }
 
-    mods_local_restore_enabled();
+    if (gGameInited) { mods_local_restore_enabled(); }
 }
 
 void mods_enable(char* relativePath) {

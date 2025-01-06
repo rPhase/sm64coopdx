@@ -11,8 +11,10 @@
 
 bool mod_storage_save(const char *key, const char *value);
 bool mod_storage_save_number(const char* key, f32 value);
+/* |description|Saves a `key` corresponding to a bool `value` to mod storage|descriptionEnd| */
 bool mod_storage_save_bool(const char* key, bool value);
 f32 mod_storage_load_number(const char* key);
+/* |description|Loads a bool `value` from a `key` in mod storage|descriptionEnd| */
 bool mod_storage_load_bool(const char* key);
 const char *mod_storage_load(const char *key);
 #ifdef __ANDROID__

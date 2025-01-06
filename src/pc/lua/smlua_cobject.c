@@ -6,6 +6,7 @@
 #include "game/first_person_cam.h"
 #include "game/hardcoded.h"
 #include "game/scroll_targets.h"
+#include "game/rendering_graph_node.h"
 #include "audio/external.h"
 #include "object_fields.h"
 #include "pc/djui/djui_hud_utils.h"
@@ -15,65 +16,12 @@
 #include "pc/lua/utils/smlua_obj_utils.h"
 #include "pc/mods/mods.h"
 
-#define LUA_VEC3S_FIELD_COUNT 3
-static struct LuaObjectField sVec3sFields[LUA_VEC3S_FIELD_COUNT] = {
-    { "x", LVT_S16, sizeof(s16) * 0, false, LOT_NONE },
-    { "y", LVT_S16, sizeof(s16) * 1, false, LOT_NONE },
-    { "z", LVT_S16, sizeof(s16) * 2, false, LOT_NONE },
-};
+extern struct LuaObjectTable sLuaObjectTable[LOT_MAX];
 
-#define LUA_VEC3F_FIELD_COUNT 3
-static struct LuaObjectField sVec3fFields[LUA_VEC3F_FIELD_COUNT] = {
-    { "x", LVT_F32, sizeof(f32) * 0, false, LOT_NONE },
-    { "y", LVT_F32, sizeof(f32) * 1, false, LOT_NONE },
-    { "z", LVT_F32, sizeof(f32) * 2, false, LOT_NONE },
-};
-
-#define LUA_VEC4S_FIELD_COUNT 4
-static struct LuaObjectField sVec4sFields[LUA_VEC4S_FIELD_COUNT] = {
-    { "x", LVT_S16, sizeof(s16) * 0, false, LOT_NONE },
-    { "y", LVT_S16, sizeof(s16) * 1, false, LOT_NONE },
-    { "z", LVT_S16, sizeof(s16) * 2, false, LOT_NONE },
-    { "w", LVT_S16, sizeof(s16) * 3, false, LOT_NONE },
-};
-
-#define LUA_VEC4F_FIELD_COUNT 4
-static struct LuaObjectField sVec4fFields[LUA_VEC4F_FIELD_COUNT] = {
-    { "x", LVT_F32, sizeof(f32) * 0, false, LOT_NONE },
-    { "y", LVT_F32, sizeof(f32) * 1, false, LOT_NONE },
-    { "z", LVT_F32, sizeof(f32) * 2, false, LOT_NONE },
-    { "w", LVT_F32, sizeof(f32) * 3, false, LOT_NONE },
-};
-
-#define LUA_MAT4_FIELD_COUNT 16
-static struct LuaObjectField sMat4Fields[LUA_MAT4_FIELD_COUNT] = {
-    { "a", LVT_F32, sizeof(f32) * 0, false, LOT_NONE },
-    { "b", LVT_F32, sizeof(f32) * 1, false, LOT_NONE },
-    { "c", LVT_F32, sizeof(f32) * 2, false, LOT_NONE },
-    { "d", LVT_F32, sizeof(f32) * 3, false, LOT_NONE },
-    { "e", LVT_F32, sizeof(f32) * 4, false, LOT_NONE },
-    { "f", LVT_F32, sizeof(f32) * 5, false, LOT_NONE },
-    { "g", LVT_F32, sizeof(f32) * 6, false, LOT_NONE },
-    { "h", LVT_F32, sizeof(f32) * 7, false, LOT_NONE },
-    { "i", LVT_F32, sizeof(f32) * 8, false, LOT_NONE },
-    { "j", LVT_F32, sizeof(f32) * 9, false, LOT_NONE },
-    { "k", LVT_F32, sizeof(f32) * 10, false, LOT_NONE },
-    { "l", LVT_F32, sizeof(f32) * 11, false, LOT_NONE },
-    { "m", LVT_F32, sizeof(f32) * 12, false, LOT_NONE },
-    { "n", LVT_F32, sizeof(f32) * 13, false, LOT_NONE },
-    { "o", LVT_F32, sizeof(f32) * 14, false, LOT_NONE },
-    { "p", LVT_F32, sizeof(f32) * 15, false, LOT_NONE },
-};
-
-
-struct LuaObjectTable sLuaObjectTable[LOT_MAX] = {
-    { LOT_NONE,  NULL,         0                     },
-    { LOT_VEC3S, sVec3sFields, LUA_VEC3S_FIELD_COUNT },
-    { LOT_VEC3F, sVec3fFields, LUA_VEC3F_FIELD_COUNT },
-    { LOT_VEC4S, sVec4sFields, LUA_VEC4S_FIELD_COUNT },
-    { LOT_VEC4F, sVec4fFields, LUA_VEC4F_FIELD_COUNT },
-    { LOT_MAT4,  sMat4Fields,  LUA_MAT4_FIELD_COUNT  },
-};
+int gSmLuaCObjects = 0;
+int gSmLuaCPointers = 0;
+int gSmLuaCObjectMetatable = 0;
+int gSmLuaCPointerMetatable = 0;
 
 struct LuaObjectField* smlua_get_object_field_from_ot(struct LuaObjectTable* ot, const char* key) {
     // binary search
@@ -428,8 +376,6 @@ static int smlua__get_field(lua_State* L) {
         return 0;
     }
 
-    LUA_STACK_CHECK_END();
-
     u8* p = ((u8*)(intptr_t)pointer) + data->valueOffset;
     switch (data->valueType) {
         case LVT_BOOL:              lua_pushboolean(L, *(u8* )p);              break;
@@ -474,6 +420,7 @@ static int smlua__get_field(lua_State* L) {
             return 0;
     }
 
+    LUA_STACK_CHECK_END();
     return 1;
 }
 
@@ -631,6 +578,10 @@ void smlua_cobject_init_globals(void) {
     EXPOSE_GLOBAL_ARRAY(LOT_CHARACTER, gCharacters, CT_MAX);
 
     EXPOSE_GLOBAL_ARRAY(LOT_CONTROLLER, gControllers, MAX_PLAYERS);
+
+    EXPOSE_GLOBAL_ARRAY(LOT_MAT4, gMatStack, MATRIX_STACK_SIZE);
+
+    EXPOSE_GLOBAL_ARRAY(LOT_MAT4, gMatStackPrev, MATRIX_STACK_SIZE);
 
     // Structs
 

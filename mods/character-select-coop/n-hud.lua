@@ -58,79 +58,6 @@ local function remove_color(text, get_color)
     return text
 end
 
-----------------------------------------------------------------------------------------------
--- Version check to make sure not to use undefined functions or structs from later versions --
---                              Delete this next update (v1.1)                              --
-----------------------------------------------------------------------------------------------
-if SM64COOPDX_VERSION ~= "v1.1" then
-
---- @class DjuiColor
---- @field public a integer
---- @field public b integer
---- @field public g integer
---- @field public r integer
-
---- @class DjuiInteractableTheme
---- @field public cursorDownBorderColor DjuiColor
---- @field public cursorDownRectColor DjuiColor
---- @field public defaultBorderColor DjuiColor
---- @field public defaultRectColor DjuiColor
---- @field public hoveredBorderColor DjuiColor
---- @field public hoveredRectColor DjuiColor
---- @field public textColor DjuiColor
-
---- @class DjuiPanelTheme
---- @field public hudFontHeader boolean
-
---- @class DjuiTheme
---- @field public id string
---- @field public interactables DjuiInteractableTheme
---- @field public name string
---- @field public panels DjuiPanelTheme
---- @field public threePanels DjuiThreePanelTheme
-
---- @class DjuiThreePanelTheme
---- @field public borderColor DjuiColor
---- @field public rectColor DjuiColor
-
-    ---@return DjuiTheme
-    function djui_menu_get_theme()
-        ---@type DjuiTheme
-        local defaultTheme = {
-            id = "PRE_1.1",
-            interactables = { cursorDownBorderColor = { r = 0, g = 0, b = 0, a = 0 }, cursorDownRectColor = { r = 0, g = 0, b = 0, a = 0 }, defaultBorderColor = { r = 0, g = 0, b = 0, a = 0 }, defaultRectColor = { r = 0, g = 0, b = 0, a = 0 }, hoveredBorderColor = { r = 0, g = 0, b = 0, a = 0 }, hoveredRectColor = { r = 0, g = 0, b = 0, a = 0 }, textColor = { r = 0, g = 0, b = 0, a = 0 }},
-            name = "Pre 1.1",
-            panels = { hudFontHeader = false},
-            threePanels = { borderColor = { r = 0, g = 0, b = 0, a = 200 }, rectColor = { r = 0, g = 0, b = 0, a = 230 }}
-        }
-
-        return defaultTheme
-    end
-
-    ---@param section string
-    ---@param key string
-    ---@return string
-    function djui_language_get(section, key)
-        local langTable = {
-            ["PLAYER_LIST"] = {["PLAYERS"] = "PLAYERS"},
-            ["MODLIST"] = {["MODS"] = "MODS"}
-        }
-        return langTable[section][key] or key
-    end
-
-    ---@param color integer
-    ---@return string
-    function djui_menu_get_rainbow_string_color(color)
-        local rainbowTextTable = {
-            [0] = "\\#ff3030\\",
-            [1] = "\\#40e740\\",
-            [2] = "\\#40b0ff\\",
-            [3] = "\\#ffef40\\",
-        }
-        return rainbowTextTable[color]
-    end
-end
-
 ---@param text string
 ---@return string
 local function generate_rainbow_text(text)
@@ -272,6 +199,9 @@ function hud_get_element(hudElement)
 end
 
 local MATH_DIVIDE_16 = 1/16
+local MATH_DIVIDE_32 = 1/32
+local MATH_DIVIDE_64 = 1/64
+local MATH_DIVIDE_HEALTH = 1/0x100
 
 local FONT_USER = FONT_NORMAL
 
@@ -372,6 +302,77 @@ function render_star_icon_from_local_index(localIndex, x, y, scale)
     djui_hud_render_texture(starIcon, x, y, scale / (starIcon.width * MATH_DIVIDE_16), scale / (starIcon.height * MATH_DIVIDE_16))
 end
 
+local TEXT_DEFAULT_METER_PREFIX = "char-select-custom-meter-"
+local TEX_DEFAULT_METER_LEFT = get_texture_info(TEXT_DEFAULT_METER_PREFIX.."left")
+local TEX_DEFAULT_METER_RIGHT = get_texture_info(TEXT_DEFAULT_METER_PREFIX.."right")
+local TEX_DEFAULT_METER_PIE1 = get_texture_info(TEXT_DEFAULT_METER_PREFIX.."pie1")
+local TEX_DEFAULT_METER_PIE2 = get_texture_info(TEXT_DEFAULT_METER_PREFIX.."pie2")
+local TEX_DEFAULT_METER_PIE3 = get_texture_info(TEXT_DEFAULT_METER_PREFIX.."pie3")
+local TEX_DEFAULT_METER_PIE4 = get_texture_info(TEXT_DEFAULT_METER_PREFIX.."pie4")
+local TEX_DEFAULT_METER_PIE5 = get_texture_info(TEXT_DEFAULT_METER_PREFIX.."pie5")
+local TEX_DEFAULT_METER_PIE6 = get_texture_info(TEXT_DEFAULT_METER_PREFIX.."pie6")
+local TEX_DEFAULT_METER_PIE7 = get_texture_info(TEXT_DEFAULT_METER_PREFIX.."pie7")
+local TEX_DEFAULT_METER_PIE8 = get_texture_info(TEXT_DEFAULT_METER_PREFIX.."pie8")
+local defaultMeterInfo = {
+    label = {
+        left = TEX_DEFAULT_METER_LEFT,
+        right = TEX_DEFAULT_METER_RIGHT,
+    },
+    pie = {
+        TEX_DEFAULT_METER_PIE1,
+        TEX_DEFAULT_METER_PIE2,
+        TEX_DEFAULT_METER_PIE3,
+        TEX_DEFAULT_METER_PIE4,
+        TEX_DEFAULT_METER_PIE5,
+        TEX_DEFAULT_METER_PIE6,
+        TEX_DEFAULT_METER_PIE7,
+        TEX_DEFAULT_METER_PIE8,
+    }
+}
+
+local TEXT_DEFAULT_COURSE_PREFIX = "char-select-custom-course-"
+local TEX_DEFAULT_METER_LEFT = get_texture_info(TEXT_DEFAULT_COURSE_PREFIX.."top")
+local TEX_DEFAULT_METER_RIGHT = get_texture_info(TEXT_DEFAULT_COURSE_PREFIX.."bottom")
+local defaultCourseInfo = {
+    top = TEX_DEFAULT_METER_LEFT,
+    bottom = TEX_DEFAULT_METER_RIGHT,
+}
+
+--- @param localIndex integer
+--- @return table
+--- This assumes multiple characters will not have the same model,
+--- Icons can only be seen by users who have the character avalible to them
+function health_meter_from_local_index(localIndex)
+    if localIndex == nil then localIndex = 0 end
+    local p = gCSPlayers[localIndex]
+    for i = 1, #characterTable do
+        local char = characterTable[i]
+        if char.saveName == p.saveName and char[(p.currAlt and p.currAlt or 1)].healthTexture ~= nil then
+            return char[(p.currAlt and p.currAlt or 1)].healthTexture
+        end
+    end
+    return defaultMeterInfo
+end
+
+--- @param localIndex integer
+--- @param x integer
+--- @param y integer
+--- @param scaleX integer
+--- @param scaleY integer
+function render_health_meter_from_local_index(localIndex, health, x, y, scaleX, scaleY)
+    if localIndex == nil then localIndex = 0 end
+    local health = math.floor(health*MATH_DIVIDE_HEALTH)
+    local textureTable = health_meter_from_local_index(localIndex)
+    local tex = textureTable.label.left
+    djui_hud_render_texture(tex, x, y, scaleX / (tex.width * MATH_DIVIDE_32) * MATH_DIVIDE_64, scaleY / (tex.height * MATH_DIVIDE_64) * MATH_DIVIDE_64)
+    local tex = textureTable.label.right
+    djui_hud_render_texture(tex, x + 31*scaleX*MATH_DIVIDE_64, y, scaleX / (tex.width * MATH_DIVIDE_32) * MATH_DIVIDE_64, scaleY / (tex.height * MATH_DIVIDE_64) * MATH_DIVIDE_64)
+    if health > 0 then
+        local tex = textureTable.pie[health]
+        djui_hud_render_texture(tex, x + 15*scaleX*MATH_DIVIDE_64, y + 16*scaleY*MATH_DIVIDE_64, scaleX / (tex.width * MATH_DIVIDE_32) * MATH_DIVIDE_64, scaleY / (tex.height * MATH_DIVIDE_32) * MATH_DIVIDE_64)
+    end
+end
+
 local pieTextureNames = {
     "one_segments",
     "two_segments",
@@ -384,23 +385,47 @@ local pieTextureNames = {
 }
 
 local function render_hud_health()
-	local textureTable = characterTable[currChar].healthTexture
+    if currChar == 1 then
+        texture_override_reset("texture_power_meter_left_side")
+        texture_override_reset("texture_power_meter_right_side")
+		for i = 1, 8 do
+			texture_override_reset("texture_power_meter_" .. pieTextureNames[i])
+		end
+        return
+    end
+	local textureTable = characterTable[currChar][characterTable[currChar].currAlt].healthTexture
 	if textureTable then -- sets health HUD to custom textures
 		if textureTable.label.left and textureTable.label.right then -- if left and right label textures exist. BOTH have to exist to be set!
 			texture_override_set("texture_power_meter_left_side", textureTable.label.left)
 			texture_override_set("texture_power_meter_right_side", textureTable.label.right)
 		end
-		
 		for i = 1, 8 do
 			texture_override_set("texture_power_meter_" .. pieTextureNames[i], textureTable.pie[i])
 		end
 	else -- resets the health HUD
-		texture_override_reset("texture_power_meter_left_side")
-		texture_override_reset("texture_power_meter_right_side")
-		
+        texture_override_set("texture_power_meter_left_side", defaultMeterInfo.label.left)
+        texture_override_set("texture_power_meter_right_side", defaultMeterInfo.label.right)
 		for i = 1, 8 do
-			texture_override_reset("texture_power_meter_" .. pieTextureNames[i])
+			texture_override_set("texture_power_meter_" .. pieTextureNames[i], defaultMeterInfo.pie[i])
 		end
+	end
+end
+
+local function render_hud_act_select_course()
+    if currChar == 1 then
+        texture_override_reset("texture_menu_course_upper")
+        texture_override_reset("texture_menu_course_lower")
+        return
+    end
+	local textureTable = characterTable[currChar][characterTable[currChar].currAlt].courseTexture
+	if textureTable then -- sets health HUD to custom textures
+		if textureTable.top and textureTable.bottom then -- if left and right label textures exist. BOTH have to exist to be set!
+			texture_override_set("texture_menu_course_upper", textureTable.top)
+			texture_override_set("texture_menu_course_lower", textureTable.bottom)
+		end
+	else -- resets the course HUD
+        texture_override_set("texture_menu_course_upper", defaultCourseInfo.top)
+        texture_override_set("texture_menu_course_lower", defaultCourseInfo.bottom)
 	end
 end
 
@@ -514,23 +539,31 @@ function zero_index_to_one_index(table)
     return tableOne
 end
 
-local packFilterTotal = 0
+local activeNonCSMods = {}
+local nonCSModPosition = 0
+local CSPacks = 0
 for i = 0, #gActiveMods do
-    if remove_color(gActiveMods[i].name):sub(1, 4) == "[CS]" then
-        packFilterTotal = packFilterTotal + 1
+    if gActiveMods[i].name == "Character Select" then
+        table.insert(activeNonCSMods, tostring(gActiveMods[i].name))
+        nonCSModPosition = #activeNonCSMods
+    elseif (remove_color(gActiveMods[i].name):sub(1, 4) ~= "[CS]" and gActiveMods[i].category ~= "cs") then
+        table.insert(activeNonCSMods, tostring(gActiveMods[i].name))
+    else
+        CSPacks = CSPacks + 1
     end
 end
+
+activeNonCSMods[nonCSModPosition] = "Character Select (+"..CSPacks..")"
+
 function render_playerlist_and_modlist()
 
     -- DjuiTheme Data
-
     local sDjuiTheme = djui_menu_get_theme()
     local hudFont = sDjuiTheme.panels.hudFontHeader
     local rectColor = sDjuiTheme.threePanels.rectColor
     local borderColor = sDjuiTheme.threePanels.borderColor
 
     -- PlayerList
-
     playerListWidth = 710
     playerListHeight = (16 * 32) + (16 - 1) * 4 + (32 + 16) + 32 + 32
     local x = djui_hud_get_screen_width()/2 - playerListWidth/2
@@ -590,8 +623,7 @@ function render_playerlist_and_modlist()
     -- ModList
 
     local modListWidth = 280
-    local modsCount = #gActiveMods - packFilterTotal
-    local modListHeight = ((modsCount + 1) * 32) + ((modsCount + 1) - 1) * 4 + (32 + 16) + 32 + 32
+    local modListHeight = (#activeNonCSMods * 32) + (#activeNonCSMods - 1) * 4 + (32 + 16) + 32 + 32
     local mX = djui_hud_get_screen_width()/2 + 363
     local mY = djui_hud_get_screen_height()/2 - modListHeight/2
 
@@ -600,36 +632,27 @@ function render_playerlist_and_modlist()
     djui_hud_render_header_box(modsString, 0, 0xff, 0xff, 0xff, 0xff, 1, mX, mY, modListWidth, modListHeight, rectColor, borderColor)
     djui_hud_set_font(FONT_USER)
 
-    local packFilter = 0
-    for i = 0, #gActiveMods do
-        -- Filter CS Packs out of modlist
-        if remove_color(gActiveMods[i].name):sub(1, 4) == "[CS]" then
-            packFilter = packFilter + 1
-        else
-            local i = i - packFilter
-            v = (i % 2) ~= 0 and 16 or 32
-            djui_hud_set_color(v, v, v, 128)
-            local entryWidth = modListWidth - ((8 + listMargins) * 2)
-            local entryHeight = 32
-            local entryX = mX + 8 + listMargins
-            local entryY = mY + 124 + 0 + ((entryHeight + 4) * (i - 1))
-            djui_hud_render_rect(entryX, entryY, entryWidth, entryHeight)
-            local modName = gActiveMods[i].name
-            if modName == "Character Select" and packFilterTotal > 0 then
-                modName = modName.." (+"..packFilterTotal..")"
+    for i = 0, #activeNonCSMods - 1 do
+        --local i = i - packFilter
+        v = (i % 2) ~= 0 and 16 or 32
+        djui_hud_set_color(v, v, v, 128)
+        local entryWidth = modListWidth - ((8 + listMargins) * 2)
+        local entryHeight = 32
+        local entryX = mX + 8 + listMargins
+        local entryY = mY + 124 + 0 + ((entryHeight + 4) * (i - 1))
+        djui_hud_render_rect(entryX, entryY, entryWidth, entryHeight)
+        local modName = activeNonCSMods[i + 1]
+        local stringSubCount = 23
+        local inColor = false
+        for i = 1, #modName do
+            if modName:sub(i, i) == "\\" then
+                inColor = not inColor
             end
-            local stringSubCount = 23
-            local inColor = false
-            for i = 1, #modName do
-                if modName:sub(i, i) == "\\" then
-                    inColor = not inColor
-                end
-                if inColor then
-                    stringSubCount = stringSubCount + 1
-                end
+            if inColor then
+                stringSubCount = stringSubCount + 1
             end
-            djui_hud_print_text_with_color(modName:sub(1, stringSubCount), entryX, entryY, 1, 0xdc, 0xdc, 0xdc, 255)
         end
+        djui_hud_print_text_with_color(modName:sub(1, stringSubCount), entryX, entryY, 1, 0xdc, 0xdc, 0xdc, 255)
     end
 end
 
@@ -639,14 +662,17 @@ local function on_hud_render_behind()
     djui_hud_set_font(FONT_HUD)
     djui_hud_set_color(255, 255, 255, 255)
 
-    if gNetworkPlayers[0].currActNum == 99 or gMarioStates[0].action == ACT_INTRO_CUTSCENE or hud_is_hidden() or obj_get_first_with_behavior_id(id_bhvActSelector) ~= nil then
+    if gNetworkPlayers[0].currActNum == 99 or gMarioStates[0].action == ACT_INTRO_CUTSCENE or hud_is_hidden() then
         return
     end
-
-    render_hud_mario_lives()
-    render_hud_stars()
-    render_hud_camera_status()
-    render_hud_health()
+    if obj_get_first_with_behavior_id(id_bhvActSelector) == nil then
+        render_hud_mario_lives()
+        render_hud_stars()
+        render_hud_camera_status()
+        render_hud_health()
+    else
+        render_hud_act_select_course()
+    end
 end
 
 -- Can't name this charSelect due to o-api.lua overriding it, if I did so, using character select with no packs would make it nil

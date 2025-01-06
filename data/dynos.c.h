@@ -35,8 +35,9 @@ void dynos_generate_packs(const char* directory);
 
 // -- geos -- //
 void dynos_actor_override(struct Object* obj, void** aSharedChild);
-void dynos_add_actor_custom(const char *filePath, const char* geoName);
+void dynos_add_actor_custom(s32 modIndex, const char *filePath, const char* geoName);
 const void* dynos_geolayout_get(const char *name);
+bool dynos_actor_get_mod_index_and_token(struct GraphNode *graphNode, u32 tokenIndex, s32 *modIndex, const char **token);
 
 // -- collisions -- //
 void dynos_add_collision(const char *filePath, const char* collisionName);
@@ -64,6 +65,7 @@ void dynos_level_parse_script(const void *script, s32 (*aPreprocessFunction)(u8,
 void* dynos_level_get_script(s32 level);
 s32 dynos_level_get_mod_index(s32 level);
 bool dynos_level_is_vanilla_level(s32 level);
+Collision *dynos_level_get_collision(u32 level, u16 area);
 
 // -- behaviors -- //
 void dynos_add_behavior(s32 modIndex, const char *filePath, const char *behaviorName);

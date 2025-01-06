@@ -1,15 +1,61 @@
 -- localize functions to improve performance - a-utils.lua
 local string_lower,string_format,table_insert,get_date_and_time = string.lower,string.format,table.insert,get_date_and_time
 
-if VERSION_NUMBER < 37 then
+if VERSION_NUMBER < 38 then
     djui_popup_create("\n\\#FFAAAA\\Character Select requires\n the latest version of CoopDX to use!\n\nYou can find CoopDX here:\n\\#6666FF\\https://sm64coopdx.com", 5)
     incompatibleClient = true
     return 0
 end
 
+local dependacyFiles = {
+    -- Required Lua File
+    "main.lua",
+    "n-hud.lua",
+    "o-api.lua",
+    "z-moveset.lua",
+    "z-palettes.lua",
+    "z-voice.lua",
+    -- Required Actors
+    "actors/armature_geo.bin",
+}
+local legacyFiles = {
+    "voice.lua",
+    "palettes.lua",
+    "z-anims.lua",
+}
+
+-- Check for Missing Files
+local missingDependacyFiles = false
+for i = 1, #dependacyFiles do
+    if not mod_file_exists(dependacyFiles[i]) then
+        log_to_console("Character Select file missing: '" .. dependacyFiles[i] .. "'", CONSOLE_MESSAGE_ERROR)
+        missingDependacyFiles = true
+    end
+end
+if missingDependacyFiles then
+    djui_popup_create("\n\\#FFAAAA\\Character Select is missing\nan important file!\n\nYou can find a list of\nmissing files in the console!", 5)
+    incompatibleClient = true
+    return 0
+end
+
+-- Check for Legacy Files
+local foundLegacyFiles = false
+for i = 1, #legacyFiles do
+    if mod_file_exists(legacyFiles[i]) then
+        log_to_console("Character Select legacy file found: '" .. legacyFiles[i] .. "'", CONSOLE_MESSAGE_ERROR)
+        foundLegacyFiles = true
+    end
+end
+if foundLegacyFiles then
+    djui_popup_create("\n\\#FFAAAA\\Character Select is loading\nan outdated file!\n\nYou can find a list of\nold files in the console!", 5)
+    incompatibleClient = true
+    return 0
+end
+
+-- Version Data --
 MOD_VERSION_API = 1
-MOD_VERSION_MAJOR = 11
-MOD_VERSION_MINOR = 2
+MOD_VERSION_MAJOR = 12
+MOD_VERSION_MINOR = 0
 MOD_VERSION_INDEV = false
 MOD_VERSION_STRING = tostring(MOD_VERSION_API) .. "." .. tostring(MOD_VERSION_MAJOR) .. (MOD_VERSION_MINOR > 0 and ("." .. tostring(MOD_VERSION_MINOR)) or "") .. (MOD_VERSION_INDEV and " (In-Dev)" or "")
 
@@ -107,6 +153,10 @@ function switch(param, caseTable)
     if case then return case() end
     local def = caseTable['default']
     return def and def() or nil
+end
+
+function clamp(num, min, max)
+    return math.max(math.min(num, max), min)
 end
 
 allowMenu = {}

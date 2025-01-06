@@ -634,6 +634,14 @@ void warp_credits(void) {
     }
 }
 
+struct InstantWarp *get_instant_warp(u8 index) {
+    if (index >= 4) { return NULL; }
+    if (!gCurrentArea) { return NULL; }
+    if (gCurrentArea->instantWarps == NULL) { return NULL; }
+
+    return &gCurrentArea->instantWarps[index];
+}
+
 void check_instant_warp(void) {
     if (!gCurrentArea) { return; }
     s16 cameraAngle;
@@ -747,7 +755,7 @@ s16 music_changed_through_warp(s16 arg) {
 /**
  * Set the current warp type and destination level/area/node.
  */
-void initiate_warp(s16 destLevel, s16 destArea, s16 destWarpNode, s32 arg3) {
+void initiate_warp(s16 destLevel, s16 destArea, s16 destWarpNode, s32 arg) {
     if (destWarpNode >= WARP_NODE_CREDITS_MIN) {
         sWarpDest.type = WARP_TYPE_CHANGE_LEVEL;
     } else if (destLevel != gCurrLevelNum) {
@@ -761,7 +769,7 @@ void initiate_warp(s16 destLevel, s16 destArea, s16 destWarpNode, s32 arg3) {
     sWarpDest.levelNum = destLevel;
     sWarpDest.areaIdx = destArea;
     sWarpDest.nodeId = destWarpNode;
-    sWarpDest.arg = arg3;
+    sWarpDest.arg = arg;
 }
 
 /**
@@ -1906,16 +1914,17 @@ s32 lvl_init_from_save_file(UNUSED s16 arg0, s16 levelNum) {
     return levelNum;
 }
 
-s32 lvl_set_current_level(UNUSED s16 arg0, s16 levelNum) {
+s32 lvl_set_current_level(s16 arg0, s16 levelNum) {
     s32 warpCheckpointActive = sWarpCheckpointActive;
+    s16 level = arg0 != 0 ? arg0 : levelNum;
 
     sWarpCheckpointActive = FALSE;
-    gCurrLevelNum = levelNum;
-    gCurrCourseNum = get_level_course_num(levelNum);
+    gCurrLevelNum = level;
+    gCurrCourseNum = get_level_course_num(level);
 
     bool foundHook = false;
     bool hookUseActSelect = false;
-    smlua_call_event_hooks_use_act_select(HOOK_USE_ACT_SELECT, levelNum, &foundHook, &hookUseActSelect);
+    smlua_call_event_hooks_use_act_select(HOOK_USE_ACT_SELECT, level, &foundHook, &hookUseActSelect);
 
     if (!foundHook || !hookUseActSelect) {
         if (gCurrDemoInput != NULL || gCurrCreditsEntry != NULL || gCurrCourseNum == COURSE_NONE) {

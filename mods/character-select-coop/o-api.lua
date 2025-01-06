@@ -80,7 +80,6 @@ local function character_add(name, description, credit, color, modelInfo, forceC
         currAlt = 1,
         hasMoveset = false,
         locked = false,
-        healthTexture = nil,
         [1] = {
             name = type(name) == TYPE_STRING and name or "Untitled",
             description = type(description) == TYPE_TABLE and description or {"No description has been provided"},
@@ -92,6 +91,7 @@ local function character_add(name, description, credit, color, modelInfo, forceC
             lifeIcon = (type(lifeIcon) == TYPE_TABLE or type(lifeIcon) == TYPE_TEX_INFO or type(lifeIcon) == TYPE_STRING) and lifeIcon or "?",
             starIcon = gTextures.star,
             camScale = type(camScale) == TYPE_INTEGER and camScale or 1,
+            healthTexture = nil,
         },
     })
     saveNameTable[#characterTable] = characterTable[#characterTable].saveName
@@ -135,6 +135,7 @@ local function character_add_costume(charNum, name, description, credit, color, 
         lifeIcon = (type(lifeIcon) == TYPE_TABLE or type(lifeIcon) == TYPE_TEX_INFO or type(lifeIcon) == TYPE_STRING) and lifeIcon or tableCache.lifeIcon,
         starIcon = tableCache.starIcon, -- Done to prevent it getting lost in the sauce
         camScale = type(camScale) == TYPE_INTEGER and camScale or tableCache.camScale,
+        healthTexture = tableCache.healthTexture,
     })
     return #characterTable[charNum]
 end
@@ -207,11 +208,33 @@ local function character_add_caps(modelInfo, caps)
 end
 
 ---@param charNum integer
+---@param charAlt integer
+---@param healthTexture table|nil
+local function character_add_costume_health_meter(charNum, charAlt, healthTexture)
+    if type(charNum) ~= TYPE_INTEGER or charNum == nil then return end
+    if type(charAlt) ~= TYPE_INTEGER or charAlt == nil then return end
+    characterTable[charNum][charAlt].healthTexture = type(healthTexture) == TYPE_TABLE and healthTexture or nil
+end
+
+---@param charNum integer
 ---@param healthTexture table|nil
 local function character_add_health_meter(charNum, healthTexture)
+    character_add_costume_health_meter(charNum, 1, healthTexture)
+end
+
+---@param charNum integer
+---@param charAlt integer
+---@param courseTexture table|nil
+local function character_add_costume_course(charNum, charAlt, courseTexture)
     if type(charNum) ~= TYPE_INTEGER or charNum == nil then return end
-    characterTable[charNum].healthTexture = type(healthTexture) == TYPE_TABLE and healthTexture or nil
-    return false
+    if type(charAlt) ~= TYPE_INTEGER or charAlt == nil then return end
+    characterTable[charNum][charAlt].courseTexture = type(courseTexture) == TYPE_TABLE and courseTexture or nil
+end
+
+---@param charNum integer
+---@param courseTexture table|nil
+local function character_add_course(charNum, courseTexture)
+    character_add_costume_course(charNum, 1, courseTexture)
 end
 
 ---@param modelInfo ModelExtendedId|integer
@@ -310,6 +333,19 @@ local function character_set_current_number(charNum)
     if type(charNum) ~= TYPE_INTEGER or characterTable[charNum] == nil then return end
     currChar = charNum
     charBeingSet = true
+end
+
+--- @return table|nil
+local function character_get_current_palette()
+    local model = characterTable[currChar][characterTable[currChar].currAlt].model
+    return characterColorPresets[model][gCSPlayers[0].presetPalette]
+end
+
+--- @param localIndex integer|nil
+--- @return integer|nil
+local function character_get_current_palette_number(localIndex)
+    if localIndex == nil then localIndex = 0 end
+    return gCSPlayers[localIndex].presetPalette
 end
 
 ---@param name string
@@ -509,6 +545,9 @@ _G.charSelect = {
     character_add_caps = character_add_caps,
     character_add_celebration_star = character_add_celebration_star,
     character_add_health_meter = character_add_health_meter,
+    character_add_costume_health_meter = character_add_costume_health_meter,
+    character_add_course_texture = character_add_course,
+    character_add_costume_course_texture = character_add_costume_course,
     character_add_palette_preset = character_add_palette_preset,
     character_add_animations = character_add_animations,
     character_get_current_table = character_get_current_table,
@@ -517,12 +556,16 @@ _G.charSelect = {
     character_get_current_costume = character_get_current_costume,
     character_get_current_model_number = character_get_current_number, -- Outdated function name, Not recommended for use
     character_set_current_number = character_set_current_number,
+    character_get_current_palette = character_get_current_palette,
+    character_get_current_palette_number = character_get_current_palette_number,
     character_get_number_from_string = character_get_number_from_string,
     character_get_voice = character_get_voice,
     character_get_life_icon = life_icon_from_local_index, -- Function located in n-hud.lua
     character_render_life_icon = render_life_icon_from_local_index, -- Function located in n-hud.lua
     character_get_star_icon = star_icon_from_local_index, -- Function located in n-hud.lua
     character_render_star_icon = render_star_icon_from_local_index, -- Function located in n-hud.lua
+    character_get_health_meter = health_meter_from_local_index, -- Function located in n-hud.lua
+    character_render_health_meter = render_health_meter_from_local_index, -- Function located in n-hud.lua
     character_set_locked = character_set_locked,
 
     -- Hud Element Functions --

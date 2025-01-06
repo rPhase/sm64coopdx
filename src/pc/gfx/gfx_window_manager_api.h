@@ -13,7 +13,8 @@ typedef bool (*kb_callback_t)(int code);
 
 struct GfxWindowManagerAPI {
     void (*init)(const char *window_title);
-    void (*set_keyboard_callbacks)(kb_callback_t on_key_down, kb_callback_t on_key_up, void (*on_all_keys_up)(void), void (*on_text_input)(char*));
+    void (*set_keyboard_callbacks)(kb_callback_t on_key_down, kb_callback_t on_key_up, void (*on_all_keys_up)(void),
+        void (*on_text_input)(char*), void (*on_text_editing)(char*, int));
 #ifdef TOUCH_CONTROLS
     void (*set_touchscreen_callbacks)(void (*down)(void* event), void (*motion)(void* event), void (*up)(void* event));
 #endif

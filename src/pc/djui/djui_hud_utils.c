@@ -502,7 +502,7 @@ void djui_hud_render_texture_tile_raw(const u8* texture, u32 bitSize, u32 width,
     create_dl_scale_matrix(DJUI_MTX_NOPUSH, width * translatedW, height * translatedH, 1.0f);
 
     // render
-    djui_gfx_render_texture_tile(texture, width, height, bitSize, tileX, tileY, tileW, tileH, sFilter);
+    djui_gfx_render_texture_tile(texture, width, height, bitSize, tileX, tileY, tileW, tileH, sFilter, false);
 
     // pop
     gSPPopMatrix(gDisplayListHead++, G_MTX_MODELVIEW);
@@ -657,8 +657,38 @@ bool djui_hud_world_pos_to_screen_pos(Vec3f pos, Vec3f out) {
     out[0] *= fovCoeff;
     out[1] *= fovCoeff;
 
-    out[0] += djui_hud_get_screen_width()  / 2.0f;
-    out[1] += djui_hud_get_screen_height() / 2.0f;
+    f32 screenWidth, screenHeight;
+    if (sResolution == RESOLUTION_N64) {
+        screenWidth = GFX_DIMENSIONS_ASPECT_RATIO * SCREEN_HEIGHT;
+        screenHeight = SCREEN_HEIGHT;
+    } else {
+        u32 windowWidth, windowHeight;
+        WAPI.get_dimensions(&windowWidth, &windowHeight);
+        screenWidth = (f32) windowWidth;
+        screenHeight = (f32) windowHeight;
+    }
+
+    out[0] += screenWidth  / 2.0f;
+    out[1] += screenHeight / 2.0f;
+
+    extern Vp *D_8032CE74;
+    if (D_8032CE74) {
+        Vp_t *viewport = &D_8032CE74->vp;
+        f32 width  = viewport->vscale[0] / 2.0f;
+        f32 height = viewport->vscale[1] / 2.0f;
+        f32 x = (viewport->vtrans[0] / 4.0f) - width / 2.0f;
+        f32 y = SCREEN_HEIGHT - ((viewport->vtrans[1] / 4.0f) + height / 2.0f);
+
+        f32 xDiff = screenWidth / SCREEN_WIDTH;
+        f32 yDiff = screenHeight / SCREEN_HEIGHT;
+        width *= xDiff;
+        height *= yDiff;
+        x = x * xDiff - 1;
+        y = (screenHeight - y * yDiff) - height;
+
+        out[0] = x + (out[0] * (width / screenWidth));
+        out[1] = y + (out[1] * (height / screenHeight));
+    }
 
     return true;
 }

@@ -439,6 +439,17 @@ void smlua_push_object(lua_State* L, u16 lot, void* p) {
         lua_pushnil(L);
         return;
     }
+    LUA_STACK_CHECK_BEGIN_NUM(1);
+
+    uintptr_t key = lot ^ (uintptr_t) p;
+    lua_rawgeti(L, LUA_REGISTRYINDEX, gSmLuaCObjects);
+    lua_pushinteger(L, key);
+    lua_gettable(L, -2);
+    if (lua_isuserdata(L, -1)) {
+        lua_remove(L, -2); // Remove gSmLuaCObjects table
+        return;
+    }
+    lua_pop(L, 1);
 
     // add to allowlist
     smlua_cobject_allowlist_add(lot, (u64)(intptr_t) p);
@@ -458,6 +469,17 @@ void smlua_push_pointer(lua_State* L, u16 lvt, void* p) {
         lua_pushnil(L);
         return;
     }
+    LUA_STACK_CHECK_BEGIN_NUM(1);
+
+    uintptr_t key = lvt ^ (uintptr_t) p;
+    lua_rawgeti(L, LUA_REGISTRYINDEX, gSmLuaCPointers);
+    lua_pushinteger(L, key);
+    lua_gettable(L, -2);
+    if (lua_isuserdata(L, -1)) {
+        lua_remove(L, -2); // Remove gSmLuaCPointers table
+        return;
+    }
+    lua_pop(L, 1);
 
     smlua_cpointer_allowlist_add(lvt, (u64)(intptr_t) p);
 

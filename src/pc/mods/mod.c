@@ -21,7 +21,7 @@ size_t mod_get_lua_size(struct Mod* mod) {
     return size;
 }
 
-static void mod_activate_bin(struct ModFile* file) {
+static void mod_activate_bin(struct Mod* mod, struct ModFile* file) {
     // copy geo name
     char geoName[64] = { 0 };
     if (snprintf(geoName, 63, "%s", path_basename(file->relativePath)) < 0) {
@@ -41,7 +41,7 @@ static void mod_activate_bin(struct ModFile* file) {
 
     // Add to custom actors
     LOG_INFO("Activating DynOS bin: '%s', '%s'", file->cachedPath, geoName);
-    dynos_add_actor_custom(file->cachedPath, geoName);
+    dynos_add_actor_custom(mod->index, file->cachedPath, geoName);
 }
 
 static void mod_activate_col(struct ModFile* file) {
@@ -148,7 +148,7 @@ void mod_activate(struct Mod* mod) {
         }
 
         if (str_ends_with(file->relativePath, ".bin")) {
-            mod_activate_bin(file);
+            mod_activate_bin(mod, file);
         }
         if (str_ends_with(file->relativePath, ".col")) {
             mod_activate_col(file);
@@ -191,6 +191,11 @@ void mod_clear(struct Mod* mod) {
     if (mod->incompatible != NULL) {
         free(mod->incompatible);
         mod->incompatible = NULL;
+    }
+
+    if (mod->category != NULL) {
+        free(mod->category);
+        mod->category = NULL;
     }
 
     if (mod->description != NULL) {
@@ -407,6 +412,7 @@ static void mod_extract_fields(struct Mod* mod) {
     // default to null
     mod->name = NULL;
     mod->incompatible = NULL;
+    mod->category = NULL;
     mod->description = NULL;
     mod->pausable = true;
     mod->ignoreScriptWarnings = false;
@@ -434,6 +440,11 @@ static void mod_extract_fields(struct Mod* mod) {
             mod->incompatible = calloc(MOD_INCOMPATIBLE_MAX_LENGTH + 1, sizeof(char));
             if (snprintf(mod->incompatible, MOD_INCOMPATIBLE_MAX_LENGTH, "%s", extracted) < 0) {
                 LOG_INFO("Truncated mod incompatible field '%s'", mod->incompatible);
+            }
+        } else if (mod->category == NULL && (extracted = extract_lua_field("-- category:", buffer))) {
+            mod->category = calloc(MOD_CATEGORY_MAX_LENGTH + 1, sizeof(char));
+            if (snprintf(mod->category, MOD_CATEGORY_MAX_LENGTH, "%s", extracted) < 0) {
+                LOG_INFO("Truncated mod category field '%s'", mod->category);
             }
         } else if (mod->description == NULL && (extracted = extract_lua_field("-- description:", buffer))) {
             mod->description = calloc(MOD_DESCRIPTION_MAX_LENGTH + 1, sizeof(char));
@@ -534,6 +545,11 @@ bool mod_load(struct Mods* mods, char* basePath, char* modName) {
     // set name
     if (mod->name == NULL) {
         mod->name = strdup(modName);
+    }
+
+    // set category
+    if ((mod->category == NULL) && (strlen(mod->name) > 5) && (strncmp(mod->name, "[CS] ", 5) == 0)) {
+        mod->category = strdup("cs");
     }
 
     // print

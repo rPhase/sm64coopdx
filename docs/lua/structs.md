@@ -23,14 +23,42 @@
 - [CutsceneSplinePoint](#CutsceneSplinePoint)
 - [CutsceneVariable](#CutsceneVariable)
 - [DateTime](#DateTime)
+- [DisplayListNode](#DisplayListNode)
 - [DjuiColor](#DjuiColor)
+- [DjuiInteractableTheme](#DjuiInteractableTheme)
+- [DjuiPanelTheme](#DjuiPanelTheme)
+- [DjuiTheme](#DjuiTheme)
+- [DjuiThreePanelTheme](#DjuiThreePanelTheme)
+- [ExclamationBoxContent](#ExclamationBoxContent)
 - [FirstPersonCamera](#FirstPersonCamera)
 - [FloorGeometry](#FloorGeometry)
+- [FnGraphNode](#FnGraphNode)
 - [GlobalObjectAnimations](#GlobalObjectAnimations)
 - [GlobalObjectCollisionData](#GlobalObjectCollisionData)
 - [GlobalTextures](#GlobalTextures)
 - [GraphNode](#GraphNode)
+- [GraphNodeAnimatedPart](#GraphNodeAnimatedPart)
+- [GraphNodeBackground](#GraphNodeBackground)
+- [GraphNodeBillboard](#GraphNodeBillboard)
+- [GraphNodeCamera](#GraphNodeCamera)
+- [GraphNodeCullingRadius](#GraphNodeCullingRadius)
+- [GraphNodeDisplayList](#GraphNodeDisplayList)
+- [GraphNodeGenerated](#GraphNodeGenerated)
+- [GraphNodeHeldObject](#GraphNodeHeldObject)
+- [GraphNodeLevelOfDetail](#GraphNodeLevelOfDetail)
+- [GraphNodeMasterList](#GraphNodeMasterList)
 - [GraphNodeObject](#GraphNodeObject)
+- [GraphNodeObjectParent](#GraphNodeObjectParent)
+- [GraphNodeOrthoProjection](#GraphNodeOrthoProjection)
+- [GraphNodePerspective](#GraphNodePerspective)
+- [GraphNodeRoot](#GraphNodeRoot)
+- [GraphNodeRotation](#GraphNodeRotation)
+- [GraphNodeScale](#GraphNodeScale)
+- [GraphNodeShadow](#GraphNodeShadow)
+- [GraphNodeStart](#GraphNodeStart)
+- [GraphNodeSwitchCase](#GraphNodeSwitchCase)
+- [GraphNodeTranslation](#GraphNodeTranslation)
+- [GraphNodeTranslationRotation](#GraphNodeTranslationRotation)
 - [GraphNode_802A45E4](#GraphNode_802A45E4)
 - [HandheldShakePoint](#HandheldShakePoint)
 - [HudUtilsRotation](#HudUtilsRotation)
@@ -42,6 +70,7 @@
 - [MarioAnimation](#MarioAnimation)
 - [MarioBodyState](#MarioBodyState)
 - [MarioState](#MarioState)
+- [Mat4](#Mat4)
 - [Mod](#Mod)
 - [ModAudio](#ModAudio)
 - [ModAudioSampleCopies](#ModAudioSampleCopies)
@@ -75,8 +104,11 @@
 - [TransitionInfo](#TransitionInfo)
 - [UnusedArea28](#UnusedArea28)
 - [VblankHandler](#VblankHandler)
+- [Vec2f](#Vec2f)
 - [Vec3f](#Vec3f)
 - [Vec3s](#Vec3s)
+- [Vec4f](#Vec4f)
+- [Vec4s](#Vec4s)
 - [WallCollisionData](#WallCollisionData)
 - [WarpNode](#WarpNode)
 - [WarpTransition](#WarpTransition)
@@ -731,9 +763,9 @@
 
 | Field | Type | Access |
 | ----- | ---- | ------ |
-| b | `integer` |  |
-| g | `integer` |  |
 | r | `integer` |  |
+| g | `integer` |  |
+| b | `integer` |  |
 
 [:arrow_up_small:](#)
 
@@ -831,6 +863,17 @@
 
 <br />
 
+## [DisplayListNode](#DisplayListNode)
+
+| Field | Type | Access |
+| ----- | ---- | ------ |
+| next | [DisplayListNode](structs.md#DisplayListNode) |  |
+| usingCamSpace | `integer` |  |
+
+[:arrow_up_small:](#)
+
+<br />
+
 ## [DjuiColor](#DjuiColor)
 
 | Field | Type | Access |
@@ -839,6 +882,71 @@
 | b | `integer` |  |
 | g | `integer` |  |
 | r | `integer` |  |
+
+[:arrow_up_small:](#)
+
+<br />
+
+## [DjuiInteractableTheme](#DjuiInteractableTheme)
+
+| Field | Type | Access |
+| ----- | ---- | ------ |
+| cursorDownBorderColor | [DjuiColor](structs.md#DjuiColor) | read-only |
+| cursorDownRectColor | [DjuiColor](structs.md#DjuiColor) | read-only |
+| defaultBorderColor | [DjuiColor](structs.md#DjuiColor) | read-only |
+| defaultRectColor | [DjuiColor](structs.md#DjuiColor) | read-only |
+| hoveredBorderColor | [DjuiColor](structs.md#DjuiColor) | read-only |
+| hoveredRectColor | [DjuiColor](structs.md#DjuiColor) | read-only |
+| textColor | [DjuiColor](structs.md#DjuiColor) | read-only |
+
+[:arrow_up_small:](#)
+
+<br />
+
+## [DjuiPanelTheme](#DjuiPanelTheme)
+
+| Field | Type | Access |
+| ----- | ---- | ------ |
+| hudFontHeader | `boolean` |  |
+
+[:arrow_up_small:](#)
+
+<br />
+
+## [DjuiTheme](#DjuiTheme)
+
+| Field | Type | Access |
+| ----- | ---- | ------ |
+| id | `string` | read-only |
+| interactables | [DjuiInteractableTheme](structs.md#DjuiInteractableTheme) | read-only |
+| name | `string` | read-only |
+| panels | [DjuiPanelTheme](structs.md#DjuiPanelTheme) | read-only |
+| threePanels | [DjuiThreePanelTheme](structs.md#DjuiThreePanelTheme) | read-only |
+
+[:arrow_up_small:](#)
+
+<br />
+
+## [DjuiThreePanelTheme](#DjuiThreePanelTheme)
+
+| Field | Type | Access |
+| ----- | ---- | ------ |
+| borderColor | [DjuiColor](structs.md#DjuiColor) | read-only |
+| rectColor | [DjuiColor](structs.md#DjuiColor) | read-only |
+
+[:arrow_up_small:](#)
+
+<br />
+
+## [ExclamationBoxContent](#ExclamationBoxContent)
+
+| Field | Type | Access |
+| ----- | ---- | ------ |
+| behavior | [enum BehaviorId](constants.md#enum-BehaviorId) |  |
+| firstByte | `integer` |  |
+| id | `integer` |  |
+| model | [enum ModelExtendedId](constants.md#enum-ModelExtendedId) |  |
+| unused | `integer` |  |
 
 [:arrow_up_small:](#)
 
@@ -871,6 +979,16 @@
 | normalY | `number` |  |
 | normalZ | `number` |  |
 | originOffset | `number` |  |
+
+[:arrow_up_small:](#)
+
+<br />
+
+## [FnGraphNode](#FnGraphNode)
+
+| Field | Type | Access |
+| ----- | ---- | ------ |
+| node | [GraphNode](structs.md#GraphNode) | read-only |
 
 [:arrow_up_small:](#)
 
@@ -1081,10 +1199,136 @@
 | children | [GraphNode](structs.md#GraphNode) | read-only |
 | extraFlags | `integer` |  |
 | flags | `integer` |  |
+| hookProcess | `integer` |  |
 | next | [GraphNode](structs.md#GraphNode) | read-only |
 | parent | [GraphNode](structs.md#GraphNode) | read-only |
 | prev | [GraphNode](structs.md#GraphNode) | read-only |
 | type | `integer` | read-only |
+
+[:arrow_up_small:](#)
+
+<br />
+
+## [GraphNodeAnimatedPart](#GraphNodeAnimatedPart)
+
+| Field | Type | Access |
+| ----- | ---- | ------ |
+| node | [GraphNode](structs.md#GraphNode) | read-only |
+| translation | [Vec3s](structs.md#Vec3s) | read-only |
+
+[:arrow_up_small:](#)
+
+<br />
+
+## [GraphNodeBackground](#GraphNodeBackground)
+
+| Field | Type | Access |
+| ----- | ---- | ------ |
+| background | `integer` |  |
+| fnNode | [FnGraphNode](structs.md#FnGraphNode) | read-only |
+| prevCameraFocus | [Vec3f](structs.md#Vec3f) | read-only |
+| prevCameraPos | [Vec3f](structs.md#Vec3f) | read-only |
+| prevCameraTimestamp | `integer` | read-only |
+| unused | `integer` | read-only |
+
+[:arrow_up_small:](#)
+
+<br />
+
+## [GraphNodeBillboard](#GraphNodeBillboard)
+
+| Field | Type | Access |
+| ----- | ---- | ------ |
+| node | [GraphNode](structs.md#GraphNode) | read-only |
+| translation | [Vec3s](structs.md#Vec3s) | read-only |
+
+[:arrow_up_small:](#)
+
+<br />
+
+## [GraphNodeCamera](#GraphNodeCamera)
+
+| Field | Type | Access |
+| ----- | ---- | ------ |
+| fnNode | [FnGraphNode](structs.md#FnGraphNode) | read-only |
+| focus | [Vec3f](structs.md#Vec3f) | read-only |
+| matrixPtr | `Pointer` <`Mat4`> |  |
+| matrixPtrPrev | `Pointer` <`Mat4`> | read-only |
+| pos | [Vec3f](structs.md#Vec3f) | read-only |
+| prevFocus | [Vec3f](structs.md#Vec3f) | read-only |
+| prevPos | [Vec3f](structs.md#Vec3f) | read-only |
+| prevTimestamp | `integer` | read-only |
+| roll | `integer` |  |
+| rollScreen | `integer` |  |
+
+[:arrow_up_small:](#)
+
+<br />
+
+## [GraphNodeCullingRadius](#GraphNodeCullingRadius)
+
+| Field | Type | Access |
+| ----- | ---- | ------ |
+| cullingRadius | `integer` |  |
+| node | [GraphNode](structs.md#GraphNode) | read-only |
+
+[:arrow_up_small:](#)
+
+<br />
+
+## [GraphNodeDisplayList](#GraphNodeDisplayList)
+
+| Field | Type | Access |
+| ----- | ---- | ------ |
+| node | [GraphNode](structs.md#GraphNode) | read-only |
+
+[:arrow_up_small:](#)
+
+<br />
+
+## [GraphNodeGenerated](#GraphNodeGenerated)
+
+| Field | Type | Access |
+| ----- | ---- | ------ |
+| fnNode | [FnGraphNode](structs.md#FnGraphNode) | read-only |
+| parameter | `integer` |  |
+
+[:arrow_up_small:](#)
+
+<br />
+
+## [GraphNodeHeldObject](#GraphNodeHeldObject)
+
+| Field | Type | Access |
+| ----- | ---- | ------ |
+| fnNode | [FnGraphNode](structs.md#FnGraphNode) | read-only |
+| objNode | [Object](structs.md#Object) |  |
+| playerIndex | `integer` |  |
+| prevShadowPos | [Vec3f](structs.md#Vec3f) | read-only |
+| prevShadowPosTimestamp | `integer` | read-only |
+| translation | [Vec3s](structs.md#Vec3s) | read-only |
+
+[:arrow_up_small:](#)
+
+<br />
+
+## [GraphNodeLevelOfDetail](#GraphNodeLevelOfDetail)
+
+| Field | Type | Access |
+| ----- | ---- | ------ |
+| maxDistance | `integer` |  |
+| minDistance | `integer` |  |
+| node | [GraphNode](structs.md#GraphNode) | read-only |
+
+[:arrow_up_small:](#)
+
+<br />
+
+## [GraphNodeMasterList](#GraphNodeMasterList)
+
+| Field | Type | Access |
+| ----- | ---- | ------ |
+| node | [GraphNode](structs.md#GraphNode) | read-only |
 
 [:arrow_up_small:](#)
 
@@ -1121,6 +1365,128 @@
 | throwMatrix | `Pointer` <`Mat4`> |  |
 | throwMatrixPrev | `Pointer` <`Mat4`> | read-only |
 | unk4C | [SpawnInfo](structs.md#SpawnInfo) | read-only |
+
+[:arrow_up_small:](#)
+
+<br />
+
+## [GraphNodeObjectParent](#GraphNodeObjectParent)
+
+| Field | Type | Access |
+| ----- | ---- | ------ |
+| node | [GraphNode](structs.md#GraphNode) | read-only |
+| sharedChild | [GraphNode](structs.md#GraphNode) | read-only |
+
+[:arrow_up_small:](#)
+
+<br />
+
+## [GraphNodeOrthoProjection](#GraphNodeOrthoProjection)
+
+| Field | Type | Access |
+| ----- | ---- | ------ |
+| node | [GraphNode](structs.md#GraphNode) | read-only |
+| scale | `number` |  |
+
+[:arrow_up_small:](#)
+
+<br />
+
+## [GraphNodePerspective](#GraphNodePerspective)
+
+| Field | Type | Access |
+| ----- | ---- | ------ |
+| far | `integer` |  |
+| fnNode | [FnGraphNode](structs.md#FnGraphNode) | read-only |
+| fov | `number` |  |
+| near | `integer` |  |
+| prevFov | `number` |  |
+| prevTimestamp | `number` |  |
+| unused | `integer` | read-only |
+
+[:arrow_up_small:](#)
+
+<br />
+
+## [GraphNodeRotation](#GraphNodeRotation)
+
+| Field | Type | Access |
+| ----- | ---- | ------ |
+| node | [GraphNode](structs.md#GraphNode) | read-only |
+| prevRotation | [Vec3s](structs.md#Vec3s) | read-only |
+| prevTimestamp | `integer` |  |
+| rotation | [Vec3s](structs.md#Vec3s) | read-only |
+
+[:arrow_up_small:](#)
+
+<br />
+
+## [GraphNodeScale](#GraphNodeScale)
+
+| Field | Type | Access |
+| ----- | ---- | ------ |
+| node | [GraphNode](structs.md#GraphNode) | read-only |
+| prevScale | `number` |  |
+| scale | `number` |  |
+
+[:arrow_up_small:](#)
+
+<br />
+
+## [GraphNodeShadow](#GraphNodeShadow)
+
+| Field | Type | Access |
+| ----- | ---- | ------ |
+| node | [GraphNode](structs.md#GraphNode) | read-only |
+| shadowScale | `integer` |  |
+| shadowSolidity | `integer` |  |
+| shadowType | `integer` |  |
+
+[:arrow_up_small:](#)
+
+<br />
+
+## [GraphNodeStart](#GraphNodeStart)
+
+| Field | Type | Access |
+| ----- | ---- | ------ |
+| node | [GraphNode](structs.md#GraphNode) | read-only |
+
+[:arrow_up_small:](#)
+
+<br />
+
+## [GraphNodeSwitchCase](#GraphNodeSwitchCase)
+
+| Field | Type | Access |
+| ----- | ---- | ------ |
+| fnNode | [FnGraphNode](structs.md#FnGraphNode) | read-only |
+| numCases | `integer` | read-only |
+| selectedCase | `integer` |  |
+| unused | `integer` | read-only |
+
+[:arrow_up_small:](#)
+
+<br />
+
+## [GraphNodeTranslation](#GraphNodeTranslation)
+
+| Field | Type | Access |
+| ----- | ---- | ------ |
+| node | [GraphNode](structs.md#GraphNode) | read-only |
+| translation | [Vec3s](structs.md#Vec3s) | read-only |
+
+[:arrow_up_small:](#)
+
+<br />
+
+## [GraphNodeTranslationRotation](#GraphNodeTranslationRotation)
+
+| Field | Type | Access |
+| ----- | ---- | ------ |
+| node | [GraphNode](structs.md#GraphNode) | read-only |
+| rotation | [Vec3s](structs.md#Vec3s) | read-only |
+| translation | [Vec3s](structs.md#Vec3s) | read-only |
 
 [:arrow_up_small:](#)
 
@@ -1431,11 +1797,37 @@
 
 <br />
 
+## [Mat4](#Mat4)
+
+| Field | Type | Access |
+| ----- | ---- | ------ |
+| m00 | `number` |  |
+| m01 | `number` |  |
+| m02 | `number` |  |
+| m03 | `number` |  |
+| m10 | `number` |  |
+| m11 | `number` |  |
+| m12 | `number` |  |
+| m13 | `number` |  |
+| m20 | `number` |  |
+| m21 | `number` |  |
+| m22 | `number` |  |
+| m23 | `number` |  |
+| m30 | `number` |  |
+| m31 | `number` |  |
+| m32 | `number` |  |
+| m33 | `number` |  |
+
+[:arrow_up_small:](#)
+
+<br />
+
 ## [Mod](#Mod)
 
 | Field | Type | Access |
 | ----- | ---- | ------ |
 | basePath | `string` | read-only |
+| category | `string` | read-only |
 | customBehaviorIndex | `integer` | read-only |
 | description | `string` | read-only |
 | enabled | `boolean` | read-only |
@@ -2548,6 +2940,7 @@
 | pauseAnywhere | `integer` |  |
 | playerInteractions | [enum PlayerInteractions](constants.md#enum-PlayerInteractions) |  |
 | playerKnockbackStrength | `integer` |  |
+| pvpType | [enum PvpType](constants.md#enum-PvpType) |  |
 | skipIntro | `integer` |  |
 | stayInLevelAfterStar | `integer` |  |
 
@@ -2724,6 +3117,17 @@
 
 <br />
 
+## [Vec2f](#Vec2f)
+
+| Field | Type | Access |
+| ----- | ---- | ------ |
+| x | `number` |  |
+| y | `number` |  |
+
+[:arrow_up_small:](#)
+
+<br />
+
 ## [Vec3f](#Vec3f)
 
 | Field | Type | Access |
@@ -2743,6 +3147,32 @@
 | x | `integer` |  |
 | y | `integer` |  |
 | z | `integer` |  |
+
+[:arrow_up_small:](#)
+
+<br />
+
+## [Vec4f](#Vec4f)
+
+| Field | Type | Access |
+| ----- | ---- | ------ |
+| x | `number` |  |
+| y | `number` |  |
+| z | `number` |  |
+| w | `number` |  |
+
+[:arrow_up_small:](#)
+
+<br />
+
+## [Vec4s](#Vec4s)
+
+| Field | Type | Access |
+| ----- | ---- | ------ |
+| x | `integer` |  |
+| y | `integer` |  |
+| z | `integer` |  |
+| w | `integer` |  |
 
 [:arrow_up_small:](#)
 

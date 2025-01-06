@@ -7,9 +7,12 @@
 #include "djui_panel_misc.h"
 #include "djui_panel_pause.h"
 #include "djui_panel_menu_options.h"
+#include "djui_panel_modlist.h"
+#include "djui_panel_playerlist.h"
 #include "djui_hud_utils.h"
 #include "pc/utils/misc.h"
 #include "pc/configfile.h"
+#include "pc/lua/smlua_hooks.h"
 #include "game/level_update.h"
 #include "seq_ids.h"
 
@@ -66,12 +69,16 @@ static void djui_panel_menu_options_djui_setting_change(UNUSED struct DjuiBase* 
     if (gDjuiInMainMenu) {
         djui_panel_shutdown();
         gDjuiInMainMenu = true;
+        djui_panel_playerlist_create(NULL);
+        djui_panel_modlist_create(NULL);
         djui_panel_main_create(NULL);
         djui_panel_options_create(NULL);
         djui_panel_misc_create(NULL);
         djui_panel_main_menu_create(NULL);
     } else if (gDjuiPanelPauseCreated) {
         djui_panel_shutdown();
+        djui_panel_playerlist_create(NULL);
+        djui_panel_modlist_create(NULL);
         djui_panel_pause_create(NULL);
         djui_panel_options_create(NULL);
         djui_panel_misc_create(NULL);
@@ -80,6 +87,8 @@ static void djui_panel_menu_options_djui_setting_change(UNUSED struct DjuiBase* 
         djui_text_set_font(gDjuiPauseOptions, gDjuiFonts[configDjuiThemeFont == 0 ? FONT_NORMAL : FONT_ALIASED]);
         djui_text_set_text(gDjuiPauseOptions, DLANG(MISC, R_BUTTON));
     }
+
+    smlua_call_event_hooks(HOOK_ON_DJUI_THEME_CHANGED);
 }
 
 void djui_panel_main_menu_create(struct DjuiBase* caller) {
@@ -89,23 +98,19 @@ void djui_panel_main_menu_create(struct DjuiBase* caller) {
     djui_themes_init();
 
     {
-        struct DjuiCheckbox* center = djui_checkbox_create(body, DLANG(DJUI_THEMES, CENTER), &configDjuiThemeCenter, djui_panel_menu_options_djui_setting_change);
-        if (configExCoopTheme) { djui_base_set_enabled(&center->base, false); }
+        djui_checkbox_create(body, DLANG(DJUI_THEMES, CENTER), &configDjuiThemeCenter, djui_panel_menu_options_djui_setting_change);
 
         char* themeChoices[DJUI_THEME_MAX];
         for (int i = 0; i < DJUI_THEME_MAX; i++) {
             themeChoices[i] = (char*)gDjuiThemes[i]->name;
         }
-        struct DjuiSelectionbox* theme = djui_selectionbox_create(body, DLANG(DJUI_THEMES, DJUI_THEME), themeChoices, DJUI_THEME_MAX, &configDjuiTheme, djui_panel_menu_options_djui_setting_change);
-        if (configExCoopTheme) { djui_base_set_enabled(&theme->base, false); }
+        djui_selectionbox_create(body, DLANG(DJUI_THEMES, DJUI_THEME), themeChoices, DJUI_THEME_MAX, &configDjuiTheme, djui_panel_menu_options_djui_setting_change);
 
         char* djuiScaleChoices[5] = {DLANG(DJUI_THEMES, AUTO), "x0.5", "x0.85", "x1.0", "x1.5"};
-        struct DjuiSelectionbox* scale = djui_selectionbox_create(body, DLANG(DJUI_THEMES, DJUI_SCALE), djuiScaleChoices, 5, &configDjuiScale, djui_panel_menu_options_djui_setting_change);
-        if (configExCoopTheme) { djui_base_set_enabled(&scale->base, false); }
+        djui_selectionbox_create(body, DLANG(DJUI_THEMES, DJUI_SCALE), djuiScaleChoices, 5, &configDjuiScale, djui_panel_menu_options_djui_setting_change);
 
         char* djuiFontChoices[2] = {DLANG(DJUI_THEMES, FONT_NORMAL), DLANG(DJUI_THEMES, FONT_ALIASED)};
-        struct DjuiSelectionbox* font = djui_selectionbox_create(body, DLANG(DJUI_THEMES, DJUI_FONT), djuiFontChoices, 2, &configDjuiThemeFont, djui_panel_menu_options_djui_setting_change);
-        if (configExCoopTheme) { djui_base_set_enabled(&font->base, false); }
+        djui_selectionbox_create(body, DLANG(DJUI_THEMES, DJUI_FONT), djuiFontChoices, 2, &configDjuiThemeFont, djui_panel_menu_options_djui_setting_change);
 
         if (gDjuiInMainMenu) {
             // get level choices

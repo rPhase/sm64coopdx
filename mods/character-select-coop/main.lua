@@ -1,5 +1,5 @@
 -- name: Character Select
--- description:\\#ffff33\\-- Character Select Coop v1.11.2 --\n\n\\#dcdcdc\\A Library / API made to make adding and using Custom Characters as simple as possible!\nUse\\#ffff33\\ /char-select\\#dcdcdc\\ to get started!\n\nCreated by:\\#008800\\ Squishy6094\n\n\\#AAAAFF\\Updates can be found on\nCharacter Select's Github:\n\\#6666FF\\Squishy6094/character-select-coop
+-- description:\\#ffff33\\-- Character Select Coop v1.12 --\n\n\\#dcdcdc\\A Library / API made to make adding and using Custom Characters as simple as possible!\nUse\\#ffff33\\ /char-select\\#dcdcdc\\ to get started!\n\nCreated by:\\#008800\\ Squishy6094\n\n\\#AAAAFF\\Updates can be found on\nCharacter Select's Github:\n\\#6666FF\\Squishy6094/character-select-coop
 -- pausable: false
 -- category: cs
 
@@ -466,7 +466,10 @@ end
 
 local function boot_note()
     if #characterTable > 1 then
-        djui_chat_message_create("Character Select has " .. (#characterTable - 1) .. " character" .. (#characterTable > 2 and "s" or "") .. " available!\nYou can use \\#ffff33\\/char-select \\#ffffff\\to open the menu!")
+        djui_chat_message_create("Character Select has " .. (#characterTable - 1) .. " character" .. (#characterTable > 2 and "s" or "") .." available!\nYou can use \\#ffff33\\/char-select \\#ffffff\\to open the menu!")
+        if #characterTable > 32 and network_is_server() then
+            djui_chat_message_create("\\#FFAAAA\\Warning: Having more than 32 Characters\nmay be unstable, For a better experience please\ndisable a few packs!")
+        end
     else
         djui_chat_message_create("Character Select is active!\nYou can use \\#ffff33\\/char-select \\#ffffff\\to open the menu!")
     end
@@ -496,6 +499,24 @@ local function menu_is_allowed(m)
     return true
 end
 
+local function get_next_unlocked_char()
+    for i = currChar, #characterTable do
+        if not characterTable[i].locked then
+            return i
+        end
+    end
+    return 1
+end
+
+local function get_last_unlocked_char()
+    for i = currChar, 1, -1 do
+        if not characterTable[i].locked then
+            return i
+        end
+    end
+    return 1
+end
+
 -------------------
 -- Model Handler --
 -------------------
@@ -513,6 +534,10 @@ local ignoredSurfaces = {
 local TYPE_FUNCTION = "function"
 local TYPE_BOOLEAN = "boolean"
 local TYPE_STRING = "string"
+local TYPE_INTEGER = "number"
+local TYPE_TABLE = "table"
+
+local MATH_PI = math.pi
 
 local menuActBlacklist = {
     -- Star Acts
@@ -539,16 +564,33 @@ local menuActBlacklist = {
 }
 
 local faceAngle = 0
-local altOffsetActs = {
-    [ACT_CROUCH_SLIDE] = true,
+local function anim_generic_idle_offset(offset, animFrame)
+    return offset - math.max((math.sin((animFrame)/24*MATH_PI)+1.1)*2, 1.8)
+end
+local altOffsetAnim = {
+    [MARIO_ANIM_CROUCHING] = true,
     [ACT_READING_AUTOMATIC_DIALOG] = true,
-    [ACT_DEATH_EXIT_LAND] = true,
-    [ACT_SLIDE_KICK] = false,
-    [ACT_SLIDE_KICK_SLIDE] = false,
-    [ACT_GROUND_POUND] = true,
+    [MARIO_ANIM_FALL_OVER_BACKWARDS] = true,
+    [MARIO_ANIM_SLIDE_KICK] = false,
+    [MARIO_ANIM_GROUND_POUND] = false,
+    [MARIO_ANIM_GROUND_POUND_LANDING] = false,
+    [MARIO_ANIM_SLEEP_IDLE] = false,
+    [MARIO_ANIM_SLEEP_LYING] = false,
+    [MARIO_ANIM_SLEEP_START_LYING] = false,
+    [MARIO_ANIM_IDLE_HEAD_LEFT] = function (offset, animFrame)
+        return anim_generic_idle_offset(offset, animFrame)
+    end,
+    [MARIO_ANIM_IDLE_HEAD_CENTER] = function (offset, animFrame)
+        return anim_generic_idle_offset(offset, animFrame)
+    end,
+    [MARIO_ANIM_IDLE_HEAD_RIGHT] = function (offset, animFrame)
+        return anim_generic_idle_offset(offset, animFrame)
+    end,
 }
 
 local prevBaseCharFrame = gNetworkPlayers[0].modelIndex
+local prevAnim = 0
+local animTimer = 0
 --- @param m MarioState
 local function mario_update(m)
     local np = gNetworkPlayers[m.playerIndex]
@@ -671,12 +713,42 @@ local function mario_update(m)
             optionTable[i].optionBeingSet = false
         end
     end
+
+    local marioGfx = m.marioObj.header.gfx
+    if prevAnim ~= marioGfx.animInfo.animID then
+        prevAnim = marioGfx.animInfo.animID
+        animTimer = 0
+    end
+    animTimer = animTimer + 1
+        
     
-    local offset = p.offset
+    local networkOffset = p.offset
     local forceChar = p.forceChar
-    if offset ~= 0 and offset ~= nil then
-        if altOffsetActs[m.action] ~= false then
-            m.marioObj.header.gfx.pos.y = (altOffsetActs[m.action] and m.pos.y or m.marioObj.header.gfx.pos.y) + offset
+    if networkOffset ~= 0 and networkOffset ~= nil then
+        if m.playerIndex == 0 then
+        end
+        local offset = altOffsetAnim[marioGfx.animInfo.animID]
+        if offset ~= false then
+            if type(offset) == TYPE_FUNCTION then
+                marioGfx.pos.y = marioGfx.pos.y + offset(networkOffset, marioGfx.animInfo.animFrame)
+            elseif type(offset) == TYPE_TABLE then
+                marioGfx.pos.y = marioGfx.pos.y - offset[(math.min(animTimer, #offset))]*networkOffset + networkOffset
+            elseif type(offset) == TYPE_INTEGER then
+                marioGfx.pos.y = marioGfx.pos.y + networkOffset*offset
+            else
+                marioGfx.pos.y = (altOffsetAnim[marioGfx.animInfo.animID] and m.pos.y or marioGfx.pos.y) + networkOffset
+            end
+        end
+    end
+    if forceChar ~= nil then
+        np.overrideModelIndex = forceChar
+    end
+
+    -- Character Animations
+    if characterAnims[p.modelId] then
+        local animID = characterAnims[p.modelId][m.marioObj.header.gfx.animInfo.animID]
+        if animID then
+            smlua_anim_util_set_animation(m.marioObj, animID)
         end
     end
     if forceChar ~= nil then
@@ -794,8 +866,9 @@ local TEXT_MOVESET_RESTRICTED = "Movesets are Restricted"
 local TEXT_PALETTE_RESTRICTED = "Palettes are Restricted"
 local TEXT_MOVESET_AND_PALETTE_RESTRICTED = "Moveset and Palettes are Restricted"
 local TEXT_CHAR_LOCKED = "Locked"
+-- Easter Egg if you get lucky loading the mod
+-- Referencing the original sm64ex DynOS options by PeachyPeach >v<
 if math_random(100) == 64 then
-    -- Easter Egg if you get lucky loading the mod Referencing the original sm64ex DynOS options by PeachyPeach >v<
     TEXT_PAUSE_Z_OPEN = "Z - DynOS"
     TEXT_PAUSE_CURR_CHAR = "Model: "
 end
@@ -834,7 +907,7 @@ function update_menu_color()
     elseif optionTable[optionTableRef.menuColor].toggle == 1 then
         optionTable[optionTableRef.menuColor].toggleNames[2] = string_underscore_to_space(TEXT_PREF_LOAD_NAME) .. ((TEXT_PREF_LOAD_ALT ~= 1 and currChar ~= 1) and " ("..TEXT_PREF_LOAD_ALT..")" or "") .. " (Pref)"
         menuColor = prefCharColor
-    else
+    elseif characterTable[currChar] ~= nil then
         local char = characterTable[currChar]
         menuColor = char[char.currAlt].color
     end
@@ -1496,9 +1569,7 @@ local function before_mario_update(m)
                     currChar = currChar + 1
                     local character = characterTable[currChar]
                     if character ~= nil and character.locked then
-                        repeat
-                            currChar = currChar + 1
-                        until (not characterTable[currChar].locked) or currChar > #characterTable
+                        currChar = get_next_unlocked_char()
                     end
                     if (controller.buttonPressed & D_CBUTTONS) == 0 then
                         inputStallTimerDirectional = inputStallToDirectional
@@ -1518,9 +1589,7 @@ local function before_mario_update(m)
                     currChar = currChar - 1
                     local character = characterTable[currChar]
                     if character ~= nil and character.locked then
-                        repeat
-                            currChar = currChar - 1
-                        until (not characterTable[currChar].locked) or currChar < 1
+                        currChar = get_last_unlocked_char()
                     end
                     if (controller.buttonPressed & U_CBUTTONS) == 0 then
                         inputStallTimerDirectional = inputStallToDirectional
@@ -1671,9 +1740,14 @@ local function chat_command(msg)
     msg = string_lower(msg)
 
     -- Open Menu Check
-    if msg == "" or msg == "menu" then
-        menu = not menu
-        return true
+    if (msg == "" or msg == "menu") then
+        if menu_is_allowed(gMarioStates[0]) then
+            menu = not menu
+            return true
+        else
+            djui_chat_message_create(TEXT_PAUSE_UNAVALIBLE)
+            return true
+        end
     end
 
     -- Help Prompt Check
@@ -1733,3 +1807,16 @@ local function chat_command(msg)
 end
 
 hook_chat_command("char-select", "- Opens the Character Select Menu", chat_command)
+
+--[[
+local function mod_menu_open_cs()
+    local m = gMarioStates[0]
+    if menu_is_allowed(m) then
+        gMarioStates[0].controller.buttonPressed = START_BUTTON
+        menu = true
+    else
+        play_sound(SOUND_MENU_CAMERA_BUZZ, m.pos)
+    end
+end
+hook_mod_menu_button("Open Menu", mod_menu_open_cs)
+]]

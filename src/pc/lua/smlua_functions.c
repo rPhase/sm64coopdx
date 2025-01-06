@@ -15,6 +15,7 @@
 #include "include/macro_presets.h"
 #include "utils/smlua_anim_utils.h"
 #include "utils/smlua_collision_utils.h"
+#include "game/hardcoded.h"
 
 bool smlua_functions_valid_param_count(lua_State* L, int expected) {
     int top = lua_gettop(L);
@@ -176,6 +177,110 @@ int smlua_func_network_send(lua_State* L) {
 int smlua_func_network_send_to(lua_State* L) {
     if (!smlua_functions_valid_param_count(L, 3)) { return 0; }
     network_send_lua_custom(false);
+    return 1;
+}
+
+int smlua_func_set_exclamation_box_contents(lua_State* L) {
+    if (!smlua_functions_valid_param_count(L, 1)) { return 0; }
+
+    if (lua_type(L, 1) != LUA_TTABLE) {
+        LOG_LUA_LINE("Invalid type passed to set_exclamation_box(): %u", lua_type(L, -1));
+        return 0;
+    }
+
+    struct ExclamationBoxContent exclamationBoxNewContents[EXCLAMATION_BOX_MAX_SIZE];
+
+    u8 exclamationBoxIndex = 0;
+    lua_pushnil(L); // Initial pop
+    while (lua_next(L, 1)) /* Main table index */ {
+        if (lua_type(L, 3) != LUA_TTABLE) {
+            LOG_LUA_LINE("set_exclamation_box: Subtable is not a table (Subtable %u)", exclamationBoxIndex);
+            return 0;
+        }
+
+        lua_pushnil(L); // Subtable initial pop
+        bool confirm[] = { false, false, false, false, false }; /* id, unused, firstByte, model, behavior */
+        while (lua_next(L, 3)) /* Subtable index */ {
+            // key is index -2, value is index -1
+            const char* key = smlua_to_string(L, -2);
+            if (!gSmLuaConvertSuccess) {
+                LOG_LUA("set_exclamation_box: Failed to convert subtable key");
+                return 0;
+            }
+
+            s32 value = smlua_to_integer(L, -1);
+            if (!gSmLuaConvertSuccess) {
+                LOG_LUA("set_exclamation_box: Failed to convert subtable value");
+                return 0;
+            }
+
+            // Fill fields
+            if (strcmp(key, "id") == 0) { exclamationBoxNewContents[exclamationBoxIndex].id = value; confirm[0] = true; }
+            else if (strcmp(key, "unused") == 0) { exclamationBoxNewContents[exclamationBoxIndex].unused = value; confirm[1] = true; }
+            else if (strcmp(key, "firstByte") == 0) { exclamationBoxNewContents[exclamationBoxIndex].firstByte = value; confirm[2] = true; }
+            else if (strcmp(key, "model") == 0) { exclamationBoxNewContents[exclamationBoxIndex].model = value; confirm[3] = true; }
+            else if (strcmp(key, "behavior") == 0) { exclamationBoxNewContents[exclamationBoxIndex].behavior = value; confirm[4] = true; }
+            else {
+                LOG_LUA_LINE_WARNING("set_exclamation_box: Invalid key passed (Subtable %d)", exclamationBoxIndex);
+            }
+
+            lua_pop(L, 1); // Pop value
+        }
+        // Check if the fields have been filled
+        if (!(confirm[0]) || !(confirm[3]) || !(confirm[4])) {
+            LOG_LUA("set_exclamation_box: A critical component of a content (id, model, or behavior) has not been set (Subtable %d)", exclamationBoxIndex);
+            return 0;
+        }
+        if (!(confirm[1])) { exclamationBoxNewContents[exclamationBoxIndex].unused = 0; }
+        if (!(confirm[2])) { exclamationBoxNewContents[exclamationBoxIndex].firstByte = 0; }
+
+        if (++exclamationBoxIndex == EXCLAMATION_BOX_MAX_SIZE) { // There is an edge case where the 254th element will warn even though it works just fine
+            // Immediately exit if at risk for out of bounds array access.
+            lua_pop(L, 1);
+            LOG_LUA_LINE_WARNING("set_exclamation_box: Too many items have been set for the exclamation box. Some content spawns may be lost.");
+            break;
+        }
+        lua_pop(L, 1); // Pop subtable
+    }
+
+    memcpy(gExclamationBoxContents, exclamationBoxNewContents, sizeof(struct ExclamationBoxContent) * exclamationBoxIndex);
+    gExclamationBoxSize = exclamationBoxIndex;
+
+    return 1;
+}
+
+int smlua_func_get_exclamation_box_contents(lua_State* L) {
+    if (!smlua_functions_valid_param_count(L, 0)) { return 0; }
+
+    lua_newtable(L); // Index 1
+
+    for (u8 i = 0; i < gExclamationBoxSize; i++) {
+        lua_pushinteger(L, i); // Index 2
+        lua_newtable(L); // Index 3
+
+        lua_pushstring(L, "id");
+        lua_pushinteger(L, gExclamationBoxContents[i].id);
+        lua_settable(L, -3);
+
+        lua_pushstring(L, "unused");
+        lua_pushinteger(L, gExclamationBoxContents[i].unused);
+        lua_settable(L, -3);
+
+        lua_pushstring(L, "firstByte");
+        lua_pushinteger(L, gExclamationBoxContents[i].firstByte);
+        lua_settable(L, -3);
+
+        lua_pushstring(L, "model");
+        lua_pushinteger(L, gExclamationBoxContents[i].model);
+        lua_settable(L, -3);
+
+        lua_pushstring(L, "behavior");
+        lua_pushinteger(L, gExclamationBoxContents[i].behavior);
+        lua_settable(L, -3);
+
+        lua_settable(L, 1); // Insert the subtable into the main table
+    }
+
     return 1;
 }
 
@@ -452,6 +557,7 @@ int smlua_func_texture_override_set(lua_State* L) {
     if (!smlua_functions_valid_param_count(L, 2)) { return 0; }
 
     const char* textureName = smlua_to_string(L, 1);
+    if (!gSmLuaConvertSuccess) { LOG_LUA("texture_override_set: Failed to convert parameter 1"); return 0; }
 
     struct TextureInfo tmpOverrideTexInfo = { 0 };
     struct TextureInfo* overrideTexInfo = &tmpOverrideTexInfo;
@@ -840,6 +946,69 @@ int smlua_func_collision_find_surface_on_ray(lua_State* L) {
     return 1;
 }
 
+  ////////////////
+ // graph node //
+////////////////
+
+typedef struct { s16 type; u16 lot; } GraphNodeLot;
+static GraphNodeLot graphNodeLots[23] = {
+    { GRAPH_NODE_TYPE_ANIMATED_PART, LOT_GRAPHNODEANIMATEDPART },
+    { GRAPH_NODE_TYPE_BACKGROUND, LOT_GRAPHNODEBACKGROUND },
+    { GRAPH_NODE_TYPE_BILLBOARD, LOT_GRAPHNODEBILLBOARD },
+    { GRAPH_NODE_TYPE_CAMERA, LOT_GRAPHNODECAMERA },
+    { GRAPH_NODE_TYPE_CULLING_RADIUS, LOT_GRAPHNODECULLINGRADIUS },
+    { GRAPH_NODE_TYPE_DISPLAY_LIST, LOT_GRAPHNODEDISPLAYLIST },
+    { GRAPH_NODE_TYPE_FUNCTIONAL, LOT_FNGRAPHNODE },
+    { GRAPH_NODE_TYPE_GENERATED_LIST, LOT_GRAPHNODEGENERATED },
+    { GRAPH_NODE_TYPE_HELD_OBJ, LOT_GRAPHNODEHELDOBJECT },
+    { GRAPH_NODE_TYPE_LEVEL_OF_DETAIL, LOT_GRAPHNODELEVELOFDETAIL },
+    { GRAPH_NODE_TYPE_MASTER_LIST, LOT_GRAPHNODEMASTERLIST },
+    { GRAPH_NODE_TYPE_OBJECT, LOT_GRAPHNODEOBJECT },
+    { GRAPH_NODE_TYPE_OBJECT_PARENT, LOT_GRAPHNODEOBJECTPARENT },
+    { GRAPH_NODE_TYPE_ORTHO_PROJECTION, LOT_GRAPHNODEORTHOPROJECTION },
+    { GRAPH_NODE_TYPE_PERSPECTIVE, LOT_GRAPHNODEPERSPECTIVE },
+    { GRAPH_NODE_TYPE_ROOT, LOT_GRAPHNODE },
+    { GRAPH_NODE_TYPE_ROTATION, LOT_GRAPHNODEROTATION },
+    { GRAPH_NODE_TYPE_SCALE, LOT_GRAPHNODESCALE },
+    { GRAPH_NODE_TYPE_SHADOW, LOT_GRAPHNODESHADOW },
+    { GRAPH_NODE_TYPE_START, LOT_GRAPHNODESTART },
+    { GRAPH_NODE_TYPE_SWITCH_CASE, LOT_GRAPHNODESWITCHCASE },
+    { GRAPH_NODE_TYPE_TRANSLATION, LOT_GRAPHNODETRANSLATION },
+    { GRAPH_NODE_TYPE_TRANSLATION_ROTATION, LOT_GRAPHNODETRANSLATIONROTATION },
+};
+
+int smlua_func_cast_graph_node(lua_State* L) {
+    if (!smlua_functions_valid_param_count(L, 1)) { return 0; }
+
+    struct GraphNode* graphNode;
+
+    if (smlua_is_cobject(L, 1, LOT_GRAPHNODE)) {
+        graphNode = (struct GraphNode*)smlua_to_cobject(L, 1, LOT_GRAPHNODE);
+        if (!gSmLuaConvertSuccess) { LOG_LUA("cast_graph_node: Failed to convert parameter 1"); return 0; }
+    } else if (smlua_is_cobject(L, 1, LOT_FNGRAPHNODE)) {
+        graphNode = (struct GraphNode*)smlua_to_cobject(L, 1, LOT_FNGRAPHNODE);
+        if (!gSmLuaConvertSuccess) { LOG_LUA("cast_graph_node: Failed to convert parameter 1"); return 0; }
+    } else {
+        LOG_LUA("cast_graph_node: Failed to convert parameter 1");
+        return 0;
+    }
+
+    u16 lot = 0;
+    for (u8 i = 0; i != 23; i++) {
+        if (graphNode->type != graphNodeLots[i].type) continue;
+        lot = graphNodeLots[i].lot;
+        break;
+    }
+    if (lot == 0) {
+        LOG_LUA("cast_graph_node: Invalid GraphNode type");
+        return 0;
+    }
+
+    smlua_push_object(L, lot, graphNode);
+
+    return 1;
+}
+
   //////////
  // bind //
 //////////
@@ -855,6 +1024,8 @@ void smlua_bind_functions(void) {
     smlua_bind_function(L, "reset_level", smlua_func_reset_level);
     smlua_bind_function(L, "network_send", smlua_func_network_send);
     smlua_bind_function(L, "network_send_to", smlua_func_network_send_to);
+    smlua_bind_function(L, "set_exclamation_box_contents", smlua_func_set_exclamation_box_contents);
+    smlua_bind_function(L, "get_exclamation_box_contents", smlua_func_get_exclamation_box_contents);
     smlua_bind_function(L, "get_texture_info", smlua_func_get_texture_info);
     smlua_bind_function(L, "djui_hud_render_texture", smlua_func_djui_hud_render_texture);
     smlua_bind_function(L, "djui_hud_render_texture_tile", smlua_func_djui_hud_render_texture_tile);
@@ -867,4 +1038,5 @@ void smlua_bind_functions(void) {
     smlua_bind_function(L, "log_to_console", smlua_func_log_to_console);
     smlua_bind_function(L, "add_scroll_target", smlua_func_add_scroll_target);
     smlua_bind_function(L, "collision_find_surface_on_ray", smlua_func_collision_find_surface_on_ray);
+    smlua_bind_function(L, "cast_graph_node", smlua_func_cast_graph_node);
 }

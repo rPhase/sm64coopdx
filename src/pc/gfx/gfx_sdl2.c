@@ -260,6 +260,9 @@ static void gfx_sdl_handle_events(void) {
             case SDL_TEXTINPUT:
                 kb_text_input(event.text.text);
                 break;
+            case SDL_TEXTEDITING: //IME composition
+                kb_text_editing(event.edit.text,event.edit.start);
+                break;
             case SDL_KEYDOWN:
                 gfx_sdl_onkeydown(event.key.keysym.scancode);
                 break;
@@ -309,11 +312,14 @@ static void gfx_sdl_handle_events(void) {
     }
 }
 
-static void gfx_sdl_set_keyboard_callbacks(kb_callback_t on_key_down, kb_callback_t on_key_up, void (*on_all_keys_up)(void), void (*on_text_input)(char*)) {
+static void gfx_sdl_set_keyboard_callbacks(kb_callback_t on_key_down, kb_callback_t on_key_up,
+void (*on_all_keys_up)(void), void (*on_text_input)(char*), void (*on_text_editing)(char*, int))
+{
     kb_key_down = on_key_down;
     kb_key_up = on_key_up;
     kb_all_keys_up = on_all_keys_up;
     kb_text_input = on_text_input;
+    kb_text_editing = on_text_editing;
 }
 
 #ifdef TOUCH_CONTROLS

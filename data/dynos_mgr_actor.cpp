@@ -24,7 +24,7 @@ static Array<Pair<const char*, void *>>& DynosCustomActors() {
 // TODO: the cleanup/refactor didn't really go as planned.
 //       clean up the actor management code more
 
-void DynOS_Actor_AddCustom(const SysPath &aFilename, const char *aActorName) {
+void DynOS_Actor_AddCustom(s32 aModIndex, const SysPath &aFilename, const char *aActorName) {
     const void* georef = DynOS_Builtin_Actor_GetFromName(aActorName);
 
     u16 actorLen = strlen(aActorName);
@@ -37,6 +37,7 @@ void DynOS_Actor_AddCustom(const SysPath &aFilename, const char *aActorName) {
         free(actorName);
         return;
     }
+    _GfxData->mModIndex = aModIndex;
 
     void* geoLayout = (*(_GfxData->mGeoLayouts.end() - 1))->mData;
     if (!geoLayout) {
@@ -107,6 +108,26 @@ const void *DynOS_Actor_GetLayoutFromName(const char *aActorName) {
     }
 
     return NULL;
+}
+
+bool DynOS_Actor_GetModIndexAndToken(const GraphNode *aGraphNode, u32 aTokenIndex, s32 *outModIndex, const char **outToken) {
+    ActorGfx *_ActorGfx = DynOS_Actor_GetActorGfx(aGraphNode);
+    if (_ActorGfx) {
+        GfxData *_GfxData = _ActorGfx->mGfxData;
+        if (_GfxData) {
+            if (outModIndex) {
+                *outModIndex = _GfxData->mModIndex;
+            }
+            if (outToken) {
+                if (!aTokenIndex || aTokenIndex > _GfxData->mLuaTokenList.Count()) {
+                    return false;
+                }
+                *outToken = _GfxData->mLuaTokenList[aTokenIndex - 1].begin(); // token index is 1-indexed
+            }
+            return true;
+        }
+    }
+    return false;
 }
 
 ActorGfx* DynOS_Actor_GetActorGfx(const GraphNode* aGraphNode) {
@@ -180,12 +201,14 @@ void DynOS_Actor_Override_All(void) {
     for (s32 list : { OBJ_LIST_PLAYER, OBJ_LIST_DESTRUCTIVE, OBJ_LIST_GENACTOR, OBJ_LIST_PUSHABLE, OBJ_LIST_LEVEL, OBJ_LIST_DEFAULT, OBJ_LIST_SURFACE, OBJ_LIST_POLELIKE, OBJ_LIST_UNIMPORTANT }) {
         struct Object *_Head = (struct Object *) &gObjectLists[list];
         for (struct Object *_Object = (struct Object *) _Head->header.next; _Object != _Head; _Object = (struct Object *) _Object->header.next) {
-            if (_Object->header.gfx.sharedChild != NULL && _Object->header.gfx.sharedChild->georef != NULL) {
-                GraphNode* georef = (GraphNode*)_Object->header.gfx.sharedChild->georef;
-                u32 id = 0;
-                _Object->header.gfx.sharedChild = DynOS_Model_LoadGeo(&id, MODEL_POOL_PERMANENT, georef, true);
+            if (_Object->activeFlags && _Object->header.gfx.sharedChild != NULL) {
+                if (_Object->header.gfx.sharedChild->georef != NULL) {
+                    GraphNode* georef = (GraphNode*)_Object->header.gfx.sharedChild->georef;
+                    u32 id = 0;
+                    _Object->header.gfx.sharedChild = DynOS_Model_LoadGeo(&id, MODEL_POOL_PERMANENT, georef, true);
+                }
+                DynOS_Actor_Override(_Object, (void**)&_Object->header.gfx.sharedChild);
             }
-            DynOS_Actor_Override(_Object, (void**)&_Object->header.gfx.sharedChild);
         }
     }
 }

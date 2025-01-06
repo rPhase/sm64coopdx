@@ -130,6 +130,7 @@ struct GraphNode
     struct GraphNode *children;
     const void *georef;
     u8 extraFlags;
+    u8 hookProcess;
 };
 
 struct AnimInfo
@@ -428,7 +429,7 @@ struct MarioState
     /*????*/ u8 wasNetworkVisible;
     /*????*/ f32 minimumBoneY;
     /*????*/ f32 curAnimOffset;
-    /*????*/ u8 knockbackTimer;
+    /*????*/ s8 knockbackTimer;
     /*????*/ u8 specialTripleJump;
     /*????*/ Vec3f wallNormal;
     /*????*/ u8 visibleToEnemies;

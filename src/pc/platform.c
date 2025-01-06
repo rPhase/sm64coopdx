@@ -5,14 +5,19 @@
 #include <string.h>
 #include <ctype.h>
 
-#ifdef _WIN32
+#if defined(_WIN32)
 #include <windows.h>
 #include <shlobj.h>
 #include <shlwapi.h>
+#elif defined(__APPLE__)
+#include <mach-o/dyld.h>
+#else
+#include <unistd.h>
 #endif
 
 #include "cliopts.h"
 #include "fs/fs.h"
+#include "debuglog.h"
 #include "configfile.h"
 
 /* NULL terminated list of platform specific read-only data paths */
@@ -251,17 +256,31 @@ const char *sys_user_path(void)
     return sys_windows_short_path_from_wcs(shortPath, SYS_MAX_PATH, widePath) ? shortPath : NULL;
 }
 
-const char *sys_exe_path(void)
+const char *sys_exe_path_dir(void)
+{
+    static char path[SYS_MAX_PATH];
+    if ('\0' != path[0]) { return path; }
+
+    const char *exeFilepath = sys_exe_path_file();
+    char *lastSeparator = strrchr(exeFilepath, '\\');
+    if (lastSeparator != NULL) {
+        size_t count = (size_t)(lastSeparator - exeFilepath);
+        strncpy(path, exeFilepath, count);
+    }
+
+    return path;
+}
+
+const char *sys_exe_path_file(void)
 {
     static char shortPath[SYS_MAX_PATH] = { 0 };
     if ('\0' != shortPath[0]) { return shortPath; }
 
     WCHAR widePath[SYS_MAX_PATH];
-    if (0 == GetModuleFileNameW(NULL, widePath, SYS_MAX_PATH)) { return NULL; }
-
-    WCHAR *lastBackslash = wcsrchr(widePath, L'\\');
-    if (NULL != lastBackslash) { *lastBackslash = L'\0'; }
-    else { return NULL; }
+    if (0 == GetModuleFileNameW(NULL, widePath, SYS_MAX_PATH)) {
+        LOG_ERROR("unable to retrieve absolute path.");
+        return shortPath;
+    }
 
     return sys_windows_short_path_from_wcs(shortPath, SYS_MAX_PATH, widePath) ? shortPath : NULL;
 }
