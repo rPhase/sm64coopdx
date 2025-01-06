@@ -490,10 +490,10 @@ void render_touch_controls(void) {
             pos = get_pos(&configControlConfigElements[i], 0);
             if (pos.y == HIDE_POS) continue;
             size = configControlConfigElements[i].size[0];
-            if ((ControlElements[i].touchID) || (i == TOUCH_SNAP && configElementSnap)) {
-                select_char_texture(ControlElements[i].buttonTexture.buttonDown);
+            if ((ControlConfigElements[i].touchID) || (i == TOUCH_SNAP && configElementSnap)) {
+                select_char_texture(ControlConfigElements[i].buttonTexture.buttonDown);
             } else {
-                select_char_texture(ControlElements[i].buttonTexture.buttonUp);
+                select_char_texture(ControlConfigElements[i].buttonTexture.buttonUp);
             }
             DrawSprite(pos.x - 8, pos.y, 1 + size / 100);
         }
