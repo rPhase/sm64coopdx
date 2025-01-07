@@ -9,7 +9,7 @@ local mod_storage_remove,mod_storage_load_bool,mod_storage_exists,math_floor,mod
 use24h = mod_storage_load_bool("24h")
 
 --- @type boolean
-playNightMusic = if_then_else(mod_storage_exists("night_music"), mod_storage_load_bool("night_music"), true)
+playNightMusic = if_then_else(mod_storage_load("night_music") == nil, true, mod_storage_load_bool("night_music"))
 playingNightMusic = false
 
 --- Returns the amount of days that have passed
