@@ -332,7 +332,11 @@ static int smlua__get_field(lua_State* L) {
 
     const CObject *cobj = lua_touserdata(L, 1);
     enum LuaObjectType lot = cobj->lot;
+    #ifdef TARGET_ANDROID
+    u64 pointer = *(u64**)cobj->pointer;
+    #else
     u64 pointer = (u64)(intptr_t) cobj->pointer;
+    #endif
 
     const char *key = lua_tostring(L, 2);
     if (!key) {
@@ -419,7 +423,11 @@ static int smlua__set_field(lua_State* L) {
 
     const CObject *cobj = lua_touserdata(L, 1);
     enum LuaObjectType lot = cobj->lot;
+    #ifdef TARGET_ANDROID
+    u64 pointer = *(u64**)cobj->pointer;
+    #else
     u64 pointer = (u64)(intptr_t) cobj->pointer;
+    #endif
 
     const char *key = lua_tostring(L, 2);
     if (!key) {
