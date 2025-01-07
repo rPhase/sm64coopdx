@@ -35,5 +35,5 @@ Copy your ROM to com.maniscat2.sm64coopdx/user (at internal storage).
 Open the game, The game should load and you'll be able to play!
 
 ## Discord
-This SM64CoopDX android port has a discord server that you can join if you have question Or want to report bugs.
+This SM64CoopDX android port has a discord server that you can join if you have questions or want to report bugs or just wanna download the game.
 [discord link](https://discord.gg/WzQSRfHh6g)
