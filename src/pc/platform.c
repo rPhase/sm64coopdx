@@ -14,6 +14,7 @@
 #include "cliopts.h"
 #include "fs/fs.h"
 #include "configfile.h"
+#include "debuglog.h"
 
 /* NULL terminated list of platform specific read-only data paths */
 /* priority is top first */
@@ -264,6 +265,35 @@ const char *sys_exe_path(void)
     else { return NULL; }
 
     return sys_windows_short_path_from_wcs(shortPath, SYS_MAX_PATH, widePath) ? shortPath : NULL;
+}
+
+const char *sys_exe_path_file(void)
+{
+    static char shortPath[SYS_MAX_PATH] = { 0 };
+    if ('\0' != shortPath[0]) { return shortPath; }
+
+    WCHAR widePath[SYS_MAX_PATH];
+    if (0 == GetModuleFileNameW(NULL, widePath, SYS_MAX_PATH)) {
+        LOG_ERROR("unable to retrieve absolute path.");
+        return shortPath;
+    }
+
+    return sys_windows_short_path_from_wcs(shortPath, SYS_MAX_PATH, widePath) ? shortPath : NULL;
+}
+
+const char *sys_exe_path_dir(void)
+{
+    static char path[SYS_MAX_PATH];
+    if ('\0' != path[0]) { return path; }
+
+    const char *exeFilepath = sys_exe_path_file();
+    char *lastSeparator = strrchr(exeFilepath, '\\');
+    if (lastSeparator != NULL) {
+        size_t count = (size_t)(lastSeparator - exeFilepath);
+        strncpy(path, exeFilepath, count);
+    }
+
+    return path;
 }
 
 static void sys_fatal_impl(const char *msg) {

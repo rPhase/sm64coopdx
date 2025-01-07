@@ -94,7 +94,11 @@ void djui_panel_language_create(struct DjuiBase* caller) {
     {
         // construct lang path
         char lpath[SYS_MAX_PATH] = "";
-        snprintf(lpath, SYS_MAX_PATH, "%s/lang", sys_exe_path());
+        #ifndef TARGET_ANDROID
+        snprintf(lpath, SYS_MAX_PATH, "%s/lang", sys_exe_path_dir());
+        #else
+        snprintf(lpath, SYS_MAX_PATH, "%s/lang", get_gamedir());
+        #endif
 
         // open directory
         struct dirent* dir = NULL;

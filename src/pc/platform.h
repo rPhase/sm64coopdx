@@ -29,6 +29,8 @@ const char* get_gamedir(void);
 #ifdef _WIN32
 bool sys_windows_short_path_from_wcs(char *destPath, size_t destSize, const wchar_t *wcsLongPath);
 bool sys_windows_short_path_from_mbs(char* destPath, size_t destSize, const char *mbsLongPath);
+const char *sys_exe_path_dir(void);
+const char *sys_exe_path_file(void);
 #endif
 const char *sys_user_path(void);
 const char *sys_exe_path(void);

@@ -28,7 +28,8 @@ bool djui_language_init(char* lang) {
     const char *userpath = sys_user_path();
     snprintf(exePath, sizeof(exePath), "%s", userpath);
 #else
-    path_get_folder((char*)sys_exe_path(), exePath);
+    const char *gamedir = sys_exe_path();
+    snprintf(exePath, sizeof(exePath), "%s", gamedir);
 #endif
 
     char path[SYS_MAX_PATH] = "";
