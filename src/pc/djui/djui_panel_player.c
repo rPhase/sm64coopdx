@@ -27,7 +27,7 @@ static struct DjuiInputbox* sPalettePresetNameTextBox = NULL;
 static struct DjuiRect *sColorRect = NULL;
 
 struct DjuiText* gDjuiPaletteToggle = NULL;
-s8 ToggleWearCap = TRUE;
+bool ToggleWearCap = TRUE;
 
 void djui_panel_player_create(struct DjuiBase* caller);
 

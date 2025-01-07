@@ -10870,7 +10870,7 @@ BAD_RETURN(s32) cutscene_door_mode(struct Camera *c) {
 
 // coop specific
 //extern struct DjuiText* gDjuiPaletteToggle;
-extern s8 ToggleWearCap;
+extern bool ToggleWearCap;
 void cutscene_palette_editor(struct Camera *c) {
     if (!c) { return; }
     struct MarioState* m = gMarioState;

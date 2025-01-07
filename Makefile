@@ -129,8 +129,10 @@ ifeq ($(HOST_OS),Darwin)
 endif
 
 # Attempt to detect Termux Android build
-ifneq ($(shell which termux-setup-storage),)
-  TARGET_ANDROID := 1
+ifeq ($(TARGET_ANDROID),1)
+  ifneq ($(shell which termux-setup-storage),)
+    TARGET_ANDROID := 1
+  endif
 endif
 
 # If parent folder is the gradle repository for Android, 

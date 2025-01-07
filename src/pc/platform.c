@@ -273,6 +273,16 @@ static void sys_fatal_impl(const char *msg) {
     exit(1);
 }
 
+void sys_fatal(const char *fmt, ...) {
+    static char msg[2048];
+    va_list args;
+    va_start(args, fmt);
+    vsnprintf(msg, sizeof(msg), fmt, args);
+    va_end(args);
+    fflush(stdout); // push all crap out
+    sys_fatal_impl(msg);
+}
+
 #elif defined(HAVE_SDL2)
 
 // we can just ask SDL for most of this shit if we have it

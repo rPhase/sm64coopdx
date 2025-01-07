@@ -19671,8 +19671,10 @@ int smlua_func_key_cache_init(UNUSED lua_State* L) {
         return 0;
     }
 
+    #ifdef TARGET_ANDROID
 
     key_cache_init();
+    #endif
 
     return 1;
 }
