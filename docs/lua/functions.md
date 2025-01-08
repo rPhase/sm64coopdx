@@ -1209,7 +1209,6 @@
 <br />
 
 - mod_storage.h
-   - [key_cache_init](functions-4.md#key_cache_init)
    - [mod_storage_clear](functions-4.md#mod_storage_clear)
    - [mod_storage_exists](functions-4.md#mod_storage_exists)
    - [mod_storage_load](functions-4.md#mod_storage_load)

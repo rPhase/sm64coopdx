@@ -19662,22 +19662,6 @@ int smlua_func_update_all_mario_stars(UNUSED lua_State* L) {
  // mod_storage.h //
 ///////////////////
 
-int smlua_func_key_cache_init(UNUSED lua_State* L) {
-    if (L == NULL) { return 0; }
-
-    int top = lua_gettop(L);
-    if (top != 0) {
-        LOG_LUA_LINE("Improper param count for '%s': Expected %u, Received %u", "key_cache_init", 0, top);
-        return 0;
-    }
-
-#ifdef TARGET_ANDROID
-    key_cache_init();
-#endif
-
-    return 1;
-}
-
 int smlua_func_mod_storage_clear(UNUSED lua_State* L) {
     if (L == NULL) { return 0; }
 
@@ -33144,7 +33128,6 @@ void smlua_bind_functions_autogen(void) {
     smlua_bind_function(L, "update_all_mario_stars", smlua_func_update_all_mario_stars);
 
     // mod_storage.h
-    smlua_bind_function(L, "key_cache_init", smlua_func_key_cache_init);
     smlua_bind_function(L, "mod_storage_clear", smlua_func_mod_storage_clear);
     smlua_bind_function(L, "mod_storage_exists", smlua_func_mod_storage_exists);
     smlua_bind_function(L, "mod_storage_load", smlua_func_mod_storage_load);

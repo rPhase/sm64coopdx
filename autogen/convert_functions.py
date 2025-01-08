@@ -124,6 +124,7 @@ override_disallowed_functions = {
     "src/pc/lua/utils/smlua_text_utils.h":      [ "smlua_text_utils_init", "smlua_text_utils_shutdown", "smlua_text_utils_reset_all" ],
     "src/pc/lua/utils/smlua_anim_utils.h":      [ "smlua_anim_util_reset", "smlua_anim_util_register_animation" ],
     "src/pc/network/lag_compensation.h":        [ "lag_compensation_clear" ],
+    "src/pc/mods/mod_storage.h":                [ "key_cache_init" ],
     "src/game/first_person_cam.h":              [ "first_person_update" ],
     "src/pc/lua/utils/smlua_collision_utils.h": [ "collision_find_surface_on_ray" ],
     "src/engine/behavior_script.h":             [ "stub_behavior_script_2", "cur_obj_update" ]

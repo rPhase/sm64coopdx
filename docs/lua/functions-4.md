@@ -5207,24 +5207,6 @@ Updates every Mario state's star count with the save file total star count
 <br />
 
 
-## [key_cache_init](#key_cache_init)
-
-### Lua Example
-`key_cache_init()`
-
-### Parameters
-- None
-
-### Returns
-- None
-
-### C Prototype
-`void key_cache_init(void);`
-
-[:arrow_up_small:](#)
-
-<br />
-
 ## [mod_storage_clear](#mod_storage_clear)
 
 ### Description

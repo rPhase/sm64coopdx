@@ -6427,10 +6427,6 @@ function update_all_mario_stars()
     -- ...
 end
 
-function key_cache_init()
-    -- ...
-end
-
 --- @return boolean
 --- Clears the mod's data from mod storage
 function mod_storage_clear()
