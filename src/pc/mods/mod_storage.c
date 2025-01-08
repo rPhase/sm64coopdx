@@ -1,6 +1,6 @@
 #include "mod_storage.h"
 
-#include <stdio.h>
+/*#include <stdio.h>
 #include <ctype.h>
 #include "pc/platform.h"
 #include "pc/configini.h" // for writing
@@ -220,7 +220,7 @@ const char *mod_storage_load(const char *key) {
         return NULL;
     }
     if (!char_valid((char *)key)) {
-        LOG_LUA_LINE("Invalid key passed to mod_storage_save()");
+        LOG_LUA_LINE("Invalid key passed to mod_storage_load()");
         return NULL;
     }
 
@@ -276,3 +276,7 @@ bool mod_storage_load_bool(const char* key) {
 
     return !strcmp(value, "true");
 }
+
+bool mod_storage_exists(const char* key) {
+    return mod_storage_load(key);
+}*/

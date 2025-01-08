@@ -5225,7 +5225,54 @@ Updates every Mario state's star count with the save file total star count
 
 <br />
 
+## [mod_storage_clear](#mod_storage_clear)
+
+### Description
+Clears the mod's data from mod storage
+
+### Lua Example
+`local booleanValue = mod_storage_clear()`
+
+### Parameters
+- None
+
+### Returns
+- `boolean`
+
+### C Prototype
+`bool mod_storage_clear(void);`
+
+[:arrow_up_small:](#)
+
+<br />
+
+## [mod_storage_exists](#mod_storage_exists)
+
+### Description
+Checks if a `key` is in mod storage
+
+### Lua Example
+`local booleanValue = mod_storage_exists(key)`
+
+### Parameters
+| Field | Type |
+| ----- | ---- |
+| key | `string` |
+
+### Returns
+- `boolean`
+
+### C Prototype
+`bool mod_storage_exists(const char* key);`
+
+[:arrow_up_small:](#)
+
+<br />
+
 ## [mod_storage_load](#mod_storage_load)
+
+### Description
+Loads a string `value` from a `key` in mod storage
 
 ### Lua Example
 `local stringValue = mod_storage_load(key)`
@@ -5239,7 +5286,7 @@ Updates every Mario state's star count with the save file total star count
 - `string`
 
 ### C Prototype
-`const char *mod_storage_load(const char *key);`
+`const char *mod_storage_load(const char* key);`
 
 [:arrow_up_small:](#)
 
@@ -5270,6 +5317,9 @@ Loads a bool `value` from a `key` in mod storage
 
 ## [mod_storage_load_number](#mod_storage_load_number)
 
+### Description
+Loads a float `value` from a `key` in mod storage
+
 ### Lua Example
 `local numberValue = mod_storage_load_number(key)`
 
@@ -5288,7 +5338,33 @@ Loads a bool `value` from a `key` in mod storage
 
 <br />
 
+## [mod_storage_remove](#mod_storage_remove)
+
+### Description
+Removes a `key` from mod storage
+
+### Lua Example
+`local booleanValue = mod_storage_remove(key)`
+
+### Parameters
+| Field | Type |
+| ----- | ---- |
+| key | `string` |
+
+### Returns
+- `boolean`
+
+### C Prototype
+`bool mod_storage_remove(const char* key);`
+
+[:arrow_up_small:](#)
+
+<br />
+
 ## [mod_storage_save](#mod_storage_save)
+
+### Description
+Saves a `key` corresponding to a string `value` to mod storage
 
 ### Lua Example
 `local booleanValue = mod_storage_save(key, value)`
@@ -5303,7 +5379,7 @@ Loads a bool `value` from a `key` in mod storage
 - `boolean`
 
 ### C Prototype
-`bool mod_storage_save(const char *key, const char *value);`
+`bool mod_storage_save(const char* key, const char* value);`
 
 [:arrow_up_small:](#)
 
@@ -5334,6 +5410,9 @@ Saves a `key` corresponding to a bool `value` to mod storage
 <br />
 
 ## [mod_storage_save_number](#mod_storage_save_number)
+
+### Description
+Saves a `key` corresponding to a float `value` to mod storage
 
 ### Lua Example
 `local booleanValue = mod_storage_save_number(key, value)`

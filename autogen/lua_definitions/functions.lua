@@ -6431,8 +6431,22 @@ function key_cache_init()
     -- ...
 end
 
+--- @return boolean
+--- Clears the mod's data from mod storage
+function mod_storage_clear()
+    -- ...
+end
+
+--- @param key string
+--- @return boolean
+--- Checks if a `key` is in mod storage
+function mod_storage_exists(key)
+    -- ...
+end
+
 --- @param key string
 --- @return string
+--- Loads a string `value` from a `key` in mod storage
 function mod_storage_load(key)
     -- ...
 end
@@ -6446,13 +6460,22 @@ end
 
 --- @param key string
 --- @return number
+--- Loads a float `value` from a `key` in mod storage
 function mod_storage_load_number(key)
+    -- ...
+end
+
+--- @param key string
+--- @return boolean
+--- Removes a `key` from mod storage
+function mod_storage_remove(key)
     -- ...
 end
 
 --- @param key string
 --- @param value string
 --- @return boolean
+--- Saves a `key` corresponding to a string `value` to mod storage
 function mod_storage_save(key, value)
     -- ...
 end
@@ -6468,6 +6491,7 @@ end
 --- @param key string
 --- @param value number
 --- @return boolean
+--- Saves a `key` corresponding to a float `value` to mod storage
 function mod_storage_save_number(key, value)
     -- ...
 end

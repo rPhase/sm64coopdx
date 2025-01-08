@@ -30,7 +30,7 @@ gSunriseTimes = { 6,  6,  6,  5,  5,  4,  4,  4,  5,  6,  6,  6  }
 gSunsetTimes  = { 15, 16, 17, 18, 18, 19, 19, 19, 18, 17, 15, 14 }
 
 local month = get_date_and_time().month + 1
-syncSun = if_then_else(mod_storage_exists("sync_sun"), mod_storage_load_bool("sync_sun"), true)
+syncSun = if_then_else(mod_storage_load("sync_sun") ~= nil, mod_storage_load_bool("sync_sun"), true)
 
 HOUR_SUNRISE_DURATION = 1
 HOUR_SUNRISE_START = if_then_else(syncSun, gSunriseTimes[month], 4)
