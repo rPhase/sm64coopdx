@@ -3,13 +3,14 @@ local sNightSequences = {}
 -- localize functions to improve performance
 local mod_storage_remove,mod_storage_load_bool,mod_storage_exists,math_floor,mod_storage_save_number,mod_storage_load_number,string_format,smlua_audio_utils_replace_sequence,fade_volume_scale,set_background_music,obj_mark_for_deletion = mod_storage_remove,mod_storage_load_bool,mod_storage_exists,math.floor,mod_storage_save_number,mod_storage_load_number,string.format,smlua_audio_utils_replace_sequence,fade_volume_scale,set_background_music,obj_mark_for_deletion
 
--- purge legacy fields_
---mod_storage_remove("ampm")
---mod_storage_remove("night-music")
+-- purge legacy fields
+mod_storage_remove("ampm")
+mod_storage_remove("night-music")
+
 use24h = mod_storage_load_bool("24h")
 
 --- @type boolean
-playNightMusic = if_then_else(mod_storage_load("night_music") == nil, true, mod_storage_load_bool("night_music"))
+playNightMusic = if_then_else(mod_storage_exists("night_music"), mod_storage_load_bool("night_music"), true)
 playingNightMusic = false
 
 --- Returns the amount of days that have passed
