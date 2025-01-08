@@ -59,7 +59,7 @@ C_FIELD void key_cache_init(void) {
     }
 }
 
-char *key_cached(char *key, char *value) {
+char *key_cached(const char *key, const char *value) {
     for (u32 i = 0; i < MAX_CACHED_KEYS; i++) {
         if (strncmp(key, sCachedKeys[i].key, MAX_KEY_VALUE_LENGTH) == 0) {
             if (value) {
@@ -71,7 +71,7 @@ char *key_cached(char *key, char *value) {
     return NULL;
 }
 
-void cache_key(char *key, char *value) {
+void cache_key(const char  *key, const char  *value) {
     for (u32 i = 0; i < MAX_CACHED_KEYS; i++) {
         if (strncmp("", sCachedKeys[i].key, MAX_KEY_VALUE_LENGTH) == 0) {
             snprintf(sCachedKeys[i].key, MAX_KEY_VALUE_LENGTH, "%s", key);
