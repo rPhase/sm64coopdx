@@ -1,5 +1,5 @@
 -- name: [CS] Extra Characters 
--- description: [CS] Extra Characters v7.0\nBy: \\#00ff00\\ULTRA BROS TEAM\n\n\\#ffff00\\Ultra Bros Team:\n\\#ffffff\\FunkyLion\nMelzinoff\nFluffaMario\nSharen\nSquishy\n\n\\#f54e59\\Characters:\n\\#ffffff\\Toadette\nPeach\nDaisy\nYoshi\nBirdo\nForeman Spike\nPauline
+-- description: [CS] Extra Characters v7.1\nBy: \\#00ff00\\ULTRA BROS TEAM\n\n\\#ffff00\\Ultra Bros Team:\n\\#ffffff\\FunkyLion\nMelzinoff\nFluffaMario\nSharen\nSquishy\n\n\\#f54e59\\Characters:\n\\#ffffff\\Toadette\nPeach\nDaisy\nYoshi\nBirdo\nForeman Spike\nPauline
 
 if not _G.charSelectExists then
     djui_popup_create("\\#ffffa0\\Extra Characters requires\nCharacter Select to be enabled.\n\nPlease rehost with it enabled.", 4)
@@ -33,7 +33,7 @@ extraCharacters = {
             [SHIRT]  = { r = 0xFF, g = 0x00, b = 0x00 },
             [GLOVES] = { r = 0xFF, g = 0xFF, b = 0xFF },
             [SHOES]  = { r = 0x68, g = 0x40, b = 0x1B },
-            [HAIR]   = { r = 0xFF, g = 0x00, b = 0x00 },
+            [HAIR]   = { r = 0x73, g = 0x06, b = 0x00 },
             [SKIN]   = { r = 0xFE, g = 0xD5, b = 0xA1 },
             [CAP]    = { r = 0xF3, g = 0x00, b = 0x80 },
             [EMBLEM] = { r = 0xF3, g = 0x00, b = 0x80 }

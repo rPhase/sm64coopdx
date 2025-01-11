@@ -548,8 +548,12 @@ bool mod_load(struct Mods* mods, char* basePath, char* modName) {
     }
 
     // set category
-    if ((mod->category == NULL) && (strlen(mod->name) > 5) && (strncmp(mod->name, "[CS] ", 5) == 0)) {
-        mod->category = strdup("cs");
+    if (mod->category == NULL) {
+        char *modNameNoColor = str_remove_color_codes(mod->name);
+        if (strstr(modNameNoColor, "[CS]") == modNameNoColor) {
+            mod->category = strdup("cs");
+        }
+        free(modNameNoColor);
     }
 
     // print
