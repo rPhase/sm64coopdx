@@ -9,7 +9,6 @@
 #include "sm64.h"
 #include "game/game_init.h"
 #include "game/memory.h"
-#include "game/print.h"
 #include "game/segment2.h"
 #include "game/object_helpers.h"
 #include "gfx_dimensions.h"
