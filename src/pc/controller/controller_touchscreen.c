@@ -11,6 +11,7 @@
 #include "game/memory.h"
 #include "game/print.h"
 #include "game/segment2.h"
+#include "game/object_helpers.h"
 #include "gfx_dimensions.h"
 #include "pc/pc_main.h"
 #include "pc/gfx/gfx_pc.h"
