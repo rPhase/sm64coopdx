@@ -446,7 +446,9 @@ void render_touch_controls(void) {
     gSPTexture(gDisplayListHead++, 0xFFFF, 0xFFFF, 0, G_TX_RENDERTILE, G_ON);
 
     struct Position pos;
+    struct Position stick;
     s32 size;
+    u8 normalizedVectorMultiplier;
     // All normal elements
     for (u32 i = 0; i < ControlElementsLength; i++) {
         pos = get_pos(&configControlElements[i], 0);
@@ -456,8 +458,15 @@ void render_touch_controls(void) {
         switch (ControlElements[i].type) {
             case Joystick:
                 DrawSpriteTexJoyBase(pos.x, pos.y, 2);
+                if (abs(ControlElements[i].joyX) + abs(ControlElements[i].joyY) != 0) {
+                    normalizedVectorMultiplier = sqrt((ControlElements[i].joyX * ControlElements[i].joyX) + (ControlElements[i].joyY * ControlElements[i].joyY))/(abs(ControlElements[i].joyX) + abs(ControlElements[i].joyY));
+                } else {
+                    normalizedVectorMultiplier = 0;
+                }
+                stick.x = ControlElements[i].joyX * normalizedVectorMultiplier;
+                stick.y = ControlElements[i].joyY * normalizedVectorMultiplier;
                 select_joystick_tex();
-                DrawSprite(pos.x + 4 + ControlElements[i].joyX, pos.y + 4 + ControlElements[i].joyY, 2);
+                DrawSprite(pos.x + 4 + stick.x, pos.y + 4 + stick.y, 2);
                 break;
             /*case Mouse:
                 if ((before_x > 0 || before_y > 0) &&
