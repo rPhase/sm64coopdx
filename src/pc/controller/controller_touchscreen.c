@@ -450,7 +450,7 @@ void render_touch_controls(void) {
     struct Position pos;
     struct Position stick;
     s32 size;
-    u8 normalizedVectorMultiplier;
+    f32 normalizedVectorMultiplier;
     // All normal elements
     for (u32 i = 0; i < ControlElementsLength; i++) {
         pos = get_pos(&configControlElements[i], 0);
@@ -467,11 +467,11 @@ void render_touch_controls(void) {
                 }
                 stick.x = ControlElements[i].joyX * normalizedVectorMultiplier;
                 stick.y = ControlElements[i].joyY * normalizedVectorMultiplier;
-                print_text_fmt_int(20, 20, "JoyX: %d", ControlElements[i].joyX);
-                print_text_fmt_int(20, 70, "JoyY: %d", ControlElements[i].joyY);
-                print_text_fmt_int(20, 120, "StickX: %d", stick.x);
-                print_text_fmt_int(20, 170, "StickY: %d", stick.y);
-                print_text_fmt_int(20, 220, "NormalizedVectorMultiplier: %d", normalizedVectorMultiplier);
+                print_text_fmt_int(20, 200, "JoyX: %d", ControlElements[i].joyX);
+                print_text_fmt_int(20, 184, "JoyY: %d", ControlElements[i].joyY);
+                print_text_fmt_int(20, 168, "StickX: %d", stick.x);
+                print_text_fmt_int(20, 152, "StickY: %d", stick.y);
+                print_text_fmt_int(20, 136, "NormalizedVectorMultiplier: %d", normalizedVectorMultiplier);
                 select_joystick_tex();
                 DrawSprite(pos.x + 4 + stick.x, pos.y + 4 + stick.y, 2);
                 break;
