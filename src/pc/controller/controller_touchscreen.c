@@ -9,6 +9,7 @@
 #include "sm64.h"
 #include "game/game_init.h"
 #include "game/memory.h"
+#include "game/print.h"
 #include "game/segment2.h"
 #include "gfx_dimensions.h"
 #include "pc/pc_main.h"
@@ -458,13 +459,18 @@ void render_touch_controls(void) {
         switch (ControlElements[i].type) {
             case Joystick:
                 DrawSpriteTexJoyBase(pos.x, pos.y, 2);
-                if (abs(ControlElements[i].joyX) + abs(ControlElements[i].joyY) != 0) {
-                    normalizedVectorMultiplier = sqrt((ControlElements[i].joyX * ControlElements[i].joyX) + (ControlElements[i].joyY * ControlElements[i].joyY))/(abs(ControlElements[i].joyX) + abs(ControlElements[i].joyY));
+                if (absi(ControlElements[i].joyX) + absi(ControlElements[i].joyY) != 0) {
+                    normalizedVectorMultiplier = sqrt((ControlElements[i].joyX * ControlElements[i].joyX) + (ControlElements[i].joyY * ControlElements[i].joyY))/(absi(ControlElements[i].joyX) + absi(ControlElements[i].joyY));
                 } else {
                     normalizedVectorMultiplier = 0;
                 }
                 stick.x = ControlElements[i].joyX * normalizedVectorMultiplier;
                 stick.y = ControlElements[i].joyY * normalizedVectorMultiplier;
+                print_text_fmt_int(20, 20, "JoyX: %d", ControlElements[i].joyX);
+                print_text_fmt_int(20, 70, "JoyY: %d", ControlElements[i].joyY);
+                print_text_fmt_int(20, 120, "StickX: %d", stick.x);
+                print_text_fmt_int(20, 170, "StickY: %d", stick.y);
+                print_text_fmt_int(20, 220, "NormalizedVectorMultiplier: %d", normalizedVectorMultiplier);
                 select_joystick_tex();
                 DrawSprite(pos.x + 4 + stick.x, pos.y + 4 + stick.y, 2);
                 break;
