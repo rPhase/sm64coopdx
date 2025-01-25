@@ -4,12 +4,9 @@
 #ifdef __ANDROID__ 
 #include <android/log.h>
 #define printfANDROID(...) __android_log_print(ANDROID_LOG_DEBUG, "sm64coopdx", __VA_ARGS__)
-#endif
-
-#ifdef _WIN32
+#else
 #define printfANDROID printf
 #endif
-
 
 #include <stdio.h>
 #include <time.h>
