@@ -545,7 +545,7 @@ const char* get_os_name(void) {
 #elif defined(__linux__) && !defined(__ANDROID__)
     return "Linux";
 #elif defined(__ANDROID__)
-    return "Android"
+    return "Android";
 #elif __FreeBSD__
     return "FreeBSD";
 #elif __unix || __unix__
