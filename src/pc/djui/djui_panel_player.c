@@ -315,11 +315,12 @@ static void djui_panel_player_edit_palette_create(struct DjuiBase* caller) {
             djui_base_set_size(&button2->base, 0.485f, 32);
         }
 
+        gToggleWearCap = djui_button_create(body, "Toggle Wear Cap", DJUI_BUTTON_STYLE_NORMAL, djui_panel_player_set_toggle_cap);
         djui_button_create(body, DLANG(MENU, BACK), DJUI_BUTTON_STYLE_BACK, djui_panel_menu_back);
 
         {
             //struct DjuiCheckbox* checkbox1 = djui_checkbox_create(body, "Toggle Wear Cap", &ToggleWearCap, NULL);
-            gToggleWearCap = djui_button_create(body, "Toggle Wear Cap", DJUI_BUTTON_STYLE_NORMAL, djui_panel_player_set_toggle_cap);
+
             //djui_base_set_visible(&checkbox1->base, gMarioState->action == ACT_IDLE);
         }
     }
@@ -466,11 +467,12 @@ void djui_panel_player_create(struct DjuiBase* caller) {
         sPalettePresetSelection = djui_selectionbox_create(body, DLANG(PLAYER, PALETTE_PRESET), palettePresets, gPresetPaletteCount + 1, &sPalettePresetIndex, djui_panel_player_update_preset_palette);
 
         djui_button_create(body, DLANG(PLAYER, EDIT_PALETTE), DJUI_BUTTON_STYLE_NORMAL, djui_panel_player_edit_palette_create);
+        gToggleWearCap = djui_button_create(body, "Toggle Wear Cap", DJUI_BUTTON_STYLE_NORMAL, djui_panel_player_set_toggle_cap);
         djui_button_create(body, DLANG(MENU, BACK), DJUI_BUTTON_STYLE_BACK, djui_panel_menu_back);
 
         {
             //struct DjuiCheckbox* checkbox1 = djui_checkbox_create(body, "Toggle Wear Cap", &ToggleWearCap, NULL);
-            gToggleWearCap = djui_button_create(body, "Toggle Wear Cap", DJUI_BUTTON_STYLE_NORMAL, djui_panel_player_set_toggle_cap);
+           // gToggleWearCap = djui_button_create(body, "Toggle Wear Cap", DJUI_BUTTON_STYLE_NORMAL, djui_panel_player_set_toggle_cap);
             //djui_base_set_visible(&checkbox1->base, gMarioState->action == ACT_IDLE);
         }
     }
