@@ -10871,6 +10871,7 @@ BAD_RETURN(s32) cutscene_door_mode(struct Camera *c) {
 // coop specific
 //extern struct DjuiText* gDjuiPaletteToggle;
 extern bool ToggleWearCap;
+extern struct DjuiButton* gToggleWearCap;
 void cutscene_palette_editor(struct Camera *c) {
     if (!c) { return; }
     struct MarioState* m = gMarioState;
@@ -10879,12 +10880,15 @@ void cutscene_palette_editor(struct Camera *c) {
         if (c->paletteEditorCap) {
             if (m->flags & MARIO_CAP_ON_HEAD) {
                 gCamera->paletteEditorCap = false;
+                ToggleWearCap = true;
             } else {
                 if (m->action == ACT_IDLE) {
                     set_mario_action(m, ACT_PUTTING_ON_CAP, 0);
+                    ToggleWearCap = true;
                 } else {
                     cutscene_put_cap_on(m);
                     gCamera->paletteEditorCap = false;
+                    ToggleWearCap = true;
                 }
             }
         }
@@ -10911,18 +10915,18 @@ void cutscene_palette_editor(struct Camera *c) {
     }
 
     // Hide text if it is not possible to toggle cap
-   /* if (ToggleWearCap) {
+   if (ToggleWearCap) {
         if (m->action == ACT_IDLE ||
             m->action == ACT_TAKING_OFF_CAP ||
             m->action == ACT_PUTTING_ON_CAP) {
         djui_base_set_visible(
-            &gDjuiPaletteToggle->base,
+            &gToggleWearCap->base,
             m->action == ACT_IDLE ||
             m->action == ACT_TAKING_OFF_CAP ||
             m->action == ACT_PUTTING_ON_CAP
         );
     }
-    }*/
+    }
 
     c->pos[0] = m->pos[0] + (0x200 * sins(m->faceAngle[1]));
     c->pos[1] = m->pos[1] + 0x80;
