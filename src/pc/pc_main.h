@@ -14,6 +14,8 @@ extern "C" {
 #include "gfx/gfx_sdl.h"
 #include "gfx/gfx_dummy.h"
 
+
+#ifndef __ANDROID
 #if defined(WAPI_SDL1) || defined(WAPI_SDL2)
 # define WAPI gfx_sdl
 #elif defined(WAPI_DXGI)
@@ -22,6 +24,10 @@ extern "C" {
 # define WAPI gfx_dummy_wm_api
 #else
 # error No window API!
+#endif
+
+#else
+# define WAPI gfx_sdl
 #endif
 
 #if defined(RAPI_D3D11)
