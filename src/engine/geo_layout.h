@@ -48,7 +48,7 @@ extern struct GraphNode *D_8038BCA4;
 extern s16 D_8038BD78;
 extern struct GraphNode *D_8038BCF8[];
 
-/*void geo_layout_cmd_branch_and_link(void);
+void geo_layout_cmd_branch_and_link(void);
 void geo_layout_cmd_end(void);
 void geo_layout_cmd_branch(void);
 void geo_layout_cmd_return(void);
@@ -83,7 +83,7 @@ void geo_layout_cmd_node_held_obj(void);
 void geo_layout_cmd_node_culling_radius(void);
 void geo_layout_cmd_node_background_ext(void);
 void geo_layout_cmd_node_switch_case_ext(void);
-void geo_layout_cmd_node_generated_ext(void);*/
+void geo_layout_cmd_node_generated_ext(void);
 
 struct GraphNode *process_geo_layout(struct DynamicPool *a0, void *segptr);
 
