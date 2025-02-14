@@ -17,7 +17,7 @@ void djui_panel_touchcontrol_set_create(struct DjuiBase* caller) {
         djui_slider_create(body, "Touch Controls Green", &configTouchControlGreen, 1, 255, NULL);
         djui_slider_create(body, "Touch Controls Blue", &configTouchControlBlue, 1, 255, NULL);
         djui_slider_create(body, "Touch Controls Opacity", &configTouchControlAlpha, 1, 255, NULL);
-        djui_checkbox_create(body, "Bigger Touch Controls", &configAndroidBiggerButtons, NULL);
+        djui_slider_create(body, "Touch Controls Size", &configAndroidBiggerButtons, 0, 3, NULL);
 
         djui_button_create(body, DLANG(MENU, BACK), DJUI_BUTTON_STYLE_BACK, djui_panel_menu_back);
     }

@@ -309,8 +309,6 @@ endif
 ifeq ($(TARGET_RPI),1)
   $(info Compiling for Raspberry Pi)
   DISCORD_SDK := 0
-  COOPNET := 0
-	machine = $(shell sh -c 'uname -m 2>/dev/null || echo unknown')
 
     # Raspberry Pi B+, Zero, etc
 	ifneq (,$(findstring armv6l,$(machine)))
@@ -1113,9 +1111,9 @@ ifeq ($(COOPNET),1)
     endif
   else ifeq ($(TARGET_RPI),1)
     ifneq (,$(findstring aarch64,$(machine)))
-      LDFLAGS += -Llib/coopnet/linux -l:libcoopnet-arm64.a -l:libjuice.a
+      LDFLAGS += -Llib/coopnet/linux -l:libcoopnet-arm64.a -l:libjuice-arm64.a
     else
-      LDFLAGS += -Llib/coopnet/linux -l:libcoopnet-arm.a -l:libjuice.a
+      LDFLAGS += -Llib/coopnet/linux -l:libcoopnet-arm.a -l:libjuice-arm.a
     endif
   else ifeq ($(TARGET_FOSS),0)
     LDFLAGS += -Llib/coopnet/linux -l:libcoopnet.a -l:libjuice.a
@@ -1138,9 +1136,14 @@ endif
 
 IS_DEV_OR_DEBUG := $(or $(filter 1,$(DEVELOPMENT)),$(filter 1,$(DEBUG)),0)
 ifeq ($(IS_DEV_OR_DEBUG),0)
-  CFLAGS += -fno-ident -fno-common -ffile-prefix-map=$(PWD)=. -D__DATE__="\"\"" -D__TIME__="\"\"" -Wno-builtin-macro-redefined
-  LDFLAGS += -Wl,--build-id=none
+  CFLAGS += -fno-ident -fno-common -ffile-prefix-map="$(PWD)"=. -D__DATE__="\"\"" -D__TIME__="\"\"" -Wno-builtin-macro-redefined
+  ifeq ($(OSX_BUILD),0)
+    LDFLAGS += -Wl,--build-id=none
+  endif
 endif
+
+# Enable ASLR
+CFLAGS += -fPIE
 
 # Prevent a crash with -sopt
 export LANG := C

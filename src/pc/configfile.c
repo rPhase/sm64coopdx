@@ -203,13 +203,14 @@ unsigned int configDjuiScale                      = 0;
 unsigned int configRulesVersion                   = 0;
 bool         configCompressOnStartup              = false;
 unsigned int configGameVersion                    = 0;
-bool         configAndroidBiggerButtons           = true;
+unsigned int configAndroidBiggerButtons           = 1;
 bool         configAndroidExcoopControl           = true;
 unsigned int configTouchControlRed                = 255;
 unsigned int configTouchControlGreen              = 255;
 unsigned int configTouchControlBlue               = 255;
 unsigned int configTouchControlAlpha              = 255;
 bool configCopyAssetstoGamedir                    = true;
+bool         configSkipPackGeneration             = false;
 
 // secrets
 bool configExCoopTheme = false;
@@ -432,13 +433,14 @@ static const struct ConfigOption options[] = {
     {.name = "rules_version",                  .type = CONFIG_TYPE_UINT,   .uintValue   = &configRulesVersion},
     {.name = "compress_on_startup",            .type = CONFIG_TYPE_BOOL,   .boolValue   = &configCompressOnStartup},
     {.name = "game_version",                   .type = CONFIG_TYPE_UINT,   .uintValue   = &configGameVersion},
-    {.name = "android_bigger_buttons",         .type = CONFIG_TYPE_BOOL,   .boolValue   = &configAndroidBiggerButtons},
+    {.name = "android_bigger_buttons",         .type = CONFIG_TYPE_UINT,   .uintValue   = &configAndroidBiggerButtons},
     {.name = "android_excoop_cont",            .type = CONFIG_TYPE_BOOL,   .boolValue   = &configAndroidExcoopControl},
     {.name = "android_touch_red",              .type = CONFIG_TYPE_UINT,   .uintValue   = &configTouchControlRed},
     {.name = "android_touch_green",            .type = CONFIG_TYPE_UINT,   .uintValue   = &configTouchControlGreen},
     {.name = "android_touch_blue",             .type = CONFIG_TYPE_UINT,   .uintValue   = &configTouchControlBlue},
     {.name = "android_touch_opacity",          .type = CONFIG_TYPE_UINT,   .uintValue   = &configTouchControlAlpha},
-    {.name = "android_copy_assets_to_gamedir", .type = CONFIG_TYPE_BOOL,   .boolValue   = &configCopyAssetstoGamedir}
+    {.name = "android_copy_assets_to_gamedir", .type = CONFIG_TYPE_BOOL,   .boolValue   = &configCopyAssetstoGamedir},
+    {.name = "skip_pack_generation",           .type = CONFIG_TYPE_BOOL,   .boolValue   = &configSkipPackGeneration},
 };
 
 struct SecretConfigOption {
@@ -859,13 +861,7 @@ NEXT_OPTION:
     if (configDjuiTheme >= DJUI_THEME_MAX) { configDjuiTheme = 0; }
     if (configDjuiScale >= 5) { configDjuiScale = 0; }
 
-    if (configExCoopTheme) {
-        configDjuiTheme = DJUI_THEME_LIGHT;
-        configDjuiThemeCenter = false;
-        configDjuiThemeFont = 1;
-    }
-
-    if (gCLIOpts.fullscreen == 1) { 
+    if (gCLIOpts.fullscreen == 1) {
         configWindow.fullscreen = true;
     } else if (gCLIOpts.fullscreen == 2) {
         configWindow.fullscreen = false;

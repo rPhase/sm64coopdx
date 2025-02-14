@@ -138,13 +138,14 @@ extern unsigned int configDjuiScale;
 extern unsigned int configRulesVersion;
 extern bool         configCompressOnStartup;
 extern unsigned int configGameVersion;
-extern bool         configAndroidBiggerButtons;
+extern unsigned int configAndroidBiggerButtons;
 extern bool         configAndroidExcoopControl;
 extern unsigned int configTouchControlRed;
 extern unsigned int configTouchControlGreen;
 extern unsigned int configTouchControlBlue;
 extern unsigned int configTouchControlAlpha;
 extern bool configCopyAssetstoGamedir;
+extern bool         configSkipPackGeneration;
 
 // secrets
 extern bool configExCoopTheme;

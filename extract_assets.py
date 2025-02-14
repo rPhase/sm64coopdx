@@ -91,6 +91,8 @@ def main():
     for asset, data in asset_map.items():
         if asset.startswith("@"):
             continue
+        if asset.startswith("assets/demos/"):
+            continue
         if os.path.isfile(asset):
             all_assets.append((asset, data, True))
         else:
