@@ -1,3 +1,4 @@
+#ifndef __ANDROID__
 #ifdef WIN32
 #include <windows.h>
 #elif _POSIX_C_SOURCE >= 199309L
@@ -246,3 +247,4 @@ struct GfxRenderingAPI gfx_dummy_renderer_api = {
     gfx_dummy_renderer_finish_render,
     gfx_dummy_renderer_shutdown
 };
+#endif
