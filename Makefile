@@ -1143,7 +1143,9 @@ ifeq ($(IS_DEV_OR_DEBUG),0)
 endif
 
 # Enable ASLR
-CFLAGS += -fPIE
+ifeq ($(TARGET_ANDROID),1)
+  CFLAGS += -fPIE
+endif
 
 # Prevent a crash with -sopt
 export LANG := C
