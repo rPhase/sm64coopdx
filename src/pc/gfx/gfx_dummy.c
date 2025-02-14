@@ -1,4 +1,4 @@
-#ifndef __ANDROID__
+#if defined(RAPI_DUMMY) || defined(WAPI_DUMMY)
 #ifdef WIN32
 #include <windows.h>
 #elif _POSIX_C_SOURCE >= 199309L
