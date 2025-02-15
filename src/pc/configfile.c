@@ -210,7 +210,6 @@ unsigned int configTouchControlGreen              = 255;
 unsigned int configTouchControlBlue               = 255;
 unsigned int configTouchControlAlpha              = 255;
 bool configCopyAssetstoGamedir                    = true;
-bool         configSkipPackGeneration             = false;
 
 // secrets
 bool configExCoopTheme = false;
@@ -439,8 +438,7 @@ static const struct ConfigOption options[] = {
     {.name = "android_touch_green",            .type = CONFIG_TYPE_UINT,   .uintValue   = &configTouchControlGreen},
     {.name = "android_touch_blue",             .type = CONFIG_TYPE_UINT,   .uintValue   = &configTouchControlBlue},
     {.name = "android_touch_opacity",          .type = CONFIG_TYPE_UINT,   .uintValue   = &configTouchControlAlpha},
-    {.name = "android_copy_assets_to_gamedir", .type = CONFIG_TYPE_BOOL,   .boolValue   = &configCopyAssetstoGamedir},
-    {.name = "skip_pack_generation",           .type = CONFIG_TYPE_BOOL,   .boolValue   = &configSkipPackGeneration},
+    //{.name = "android_copy_assets_to_gamedir", .type = CONFIG_TYPE_BOOL,   .boolValue   = &configCopyAssetstoGamedir},
 };
 
 struct SecretConfigOption {
