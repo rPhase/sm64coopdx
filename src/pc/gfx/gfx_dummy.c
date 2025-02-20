@@ -201,6 +201,9 @@ static void gfx_dummy_renderer_shutdown(void) {
 struct GfxWindowManagerAPI gfx_dummy_wm_api = {
     gfx_dummy_wm_init,
     gfx_dummy_wm_set_keyboard_callbacks,
+#ifdef TOUCH_CONTROLS // fix compilation in android
+    gfx_sdl_set_touchscreen_callbacks,
+#endif
     gfx_dummy_wm_main_loop,
     gfx_dummy_wm_get_dimensions,
     gfx_dummy_wm_handle_events,
