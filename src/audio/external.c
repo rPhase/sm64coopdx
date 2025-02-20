@@ -376,9 +376,9 @@ u8 sSoundBankFreeListFront[SOUND_BANK_COUNT] = { 8, 8, 8, 4, 4, 4, 4, 1, 4, 3, 8
 u8 sNumSoundsInBank[SOUND_BANK_COUNT] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }; // only used for debugging
 #ifdef __ANDROID__
 // This fixes a crash in update_game_sound(). I have no idea what is going on.
-const u8 sMaxChannelsForSoundBank[SOUND_BANK_COUNT] = { 8, 8, 8, 4, 4, 4, 4, 1, 4, 3, 8, 8 };
+const u8 sMaxChannelsForSoundBank[SOUND_BANK_COUNT] = { 8, 8, 8, 4, 4, 4, 4, 1, 4, 3, 8, 8, 8 };
 #else
-u8 sMaxChannelsForSoundBank[SOUND_BANK_COUNT] = { 8, 8, 8, 4, 4, 4, 4, 1, 4, 3, 8, 8 };
+u8 sMaxChannelsForSoundBank[SOUND_BANK_COUNT] = { 8, 8, 8, 4, 4, 4, 4, 1, 4, 3, 8, 8, 8 };
 #endif
 
 // Banks 2 and 7 both grew from 0x30 sounds to 0x40 in size in US.

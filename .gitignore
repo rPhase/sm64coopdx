@@ -89,8 +89,6 @@ sm64config.txt
 !/assets/**/*custom*/**/*.bin
 !/lib/discordsdk/*.*
 !/lib/discordsdk/x86/*.*
-!/lib/bass/**
-!/lib/bass/x86/**
 !/lib/lua/**/*.*
 
 # visual studio
@@ -106,6 +104,7 @@ tools/ido5.3_compiler/usr/lib/libc.so.1
 # custom sounds
 sound/samples/sfx_custom_luigi*/*.aiff
 sound/samples/sfx_custom_wario*/*.aiff
+sound/samples/sfx_custom_toad*/*.aiff
 
 # Android files
 !/textures/touchcontrols/*.png
