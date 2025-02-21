@@ -27,8 +27,6 @@ struct PcDebug gPcDebug = {
     .lastModRun = NULL,
 };
 
-#ifndef TARGET_ANDROID
-
 #if (defined(_WIN32) || defined(__linux__)) && !defined(WAPI_DUMMY)
 
 #ifdef HAVE_SDL2
@@ -734,4 +732,3 @@ void crash_handler_init(void) {
         tag++;
     }
 }
-#endif
