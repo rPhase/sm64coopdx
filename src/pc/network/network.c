@@ -117,9 +117,9 @@ bool network_init(enum NetworkType inNetworkType, bool reconnecting) {
     }
 
     network_forget_all_reliable();
-    #ifndef TARGET_ANDROID
+#ifndef TARGET_ANDROID
     crash_handler_init();
-    #endif
+#endif
 
     // set server settings
     gServerSettings.playerInteractions = configPlayerInteraction;
