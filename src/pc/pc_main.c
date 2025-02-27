@@ -442,6 +442,7 @@ int main(int argc, char *argv[]) {
              basedir,/* gCLIOpts.GameDir[0] ? gCLIOpts.GameDir :*/ FS_BASEDIR);
     if (stat(gamedir, NULL) == -1) {
         mkdir(gamedir, 0770);
+        mkdir(gamedir "/.nomedia", 0770);
     }
     // Extract lang files and default mods from the apk and copy them to basedir
     // TODO: some way to inhibit this on launch if the apk doesn't contain updated/differing files?
