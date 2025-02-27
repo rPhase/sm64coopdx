@@ -439,7 +439,7 @@ int main(int argc, char *argv[]) {
     char gamedir[SYS_MAX_PATH] = { 0 };
     char nomedia[SYS_MAX_PATH] = { 0 };
     const char *basedir = get_gamedir();
-    snprintf(nomedia, sizeof(gamedir), "%s/%s", 
+    snprintf(nomedia, sizeof(nomedia), "%s/%s", 
              basedir, ".nomedia");
     snprintf(gamedir, sizeof(gamedir), "%s/%s", 
              basedir,/* gCLIOpts.GameDir[0] ? gCLIOpts.GameDir :*/ FS_BASEDIR);
