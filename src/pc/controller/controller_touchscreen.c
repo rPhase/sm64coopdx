@@ -467,18 +467,10 @@ void render_touch_controls(void) {
                 stick.x = ControlElements[i].joyX * normalizedVectorMultiplier;
                 stick.y = ControlElements[i].joyY * normalizedVectorMultiplier;
                 select_joystick_tex();
-                DrawSprite(pos.x + 4 + stick.x, pos.y + 4 + stick.y, 2);
+                DrawSprite(pos.x + stick.x, pos.y + stick.y, 2);
                 break;
-            /*case Mouse:
-                if ((before_x > 0 || before_y > 0) &&
-                    ControlElements[i].touchID &&
-                    configCameraMouse &&
-                    !gInTouchConfig) {
-                    touch_cam_last_x = before_x > 0 ? before_x : touch_cam_last_x;
-                    touch_cam_last_y = before_y > 0 ? before_y : touch_cam_last_y;
-                    DrawSprite(touch_cam_last_x, touch_cam_last_y, 2);
-                }
-                break;*/
+            case Mouse:
+                break; // Does nothing, just removes the warning
             case Button:
                 if (ControlElements[i].touchID) {
                     select_char_texture(ControlElements[i].buttonTexture.buttonDown);
