@@ -152,11 +152,15 @@ ifeq ($(HOST_OS),Linux)
   machine = $(shell sh -c 'uname -m 2>/dev/null || echo unknown')
   ifneq (,$(findstring aarch64,$(machine)))
     #Raspberry Pi 4-5
-    TARGET_RPI = 1
+    ifeq ($(TARGET_ANDROID),0)
+      TARGET_RPI = 1
+    endif
   endif
   ifneq (,$(findstring arm,$(machine)))
     #Rasberry Pi zero, 2, 3, etc
-    TARGET_RPI = 1
+    ifeq ($(TARGET_ANDROID),0)
+      TARGET_RPI = 1
+    endif
   endif
 endif
 
@@ -1055,7 +1059,7 @@ else ifeq ($(TARGET_RPI),1)
   else
     LDFLAGS += -Llib/lua/linux -l:liblua53-arm.a
   endif
-else ifeq ($(TARGET_FOSS),1)
+else ifeq ($(TARGET_ANDROID),1)
   LDFLAGS += -L$(LIBLUA_DIR)/src -l:liblua.a
 else
   LDFLAGS += -Llib/lua/linux -l:liblua53.a -ldl
@@ -1086,7 +1090,7 @@ ifeq ($(COOPNET),1)
     else
       LDFLAGS += -Llib/coopnet/linux -l:libcoopnet-arm.a -l:libjuice-arm.a
     endif
-  else ifeq ($(TARGET_FOSS),1)
+  else ifeq ($(TARGET_ANDROID),1)
     LDFLAGS += -L$(COOPNET_DIR)/bin -L$(COOPNET_DIR)/lib/libjuice -l:libcoopnet.a -l:libjuice.a
   else
     LDFLAGS += -Llib/coopnet/linux -l:libcoopnet.a -l:libjuice.a
