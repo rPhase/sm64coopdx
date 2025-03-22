@@ -152,13 +152,13 @@ ifeq ($(HOST_OS),Linux)
   machine = $(shell sh -c 'uname -m 2>/dev/null || echo unknown')
   ifneq (,$(findstring aarch64,$(machine)))
     #Raspberry Pi 4-5
-    ifeq ($(TARGET_ANDROID),0)
+    ifneq ($(TARGET_ANDROID),1)
       TARGET_RPI = 1
     endif
   endif
   ifneq (,$(findstring arm,$(machine)))
     #Rasberry Pi zero, 2, 3, etc
-    ifeq ($(TARGET_ANDROID),0)
+    ifneq ($(TARGET_ANDROID),1)
       TARGET_RPI = 1
     endif
   endif
