@@ -2,7 +2,7 @@
 #include "crash_handler.h"
 
 char gLastRemoteBhv[256] = "";
-#ifndef __ANDROID
+#ifndef __ANDROID__
 #if (defined(_WIN32) || defined(__linux__)) && !defined(WAPI_DUMMY)
 
 #ifdef HAVE_SDL2
