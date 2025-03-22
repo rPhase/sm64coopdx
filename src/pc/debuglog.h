@@ -3,9 +3,7 @@
 
 #ifdef __ANDROID__ 
 #include <android/log.h>
-#define printfANDROID(...) __android_log_print(ANDROID_LOG_DEBUG, "sm64coopdx", __VA_ARGS__)
-#else
-#define printfANDROID printf
+#define printf(...) __android_log_print(ANDROID_LOG_DEBUG, "sm64coopdx", __VA_ARGS__)
 #endif
 
 #include <stdio.h>
@@ -22,24 +20,24 @@ static void _debuglog_print_timestamp(void) {
     localtime_r(&ltime, &ltime2);
     char* str = asctime(&ltime2);
 #endif
-    printfANDROID("%.*s", (int)strlen(str) - 1, str);
+    printf("%.*s", (int)strlen(str) - 1, str);
 }
 
 static void _debuglog_print_network_type(void) {
-    printfANDROID(" [%02d] ", (gNetworkPlayerLocal != NULL) ? gNetworkPlayerLocal->globalIndex : -1);
+    printf(" [%02d] ", (gNetworkPlayerLocal != NULL) ? gNetworkPlayerLocal->globalIndex : -1);
 }
 
 static void _debuglog_print_log_type(const char* logType) {
-    printfANDROID("[%s] ", logType);
+    printf("[%s] ", logType);
 }
 
 static void _debuglog_print_short_filename(const char* filename) {
     const char* last = strrchr(filename, '/');
     if (last != NULL) {
-        printfANDROID("%s: ", last + 1);
+        printf("%s: ", last + 1);
     }
     else {
-        printfANDROID("???: ");
+        printf("???: ");
     }
 }
 

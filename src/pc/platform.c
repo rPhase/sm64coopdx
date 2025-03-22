@@ -5,30 +5,20 @@
 #include <string.h>
 #include <ctype.h>
 
-#ifdef _WIN32
+#if defined(_WIN32)
 #include <windows.h>
 #include <shlobj.h>
 #include <shlwapi.h>
+#elif defined(__APPLE__)
+#include <mach-o/dyld.h>
+#else
+#include <unistd.h>
 #endif
 
 #include "cliopts.h"
 #include "fs/fs.h"
-#include "configfile.h"
 #include "debuglog.h"
-
-/* NULL terminated list of platform specific read-only data paths */
-/* priority is top first */
-const char *sys_ropaths[] = {
-    ".", // working directory
-    "!", // executable directory
-#if defined(__linux__) || defined(__unix__)
-    // some common UNIX directories for read only stuff
-    "/usr/local/share/sm64pc",
-    "/usr/share/sm64pc",
-    "/opt/sm64pc",
-#endif
-    NULL,
-};
+#include "configfile.h"
 
 /* these are not available on some platforms, so might as well */
 
@@ -86,6 +76,16 @@ void sys_swap_backslashes(char* buffer) {
 /* this calls a platform-specific impl function after forming the error message */
 
 static void sys_fatal_impl(const char *msg) __attribute__ ((noreturn));
+
+void sys_fatal(const char *fmt, ...) {
+    static char msg[2048];
+    va_list args;
+    va_start(args, fmt);
+    vsnprintf(msg, sizeof(msg), fmt, args);
+    va_end(args);
+    fflush(stdout); // push all crap out
+    sys_fatal_impl(msg);
+}
 
 #ifdef _WIN32
 
@@ -252,33 +252,8 @@ const char *sys_user_path(void)
     return sys_windows_short_path_from_wcs(shortPath, SYS_MAX_PATH, widePath) ? shortPath : NULL;
 }
 
-const char *sys_exe_path(void)
-{
-    static char shortPath[SYS_MAX_PATH] = { 0 };
-    if ('\0' != shortPath[0]) { return shortPath; }
-
-    WCHAR widePath[SYS_MAX_PATH];
-    if (0 == GetModuleFileNameW(NULL, widePath, SYS_MAX_PATH)) { return NULL; }
-
-    WCHAR *lastBackslash = wcsrchr(widePath, L'\\');
-    if (NULL != lastBackslash) { *lastBackslash = L'\0'; }
-    else { return NULL; }
-
-    return sys_windows_short_path_from_wcs(shortPath, SYS_MAX_PATH, widePath) ? shortPath : NULL;
-}
-
-const char *sys_exe_path_file(void)
-{
-    static char shortPath[SYS_MAX_PATH] = { 0 };
-    if ('\0' != shortPath[0]) { return shortPath; }
-
-    WCHAR widePath[SYS_MAX_PATH];
-    if (0 == GetModuleFileNameW(NULL, widePath, SYS_MAX_PATH)) {
-        LOG_ERROR("unable to retrieve absolute path.");
-        return shortPath;
-    }
-
-    return sys_windows_short_path_from_wcs(shortPath, SYS_MAX_PATH, widePath) ? shortPath : NULL;
+const char *sys_resource_path(void) {
+    return sys_exe_path_dir();
 }
 
 const char *sys_exe_path_dir(void)
@@ -296,6 +271,20 @@ const char *sys_exe_path_dir(void)
     return path;
 }
 
+const char *sys_exe_path_file(void)
+{
+    static char shortPath[SYS_MAX_PATH] = { 0 };
+    if ('\0' != shortPath[0]) { return shortPath; }
+
+    WCHAR widePath[SYS_MAX_PATH];
+    if (0 == GetModuleFileNameW(NULL, widePath, SYS_MAX_PATH)) {
+        LOG_ERROR("unable to retrieve absolute path.");
+        return shortPath;
+    }
+
+    return sys_windows_short_path_from_wcs(shortPath, SYS_MAX_PATH, widePath) ? shortPath : NULL;
+}
+
 static void sys_fatal_impl(const char *msg) {
     MessageBoxA(NULL, msg, "Fatal error", MB_ICONERROR);
     fprintf(stderr, "FATAL ERROR:\n%s\n", msg);
@@ -303,31 +292,14 @@ static void sys_fatal_impl(const char *msg) {
     exit(1);
 }
 
-void sys_fatal(const char *fmt, ...) {
-    static char msg[2048];
-    va_list args;
-    va_start(args, fmt);
-    vsnprintf(msg, sizeof(msg), fmt, args);
-    va_end(args);
-    fflush(stdout); // push all crap out
-    sys_fatal_impl(msg);
-}
-
 #elif defined(HAVE_SDL2)
 
 // we can just ask SDL for most of this shit if we have it
 #include <SDL2/SDL.h>
 
-#ifdef TARGET_ANDROID
 #include "platform.h"
-// The purpose of this code is to store/use the game data in /storage/emulated/0
-// instead of /storage/emulated/0/Android/data if the user permits it, which
-// results in Android not deleting the game data when the app is uninstalled
-// This feature was written to accomodate a user who "is unable to install
-// updates to apps without first uninstalling the older version, no matter
-// which app it is". It is also very useful for people (like me) who 
-// frequently switch between the cross-compilation and the Termux build on
-// the same device, which necessitates uninstalling the other build's app.
+
+#ifdef __ANDROID__
 const char *get_gamedir(void) {
     SDL_bool privileged_write = SDL_FALSE, privileged_manage = SDL_FALSE;
     static char gamedir_unprivileged[SYS_MAX_PATH] = { 0 }, gamedir_privileged[SYS_MAX_PATH] = { 0 };
@@ -345,26 +317,113 @@ const char *get_gamedir(void) {
     privileged_manage = SDL_AndroidRequestPermission("android.permission.MANAGE_EXTERNAL_STORAGE");
     return (privileged_write || privileged_manage) ? gamedir_privileged : gamedir_unprivileged;
 }
+#endif
 
 const char *sys_user_path(void) {
     static char path[SYS_MAX_PATH] = { 0 };
+    if ('\0' != path[0]) { return path; }
 
+#ifdef __ANDROID__
     const char *basedir = get_gamedir();
     snprintf(path, sizeof(path), "%s/user", basedir);
 
     if (!fs_sys_dir_exists(path) && !fs_sys_mkdir(path))
         path[0] = 0; // somehow failed, we got no user path
     return path;
+#endif
+
+    char const *subdirs[] = { "sm64coopdx", "sm64ex-coop", "sm64coopdx", NULL };
+
+    char *sdlPath = NULL;
+    for (int i = 0; NULL != subdirs[i]; i++)
+    {
+        if (sdlPath) {
+            // Previous dir likely just created with SDL_GetPrefPath.
+            fs_sys_rmdir(sdlPath);
+            SDL_free(sdlPath);
+        }
+
+        sdlPath = SDL_GetPrefPath("", subdirs[i]);
+
+        // Choose this directory if it already exists and is not empty.
+        if (sdlPath && !fs_sys_dir_is_empty(sdlPath)) { break; }
+    }
+
+    if (NULL == sdlPath) { return NULL; }
+
+    strncpy(path, sdlPath, SYS_MAX_PATH - 1);
+    SDL_free(sdlPath);
+
+    // strip the trailing separator
+    const unsigned int len = strlen(path);
+    if (path[len-1] == '/' || path[len-1] == '\\') { path[len-1] = 0; }
+
+    return path;
 }
 
-const char *sys_exe_path(void) {
-    static char path[SYS_MAX_PATH] = { 0 };
+const char *sys_resource_path(void)
+{
+#ifdef __APPLE__ // Kinda lazy, but I don't know how to add CoreFoundation.framework
+    static char path[SYS_MAX_PATH];
+    if ('\0' != path[0]) { return path; }
 
+    const char *exeDir = sys_exe_path_dir();
+    char *lastSeparator = strrchr(exeDir, '/');
+    if (lastSeparator != NULL) {
+        const char folder[] = "/Resources";
+        size_t count = (size_t)(lastSeparator - exeDir);
+        strncpy(path, exeDir, count);
+        return strncat(path, folder, sizeof(path) - 1 - count);
+    }
+#endif
+
+    return sys_exe_path_dir();
+}
+
+const char *sys_exe_path_dir(void) {
+    static char path[SYS_MAX_PATH];
+    if ('\0' != path[0]) { return path; }
+
+#ifdef __ANDROID__
     const char *basedir = get_gamedir();
     snprintf(path, sizeof(path), "%s", basedir);
 
     if (!fs_sys_dir_exists(path) && !fs_sys_mkdir(path))
         path[0] = 0; // somehow failed, we got no exe path
+    return path;
+#endif
+
+    const char *exeFilepath = sys_exe_path_file();
+    char *lastSeparator = strrchr(exeFilepath, '/');
+    if (lastSeparator != NULL) {
+        size_t count = (size_t)(lastSeparator - exeFilepath);
+        strncpy(path, exeFilepath, count);
+    }
+
+    return path;
+}
+
+const char *sys_exe_path_file(void) {
+#ifdef __ANDROID__
+    return "."
+#endif
+    static char path[SYS_MAX_PATH];
+    if ('\0' != path[0]) { return path; }
+
+#if defined(__APPLE__)
+    uint32_t bufsize = SYS_MAX_PATH;
+    int res = _NSGetExecutablePath(path, &bufsize);
+
+#else
+    char procPath[SYS_MAX_PATH];
+    snprintf(procPath, SYS_MAX_PATH, "/proc/%d/exe", getpid());
+    ssize_t res = readlink(procPath, path, SYS_MAX_PATH);
+
+#endif
+    if (res <= 0) {
+        LOG_ERROR("unable to retrieve absolute path.");
+    }
+
     return path;
 }
 
@@ -375,47 +434,24 @@ static void sys_fatal_impl(const char *msg) {
     exit(1);
 }
 
-void sys_fatal(const char *fmt, ...) {
-    static char msg[2048];
-    va_list args;
-    va_start(args, fmt);
-    vsnprintf(msg, sizeof(msg), fmt, args);
-    va_end(args);
-    fflush(stdout); // push all crap out
-    sys_fatal_impl(msg);
-}
-
 #else
 
-// TEMPORARY: check the old save folder and copy contents to the new path
-// this will be removed after a while
-static inline bool copy_userdata(const char *userdir) {
-    char oldpath[SYS_MAX_PATH] = { 0 };
-    char path[SYS_MAX_PATH] = { 0 };
+#ifndef WAPI_DUMMY
+#warning "You might want to implement these functions for your platform"
+#endif
 
-    // check if a save already exists in the new folder
-    snprintf(path, sizeof(path), "%s/" SAVE_FILENAME, userdir);
-    if (fs_sys_file_exists(path)) return false;
-
-    // check if a save exists in the old folder ('pc' instead of 'ex')
-    strncpy(oldpath, path, sizeof(oldpath));
-    const unsigned int len = strlen(userdir);
-    oldpath[len - 2] = 'p'; oldpath[len - 1] = 'c';
-    if (!fs_sys_file_exists(oldpath)) return false;
-
-    printf("old save detected at '%s', copying to '%s'\n", oldpath, path);
-
-    bool ret = fs_sys_copy_file(oldpath, path);
-
-    // also try to copy the config
-    path[len] = oldpath[len] = 0;
-    strncat(path, "/" CONFIGFILE_DEFAULT, SYS_MAX_PATH - 1);
-    strncat(oldpath, "/" CONFIGFILE_DEFAULT, SYS_MAX_PATH - 1);
-    fs_sys_copy_file(oldpath, path);
-
-    return ret;
+const char *sys_user_path(void) {
+    return ".";
 }
 
-#endif
+const char *sys_exe_path(void) {
+    return ".";
+}
+
+static void sys_fatal_impl(const char *msg) {
+    fprintf(stderr, "FATAL ERROR:\n%s\n", msg);
+    fflush(stderr);
+    exit(1);
+}
 
 #endif // platform switch

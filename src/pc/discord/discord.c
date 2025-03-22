@@ -54,7 +54,7 @@ static void get_oauth2_token_callback(UNUSED void* data, enum EDiscordResult res
 static void register_launch_command(void) {
     char cmd[MAX_LAUNCH_CMD] = { 0 };
 
-    const char *exe_path = sys_exe_path();
+    const char *exe_path = sys_resource_path();
     if (exe_path[0] == '\0') { return; }
 
 #if defined(_WIN32)

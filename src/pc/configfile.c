@@ -74,7 +74,11 @@ ConfigWindow configWindow       = {
     .h = DESIRED_SCREEN_HEIGHT,
     .vsync = 1,
     .reset = false,
+#ifdef __ANDROID__
     .fullscreen = true,
+#else
+    .fullscreen = false,
+#endif
     .exiting_fullscreen = false,
     .settings_changed = false,
     .msaa = 0,
@@ -202,21 +206,22 @@ unsigned int configDjuiScale                      = 0;
 // other
 unsigned int configRulesVersion                   = 0;
 bool         configCompressOnStartup              = false;
-unsigned int configGameVersion                    = 0;
+#ifdef TOUCH_CONTROLS
 unsigned int configAndroidBiggerButtons           = 1;
-bool         configAndroidExcoopControl           = true;
 unsigned int configTouchControlRed                = 255;
 unsigned int configTouchControlGreen              = 255;
 unsigned int configTouchControlBlue               = 255;
 unsigned int configTouchControlAlpha              = 255;
-bool configCopyAssetstoGamedir                    = true;
+#endif
 
 // secrets
 bool configExCoopTheme = false;
 
 static const struct ConfigOption options[] = {
     // window settings
-    //{.name = "fullscreen",                     .type = CONFIG_TYPE_BOOL, .boolValue = &configWindow.fullscreen},
+#ifndef __ANDROID__
+    {.name = "fullscreen",                     .type = CONFIG_TYPE_BOOL, .boolValue = &configWindow.fullscreen},
+#endif
     {.name = "window_x",                       .type = CONFIG_TYPE_UINT, .uintValue = &configWindow.x},
     {.name = "window_y",                       .type = CONFIG_TYPE_UINT, .uintValue = &configWindow.y},
     {.name = "window_w",                       .type = CONFIG_TYPE_UINT, .uintValue = &configWindow.w},
@@ -236,7 +241,9 @@ static const struct ConfigOption options[] = {
     {.name = "sfx_volume",                     .type = CONFIG_TYPE_UINT, .uintValue = &configSfxVolume},
     {.name = "env_volume",                     .type = CONFIG_TYPE_UINT, .uintValue = &configEnvVolume},
     {.name = "fade_distant_sounds",            .type = CONFIG_TYPE_BOOL, .boolValue = &configFadeoutDistantSounds},
+#ifndef __ANDROID
     {.name = "mute_focus_loss",                .type = CONFIG_TYPE_BOOL, .boolValue = &configMuteFocusLoss},
+#endif
     // control binds
     {.name = "key_a",                          .type = CONFIG_TYPE_BIND, .uintValue = configKeyA},
     {.name = "key_b",                          .type = CONFIG_TYPE_BIND, .uintValue = configKeyB},
@@ -431,14 +438,13 @@ static const struct ConfigOption options[] = {
     // other
     {.name = "rules_version",                  .type = CONFIG_TYPE_UINT,   .uintValue   = &configRulesVersion},
     {.name = "compress_on_startup",            .type = CONFIG_TYPE_BOOL,   .boolValue   = &configCompressOnStartup},
-    {.name = "game_version",                   .type = CONFIG_TYPE_UINT,   .uintValue   = &configGameVersion},
+#ifdef TOUCH_CONTROLS
     {.name = "android_bigger_buttons",         .type = CONFIG_TYPE_UINT,   .uintValue   = &configAndroidBiggerButtons},
-    {.name = "android_excoop_cont",            .type = CONFIG_TYPE_BOOL,   .boolValue   = &configAndroidExcoopControl},
     {.name = "android_touch_red",              .type = CONFIG_TYPE_UINT,   .uintValue   = &configTouchControlRed},
     {.name = "android_touch_green",            .type = CONFIG_TYPE_UINT,   .uintValue   = &configTouchControlGreen},
     {.name = "android_touch_blue",             .type = CONFIG_TYPE_UINT,   .uintValue   = &configTouchControlBlue},
     {.name = "android_touch_opacity",          .type = CONFIG_TYPE_UINT,   .uintValue   = &configTouchControlAlpha},
-    //{.name = "android_copy_assets_to_gamedir", .type = CONFIG_TYPE_BOOL,   .boolValue   = &configCopyAssetstoGamedir},
+#endif
 };
 
 struct SecretConfigOption {

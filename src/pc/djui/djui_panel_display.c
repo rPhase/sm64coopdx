@@ -61,8 +61,12 @@ void djui_panel_display_create(struct DjuiBase* caller) {
     if (sMsaaOriginal == MSAA_ORIGINAL_UNSET) { sMsaaOriginal = configWindow.msaa; }
 
     {
-       // djui_checkbox_create(body, DLANG(DISPLAY, FULLSCREEN), &configWindow.fullscreen, djui_panel_display_apply);
-        djui_button_create(body, "Touch Buttons Graphics", DJUI_BUTTON_STYLE_NORMAL, djui_panel_touchcontrol_set_create);
+#ifndef __ANDROID
+        djui_checkbox_create(body, DLANG(DISPLAY, FULLSCREEN), &configWindow.fullscreen, djui_panel_display_apply);
+#endif
+#ifdef TOUCH_CONTROLS
+        djui_button_create(body, "Touch Buttons Graphics", DJUI_BUTTON_STYLE_NORMAL, djui_panel_touchcontrol_settings_create);
+#endif
         djui_checkbox_create(body, DLANG(DISPLAY, SHOW_FPS), &configShowFPS, NULL);
         djui_checkbox_create(body, DLANG(DISPLAY, VSYNC), &configWindow.vsync, djui_panel_display_apply);
         djui_checkbox_create(body, DLANG(DISPLAY, UNCAPPED_FRAMERATE), &configUncappedFramerate, djui_panel_display_uncapped_change);

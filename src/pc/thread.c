@@ -88,7 +88,9 @@ int stop_thread(struct ThreadHandle *handle) {
     handle->state = STOPPED;
 
     // Stop and or cancel the execution of the thread in question.
-    //return pthread_cancel(handle->thread);
+#ifndef __ANDROID__
+    return pthread_cancel(handle->thread);
+#endif
 }
 
 // Optimally just call init_thread_handle instead.

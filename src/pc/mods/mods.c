@@ -294,22 +294,9 @@ void mods_refresh_local(void) {
     // load mods
     if (hasUserPath) { mods_load(&gLocalMods, userModPath, true); }
 
-#ifdef TARGET_ANDROID
-    // Android does not allow read access to the true executable path without root, so load mods
-    // from the path I have chosen for my Android app as a replacement for the
-    // "relative to executable" mods folder found on Windows, MacOS and Linux distros that have
-    // traditional default permissions.
-    // (/storage/emulated/0/com.maniscat2.sm64coopdx/mods)
-    const char* gamedir = get_gamedir();
     char defaultModsPath[SYS_MAX_PATH] = { 0 };
-    snprintf(defaultModsPath, sizeof(defaultModsPath), "%s/%s", 
-            gamedir, MOD_DIRECTORY);
+    snprintf(defaultModsPath, SYS_MAX_PATH, "%s/%s", sys_resource_path(), MOD_DIRECTORY);
     mods_load(&gLocalMods, defaultModsPath, false);
-#else
-    char defaultModsPath[SYS_MAX_PATH] = { 0 };
-    snprintf(defaultModsPath, SYS_MAX_PATH, "%s/%s", sys_exe_path(), MOD_DIRECTORY);
-    mods_load(&gLocalMods, defaultModsPath, false);
-#endif
 
     // sort
     mods_sort(&gLocalMods);

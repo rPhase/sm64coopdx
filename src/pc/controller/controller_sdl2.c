@@ -287,24 +287,6 @@ static void controller_sdl_read(OSContPad *pad) {
     }
 }
 
-void controller_sdl_read_mouse_window(void) {
-    if (!init_ok) { return; }
-
-#if defined(_WIN32) && (defined(RAPI_D3D12) || defined(RAPI_D3D11))
-    mouse_window_buttons = 0;
-    mouse_window_buttons |= (GetAsyncKeyState(VK_LBUTTON) ? (1 << 0) : 0);
-    mouse_window_buttons |= (GetAsyncKeyState(VK_RBUTTON) ? (1 << 1) : 0);
-    POINT p;
-    if (GetCursorPos(&p) && ScreenToClient(GetActiveWindow(), &p))
-    {
-        mouse_window_x = p.x;
-        mouse_window_y = p.y;
-    }
-#else
-    mouse_window_buttons = SDL_GetMouseState(&mouse_window_x, &mouse_window_y);
-#endif
-}
-
 static void controller_sdl_rumble_play(f32 strength, f32 length) {
 #ifdef TARGET_ANDROID
     if (sdl_cntrl) {
@@ -316,9 +298,17 @@ static void controller_sdl_rumble_play(f32 strength, f32 length) {
             SDL_HapticRumblePlay(sdl_haptic, strength, (u32)(length * 1000.0f));
     }
 #else
-    if (sdl_haptic)
+    if (sdl_haptic) {
         SDL_HapticRumblePlay(sdl_haptic, strength, (u32)(length * 1000.0f));
+    } else {
+#if SDL_VERSION_ATLEAST(2,0,18)
+        uint16_t scaled_strength = strength * pow(2, 16) - 1;
+        if (SDL_GameControllerHasRumble(sdl_cntrl) == SDL_TRUE) {
+            SDL_GameControllerRumble(sdl_cntrl, scaled_strength, scaled_strength, (u32)(length * 1000.0f));
+        }
 #endif
+#endif
+    }
 }
 
 static void controller_sdl_rumble_stop(void) {
@@ -328,9 +318,16 @@ static void controller_sdl_rumble_stop(void) {
         if (sdl_haptic) SDL_HapticRumbleStop(sdl_haptic);
     }
 #else
-    if (sdl_haptic)
+    if (sdl_haptic) {
         SDL_HapticRumbleStop(sdl_haptic);
+    } else {
+#if SDL_VERSION_ATLEAST(2,0,18)
+        if (SDL_GameControllerHasRumble(sdl_cntrl) == SDL_TRUE) {
+            SDL_GameControllerRumble(sdl_cntrl, 0, 0, 0);
+        }
 #endif
+#endif
+    }
 }
 
 static u32 controller_sdl_rawkey(void) {

@@ -39,7 +39,7 @@ TEXTURE_FIX ?= 0
 # Enable level texture enhancements by default (Castle Grounds and Castle Courtyard recolorable texture hills)
 ENHANCE_LEVEL_TEXTURES ?= 1
 # Enable Discord Game SDK (used for Discord invites)
-DISCORD_SDK ?= 0
+DISCORD_SDK ?= 1
 # Enable CoopNet SDK (used for CoopNet server hosting)
 COOPNET ?= 1
 # Enable docker build workarounds
@@ -144,14 +144,21 @@ ifneq ($(shell ls ../../src/main/),)
            cp -r dynos ../../src/main/assets/
 endif
 
-# Attempt to detect BSD
-ifneq ($(shell uname -s | grep BSD),)
-  TARGET_BSD := 1
-endif
-
 # Attempt to detect 32-bit
 ifneq ($(shell uname -m | grep -e i386 -e i686 -e arm -e armhf -e armv6l -e armv7l -e armv8l -e armv8b),)
   TARGET_BITS = 32
+endif
+
+ifeq ($(HOST_OS),Linux)
+  machine = $(shell sh -c 'uname -m 2>/dev/null || echo unknown')
+  ifneq (,$(findstring aarch64,$(machine)))
+    #Raspberry Pi 4-5
+    TARGET_RPI = 1
+  endif
+  ifneq (,$(findstring arm,$(machine)))
+    #Rasberry Pi zero, 2, 3, etc
+    TARGET_RPI = 1
+  endif
 endif
 
 # MXE overrides
@@ -162,7 +169,7 @@ ifeq ($(TARGET_ANDROID),1)
   AUDIO_API := SDL2
   CONTROLLER_API := SDL2
   TOUCH_CONTROLS := 1
-  TARGET_FOSS := 1
+  DISCORD_SDK := 0
 endif
 
 ifeq ($(WINDOWS_BUILD),1)
@@ -309,8 +316,6 @@ endif
 ifeq ($(TARGET_RPI),1)
   $(info Compiling for Raspberry Pi)
   DISCORD_SDK := 0
-  COOPNET := 0
-	machine = $(shell sh -c 'uname -m 2>/dev/null || echo unknown')
 
     # Raspberry Pi B+, Zero, etc
 	ifneq (,$(findstring armv6l,$(machine)))
@@ -341,15 +346,10 @@ ifeq ($(TARGET_RPI),1)
 	endif
 endif
 
-# BeagleBone Black. Its architecture is not identical to any RPi
-ifeq ($(TARGET_BBB),1)
-  OPT_FLAGS := -march=armv7-a -marm -mfpu=neon -mtune=cortex-a8 -O3
-endif
-
 # Set BITS (32/64) to compile for
 OPT_FLAGS += $(BITS)
 
-TARGET := sm64coopdx
+TARGET := sm64.$(VERSION)
 
 # Stuff for showing the git hash in the intro on nightly builds
 # From https://stackoverflow.com/questions/44038428/include-git-commit-hash-and-or-branch-name-in-c-c-source
@@ -390,10 +390,6 @@ ifeq ($(TARGET_RPI),1) # Define RPi to change SDL2 title & GLES2 hints
   DEFINES += USE_GLES=1
 else ifeq ($(TARGET_ANDROID),1)
   DEFINES += TARGET_ANDROID=1 USE_GLES=1 _LANGUAGE_C=1
-else ifeq ($(TARGET_BBB),1)
-  DEFINES += USE_GLES=1
-else ifeq ($(USE_GLES),1)
-  DEFINES += USE_GLES=1
 endif
 
 ifeq ($(OSX_BUILD),1) # Modify GFX & SDL2 for OSX GL
@@ -484,11 +480,7 @@ TOOLS_DIR := tools
 
 LIBLUA_DIR := lib/src/lua
 
-ifeq ($(TARGET_BSD),1)
-  LUA_PLATFORM := bsd
-else
-  LUA_PLATFORM := linux
-endif
+LUA_PLATFORM := linux
 
 ZLIB_DIR := lib/src/zlib
 
@@ -520,7 +512,7 @@ ifeq ($(filter clean distclean print-%,$(MAKECMDGOALS)),)
   endif
 
   # Make liblua
-  ifeq ($(TARGET_FOSS),1)
+  ifeq ($(TARGET_ANDROID),1)
     DUMMY != $(MAKE) -C $(LIBLUA_DIR) $(LUA_PLATFORM) >&2 || echo FAIL
     ifeq ($(DUMMY),FAIL)
       $(error Failed to build lua)
@@ -536,7 +528,7 @@ ifeq ($(filter clean distclean print-%,$(MAKECMDGOALS)),)
   endif
 
   # Make coopnet
-  ifeq ($(TARGET_FOSS),1)
+  ifeq ($(TARGET_ANDROID),1)
     DUMMY != $(MAKE) -C $(COOPNET_DIR) >&2 || echo FAIL
     ifeq ($(DUMMY),FAIL)
       $(error Failed to build coopnet)
@@ -550,22 +542,6 @@ endif
 #==============================================================================#
 # Extra Source Files                                                           #
 #==============================================================================#
-
-# Currently Luigi, Wario, and Toad's voices don't work on 32-bit
-# We need to fix this in the future - This is a reminder to ManIsCat2 from xLuigiGamerx
-ifeq ($(TARGET_BITS), 32)
-ifeq ($(TARGET_FOSS),0)
-  _ := $(shell rm -rf sound/samples/sfx_custom_luigi/*.aiff)
-  _ := $(shell rm -rf sound/samples/sfx_custom_luigi_peach/*.aiff)
-  _ := $(shell rm -rf sound/samples/sfx_custom_wario/*.aiff)
-  _ := $(shell rm -rf sound/samples/sfx_custom_wario_peach/*.aiff)
-  _ := $(shell rm -rf sound/samples/sfx_custom_toad/*.aiff)
-  _ := $(shell rm -rf sound/samples/sfx_custom_toad_peach/*.aiff)
-
-# Copy missing character sounds from mario sound banks
-_ := $(shell $(PYTHON) $(TOOLS_DIR)/copy_mario_sounds.py)
-endif
-endif
 
 # Copy missing instrument samples from the music sound banks
 _ := $(shell $(PYTHON) $(TOOLS_DIR)/copy_extended_sounds.py)
@@ -582,9 +558,9 @@ ifeq ($(WINDOWS_BUILD),1)
 	EXE := $(BUILD_DIR)/sm64coopdx.exe
 else ifeq ($(TARGET_ANDROID),1)
   EXE := $(BUILD_DIR)/libmain.so
-  ZIP_UNCOMPRESSED := $(BUILD_DIR)/$(TARGET).uncompressed.zip
-  APK_ALIGNED := $(BUILD_DIR)/$(TARGET).aligned.apk
-  APK_SIGNED := $(BUILD_DIR)/$(TARGET).apk
+  ZIP_UNCOMPRESSED := $(BUILD_DIR)/sm64coopdx.uncompressed.zip
+  APK_ALIGNED := $(BUILD_DIR)/sm64coopdx.aligned.apk
+  APK_SIGNED := $(BUILD_DIR)/sm64coopdx.apk
 else # Linux builds/binary namer
 	ifeq ($(TARGET_RPI),1)
 		EXE := $(BUILD_DIR)/sm64coopdx.arm
@@ -883,9 +859,6 @@ else ifeq ($(findstring SDL,$(WINDOW_API)),SDL)
   else ifeq ($(OSX_BUILD),1)
     BACKEND_LDFLAGS += -framework OpenGL `pkg-config --libs glew` -mmacosx-version-min=$(MIN_MACOS_VERSION)
     EXTRA_CPP_FLAGS += -stdlib=libc++ -std=c++17 -mmacosx-version-min=$(MIN_MACOS_VERSION)
-  else ifeq ($(TARGET_BSD),1)
-    BACKEND_CFLAGS += $(shell pkg-config gl --cflags)
-    BACKEND_LDFLAGS += $(shell pkg-config gl --libs)
   else
     BACKEND_LDFLAGS += -lGL
    endif
@@ -926,9 +899,6 @@ ifneq ($(SDL1_USED)$(SDL2_USED),00)
     # on OSX at least the homebrew version of sdl-config gives include path as `.../include/SDL2` instead of `.../include`
     OSX_PREFIX := $(shell $(SDLCONFIG) --prefix)
     BACKEND_CFLAGS += -I$(OSX_PREFIX)/include $(shell $(SDLCONFIG) --cflags)
-  else ifeq ($(TARGET_BSD),1)
-    BACKEND_CFLAGS += $(shell pkg-config sdl2 --cflags)
-    BACKEND_LDFLAGS += $(shell pkg-config sdl2 --libs)
   else
     BACKEND_CFLAGS += `$(SDLCONFIG) --cflags`
   endif
@@ -1001,8 +971,6 @@ ifeq ($(WINDOWS_BUILD),1)
   LDFLAGS += -T windows.ld
 else ifeq ($(TARGET_RPI),1)
   LDFLAGS := $(OPT_FLAGS) -lm $(BACKEND_LDFLAGS) -no-pie
-else ifeq ($(TARGET_BBB),1)
-  LDFLAGS := $(OPT_FLAGS) -lm $(BACKEND_LDFLAGS) -no-pie
 else ifeq ($(TARGET_ANDROID),1)
   ifneq ($(shell uname -m | grep "i.86"),)
     ARCH_APK := x86
@@ -1066,7 +1034,7 @@ endif
 ifeq ($(WINDOWS_BUILD),1)
   LDFLAGS += -lwininet
 else
-  #LDFLAGS += -lcurl
+  LDFLAGS += -lcurl
 endif
 
 # Lua
@@ -1115,14 +1083,14 @@ ifeq ($(COOPNET),1)
     endif
   else ifeq ($(TARGET_RPI),1)
     ifneq (,$(findstring aarch64,$(machine)))
-      LDFLAGS += -Llib/coopnet/linux -l:libcoopnet-arm64.a -l:libjuice.a
+      LDFLAGS += -Llib/coopnet/linux -l:libcoopnet-arm64.a -l:libjuice-arm64.a
     else
-      LDFLAGS += -Llib/coopnet/linux -l:libcoopnet-arm.a -l:libjuice.a
+      LDFLAGS += -Llib/coopnet/linux -l:libcoopnet-arm.a -l:libjuice-arm.a
     endif
-  else ifeq ($(TARGET_FOSS),0)
-    LDFLAGS += -Llib/coopnet/linux -l:libcoopnet.a -l:libjuice.a
-  else
+  else ifeq ($(TARGET_FOSS),1)
     LDFLAGS += -L$(COOPNET_DIR)/bin -L$(COOPNET_DIR)/lib/libjuice -l:libcoopnet.a -l:libjuice.a
+  else
+    LDFLAGS += -Llib/coopnet/linux -l:libcoopnet.a -l:libjuice.a
   endif
 endif
 
@@ -1141,8 +1109,13 @@ endif
 IS_DEV_OR_DEBUG := $(or $(filter 1,$(DEVELOPMENT)),$(filter 1,$(DEBUG)),0)
 ifeq ($(IS_DEV_OR_DEBUG),0)
   CFLAGS += -fno-ident -fno-common -ffile-prefix-map="$(PWD)"=. -D__DATE__="\"\"" -D__TIME__="\"\"" -Wno-builtin-macro-redefined
-  LDFLAGS += -Wl,--build-id=none
+  ifeq ($(OSX_BUILD),0)
+    LDFLAGS += -Wl,--build-id=none
+  endif
 endif
+
+# Enable ASLR
+CFLAGS += -fPIE
 
 # Prevent a crash with -sopt
 export LANG := C
@@ -1174,6 +1147,7 @@ ifeq ($(DOCKERBUILD),1)
   CC_CHECK_CFLAGS += -DDOCKERBUILD
   CFLAGS += -DDOCKERBUILD
 endif
+
 ifeq ($(WINDOW_API),SDL2)
   # Check for SDL2 touch controls
   ifeq ($(TOUCH_CONTROLS),1)
@@ -1724,15 +1698,6 @@ $(APK_SIGNED): $(APK_ALIGNED)
 	apksigner sign --cert platform/android/certificate.pem --key platform/android/key.pk8 $@
 endif
 
-# Ugly but I don't have a better idea right now
-# I have a better idea now. That will come later.
-ifeq ($(TARGET_BSD), 1)
-  DUMMY != mkdir -p ~/.local/share/sm64ex-coop/mods && \
-           mkdir -p ~/.local/share/sm64ex-coop/lang && \
-           cp -r mods/ ~/.local/share/sm64ex-coop/mods && \
-           cp -r lang/ ~/.local/share/sm64ex-coop/lang
-endif
-
   $(EXE): $(O_FILES) $(MIO0_FILES:.mio0=.o) $(ULTRA_O_FILES) $(GODDARD_O_FILES) $(BUILD_DIR)/$(RPC_LIBS) $(BUILD_DIR)/$(DISCORD_SDK_LIBS) $(BUILD_DIR)/$(COOPNET_LIBS) $(BUILD_DIR)/$(LANG_DIR) $(BUILD_DIR)/$(MOD_DIR) $(BUILD_DIR)/$(PALETTES_DIR)
 	@$(PRINT) "$(GREEN)Linking executable: $(BLUE)$@ $(NO_COL)\n"
 	$(V)$(LD) $(PROF_FLAGS) -L $(BUILD_DIR) -o $@ $(O_FILES) $(ULTRA_O_FILES) $(GODDARD_O_FILES) $(LDFLAGS)
@@ -1799,7 +1764,7 @@ all:
 		echo '</plist>' >> $(APP_CONTENTS_DIR)/Info.plist; \
 		chmod +x $(APP_MACOS_DIR)/sm64coopdx; \
 		mv $(APP_DIR) build/us_pc/; \
-    fi
+  fi
 
 # Remove built-in rules, to improve performance
 MAKEFLAGS += --no-builtin-rules

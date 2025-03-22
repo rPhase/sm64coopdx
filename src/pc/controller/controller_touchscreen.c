@@ -388,7 +388,6 @@ const Gfx dl_tex_joystick_base_uv[] = {
     gsSPEndDisplayList(),
 };
 
-
 static void select_joystick_tex_base(void) {
     gDPPipeSync(gDisplayListHead++);
     
@@ -426,7 +425,7 @@ static void select_char_texture(u8 num) {
 
     gSPDisplayList(gDisplayListHead++, dl_hud_img_load_tex_blockTOUCH);
 }
-#include "src/pc/configfile.h"
+
 static void DrawSprite(s32 x, s32 y, int scaling) {
     gSPTextureRectangle(gDisplayListHead++, x - (16 << scaling), y - (16 << scaling), x + (16 << scaling), y + (16 << scaling), G_TX_RENDERTILE, 0, 0, 4 << (9 - scaling), 1 << (11 - scaling));
 }
@@ -436,7 +435,7 @@ static void DrawSpriteTexJoyBase(s32 x, s32 y, int scaling) {
 }
 
 void render_touch_controls(void) {
-    if ((gGamepadActive && configAutohideTouch) || !gGameInited) return;
+    if ((gGamepadActive && configAutohideTouch) || !gGameInited) { return; }
 
     create_dl_ortho_matrix();
     gSPClearGeometryMode(gDisplayListHead++, G_LIGHTING);
