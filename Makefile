@@ -133,7 +133,6 @@ ifneq ($(shell which termux-setup-storage),)
   TARGET_ANDROID := 1
 endif
 
-
 # If parent folder is the gradle repository for Android, 
 # copy mods and lang files to assets for later gradle build
 ifneq ($(shell ls ../../src/main/),)
