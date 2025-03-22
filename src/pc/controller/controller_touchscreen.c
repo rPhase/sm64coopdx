@@ -367,19 +367,6 @@ void touch_up(struct TouchEvent* event) {
 
 // Sprite drawing code stolen from src/game/print.c
 
-static void select_button_texture(int dark) {
-    gDPPipeSync(gDisplayListHead++);
-    
-    if (!dark) {
-        gDPSetTextureImage(gDisplayListHead++, G_IM_FMT_RGBA, G_IM_SIZ_16b, 1, touch_textures[TEXTURE_TOUCH_JOYSTICK]);
-    } else {
-        //dark but not in yet
-        gDPSetTextureImage(gDisplayListHead++, G_IM_FMT_RGBA, G_IM_SIZ_16b, 1, touch_textures[TEXTURE_TOUCH_JOYSTICK]);
-    }
-
-    gSPDisplayList(gDisplayListHead++, dl_hud_img_load_tex_block);
-}
-
 const Gfx dl_tex_joystick_base_uv[] = {
     gsDPSetTile(G_IM_FMT_RGBA, G_IM_SIZ_16b_LOAD_BLOCK, 0, 0, 7, 0, G_TX_WRAP | G_TX_NOMIRROR, 0, 0, G_TX_WRAP | G_TX_NOMIRROR, 0, 0),
 	gsDPLoadBlock(7, 0, 0, 1023, 256),

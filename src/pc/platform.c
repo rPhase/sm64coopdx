@@ -405,7 +405,7 @@ const char *sys_exe_path_dir(void) {
 
 const char *sys_exe_path_file(void) {
 #ifdef __ANDROID__
-    return "."
+    return ".";
 #endif
     static char path[SYS_MAX_PATH];
     if ('\0' != path[0]) { return path; }
