@@ -382,7 +382,7 @@ void game_exit(void) {
     game_deinit();
     exit(0);
 }
-# define FS_BASEDIR "res"
+
 void* main_game_init(UNUSED void* dummy) {
     // load language
     if (!djui_language_init(configLanguage)) { snprintf(configLanguage, MAX_CONFIG_STRING, "%s", ""); }
@@ -425,6 +425,9 @@ void* main_game_init(UNUSED void* dummy) {
 }
 
 #ifdef TARGET_ANDROID
+
+#define FS_BASEDIR "res"
+
 int SDL_main(int argc, char *argv[]) {
 #else
 int main(int argc, char *argv[]) {

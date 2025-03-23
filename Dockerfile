@@ -10,7 +10,3 @@ RUN apt-get update && \
         libcurl4-openssl-dev
 
 WORKDIR /sm64
-
-# docker build . -t sm64ex-coop
-# cp /path/to/baserom.us.z64 .
-# docker run --rm -v $(pwd):/sm64 sm64ex-coop sh -c "TOUCH_CONTROLS=1 make -j$(nproc)"
