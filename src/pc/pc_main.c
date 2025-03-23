@@ -408,20 +408,26 @@ void* main_game_init(UNUSED void* dummy) {
     );
 
     audio_init();
+    LOADING_SCREEN_MUTEX(loading_screen_set_segment_text("Audio"));
     sound_init();
+    LOADING_SCREEN_MUTEX(loading_screen_set_segment_text("Sound"));
     network_player_init();
+    LOADING_SCREEN_MUTEX(loading_screen_set_segment_text("Network"));
 #ifndef TARGET_ANDROID
     mumble_init();
 #endif
+LOADING_SCREEN_MUTEX(loading_screen_set_segment_text("Mumble skip"));
     if (!gGfxInited) {
         gfx_init(&WAPI, &RAPI, TITLE);
          WAPI.set_keyboard_callbacks(keyboard_on_key_down, keyboard_on_key_up, keyboard_on_all_keys_up, keyboard_on_text_input, keyboard_on_text_editing);
 #ifdef TOUCH_CONTROLS
         WAPI.set_touchscreen_callbacks((void *)touch_down, (void *)touch_motion, (void *)touch_up);
 #endif
+LOADING_SCREEN_MUTEX(loading_screen_set_segment_text("GFX"));
     }
 
     gGameInited = true;
+    LOADING_SCREEN_MUTEX(loading_screen_set_segment_text("Game Inited"));
 }
 
 #ifdef TARGET_ANDROID
