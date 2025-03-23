@@ -26,6 +26,10 @@ esac
 echo "Using TARGET_ANDROID_ARCH: $TARGET_ANDROID_ARCH"
 
 apt-mark hold termux-exec
+apt-get upgrade -yq -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold"
+pkg install -y git wget make python zip clang binutils apksigner aapt libglvnd-dev sdl2 ndk-sysroot
+pkg show libc++
+find /data/data/com.termux/files -name "libc++_shared.so"
 
 chmod 777 -R .
 make -C lib/src/lua clean || true
