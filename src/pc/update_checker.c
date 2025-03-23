@@ -25,8 +25,6 @@
 static char sVersionUpdateTextBuffer[256] = { 0 };
 static char sRemoteVersion[8] = { 0 };
 
-bool gUpdateMessage = false; // Define global variable
-
 void show_update_popup(void) {
     if (sVersionUpdateTextBuffer[0] == '\0') { return; }
     djui_popup_create(sVersionUpdateTextBuffer, 3);
