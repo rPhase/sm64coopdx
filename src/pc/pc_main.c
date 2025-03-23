@@ -393,7 +393,7 @@ void* main_game_init(UNUSED void* dummy) {
     sync_objects_init_system();
 
     if (gCLIOpts.network != NT_SERVER && !gCLIOpts.skipUpdateCheck) {
-       // check_for_updates();
+        check_for_updates();
     }
 
     LOADING_SCREEN_MUTEX(loading_screen_set_segment_text("Loading ROM Assets"));
