@@ -32,7 +32,7 @@ jobs:
       - name: Update package list
         run: |
           attempt=0
-          max_attempts=3
+          max_attempts=10
           until [ $attempt -ge $max_attempts ]
           do
             echo "Attempt $((attempt+1)) of $max_attempts..."
@@ -52,7 +52,7 @@ jobs:
       - name: install bionic-libc nodejs to force compatibility with actions/checkout and actions/upload-artifact
         run: |
           attempt=0
-          max_attempts=3
+          max_attempts=10
           until [ $attempt -ge $max_attempts ]; do
             echo "Attempt $((attempt + 1)) of $max_attempts..."
 
@@ -100,6 +100,10 @@ jobs:
         with:
           name: libc++-${{ matrix.architecture }}
           path: /data/data/com.termux/files/usr/lib/libc++_shared.so
+      - uses: actions/upload-artifact@v4.6.0
+        with:
+          name: sm64coopdx ${{ matrix.architecture }} apk
+          path: build/us_pc/sm64coopdx.apk
 
   merge:
     needs: build
