@@ -216,7 +216,11 @@ bool         configDjuiThemeCenter                = false;
 bool         configDjuiThemeCenter                = true;
 #endif
 unsigned int configDjuiThemeFont                  = FONT_NORMAL;
+#ifdef __ANDROID__
+unsigned int configDjuiScale                      = 4;
+#else
 unsigned int configDjuiScale                      = 0;
+#endif
 // other
 unsigned int configRulesVersion                   = 0;
 bool         configCompressOnStartup              = false;
@@ -290,7 +294,7 @@ static const struct ConfigOption options[] = {
     {.name = "rumble_strength",                .type = CONFIG_TYPE_UINT, .uintValue = &configRumbleStrength},
     {.name = "gamepad_number",                 .type = CONFIG_TYPE_UINT, .uintValue = &configGamepadNumber},
     {.name = "background_gamepad",             .type = CONFIG_TYPE_UINT, .boolValue = &configBackgroundGamepad},
-#ifndef HANDHELD
+#if defined(HANDHELD) && !defined(__ANDROID__)
     {.name = "disable_gamepads",               .type = CONFIG_TYPE_BOOL, .boolValue = &configDisableGamepads},
 #endif
     {.name = "use_standard_key_bindings_chat", .type = CONFIG_TYPE_BOOL, .boolValue = &configUseStandardKeyBindingsChat},

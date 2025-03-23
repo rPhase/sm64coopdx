@@ -21,10 +21,11 @@ void djui_panel_controls_create(struct DjuiBase* caller) {
     {
     #ifdef TOUCH_CONTROLS
         struct DjuiButton* n64bindsButton = djui_button_create(body, DLANG(CONTROLS, N64_BINDS), DJUI_BUTTON_STYLE_NORMAL, djui_panel_controls_n64_create);
-        djui_base_set_size(&n64bindsButton->base, 1.0f, 46);
+        djui_base_set_size(&n64bindsButton->base, 1.0f, 43);
         struct DjuiButton* extrabindsButton = djui_button_create(body, DLANG(CONTROLS, EXTRA_BINDS), DJUI_BUTTON_STYLE_NORMAL, djui_panel_controls_extra_create);
-        djui_base_set_size(&extrabindsButton->base, 1.0f, 46);
-        djui_button_create(body, "Touch Binds", DJUI_BUTTON_STYLE_NORMAL, djui_panel_shutdown_touchconfig);
+        djui_base_set_size(&extrabindsButton->base, 1.0f, 43);
+        struct DjuiButton* touchbindsButton = djui_button_create(body, "Touch Binds", DJUI_BUTTON_STYLE_NORMAL, djui_panel_shutdown_touchconfig);
+        djui_base_set_size(&touchbindsButton->base, 1.0f, 43);
         djui_checkbox_create(body, "Autohide Touch Controls", &configAutohideTouch, NULL);
         djui_checkbox_create(body, "Slide Touch", &configSlideTouch, NULL);
         djui_checkbox_create(body, "Ignore Phantom Touch Events", &configPhantomTouch, NULL);
@@ -33,7 +34,7 @@ void djui_panel_controls_create(struct DjuiBase* caller) {
         djui_button_create(body, DLANG(CONTROLS, EXTRA_BINDS), DJUI_BUTTON_STYLE_NORMAL, djui_panel_controls_extra_create);
         djui_checkbox_create(body, DLANG(CONTROLS, BACKGROUND_GAMEPAD), &configBackgroundGamepad, NULL);
     #endif
-#ifndef HANDHELD
+#if defined(HANDHELD) && !defined(__ANDROID__)
         djui_checkbox_create(body, DLANG(CONTROLS, DISABLE_GAMEPADS), &configDisableGamepads, NULL);
 #endif
         djui_checkbox_create(body, DLANG(MISC, USE_STANDARD_KEY_BINDINGS_CHAT), &configUseStandardKeyBindingsChat, NULL);
