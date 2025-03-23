@@ -17,7 +17,5 @@ struct PcDebug {
 extern struct PcDebug gPcDebug;
 extern char gLastRemoteBhv[];
 
-#ifndef TARGET_ANDROID
 void crash_handler_init(void);
-#endif
 #endif
