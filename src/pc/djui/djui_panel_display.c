@@ -61,7 +61,7 @@ void djui_panel_display_create(struct DjuiBase* caller) {
     if (sMsaaOriginal == MSAA_ORIGINAL_UNSET) { sMsaaOriginal = configWindow.msaa; }
 
     {
-#ifndef __ANDROID
+#ifndef __ANDROID__
         djui_checkbox_create(body, DLANG(DISPLAY, FULLSCREEN), &configWindow.fullscreen, djui_panel_display_apply);
 #endif
 #ifdef TOUCH_CONTROLS
