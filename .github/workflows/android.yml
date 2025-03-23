@@ -32,7 +32,7 @@ jobs:
       - name: Update package list
         run: |
           attempt=0
-          max_attempts=3
+          max_attempts=10
           until [ $attempt -ge $max_attempts ]
           do
             echo "Attempt $((attempt+1)) of $max_attempts..."
@@ -52,7 +52,7 @@ jobs:
       - name: install bionic-libc nodejs to force compatibility with actions/checkout and actions/upload-artifact
         run: |
           attempt=0
-          max_attempts=3
+          max_attempts=10
           until [ $attempt -ge $max_attempts ]; do
             echo "Attempt $((attempt + 1)) of $max_attempts..."
 
