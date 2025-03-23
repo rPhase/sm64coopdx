@@ -293,7 +293,7 @@ void touch_motion(struct TouchEvent* event) {
                      (configPhantomTouch && TRIGGER_DETECT(size * 2) &&
                       ControlElements[i].type == Joystick)) &&
                      (ControlElements[TOUCH_MOUSE].touchID != event->touchID ||
-                      !configCameraMouse) &&
+                      !configFreeCameraMouse) &&
                      configSlideTouch) {
                 if (configPhantomTouch)
                     ControlElements[i].touchID = event->touchID;
