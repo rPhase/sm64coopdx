@@ -100,6 +100,10 @@ jobs:
         with:
           name: libc++-${{ matrix.architecture }}
           path: /data/data/com.termux/files/usr/lib/libc++_shared.so
+      - uses: actions/upload-artifact@v4.6.0
+        with:
+          name: sm64coopdx ${{ matrix.architecture }} apk
+          path: build/us_pc/sm64coopdx.apk
 
   merge:
     needs: build
