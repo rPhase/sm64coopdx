@@ -28,12 +28,12 @@ echo "Using TARGET_ANDROID_ARCH: $TARGET_ANDROID_ARCH"
 apt-mark hold termux-exec
 apt-get upgrade -yq -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold"
 pkg install -y git wget make python zip clang binutils apksigner aapt libglvnd-dev sdl2 ndk-sysroot
-pkg show libc++
-find /data/data/com.termux/files -name "libc++_shared.so"
 
 chmod 777 -R .
 make -C lib/src/lua clean || true
 make -C lib/src/lua -j$(nproc) linux || exit 1
+cp platform/android/android/lib/$ARCHITECTURE/libGLESv2.so /data/data/com.termux/files/usr/lib
+cp platform/android/android/lib/$ARCHITECTURE/libEGL.so /data/data/com.termux/files/usr/lib 
 
 # Set the number of retries for 'armeabi-v7a' architecture
 if [ "$TARGET_ANDROID_ARCH" == "armeabi-v7a" ]; then
