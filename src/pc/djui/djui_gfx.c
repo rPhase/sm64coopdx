@@ -45,7 +45,7 @@ const Gfx dl_djui_simple_rect[] = {
 };
 
 f32 djui_gfx_get_scale(void) {
-#ifndef TOUCH_CONTROLS
+#ifndef __ANDROID__
     if (configDjuiScale == 0) { // auto
         u32 windowWidth, windowHeight;
         wm_api->get_dimensions(&windowWidth, &windowHeight);

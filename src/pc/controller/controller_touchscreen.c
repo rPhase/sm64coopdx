@@ -319,7 +319,7 @@ void touch_motion(struct TouchEvent* event) {
 static void handle_touch_up(u32 i) { // separated for when the layout changes
     ControlElements[i].touchID = 0;
     struct Position pos = get_pos(&configControlElements[i], 0);
-    if (pos.y == HIDE_POS) return;
+    if (pos.y == HIDE_POS) { return; }
     switch (ControlElements[i].type) {
         case Joystick:
             ControlElements[i].joyX = 0;
