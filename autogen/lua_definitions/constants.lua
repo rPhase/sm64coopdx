@@ -2530,6 +2530,15 @@ RCO_ALL_EXCEPT_BOWSER = 1
 --- @type RomhackCameraOverride
 RCO_NONE = 2
 
+--- @type RomhackCameraOverride
+RCO_ALL_INCLUDING_VANILLA = 3
+
+--- @type RomhackCameraOverride
+RCO_ALL_VANILLA_EXCEPT_BOWSER = 4
+
+--- @type RomhackCameraOverride
+RCO_DISABLE = 5
+
 --- @class CharacterSound
 
 --- @type CharacterSound
@@ -10355,19 +10364,22 @@ HOOK_MAX = 53
 --- @class LuaModMenuElementType
 
 --- @type LuaModMenuElementType
-MOD_MENU_ELEMENT_BUTTON = 0
+MOD_MENU_ELEMENT_TEXT = 0
 
 --- @type LuaModMenuElementType
-MOD_MENU_ELEMENT_CHECKBOX = 1
+MOD_MENU_ELEMENT_BUTTON = 1
 
 --- @type LuaModMenuElementType
-MOD_MENU_ELEMENT_SLIDER = 2
+MOD_MENU_ELEMENT_CHECKBOX = 2
 
 --- @type LuaModMenuElementType
-MOD_MENU_ELEMENT_INPUTBOX = 3
+MOD_MENU_ELEMENT_SLIDER = 3
 
 --- @type LuaModMenuElementType
-MOD_MENU_ELEMENT_MAX = 4
+MOD_MENU_ELEMENT_INPUTBOX = 4
+
+--- @type LuaModMenuElementType
+MOD_MENU_ELEMENT_MAX = 5
 
 --- @class HudDisplayFlags
 
@@ -13625,7 +13637,7 @@ OBJECT_CUSTOM_FIELDS_START = (OBJECT_NUM_REGULAR_FIELDS)
 OBJECT_MAX_BHV_STACK = 16
 
 --- @type integer
-OBJECT_NUM_CUSTOM_FIELDS = 0x10
+OBJECT_NUM_CUSTOM_FIELDS = 0x40
 
 --- @type integer
 OBJECT_NUM_FIELDS = (OBJECT_CUSTOM_FIELDS_START + OBJECT_NUM_CUSTOM_FIELDS)
