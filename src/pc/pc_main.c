@@ -393,9 +393,9 @@ void* main_game_init(UNUSED void* dummy) {
     sync_objects_init_system();
 
     if (gCLIOpts.network != NT_SERVER && !gCLIOpts.skipUpdateCheck) {
-#ifndef __ANDROID__
+//#ifndef __ANDROID__
         check_for_updates();
-#endif
+//#endif
     }
 
     LOADING_SCREEN_MUTEX(loading_screen_set_segment_text("Loading ROM Assets"));
