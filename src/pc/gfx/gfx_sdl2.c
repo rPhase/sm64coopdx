@@ -132,6 +132,9 @@ static void gfx_sdl_init(const char *window_title) {
     // gfx_sdl_start_text_input() gets called when needed
     #ifndef __ANDROID__
     SDL_StartTextInput();
+    #endif
+
+    #ifdef TARGET_ANDROID
     SDL_SetHint(SDL_HINT_ORIENTATIONS, "LandscapeLeft LandscapeRight");
     #endif
 
