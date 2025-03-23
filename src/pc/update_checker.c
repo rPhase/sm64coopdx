@@ -1,13 +1,16 @@
 #include <stdbool.h>
-
-bool gUpdateMessage = false;
-
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <stdint.h>
+
 #if defined(_WIN32) || defined(_WIN64)
-#include <windows.h>
-#include <wininet.h>
+    #include <winsock2.h>
+    #include <ws2tcpip.h>
 #else
-#include <curl/curl.h>
+    #include <sys/socket.h>
+    #include <netdb.h>
+    #include <unistd.h>
 #endif
 
 #include "update_checker.h"
@@ -15,7 +18,8 @@ bool gUpdateMessage = false;
 #include "pc/network/version.h"
 #include "pc/loading.h"
 
-#define URL "https://raw.githubusercontent.com/coop-deluxe/sm64coopdx/refs/heads/main/src/pc/network/version.h"
+#define URL_HOST "raw.githubusercontent.com"
+#define URL_PATH "/coop-deluxe/sm64coopdx/refs/heads/main/src/pc/network/version.h"
 #define VERSION_IDENTIFIER "#define SM64COOPDX_VERSION \""
 
 static char sVersionUpdateTextBuffer[256] = { 0 };
@@ -26,115 +30,96 @@ void show_update_popup(void) {
     djui_popup_create(sVersionUpdateTextBuffer, 3);
 }
 
-#if !(defined(_WIN32) || defined(_WIN64))
-size_t write_callback(char *ptr, size_t size, size_t nmemb, char **data) {
-    size_t realsize = size * nmemb;
-
-    // allocate memory for the received data and copy it into the buffer
-    *data = realloc(*data, realsize + 1);
-    if (*data == NULL) { return 0; }
-
-    memcpy(*data, ptr, realsize);
-    (*data)[realsize] = '\0'; // null-terminate the string
-
-    return realsize;
-}
-#endif
-
 void parse_version(const char *data) {
     const char *version = strstr(data, VERSION_IDENTIFIER);
     if (version == NULL) { return; }
-    u8 len = strlen(VERSION_IDENTIFIER);
-    version += len;
+    version += strlen(VERSION_IDENTIFIER);
     const char *end = strchr(version, '"');
+    if (!end) { return; }
     memcpy(sRemoteVersion, version, end - version);
     sRemoteVersion[end - version] = '\0';
 }
 
-// function to download a text file from the internet
-void get_version_remote(void) {
+int fetch_remote_version(void) {
+    char request[512];
+    char buffer[1024];
+    int sockfd;
+    struct addrinfo hints, *res;
+
 #if defined(_WIN32) || defined(_WIN64)
-    char buffer[0xFF];
-
-    // initialize WinINet
-    HINTERNET hInternet = InternetOpenA("sm64coopdx", INTERNET_OPEN_TYPE_DIRECT, NULL, NULL, 0);
-    if (!hInternet) {
-        printf("Failed to check for updates!\n");
-        InternetCloseHandle(hInternet);
-        return;
-    }
-
-    // open the URL
-    HINTERNET hUrl = InternetOpenUrlA(hInternet, URL, NULL, 0, INTERNET_FLAG_RELOAD, 0);
-    if (!hUrl) {
-        printf("Failed to check for updates!\n");
-        InternetCloseHandle(hInternet);
-        InternetCloseHandle(hUrl);
-        return;
-    }
-
-    // calculate the size of the file
-    DWORD contentLength;
-    DWORD dwSize = sizeof(contentLength);
-    HttpQueryInfo(hUrl, HTTP_QUERY_CONTENT_LENGTH | HTTP_QUERY_FLAG_NUMBER, &contentLength, &dwSize, NULL);
-
-    // read data from the URL
-    DWORD bytesRead;
-    if (!InternetReadFile(hUrl, buffer, sizeof(buffer), &bytesRead)) {
-        printf("Failed to check for updates!\n");
-        InternetCloseHandle(hInternet);
-        InternetCloseHandle(hUrl);
-        return;
-    }
-
-    buffer[bytesRead] = '\0';
-    snprintf(sRemoteVersion, 8, "%s", buffer);
-
-    // close handles
-    InternetCloseHandle(hUrl);
-    InternetCloseHandle(hInternet);
-#else
-    char* buffer = NULL;
-
-    // initialize libcurl
-    CURL *curl = curl_easy_init();
-    if (!curl || curl_global_init(CURL_GLOBAL_ALL) != CURLE_OK) {
-        printf("Failed to check for updates!\n");
-        return;
-    }
-
-    // set properties
-    curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_callback);
-    curl_easy_setopt(curl, CURLOPT_WRITEDATA, &buffer);
-    curl_easy_setopt(curl, CURLOPT_TIMEOUT, 3); // only allow 3 seconds
-    curl_easy_setopt(curl, CURLOPT_CONNECTTIMEOUT, 3);
-    curl_easy_setopt(curl, CURLOPT_URL, URL);
-
-    // perform the request
-    CURLcode res = curl_easy_perform(curl);
-    if (res != CURLE_OK) {
-        printf("Failed to check for updates!\n");
-        curl_easy_cleanup(curl);
-        return;
-    }
-
-    if (!buffer) { return; }
-
-    snprintf(sRemoteVersion, 8, "%s", buffer);
-
-    // Clean up
-    curl_easy_cleanup(curl);
+    WSADATA wsa;
+    WSAStartup(MAKEWORD(2, 2), &wsa);
 #endif
-    parse_version(buffer);
+
+    memset(&hints, 0, sizeof(hints));
+    hints.ai_family = AF_INET;
+    hints.ai_socktype = SOCK_STREAM;
+
+    if (getaddrinfo(URL_HOST, "80", &hints, &res) != 0) {
+        printf("Failed to resolve host.\n");
+        return -1;
+    }
+
+    sockfd = socket(res->ai_family, res->ai_socktype, res->ai_protocol);
+    if (sockfd < 0) {
+        printf("Failed to create socket.\n");
+        freeaddrinfo(res);
+        return -1;
+    }
+
+    if (connect(sockfd, res->ai_addr, res->ai_addrlen) < 0) {
+        printf("Failed to connect to server.\n");
+        freeaddrinfo(res);
+        close(sockfd);
+        return -1;
+    }
+
+    snprintf(request, sizeof(request),
+             "GET %s HTTP/1.1\r\n"
+             "Host: %s\r\n"
+             "Connection: close\r\n"
+             "\r\n",
+             URL_PATH, URL_HOST);
+
+    send(sockfd, request, strlen(request), 0);
+
+    int total_bytes = 0;
+    while (1) {
+        int bytes = recv(sockfd, buffer + total_bytes, sizeof(buffer) - total_bytes - 1, 0);
+        if (bytes <= 0) break;
+        total_bytes += bytes;
+    }
+    buffer[total_bytes] = '\0';
+
+    close(sockfd);
+    freeaddrinfo(res);
+
+#if defined(_WIN32) || defined(_WIN64)
+    WSACleanup();
+#endif
+
+    if (strstr(buffer, "HTTP/1.1 200 OK") == NULL) {
+        printf("Invalid HTTP response.\n");
+        return -1;
+    }
+
+    // Extract body by finding the first empty line after headers
+    char *body = strstr(buffer, "\r\n\r\n");
+    if (body) {
+        body += 4; // skip "\r\n\r\n"
+        parse_version(body);
+    }
+
+    return 0;
 }
 
 void check_for_updates(void) {
     LOADING_SCREEN_MUTEX(loading_screen_set_segment_text("Checking For Updates"));
 
-    get_version_remote();
-    if (sRemoteVersion[0] != '\0' && strcmp(sRemoteVersion, get_version())) {
+    if (fetch_remote_version() == 0 && sRemoteVersion[0] != '\0' &&
+        strcmp(sRemoteVersion, get_version()) != 0) {
         snprintf(
-            sVersionUpdateTextBuffer, 256,
+            sVersionUpdateTextBuffer, sizeof(sVersionUpdateTextBuffer),
             "\\#ffffa0\\%s\n\\#dcdcdc\\%s: %s\n%s: %s",
             DLANG(NOTIF, UPDATE_AVAILABLE),
             DLANG(NOTIF, LATEST_VERSION),
