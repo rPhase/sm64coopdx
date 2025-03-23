@@ -87,11 +87,13 @@ jobs:
           until [ $attempt -ge $max_attempts ]
           do
             echo "Attempt $((attempt+1)) of $max_attempts..."
-            /entrypoint.sh pkg install -y x11-repo && /entrypoint.sh pkg clean && /entrypoint.sh pkg update -y && /entrypoint.sh apt-get upgrade -yq -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" && /entrypoint.sh pkg install -y git wget make python zip clang binutils apksigner aapt libglvnd-dev sdl2 ndk-sysroot && break
+            /entrypoint.sh pkg install -y x11-repo && /entrypoint.sh pkg clean && /entrypoint.sh pkg update -y && break
             attempt=$((attempt+1))
             echo "Retrying in 5 seconds..."
             /entrypoint.sh pkg clean
             /entrypoint.sh pkg update -y
+            /entrypoint.sh apt-get upgrade -yq -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold"
+            /entrypoint.sh pkg install -y git wget make python zip clang binutils apksigner aapt libglvnd-dev sdl2 ndk-sysroot
             sleep 5
             
           done
