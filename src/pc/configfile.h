@@ -144,6 +144,7 @@ extern unsigned int configTouchControlGreen;
 extern unsigned int configTouchControlBlue;
 extern unsigned int configTouchControlAlpha;
 #endif
+extern bool         configSkipPackGeneration;
 
 // secrets
 extern bool configExCoopTheme;

@@ -23,6 +23,7 @@
 #endif
 #include "djui/djui_hud_utils.h"
 #include "game/save_file.h"
+#include "pc/network/network_player.h"
 
 #define ARRAY_LEN(arr) (sizeof(arr) / sizeof(arr[0]))
 
@@ -213,6 +214,7 @@ unsigned int configTouchControlGreen              = 255;
 unsigned int configTouchControlBlue               = 255;
 unsigned int configTouchControlAlpha              = 255;
 #endif
+bool         configSkipPackGeneration             = false;
 
 // secrets
 bool configExCoopTheme = false;
@@ -445,6 +447,7 @@ static const struct ConfigOption options[] = {
     {.name = "android_touch_blue",             .type = CONFIG_TYPE_UINT,   .uintValue   = &configTouchControlBlue},
     {.name = "android_touch_opacity",          .type = CONFIG_TYPE_UINT,   .uintValue   = &configTouchControlAlpha},
 #endif
+    {.name = "skip_pack_generation",           .type = CONFIG_TYPE_BOOL,   .boolValue   = &configSkipPackGeneration},
 };
 
 struct SecretConfigOption {
@@ -874,6 +877,10 @@ NEXT_OPTION:
     if (gCLIOpts.height != 0) { configWindow.h = gCLIOpts.height; }
 
     if (gCLIOpts.playerName[0]) { snprintf(configPlayerName, MAX_CONFIG_STRING, "%s", gCLIOpts.playerName); }
+
+    if (!network_player_name_valid(configPlayerName)) {
+        snprintf(configPlayerName, MAX_CONFIG_STRING, "Player");
+    }
 
     for (int i = 0; i < gCLIOpts.enabledModsCount; i++) {
         enable_mod(gCLIOpts.enableMods[i]);

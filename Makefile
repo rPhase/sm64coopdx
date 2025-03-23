@@ -7,6 +7,7 @@ default: all
 
 # Preprocessor definitions
 DEFINES :=
+C_DEFINES :=
 
 #==============================================================================#
 # Build Options                                                                #
@@ -26,6 +27,9 @@ TARGET_N64 = 0
 
 # Build and optimize for Raspberry Pi(s)
 TARGET_RPI ?= 0
+
+# Build and optimize for RK3588 processor
+TARGET_RK3588 ?= 0
 
 # Makeflag to enable OSX fixes
 OSX_BUILD ?= 0
@@ -349,18 +353,29 @@ ifeq ($(TARGET_RPI),1)
 	endif
 endif
 
+ifeq ($(TARGET_RK3588),1)
+  $(info Compiling for RK3588)
+  DISCORD_SDK := 0
+  COOPNET := 0
+  machine = $(shell sh -c 'uname -m 2>/dev/null || echo unknown')
+
+  # RK3588 in ARM64 (aarch64) mode
+  $(info ARM64 mode)
+  OPT_FLAGS := -march=armv8.2-a+crc+simd -mtune=cortex-a76 -O3
+endif
+
 # Set BITS (32/64) to compile for
 OPT_FLAGS += $(BITS)
 
 TARGET := sm64.$(VERSION)
 
-# Stuff for showing the git hash in the intro on nightly builds
-# From https://stackoverflow.com/questions/44038428/include-git-commit-hash-and-or-branch-name-in-c-c-source
-#ifeq ($(shell git rev-parse --abbrev-ref HEAD),nightly)
-#  GIT_HASH=`git rev-parse --short HEAD`
-#  COMPILE_TIME=`date -u +'%Y-%m-%d %H:%M:%S UTC'`
-#  DEFINES += -DNIGHTLY -DGIT_HASH="\"$(GIT_HASH)\"" -DCOMPILE_TIME="\"$(COMPILE_TIME)\""
-#endif
+# Stuff for showing the git hash and build time in dev builds
+# Originally from https://stackoverflow.com/questions/44038428/include-git-commit-hash-and-or-branch-name-in-c-c-source
+ifneq ($(shell git rev-parse --abbrev-ref HEAD),main)
+  GIT_HASH=$(shell git rev-parse --short HEAD)
+  COMPILE_TIME=$(shell date -u +'%Y-%m-%d %H:%M:%S UTC')
+  C_DEFINES += -DGIT_HASH="\"$(GIT_HASH)\"" -DCOMPILE_TIME="\"$(COMPILE_TIME)\""
+endif
 
 
 # GRUCODE - selects which RSP microcode to use.
@@ -393,6 +408,10 @@ ifeq ($(TARGET_RPI),1) # Define RPi to change SDL2 title & GLES2 hints
   DEFINES += USE_GLES=1
 else ifeq ($(TARGET_ANDROID),1)
   DEFINES += TARGET_ANDROID=1 USE_GLES=1 _LANGUAGE_C=1
+endif
+
+ifeq ($(TARGET_RK3588),1) # Define RK3588 to change SDL2 title & GLES2 hints
+  DEFINES += USE_GLES=1
 endif
 
 ifeq ($(OSX_BUILD),1) # Modify GFX & SDL2 for OSX GL
@@ -496,16 +515,6 @@ COOPNET_DIR := lib/src/coopnet
 PYTHON := python3
 
 ifeq ($(filter clean distclean print-%,$(MAKECMDGOALS)),)
-
-  # Make sure assets exist
-  NOEXTRACT ?= 0
-  ifeq ($(NOEXTRACT),0)
-    DUMMY != $(PYTHON) extract_assets.py $(VERSION) >&2 || echo FAIL
-    ifeq ($(DUMMY),FAIL)
-      $(error Failed to extract assets)
-    endif
-  endif
-
   ifeq ($(WINDOWS_AUTO_BUILDER),0)
     $(info Building tools...)
     DUMMY != $(MAKE) -C $(TOOLS_DIR) >&2 || echo FAIL
@@ -570,6 +579,10 @@ else # Linux builds/binary namer
 	else
 		EXE := $(BUILD_DIR)/sm64coopdx
 	endif
+endif
+
+ifeq ($(TARGET_RK3588),1)
+  EXE := $(BUILD_DIR)/sm64coopdx.arm
 endif
 
 ELF            := $(BUILD_DIR)/$(TARGET).elf
@@ -859,6 +872,8 @@ else ifeq ($(findstring SDL,$(WINDOW_API)),SDL)
     BACKEND_LDFLAGS += -lGLESv2 -llog
   else ifeq ($(TARGET_RPI),1)
     BACKEND_LDFLAGS += -lGLESv2
+  else ifeq ($(TARGET_RK3588),1)
+    BACKEND_LDFLAGS += -lGLESv2
   else ifeq ($(OSX_BUILD),1)
     BACKEND_LDFLAGS += -framework OpenGL `pkg-config --libs glew` -mmacosx-version-min=$(MIN_MACOS_VERSION)
     EXTRA_CPP_FLAGS += -stdlib=libc++ -std=c++17 -mmacosx-version-min=$(MIN_MACOS_VERSION)
@@ -913,7 +928,7 @@ ifneq ($(SDL1_USED)$(SDL2_USED),00)
   endif
 endif
 
-C_DEFINES := $(foreach d,$(DEFINES),-D$(d))
+C_DEFINES += $(foreach d,$(DEFINES),-D$(d))
 DEF_INC_CFLAGS := $(foreach i,$(INCLUDE_DIRS),-I$(i)) $(C_DEFINES)
 
 # Check code syntax with host compiler
@@ -986,6 +1001,8 @@ else ifeq ($(TARGET_ANDROID),1)
   endif
   CFLAGS  += -fPIC
   LDFLAGS := -L ./platform/android/android/lib/$(ARCH_APK)/ -lm $(BACKEND_LDFLAGS) -shared
+else ifeq ($(TARGET_RK3588),1)
+  LDFLAGS := $(OPT_FLAGS) -lm $(BACKEND_LDFLAGS) -no-pie
 else ifeq ($(OSX_BUILD),1)
   LDFLAGS := -lm $(BACKEND_LDFLAGS) -lpthread
 else
@@ -1061,6 +1078,8 @@ else ifeq ($(TARGET_RPI),1)
   endif
 else ifeq ($(TARGET_ANDROID),1)
   LDFLAGS += -L$(LIBLUA_DIR)/src -l:liblua.a
+else ifeq ($(TARGET_RK3588),1)
+  LDFLAGS += -Llib/lua/linux -l:liblua53-arm64.a
 else
   LDFLAGS += -Llib/lua/linux -l:liblua53.a -ldl
 endif
@@ -1092,6 +1111,8 @@ ifeq ($(COOPNET),1)
     endif
   else ifeq ($(TARGET_ANDROID),1)
     LDFLAGS += -L$(COOPNET_DIR)/bin -L$(COOPNET_DIR)/lib/libjuice -l:libcoopnet.a -l:libjuice.a
+  else ifeq ($(TARGET_RK3588),1)
+    LDFLAGS += -Llib/coopnet/linux -l:libcoopnet-arm64.a -l:libjuice.a
   else
     LDFLAGS += -Llib/coopnet/linux -l:libcoopnet.a -l:libjuice.a
   endif
@@ -1183,6 +1204,12 @@ endif
 ifeq ($(TARGET_RPI),1)
   CC_CHECK_CFLAGS += -DTARGET_RPI
   CFLAGS += -DTARGET_RPI
+endif
+
+# Check for rk3588 option
+ifeq ($(TARGET_RK3588),1)
+  CC_CHECK_CFLAGS += -DTARGET_RK3588
+  CFLAGS += -DTARGET_RK3588
 endif
 
 # Check for texture fix option
@@ -1342,8 +1369,6 @@ endif
 
 $(BUILD_DIR)/src/game/characters.o:   $(SOUND_SAMPLE_TABLES)
 $(SOUND_BIN_DIR)/sound_data.o:        $(SOUND_BIN_DIR)/sound_data.ctl.inc.c $(SOUND_BIN_DIR)/sound_data.tbl.inc.c $(SOUND_BIN_DIR)/sequences.bin.inc.c $(SOUND_BIN_DIR)/bank_sets.inc.c
-$(SOUND_BIN_DIR)/samples_assets.o:    $(SOUND_BIN_DIR)/samples_offsets.inc.c
-$(SOUND_BIN_DIR)/sequences_assets.o:  $(SOUND_BIN_DIR)/sequences_offsets.inc.c
 $(BUILD_DIR)/levels/scripts.o:        $(BUILD_DIR)/include/level_headers.h
 
 ifeq ($(VERSION),sh)
@@ -1472,12 +1497,17 @@ $(ENDIAN_BITWIDTH): $(TOOLS_DIR)/determine-endian-bitwidth.c
 	@$(RM) $@.dummy1
 	@$(RM) $@.dummy2
 
-$(SOUND_BIN_DIR)/sound_data.ctl: sound/sound_banks/ $(SOUND_BANK_FILES) $(SOUND_SAMPLE_AIFCS) $(ENDIAN_BITWIDTH)
-	@$(PRINT) "$(GREEN)Generating:  $(BLUE)$@ $(NO_COL)\n"
-	$(V)$(PYTHON) $(TOOLS_DIR)/assemble_sound.py $(BUILD_DIR)/sound/samples/ sound/sound_banks/ $(SOUND_BIN_DIR)/sound_data.ctl $(SOUND_BIN_DIR)/ctl_header $(SOUND_BIN_DIR)/sound_data.tbl $(SOUND_BIN_DIR)/tbl_header $(C_DEFINES) $$(cat $(ENDIAN_BITWIDTH))
+$(SOUND_BIN_DIR)/sound_data.tbl: sound/sound_data_compressed.tbl
+	@$(PRINT) "$(GREEN)Decompressing:  $(BLUE)$@ $(NO_COL)\n"
+	$(V)$(PYTHON) $(TOOLS_DIR)/decompress.py sound/sound_data_compressed.tbl $(SOUND_BIN_DIR)/sound_data.tbl
 
-$(SOUND_BIN_DIR)/sound_data.tbl: $(SOUND_BIN_DIR)/sound_data.ctl
-	@true
+$(SOUND_BIN_DIR)/sound_data.ctl: sound/sound_data_compressed.ctl
+	@$(PRINT) "$(GREEN)Decompressing:  $(BLUE)$@ $(NO_COL)\n"
+	$(V)$(PYTHON) $(TOOLS_DIR)/decompress.py sound/sound_data_compressed.ctl $(SOUND_BIN_DIR)/sound_data.ctl
+
+$(SOUND_BIN_DIR)/bank_sets: sound/bank_sets_compressed
+	@$(PRINT) "$(GREEN)Decompressing:  $(BLUE)$@ $(NO_COL)\n"
+	$(V)$(PYTHON) $(TOOLS_DIR)/decompress.py sound/bank_sets_compressed $(SOUND_BIN_DIR)/bank_sets
 
 $(SOUND_BIN_DIR)/ctl_header: $(SOUND_BIN_DIR)/sound_data.ctl
 	@true
@@ -1485,20 +1515,11 @@ $(SOUND_BIN_DIR)/ctl_header: $(SOUND_BIN_DIR)/sound_data.ctl
 $(SOUND_BIN_DIR)/tbl_header: $(SOUND_BIN_DIR)/sound_data.ctl
 	@true
 
-$(SOUND_BIN_DIR)/samples_offsets.inc.c: $(SOUND_BIN_DIR)/sound_data.ctl
-	@true
-
-$(SOUND_BIN_DIR)/sequences.bin: $(SOUND_BANK_FILES) sound/sequences.json $(SOUND_SEQUENCE_DIRS) $(SOUND_SEQUENCE_FILES) $(ENDIAN_BITWIDTH)
-	@$(PRINT) "$(GREEN)Generating:  $(BLUE)$@ $(NO_COL)\n"
-	$(V)$(PYTHON) $(TOOLS_DIR)/assemble_sound.py --sequences $@ $(SOUND_BIN_DIR)/sequences_header $(SOUND_BIN_DIR)/bank_sets sound/sound_banks/ sound/sequences.json $(SOUND_SEQUENCE_FILES) $(C_DEFINES) $$(cat $(ENDIAN_BITWIDTH))
-
-$(SOUND_BIN_DIR)/bank_sets: $(SOUND_BIN_DIR)/sequences.bin
-	@true
+$(SOUND_BIN_DIR)/sequences.bin:
+	@$(PRINT) "$(GREEN)Decompressing:  $(BLUE)$@ $(NO_COL)\n"
+	$(V)$(PYTHON) $(TOOLS_DIR)/decompress.py sound/sequences_compressed.bin $(SOUND_BIN_DIR)/sequences.bin
 
 $(SOUND_BIN_DIR)/sequences_header: $(SOUND_BIN_DIR)/sequences.bin
-	@true
-
-$(SOUND_BIN_DIR)/sequences_offsets.inc.c: $(SOUND_BIN_DIR)/sequences.bin
 	@true
 
 $(SOUND_BIN_DIR)/%.m64: $(SOUND_BIN_DIR)/%.o
