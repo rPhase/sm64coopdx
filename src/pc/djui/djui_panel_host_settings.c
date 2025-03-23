@@ -69,9 +69,6 @@ void djui_panel_host_settings_create(struct DjuiBase* caller) {
         djui_checkbox_create(body, DLANG(HOST_SETTINGS, PAUSE_ANYWHERE), &configPauseAnywhere, NULL);
         djui_checkbox_create(body, DLANG(HOST_SETTINGS, BUBBLE_ON_DEATH), &configBubbleDeath, NULL);
         djui_checkbox_create(body, DLANG(HOST_SETTINGS, NAMETAGS), &configNametags, NULL);
-        #ifdef PLATFORM_COMPAT
-            djui_selectionbox_create(body, "Platform"/* Replace with DLANG(LOBBIES, PLATFORM)*/, gameVersionChoices, MAX_PLATFORM_VERSION, &configGameVersion, NULL);
-        #endif
         struct DjuiRect* rect1 = djui_rect_container_create(body, 32);
         {
             struct DjuiText* text1 = djui_text_create(&rect1->base, DLANG(HOST_SETTINGS, AMOUNT_OF_PLAYERS));

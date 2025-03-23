@@ -287,7 +287,6 @@ void smlua_init(void) {
 
     // load libraries
     luaopen_base(L);
-    //luaopen_coroutine(L);
 #if defined(DEVELOPMENT)
     luaL_requiref(L, "debug", luaopen_debug, 1);
     luaL_requiref(L, "io", luaopen_io, 1);
@@ -297,7 +296,8 @@ void smlua_init(void) {
     luaL_requiref(L, "math", luaopen_math, 1);
     luaL_requiref(L, "string", luaopen_string, 1);
     luaL_requiref(L, "table", luaopen_table, 1);
-    //luaopen_utf8(L);
+    luaL_requiref(L, "coroutine", luaopen_coroutine, 1);
+    // luaopen_utf8(L);
 
     smlua_bind_hooks();
     smlua_bind_cobject();
@@ -350,10 +350,12 @@ void smlua_update(void) {
     // incremental collection fails to keep up after some time.
     // So, for now, stop the GC from running during the hooks
     // and perform a full GC at the end of the frame.
+    // EDIT: That builds up lag over time, so we need to keep
+    // doing incremental garbage collection.
     // The real fix would be to make smlua produce less
     // garbage.
-    lua_gc(L, LUA_GCSTOP, 0);
-    lua_gc(L, LUA_GCCOLLECT, 0);
+    // lua_gc(L, LUA_GCSTOP, 0);
+    // lua_gc(L, LUA_GCCOLLECT, 0);
 }
 
 void smlua_shutdown(void) {

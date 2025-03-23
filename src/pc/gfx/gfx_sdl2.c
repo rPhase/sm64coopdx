@@ -208,16 +208,16 @@ static void gfx_sdl_ondropfile(char* path) {
     char portable_path[SYS_MAX_PATH];
     if (sys_windows_short_path_from_mbs(portable_path, SYS_MAX_PATH, path)) {
         if (!gRomIsValid) {
-           // rom_on_drop_file(portable_path);
+            rom_on_drop_file(portable_path);
         } else if (gGameInited) {
-            //mod_import_file(portable_path);
+            mod_import_file(portable_path);
         }
     }
 #else
     if (!gRomIsValid) {
-        //rom_on_drop_file(path);
+        rom_on_drop_file(path);
     } else if (gGameInited) {
-       // mod_import_file(path);
+        mod_import_file(path);
     }
 #endif
 }

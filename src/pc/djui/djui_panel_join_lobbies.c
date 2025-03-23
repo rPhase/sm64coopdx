@@ -206,9 +206,6 @@ void djui_panel_join_lobbies_create(struct DjuiBase* caller, const char* passwor
             djui_base_set_size(&text->base, 1, 1);
             djui_text_set_alignment(text, DJUI_HALIGN_CENTER, DJUI_VALIGN_CENTER);
         }
-        #ifdef PLATFORM_COMPAT
-            djui_selectionbox_create(body, "Platform"/* Replace with DLANG(LOBBIES, PLATFORM)*/, gameVersionChoices, MAX_PLATFORM_VERSION, &configGameVersion, NULL);
-        #endif
         if (!private) { djui_button_create(body, DLANG(RULES, RULES), DJUI_BUTTON_STYLE_NORMAL, djui_panel_rules_create); }
 
         struct DjuiRect* rect2 = djui_rect_container_create(body, 64);

@@ -44,10 +44,6 @@ void bhv_piranha_plant_bubble_loop(void) {
 
     cur_obj_set_pos_relative(parent, 0, 72.0f, 180.0f);
 
-#if defined(__clang__) // Hack: This fixes weird crash in clang (TARGET_ANDROID)
-    if (frame == -1) frame = 0;
-#endif
-
     struct Object* parentPlayer = nearest_player_to_object(parent);
     s32 distanceToParentPlayer = parentPlayer ? dist_between_objects(parent, parentPlayer) : 10000;
 

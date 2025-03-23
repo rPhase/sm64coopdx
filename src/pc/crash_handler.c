@@ -1,32 +1,8 @@
 // Adapted from PeachyPeach's sm64pc-omm (now sm64ex-omm)
 #include "crash_handler.h"
-char gLastRemoteBhv[256] = "";
 
-struct PcDebug gPcDebug = {
-    .tags = {
-        0x0000000000000000,
-        0x000000000000FFFF,
-        0x2D1D50FB02617949,
-        0x8AEB7180FAE739EB,
-        0x0CDB1A233CC71057,
-        0x53D5D9880C8B278E,
-        0xE8E307BE5802542E,
-        0x8A3ACC4FDB4FFE45,
-        0x09046C2BA3C5000D,
-        0xF027964ADE989C29,
-        0x076CF19655C70007,
-        0x440C28A5CC404F11,
-        0xE9A402C28144FD8B,
-        0x9A2269E87B26BE68,
-        0x0E76DE227D813019,
-        0x12ABA8362D430002,
-    },
-    .id = DEFAULT_ID,
-    .bhvOffset = /* 0x12 */ 0,
-    .debugId = 0x4BE2,
-    .lastModRun = NULL,
-};
-#ifndef TARGET_ANDROID
+char gLastRemoteBhv[256] = "";
+#ifndef __ANDROID__
 #if (defined(_WIN32) || defined(__linux__)) && !defined(WAPI_DUMMY)
 
 #ifdef HAVE_SDL2
@@ -296,9 +272,8 @@ static void crash_handler_add_info_str(CrashHandlerText** pTextP, f32 x, f32 y, 
 
 static void crash_handler_add_version_str(CrashHandlerText** pTextP, f32 x, f32 y) {
     CrashHandlerText* pText = *pTextP;
-    crash_handler_set_text(x, y, 0xFF, 0xFF, 0x00, "%s", "sm64coopdx ");
-    crash_handler_set_text(-1, y, 0x00, 0xFF, 0xFF, "%s", get_version());
-    crash_handler_set_text(x, y + 8, 0xFF, 0xFF, 0x00, "Renderer: %s", RAPI_NAME);
+    crash_handler_add_info_str(&pText, x, y, "Version", SM64COOPDX_VERSION);
+    crash_handler_add_info_str(&pText, x, y + 8, "Renderer", RAPI_NAME);
     *pTextP = pText;
 }
 
@@ -482,7 +457,7 @@ static void crash_handler(const int signalNum, siginfo_t *info, UNUSED ucontext_
 
         // Load symbols
         char filename[256] = { 0 };
-        const char *exe_path = sys_exe_path();
+        const char *exe_path = sys_exe_path_dir();
         if (exe_path[0] != '\0') {
             snprintf(filename, 256, "%s/%s", exe_path, "coop.map");
         } else {
@@ -708,6 +683,31 @@ AT_STARTUP static void init_crash_handler(void) {
 
 #endif
 
+struct PcDebug gPcDebug = {
+    .tags = {
+        0x0000000000000000,
+        0x000000000000FFFF,
+        0x2D1D50FB02617949,
+        0x8AEB7180FAE739EB,
+        0x0CDB1A233CC71057,
+        0x53D5D9880C8B278E,
+        0xE8E307BE5802542E,
+        0x8A3ACC4FDB4FFE45,
+        0x09046C2BA3C5000D,
+        0xF027964ADE989C29,
+        0x076CF19655C70007,
+        0x440C28A5CC404F11,
+        0xE9A402C28144FD8B,
+        0x9A2269E87B26BE68,
+        0x0E76DE227D813019,
+        0x12ABA8362D430002,
+    },
+    .id = DEFAULT_ID,
+    .bhvOffset = /* 0x12 */ 0,
+    .debugId = 0x4BE2,
+    .lastModRun = NULL,
+};
+
 void crash_handler_init(void) {
     u64* first = gPcDebug.tags;
     *first = 0;
@@ -732,4 +732,31 @@ void crash_handler_init(void) {
         tag++;
     }
 }
+
+#else
+
+struct PcDebug gPcDebug = {
+    .tags = {
+        0x0000000000000000,
+        0x000000000000FFFF,
+        0x2D1D50FB02617949,
+        0x8AEB7180FAE739EB,
+        0x0CDB1A233CC71057,
+        0x53D5D9880C8B278E,
+        0xE8E307BE5802542E,
+        0x8A3ACC4FDB4FFE45,
+        0x09046C2BA3C5000D,
+        0xF027964ADE989C29,
+        0x076CF19655C70007,
+        0x440C28A5CC404F11,
+        0xE9A402C28144FD8B,
+        0x9A2269E87B26BE68,
+        0x0E76DE227D813019,
+        0x12ABA8362D430002,
+    },
+    .id = DEFAULT_ID,
+    .bhvOffset = /* 0x12 */ 0,
+    .debugId = 0x4BE2,
+    .lastModRun = NULL,
+};
 #endif

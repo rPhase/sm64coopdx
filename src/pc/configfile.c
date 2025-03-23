@@ -23,6 +23,7 @@
 #endif
 #include "djui/djui_hud_utils.h"
 #include "game/save_file.h"
+#include "pc/network/network_player.h"
 
 #define ARRAY_LEN(arr) (sizeof(arr) / sizeof(arr[0]))
 
@@ -74,7 +75,11 @@ ConfigWindow configWindow       = {
     .h = DESIRED_SCREEN_HEIGHT,
     .vsync = 1,
     .reset = false,
+#ifdef __ANDROID__
     .fullscreen = true,
+#else
+    .fullscreen = false,
+#endif
     .exiting_fullscreen = false,
     .settings_changed = false,
     .msaa = 0,
@@ -139,16 +144,29 @@ bool         configBackgroundGamepad              = true;
 bool         configDisableGamepads                = false;
 bool         configUseStandardKeyBindingsChat     = false;
 // free camera settings
-bool         configEnableCamera                   = true;
-bool         configCameraAnalog                   = false;
-bool         configCameraMouse                    = true;
+bool         configEnableFreeCamera               = false;
+bool         configFreeCameraAnalog               = false;
+bool         configFreeCameraLCentering           = false;
+bool         configFreeCameraDPadBehavior         = false;
+bool         configFreeCameraHasCollision         = true;
+bool         configFreeCameraMouse                = false;
+unsigned int configFreeCameraXSens                = 50;
+unsigned int configFreeCameraYSens                = 50;
+unsigned int configFreeCameraAggr                 = 0;
+unsigned int configFreeCameraPan                  = 0;
+unsigned int configFreeCameraDegrade              = 50; // 0 - 100%
+// romhack camera settings
+unsigned int configEnableRomhackCamera            = 0; // 0 for automatic, 1 for force on, 2 for force off
+bool         configRomhackCameraBowserFights      = false;
+bool         configRomhackCameraHasCollision      = false;
+bool         configRomhackCameraHasCentering      = false;
+bool         configRomhackCameraDPadBehavior      = false;
+bool         configRomhackCameraSlowFall          = true;
+
+// common camera settings
 bool         configCameraInvertX                  = false;
 bool         configCameraInvertY                  = true;
-unsigned int configCameraXSens                    = 50;
-unsigned int configCameraYSens                    = 50;
-unsigned int configCameraAggr                     = 0;
-unsigned int configCameraPan                      = 0;
-unsigned int configCameraDegrade                  = 50; // 0 - 100%
+bool         configCameraToxicGas                 = true;
 // debug
 bool         configLuaProfiler                    = false;
 bool         configDebugPrint                     = false;
@@ -202,21 +220,23 @@ unsigned int configDjuiScale                      = 0;
 // other
 unsigned int configRulesVersion                   = 0;
 bool         configCompressOnStartup              = false;
-unsigned int configGameVersion                    = 0;
+#ifdef TOUCH_CONTROLS
 unsigned int configAndroidBiggerButtons           = 1;
-bool         configAndroidExcoopControl           = true;
 unsigned int configTouchControlRed                = 255;
 unsigned int configTouchControlGreen              = 255;
 unsigned int configTouchControlBlue               = 255;
 unsigned int configTouchControlAlpha              = 255;
-bool configCopyAssetstoGamedir                    = true;
+#endif
+bool         configSkipPackGeneration             = false;
 
 // secrets
 bool configExCoopTheme = false;
 
 static const struct ConfigOption options[] = {
     // window settings
-    //{.name = "fullscreen",                     .type = CONFIG_TYPE_BOOL, .boolValue = &configWindow.fullscreen},
+#ifndef __ANDROID__
+    {.name = "fullscreen",                     .type = CONFIG_TYPE_BOOL, .boolValue = &configWindow.fullscreen},
+#endif
     {.name = "window_x",                       .type = CONFIG_TYPE_UINT, .uintValue = &configWindow.x},
     {.name = "window_y",                       .type = CONFIG_TYPE_UINT, .uintValue = &configWindow.y},
     {.name = "window_w",                       .type = CONFIG_TYPE_UINT, .uintValue = &configWindow.w},
@@ -236,7 +256,9 @@ static const struct ConfigOption options[] = {
     {.name = "sfx_volume",                     .type = CONFIG_TYPE_UINT, .uintValue = &configSfxVolume},
     {.name = "env_volume",                     .type = CONFIG_TYPE_UINT, .uintValue = &configEnvVolume},
     {.name = "fade_distant_sounds",            .type = CONFIG_TYPE_BOOL, .boolValue = &configFadeoutDistantSounds},
+#ifndef __ANDROID
     {.name = "mute_focus_loss",                .type = CONFIG_TYPE_BOOL, .boolValue = &configMuteFocusLoss},
+#endif
     // control binds
     {.name = "key_a",                          .type = CONFIG_TYPE_BIND, .uintValue = configKeyA},
     {.name = "key_b",                          .type = CONFIG_TYPE_BIND, .uintValue = configKeyB},
@@ -273,16 +295,29 @@ static const struct ConfigOption options[] = {
 #endif
     {.name = "use_standard_key_bindings_chat", .type = CONFIG_TYPE_BOOL, .boolValue = &configUseStandardKeyBindingsChat},
     // free camera settings
-    {.name = "bettercam_enable",               .type = CONFIG_TYPE_BOOL, .boolValue = &configEnableCamera},
-    {.name = "bettercam_analog",               .type = CONFIG_TYPE_BOOL, .boolValue = &configCameraAnalog},
-    {.name = "bettercam_mouse_look",           .type = CONFIG_TYPE_BOOL, .boolValue = &configCameraMouse},
+    {.name = "bettercam_enable",               .type = CONFIG_TYPE_BOOL, .boolValue = &configEnableFreeCamera},
+    {.name = "bettercam_analog",               .type = CONFIG_TYPE_BOOL, .boolValue = &configFreeCameraAnalog},
+    {.name = "bettercam_centering",            .type = CONFIG_TYPE_BOOL, .boolValue = &configFreeCameraLCentering},
+    {.name = "bettercam_dpad",                 .type = CONFIG_TYPE_BOOL, .boolValue = &configFreeCameraDPadBehavior},
+    {.name = "bettercam_collision",            .type = CONFIG_TYPE_BOOL, .boolValue = &configFreeCameraHasCollision},
+    {.name = "bettercam_mouse_look",           .type = CONFIG_TYPE_BOOL, .boolValue = &configFreeCameraMouse},
+
+    {.name = "bettercam_xsens",                .type = CONFIG_TYPE_UINT, .uintValue = &configFreeCameraXSens},
+    {.name = "bettercam_ysens",                .type = CONFIG_TYPE_UINT, .uintValue = &configFreeCameraYSens},
+    {.name = "bettercam_aggression",           .type = CONFIG_TYPE_UINT, .uintValue = &configFreeCameraAggr},
+    {.name = "bettercam_pan_level",            .type = CONFIG_TYPE_UINT, .uintValue = &configFreeCameraPan},
+    {.name = "bettercam_degrade",              .type = CONFIG_TYPE_UINT, .uintValue = &configFreeCameraDegrade},
+    // romhack camera settings
+    {.name = "romhackcam_enable",              .type = CONFIG_TYPE_UINT, .uintValue = &configEnableRomhackCamera},
+    {.name = "romhackcam_bowser",              .type = CONFIG_TYPE_BOOL, .boolValue = &configRomhackCameraBowserFights},
+    {.name = "romhackcam_collision",           .type = CONFIG_TYPE_BOOL, .boolValue = &configRomhackCameraHasCollision},
+    {.name = "romhackcam_centering",           .type = CONFIG_TYPE_BOOL, .boolValue = &configRomhackCameraHasCentering},
+    {.name = "romhackcam_dpad",                .type = CONFIG_TYPE_BOOL, .boolValue = &configRomhackCameraDPadBehavior},
+    {.name = "romhackcam_slowfall",            .type = CONFIG_TYPE_BOOL, .boolValue = &configRomhackCameraSlowFall},
+    // common camera settings
     {.name = "bettercam_invertx",              .type = CONFIG_TYPE_BOOL, .boolValue = &configCameraInvertX},
     {.name = "bettercam_inverty",              .type = CONFIG_TYPE_BOOL, .boolValue = &configCameraInvertY},
-    {.name = "bettercam_xsens",                .type = CONFIG_TYPE_UINT, .uintValue = &configCameraXSens},
-    {.name = "bettercam_ysens",                .type = CONFIG_TYPE_UINT, .uintValue = &configCameraYSens},
-    {.name = "bettercam_aggression",           .type = CONFIG_TYPE_UINT, .uintValue = &configCameraAggr},
-    {.name = "bettercam_pan_level",            .type = CONFIG_TYPE_UINT, .uintValue = &configCameraPan},
-    {.name = "bettercam_degrade",              .type = CONFIG_TYPE_UINT, .uintValue = &configCameraDegrade},
+    {.name = "romhackcam_toxic_gas",           .type = CONFIG_TYPE_BOOL, .boolValue = &configCameraToxicGas},
     // debug
     {.name = "debug_offset",                   .type = CONFIG_TYPE_U64,  .u64Value    = &gPcDebug.bhvOffset},
     {.name = "debug_tags",                     .type = CONFIG_TYPE_U64,  .u64Value    = gPcDebug.tags},
@@ -431,14 +466,14 @@ static const struct ConfigOption options[] = {
     // other
     {.name = "rules_version",                  .type = CONFIG_TYPE_UINT,   .uintValue   = &configRulesVersion},
     {.name = "compress_on_startup",            .type = CONFIG_TYPE_BOOL,   .boolValue   = &configCompressOnStartup},
-    {.name = "game_version",                   .type = CONFIG_TYPE_UINT,   .uintValue   = &configGameVersion},
+#ifdef TOUCH_CONTROLS
     {.name = "android_bigger_buttons",         .type = CONFIG_TYPE_UINT,   .uintValue   = &configAndroidBiggerButtons},
-    {.name = "android_excoop_cont",            .type = CONFIG_TYPE_BOOL,   .boolValue   = &configAndroidExcoopControl},
     {.name = "android_touch_red",              .type = CONFIG_TYPE_UINT,   .uintValue   = &configTouchControlRed},
     {.name = "android_touch_green",            .type = CONFIG_TYPE_UINT,   .uintValue   = &configTouchControlGreen},
     {.name = "android_touch_blue",             .type = CONFIG_TYPE_UINT,   .uintValue   = &configTouchControlBlue},
     {.name = "android_touch_opacity",          .type = CONFIG_TYPE_UINT,   .uintValue   = &configTouchControlAlpha},
-    //{.name = "android_copy_assets_to_gamedir", .type = CONFIG_TYPE_BOOL,   .boolValue   = &configCopyAssetstoGamedir},
+#endif
+    {.name = "skip_pack_generation",           .type = CONFIG_TYPE_BOOL,   .boolValue   = &configSkipPackGeneration},
 };
 
 struct SecretConfigOption {
@@ -868,6 +903,10 @@ NEXT_OPTION:
     if (gCLIOpts.height != 0) { configWindow.h = gCLIOpts.height; }
 
     if (gCLIOpts.playerName[0]) { snprintf(configPlayerName, MAX_CONFIG_STRING, "%s", gCLIOpts.playerName); }
+
+    if (!network_player_name_valid(configPlayerName)) {
+        snprintf(configPlayerName, MAX_CONFIG_STRING, "Player");
+    }
 
     for (int i = 0; i < gCLIOpts.enabledModsCount; i++) {
         enable_mod(gCLIOpts.enableMods[i]);

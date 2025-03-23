@@ -11,6 +11,4 @@
 
 extern struct ControllerAPI controller_sdl;
 
-void controller_sdl_read_mouse_window(void);
-
 #endif

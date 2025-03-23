@@ -2,11 +2,8 @@
 #include <PR/ultratypes.h>
 #include <PR/gbi.h>
 #include <string.h>
-#include "pc/controller/controller_sdl.h"
+
 #include "pc/controller/controller_mouse.h"
-#ifdef TOUCH_CONTROLS
-#include "pc/controller/controller_touchscreen.h"
-#endif
 #include "pc/gfx/gfx_pc.h"
 #include "pc/gfx/gfx_window_manager_api.h"
 #include "pc/pc_main.h"
@@ -267,33 +264,21 @@ u32 djui_hud_get_screen_height(void) {
 }
 
 f32 djui_hud_get_mouse_x(void) {
-#ifdef HAVE_SDL2
-    controller_sdl_read_mouse_window();
-#endif
+    controller_mouse_read_window();
     return mouse_window_x / djui_gfx_get_scale();
 }
 
 f32 djui_hud_get_mouse_y(void) {
-#ifdef HAVE_SDL2
-    controller_sdl_read_mouse_window();
-#endif
+    controller_mouse_read_window();
     return mouse_window_y / djui_gfx_get_scale();
 }
 
 f32 djui_hud_get_raw_mouse_x(void) {
-#ifdef TOUCH_CONTROLS
-    return touch_x;
-#else
     return mouse_x;
-#endif
 }
 
 f32 djui_hud_get_raw_mouse_y(void) {
-#ifdef TOUCH_CONTROLS
-    return touch_y;
-#else
     return mouse_y;
-#endif
 }
 
 void djui_hud_set_mouse_locked(bool locked) {
@@ -327,8 +312,8 @@ void djui_hud_print_text(const char* message, f32 x, f32 y, f32 scale) {
     }
 
     // translate position
-    f32 translatedX = x;
-    f32 translatedY = y;
+    f32 translatedX = x + (font->xOffset * scale);
+    f32 translatedY = y + (font->yOffset * scale);
     djui_hud_position_translate(&translatedX, &translatedY);
     create_dl_translation_matrix(DJUI_MTX_PUSH, translatedX, translatedY, gDjuiHudUtilsZ);
 
@@ -382,8 +367,8 @@ void djui_hud_print_text_interpolated(const char* message, f32 prevX, f32 prevY,
     Gfx* savedHeadPos = gDisplayListHead;
 
     // translate position
-    f32 translatedX = x;
-    f32 translatedY = y;
+    f32 translatedX = x + (font->xOffset * scale);
+    f32 translatedY = y + (font->yOffset * scale);
     djui_hud_position_translate(&translatedX, &translatedY);
     create_dl_translation_matrix(DJUI_MTX_PUSH, translatedX, translatedY, gDjuiHudUtilsZ);
 
@@ -418,8 +403,8 @@ void djui_hud_print_text_interpolated(const char* message, f32 prevX, f32 prevY,
     if (sInterpHudCount >= MAX_INTERP_HUD) { return; }
     struct InterpHud* interp = &sInterpHuds[sInterpHudCount++];
     interp->headPos = savedHeadPos;
-    interp->prevX = prevX;
-    interp->prevY = prevY;
+    interp->prevX = prevX + (font->xOffset * prevScale);
+    interp->prevY = prevY + (font->yOffset * prevScale);
     interp->prevScaleW = prevScale;
     interp->prevScaleH = prevScale;
     interp->x = x;
