@@ -157,7 +157,7 @@ extern unsigned int configTouchControlRed;
 extern unsigned int configTouchControlGreen;
 extern unsigned int configTouchControlBlue;
 extern unsigned int configTouchControlAlpha;
-extern bool configCopyAssetstoGamedir;
+extern bool         configSkipPackGeneration;
 
 // secrets
 extern bool configExCoopTheme;

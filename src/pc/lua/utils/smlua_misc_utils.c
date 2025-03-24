@@ -516,15 +516,15 @@ struct Mod* get_active_mod(void) {
 ///
 
 void set_window_title(const char* title) {
-    #ifndef TARGET_ANDROID
+#ifndef TARGET_ANDROID
     WAPI.set_window_title(title);
-    #endif
+#endif
 }
 
 void reset_window_title(void) {
-    #ifndef TARGET_ANDROID
+#ifndef TARGET_ANDROID
     WAPI.reset_window_title();
-    #endif
+#endif
 }
 
 ///
