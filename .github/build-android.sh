@@ -2,7 +2,7 @@
 
 yes | pkg upgrade -y # Upgrading Packages
 
-pkg install -y git wget make python getconf zip apksigner clang binutils libglvnd-dev aapt which # Installing Dependencies
+pkg install -y git wget make python getconf zip apksigner clang binutils libglvnd-dev aapt which patchelf # Installing Dependencies
 
 # Begin workaround exclusively to allow building mario 64 APKs
 # specifically inside termux-docker (rather than normal Termux)
@@ -22,6 +22,7 @@ rm $PREFIX/lib/libGLESv2.so.2
 # (which termux-docker does not have)
 # by matching the filename 
 mv $PREFIX/lib/libGLESv2.so.2.1.0 $PREFIX/lib/libGLESv2.so
+patchelf --set-soname libGLESv2.so $PREFIX/lib/libGLESv2.so
 
 # End workaround
 
