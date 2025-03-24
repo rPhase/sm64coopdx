@@ -25,4 +25,4 @@ mv $PREFIX/lib/libGLESv2.so.2.1.0 $PREFIX/lib/libGLESv2.so
 
 # End workaround
 
-make -j$(nproc)
+make
