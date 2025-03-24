@@ -43,7 +43,8 @@ static void strdelete(char* string, const char* substr) {
     string[i] = '\0';
 }
 
-#define MAX_CACHED_KEYS 100
+#ifdef __ANDROID__
+#define MAX_CACHED_KEYS MAX_KEYS
 
 typedef struct CachedKey {
     char key[MAX_KEY_VALUE_LENGTH],
@@ -80,6 +81,7 @@ void cache_key(const char  *key, const char  *value) {
         }
     }
 }
+#endif
 
 bool char_valid(const char* buffer, bool isKey) {
     if (buffer[0] == '\0') { return false; }
@@ -108,7 +110,7 @@ C_FIELD bool mod_storage_save(const char* key, const char* value) {
     if (strlen(key) > MAX_KEY_VALUE_LENGTH || strlen(value) > MAX_KEY_VALUE_LENGTH) { return false; }
     if (!char_valid(key, true) || !char_valid(value, false)) { return false; }
 
-#ifdef TARGET_ANDROID
+#ifdef __ANDROID__
     if (!key_cached(key, value)) {
         cache_key(key, value);
     }
