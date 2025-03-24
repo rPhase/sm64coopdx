@@ -144,16 +144,29 @@ bool         configBackgroundGamepad              = true;
 bool         configDisableGamepads                = false;
 bool         configUseStandardKeyBindingsChat     = false;
 // free camera settings
-bool         configEnableCamera                   = true;
-bool         configCameraAnalog                   = false;
-bool         configCameraMouse                    = true;
+bool         configEnableFreeCamera               = false;
+bool         configFreeCameraAnalog               = false;
+bool         configFreeCameraLCentering           = false;
+bool         configFreeCameraDPadBehavior         = false;
+bool         configFreeCameraHasCollision         = true;
+bool         configFreeCameraMouse                = false;
+unsigned int configFreeCameraXSens                = 50;
+unsigned int configFreeCameraYSens                = 50;
+unsigned int configFreeCameraAggr                 = 0;
+unsigned int configFreeCameraPan                  = 0;
+unsigned int configFreeCameraDegrade              = 50; // 0 - 100%
+// romhack camera settings
+unsigned int configEnableRomhackCamera            = 0; // 0 for automatic, 1 for force on, 2 for force off
+bool         configRomhackCameraBowserFights      = false;
+bool         configRomhackCameraHasCollision      = false;
+bool         configRomhackCameraHasCentering      = false;
+bool         configRomhackCameraDPadBehavior      = false;
+bool         configRomhackCameraSlowFall          = true;
+
+// common camera settings
 bool         configCameraInvertX                  = false;
 bool         configCameraInvertY                  = true;
-unsigned int configCameraXSens                    = 50;
-unsigned int configCameraYSens                    = 50;
-unsigned int configCameraAggr                     = 0;
-unsigned int configCameraPan                      = 0;
-unsigned int configCameraDegrade                  = 50; // 0 - 100%
+bool         configCameraToxicGas                 = true;
 // debug
 bool         configLuaProfiler                    = false;
 bool         configDebugPrint                     = false;
