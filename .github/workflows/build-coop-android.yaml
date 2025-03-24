@@ -31,12 +31,12 @@ jobs:
       LANG: en_US.UTF-8
       TZ: UTC
     steps:
-      - name: fix executable bit for all binaries in $PREFIX/bin for all users
-        run: chmod -R o+x ${PREFIX}/bin
       - name: set pkg command to use the packages-cf.termux.dev mirror
         run: ln -sf ${PREFIX}/etc/termux/mirrors/default ${PREFIX}/etc/termux/chosen_mirrors
       - name: upgrade all packages to prepare for installing nodejs
         run: /entrypoint.sh bash -c "yes | pkg upgrade -y"
+      - name: fix executable bit for all binaries in $PREFIX/bin for all users
+        run: chmod -R o+x ${PREFIX}/bin
       - name: install bionic-libc nodejs to force compatibility with actions/checkout and actions/upload-artifact
         run: |
           /entrypoint.sh pkg install -y nodejs-lts
