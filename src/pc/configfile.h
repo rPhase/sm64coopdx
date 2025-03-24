@@ -149,14 +149,13 @@ extern unsigned int configDjuiScale;
 // other
 extern unsigned int configRulesVersion;
 extern bool         configCompressOnStartup;
-extern bool         configSkipPackGeneration;
-extern unsigned int configGameVersion;
+#ifdef TOUCH_CONTROLS
 extern unsigned int configAndroidBiggerButtons;
-extern bool         configAndroidExcoopControl;
 extern unsigned int configTouchControlRed;
 extern unsigned int configTouchControlGreen;
 extern unsigned int configTouchControlBlue;
 extern unsigned int configTouchControlAlpha;
+#endif
 extern bool         configSkipPackGeneration;
 
 // secrets
