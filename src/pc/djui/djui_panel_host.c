@@ -197,6 +197,7 @@ void djui_panel_host_create(struct DjuiBase* caller) {
                         : &button2->base;
         }
 
+#if defined(UPDATE_CHECKER)
         if (gUpdateMessage) {
             struct DjuiText* message = djui_text_create(&panel->base, DLANG(NOTIF, UPDATE_AVAILABLE));
             djui_base_set_size_type(&message->base, DJUI_SVT_RELATIVE, DJUI_SVT_ABSOLUTE);
@@ -204,6 +205,7 @@ void djui_panel_host_create(struct DjuiBase* caller) {
             djui_base_set_color(&message->base, 255, 255, 160, 255);
             djui_text_set_alignment(message, DJUI_HALIGN_CENTER, DJUI_VALIGN_BOTTOM);
         }
+#endif
     }
 
     djui_panel_add(caller, panel, defaultBase);

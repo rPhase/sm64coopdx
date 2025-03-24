@@ -75,6 +75,9 @@ endif
 # Make some small adjustments for handheld devices
 HANDHELD ?= 0
 
+# Enable the update checker, keep off for android until it's fixed
+UPDATE_CHECKER ?= 0
+
 # Various workarounds for weird toolchains
 NO_BZERO_BCOPY ?= 0
 NO_LDIV ?= 0
@@ -1049,10 +1052,12 @@ else
 endif
 
 # Update checker library
-ifeq ($(WINDOWS_BUILD),1)
-  LDFLAGS += -lwininet
-else
-  LDFLAGS += -lcurl
+ifeq ($(UPDATE_CHECKER),1)
+  ifeq ($(WINDOWS_BUILD),1)
+    LDFLAGS += -lwininet
+  else
+    LDFLAGS += -lcurl
+  endif
 endif
 
 # Lua
@@ -1226,6 +1231,12 @@ endif
 ifeq ($(HANDHELD),1)
   CC_CHECK_CFLAGS += -DHANDHELD
   CFLAGS += -DHANDHELD
+endif
+
+# Check for update checker option
+ifeq ($(UPDATE_CHECKER),1)
+  CC_CHECK_CFLAGS += -DUPDATE_CHECKER
+  CFLAGS += -DUPDATE_CHECKER
 endif
 
 # Check for no bzero/bcopy workaround option
