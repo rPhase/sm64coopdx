@@ -13,7 +13,7 @@
 static struct Object* spawn_object_internal(enum BehaviorId behaviorId, enum ModelExtendedId modelId, f32 x, f32 y, f32 z, LuaFunction objSetupFunction, bool doSync) {
     // prevent spawning objects on mod init, this can cause issues if --server is specificed
     if (gLuaLoadingMod != NULL) { return NULL; }
-    
+
     if (doSync) {
         // prevent spawning objects before area is synchronized
         if (gNetworkPlayerLocal == NULL || !gNetworkPlayerLocal->currAreaSyncValid) { return NULL; }
@@ -56,7 +56,7 @@ static struct Object* spawn_object_internal(enum BehaviorId behaviorId, enum Mod
     if (objSetupFunction != 0) {
         lua_State* L = gLuaState;
         lua_rawgeti(L, LUA_REGISTRYINDEX, objSetupFunction);
-        smlua_push_object(L, LOT_OBJECT, obj);
+        smlua_push_object(L, LOT_OBJECT, obj, NULL);
         if (0 != smlua_pcall(L, 1, 0, 0)) {
             LOG_LUA("Failed to call the object setup callback: %u", objSetupFunction);
         }
@@ -92,9 +92,14 @@ s32 obj_has_behavior_id(struct Object *o, enum BehaviorId behaviorId) {
 
 s32 obj_has_model_extended(struct Object *o, enum ModelExtendedId modelId) {
     if (!o) { return 0; }
-    u16 slot = smlua_model_util_load(modelId);
-    struct GraphNode *model = dynos_model_get_geo(slot);
-    return o->header.gfx.sharedChild == model;
+    if (!o->header.gfx.sharedChild && modelId == E_MODEL_NONE) { return 1; }
+    return dynos_model_get_id_from_graph_node(o->header.gfx.sharedChild) == smlua_model_util_ext_id_to_id(modelId);
+}
+
+enum ModelExtendedId obj_get_model_id_extended(struct Object *o) {
+    if (!o) { return E_MODEL_NONE; }
+    if (!o->header.gfx.sharedChild) { return E_MODEL_NONE; }
+    return smlua_model_util_id_to_ext_id(dynos_model_get_id_from_graph_node(o->header.gfx.sharedChild));
 }
 
 void obj_set_model_extended(struct Object *o, enum ModelExtendedId modelId) {
@@ -107,16 +112,58 @@ Trajectory* get_trajectory(const char* name) {
 }
 
 //
+// Expose various object pointers
+//
+
+extern struct GraphNodeObject *gCurGraphNodeObject;
+struct Object *geo_get_current_object(void) { return (struct Object*) gCurGraphNodeObject; }
+struct Object *get_current_object(void) { return gCurrentObject; }
+struct Object *get_dialog_object(void) { return gContinueDialogFunctionObject; }
+struct Object *get_cutscene_focus(void) { return gCutsceneFocus; }
+struct Object *get_secondary_camera_focus(void) { return gSecondCameraFocus; }
+void *set_cutscene_focus(struct Object *o) { gCutsceneFocus = o; }
+void *set_secondary_camera_focus(struct Object *o) { gSecondCameraFocus = o; }
+
+//
 // Helpers to iterate through the object table
 //
 
 struct Object *obj_get_first(enum ObjectList objList) {
     if (gObjectLists && objList >= 0 && objList < NUM_OBJ_LISTS) {
+        u32 sanityDepth = 0;
         struct Object *head = (struct Object *) &gObjectLists[objList];
         struct Object *obj = (struct Object *) head->header.next;
-        if (obj != head) {
-            return obj;
+        while (obj != head) {
+            if (++sanityDepth > 10000) { break; }
+            if (obj->activeFlags != ACTIVE_FLAG_DEACTIVATED) {
+                return obj;
+            }
+            obj = (struct Object *) obj->header.next;
         }
+    }
+    return NULL;
+}
+
+static struct Object *obj_get_next_internal(struct Object *o, enum ObjectList objList) {
+    if (gObjectLists && o) {
+        u32 sanityDepth = 0;
+        struct Object *head = (struct Object *) &gObjectLists[objList];
+        struct Object *next = (struct Object *) o->header.next;
+        while (next != head) {
+            if (++sanityDepth > 10000) { break; }
+            if (next->activeFlags != ACTIVE_FLAG_DEACTIVATED) {
+                return next;
+            }
+            next = (struct Object *) o->header.next;
+        }
+    }
+    return NULL;
+}
+
+struct Object *obj_get_next(struct Object *o) {
+    if (gObjectLists && o) {
+        enum ObjectList objList = get_object_list_from_behavior(o->behavior);
+        return obj_get_next_internal(o, objList);
     }
     return NULL;
 }
@@ -127,7 +174,7 @@ struct Object *obj_get_first_with_behavior_id(enum BehaviorId behaviorId) {
     behavior = smlua_override_behavior(behavior);
     if (behavior) {
         enum ObjectList objList = get_object_list_from_behavior(behavior);
-        for (struct Object *obj = obj_get_first(objList); obj != NULL; obj = obj_get_next(obj)) {
+        for (struct Object *obj = obj_get_first(objList); obj != NULL; obj = obj_get_next_internal(obj, objList)) {
             if (++sanityDepth > 10000) { break; }
             if (obj->behavior == behavior && obj->activeFlags != ACTIVE_FLAG_DEACTIVATED) {
                 return obj;
@@ -144,7 +191,7 @@ struct Object *obj_get_first_with_behavior_id_and_field_s32(enum BehaviorId beha
     behavior = smlua_override_behavior(behavior);
     if (behavior) {
         enum ObjectList objList = get_object_list_from_behavior(behavior);
-        for (struct Object *obj = obj_get_first(objList); obj != NULL; obj = obj_get_next(obj)) {
+        for (struct Object *obj = obj_get_first(objList); obj != NULL; obj = obj_get_next_internal(obj, objList)) {
             if (++sanityDepth > 10000) { break; }
             if (obj->behavior == behavior && obj->activeFlags != ACTIVE_FLAG_DEACTIVATED && obj->OBJECT_FIELD_S32(fieldIndex) == value) {
                 return obj;
@@ -160,7 +207,7 @@ struct Object *obj_get_first_with_behavior_id_and_field_f32(enum BehaviorId beha
     behavior = smlua_override_behavior(behavior);
     if (behavior) {
         enum ObjectList objList = get_object_list_from_behavior(behavior);
-        for (struct Object *obj = obj_get_first(objList); obj != NULL; obj = obj_get_next(obj)) {
+        for (struct Object *obj = obj_get_first(objList); obj != NULL; obj = obj_get_next_internal(obj, objList)) {
             if (obj->behavior == behavior && obj->activeFlags != ACTIVE_FLAG_DEACTIVATED && obj->OBJECT_FIELD_F32(fieldIndex) == value) {
                 return obj;
             }
@@ -174,10 +221,10 @@ struct Object *obj_get_nearest_object_with_behavior_id(struct Object *o, enum Be
     const BehaviorScript *behavior = get_behavior_from_id(behaviorId);
     behavior = smlua_override_behavior(behavior);
     struct Object *closestObj = NULL;
-    
+
     if (behavior) {
         enum ObjectList objList = get_object_list_from_behavior(behavior);
-        for (struct Object *obj = obj_get_first(objList); obj != NULL; obj = obj_get_next(obj)) {
+        for (struct Object *obj = obj_get_first(objList); obj != NULL; obj = obj_get_next_internal(obj, objList)) {
             if (obj->behavior == behavior && obj->activeFlags != ACTIVE_FLAG_DEACTIVATED) {
                 f32 objDist = dist_between_objects(o, obj);
                 if (objDist < minDist) {
@@ -194,32 +241,21 @@ s32 obj_count_objects_with_behavior_id(enum BehaviorId behaviorId) {
     const BehaviorScript *behavior = get_behavior_from_id(behaviorId);
     behavior = smlua_override_behavior(behavior);
     s32 count = 0;
-    
+
     if (behavior) {
         enum ObjectList objList = get_object_list_from_behavior(behavior);
-        for (struct Object *obj = obj_get_first(objList); obj != NULL; obj = obj_get_next(obj)) {
-            if (obj->behavior == behavior) { count++; }
+        for (struct Object *obj = obj_get_first(objList); obj != NULL; obj = obj_get_next_internal(obj, objList)) {
+            if (obj->behavior == behavior && obj->activeFlags != ACTIVE_FLAG_DEACTIVATED) { count++; }
         }
     }
-    
-    return count;
-}
 
-struct Object *obj_get_next(struct Object *o) {
-    if (gObjectLists && o) {
-        enum ObjectList objList = get_object_list_from_behavior(o->behavior);
-        struct Object *head = (struct Object *) &gObjectLists[objList];
-        struct Object *next = (struct Object *) o->header.next;
-        if (next != head) {
-            return next;
-        }
-    }
-    return NULL;
+    return count;
 }
 
 struct Object *obj_get_next_with_same_behavior_id(struct Object *o) {
     if (o) {
-        for (struct Object *obj = obj_get_next(o); obj != NULL; obj = obj_get_next(obj)) {
+        enum ObjectList objList = get_object_list_from_behavior(o->behavior);
+        for (struct Object *obj = obj_get_next_internal(o, objList); obj != NULL; obj = obj_get_next_internal(obj, objList)) {
             if (obj->behavior == o->behavior && obj->activeFlags != ACTIVE_FLAG_DEACTIVATED) {
                 return obj;
             }
@@ -231,7 +267,8 @@ struct Object *obj_get_next_with_same_behavior_id(struct Object *o) {
 struct Object *obj_get_next_with_same_behavior_id_and_field_s32(struct Object *o, s32 fieldIndex, s32 value) {
     if (fieldIndex < 0 || fieldIndex >= OBJECT_NUM_FIELDS) { return NULL; }
     if (o) {
-        for (struct Object *obj = obj_get_next(o); obj != NULL; obj = obj_get_next(obj)) {
+        enum ObjectList objList = get_object_list_from_behavior(o->behavior);
+        for (struct Object *obj = obj_get_next_internal(o, objList); obj != NULL; obj = obj_get_next_internal(obj, objList)) {
             if (obj->behavior == o->behavior && obj->activeFlags != ACTIVE_FLAG_DEACTIVATED && obj->OBJECT_FIELD_S32(fieldIndex) == value) {
                 return obj;
             }
@@ -243,7 +280,8 @@ struct Object *obj_get_next_with_same_behavior_id_and_field_s32(struct Object *o
 struct Object *obj_get_next_with_same_behavior_id_and_field_f32(struct Object *o, s32 fieldIndex, f32 value) {
     if (fieldIndex < 0 || fieldIndex >= OBJECT_NUM_FIELDS) { return NULL; }
     if (o) {
-        for (struct Object *obj = obj_get_next(o); obj != NULL; obj = obj_get_next(obj)) {
+        enum ObjectList objList = get_object_list_from_behavior(o->behavior);
+        for (struct Object *obj = obj_get_next_internal(o, objList); obj != NULL; obj = obj_get_next_internal(obj, objList)) {
             if (obj->behavior == o->behavior && obj->activeFlags != ACTIVE_FLAG_DEACTIVATED && obj->OBJECT_FIELD_F32(fieldIndex) == value) {
                 return obj;
             }
@@ -337,7 +375,7 @@ struct ObjectHitbox* get_temp_object_hitbox(void) {
 
 bool obj_is_attackable(struct Object *o) {
     if (o == NULL) { return FALSE; }
-    
+
     return ((o->oInteractType & INTERACT_KOOPA) != 0 ||
             (o->oInteractType & INTERACT_BOUNCE_TOP) != 0 ||
             (o->oInteractType & INTERACT_BOUNCE_TOP2) != 0 ||
@@ -346,7 +384,7 @@ bool obj_is_attackable(struct Object *o) {
 
 bool obj_is_breakable_object(struct Object *o) {
     if (o == NULL) { return FALSE; }
-    
+
     return (obj_has_behavior_id(o, id_bhvBreakableBox) == 1 ||
             obj_has_behavior_id(o, id_bhvBreakableBoxSmall) == 1 ||
             obj_has_behavior_id(o, id_bhvHiddenObject) == 1 ||
@@ -355,31 +393,31 @@ bool obj_is_breakable_object(struct Object *o) {
 
 bool obj_is_bully(struct Object *o) {
     if (o == NULL) { return FALSE; }
-    
+
     return (o->oInteractType & INTERACT_BULLY) != 0;
 }
 
 bool obj_is_coin(struct Object *o) {
     if (o == NULL) { return FALSE; }
-    
+
     return (o->oInteractType & INTERACT_COIN) != 0;
 }
 
 bool obj_is_exclamation_box(struct Object *o) {
     if (o == NULL) { return FALSE; }
-    
+
     return obj_has_behavior_id(o, id_bhvExclamationBox) == 1 && o->oAction == 2;
 }
 
 bool obj_is_grabbable(struct Object *o) {
     if (o == NULL) { return FALSE; }
-    
+
     return (o->oInteractType & INTERACT_GRABBABLE) != 0 && (o->oInteractionSubtype & INT_SUBTYPE_NOT_GRABBABLE) == 0;
 }
 
 bool obj_is_mushroom_1up(struct Object *o) {
     if (o == NULL) { return FALSE; }
-    
+
     return (o->header.gfx.node.flags & GRAPH_RENDER_INVISIBLE) == 0 && (
             obj_has_behavior_id(o, id_bhv1Up) == 1 ||
             obj_has_behavior_id(o, id_bhv1upJumpOnApproach) == 1 ||
@@ -395,24 +433,24 @@ bool obj_is_mushroom_1up(struct Object *o) {
 
 bool obj_is_secret(struct Object *o) {
     if (o == NULL) { return FALSE; }
-    
+
     return obj_has_behavior_id(o, id_bhvHiddenStarTrigger) == 1;
 }
 
 bool obj_is_valid_for_interaction(struct Object *o) {
     if (o == NULL) { return FALSE; }
-    
+
     return o->activeFlags != ACTIVE_FLAG_DEACTIVATED && o->oIntangibleTimer == 0 && (o->oInteractStatus & INT_STATUS_INTERACTED) == 0;
 }
 
 bool obj_check_hitbox_overlap(struct Object *o1, struct Object *o2) {
     if (o1 == NULL || o2 == NULL) { return FALSE; }
-    
+
     f32 o1H = max(o1->hitboxHeight, o1->hurtboxHeight);
     f32 o1R = max(o1->hitboxRadius, o1->hurtboxRadius);
     f32 o2H = max(o2->hitboxHeight, o2->hurtboxHeight);
     f32 o2R = max(o2->hitboxRadius, o2->hurtboxRadius);
-    
+
     f32 r2 = sqr(o1R + o2R);
     f32 d2 = sqr(o1->oPosX - o2->oPosX) + sqr(o1->oPosZ - o2->oPosZ);
     if (d2 > r2) return FALSE;
@@ -427,10 +465,10 @@ bool obj_check_hitbox_overlap(struct Object *o1, struct Object *o2) {
 
 bool obj_check_overlap_with_hitbox_params(struct Object *o, f32 x, f32 y, f32 z, f32 h, f32 r, f32 d) {
     if (o == NULL) { return FALSE; }
-    
+
     f32 oH = max(o->hitboxHeight, o->hurtboxHeight);
     f32 oR = max(o->hitboxRadius, o->hurtboxRadius);
-    
+
     f32 r2 = sqr(oR + r);
     f32 d2 = sqr(o->oPosX - x) + sqr(o->oPosZ - z);
     if (d2 > r2) return FALSE;
@@ -445,7 +483,7 @@ bool obj_check_overlap_with_hitbox_params(struct Object *o, f32 x, f32 y, f32 z,
 
 void obj_set_vel(struct Object *o, f32 vx, f32 vy, f32 vz) {
     if (o == NULL) { return; }
-    
+
     o->oVelX = vx;
     o->oVelY = vy;
     o->oVelZ = vz;
@@ -453,7 +491,7 @@ void obj_set_vel(struct Object *o, f32 vx, f32 vy, f32 vz) {
 
 void obj_move_xyz(struct Object *o, f32 dx, f32 dy, f32 dz) {
     if (o == NULL) { return; }
-    
+
     o->oPosX += dx;
     o->oPosY += dy;
     o->oPosZ += dz;

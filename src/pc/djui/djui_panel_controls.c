@@ -19,7 +19,7 @@ void djui_panel_controls_create(struct DjuiBase* caller) {
     struct DjuiThreePanel* panel = djui_panel_menu_create(DLANG(CONTROLS, CONTROLS), false);
     struct DjuiBase* body = djui_three_panel_get_body(panel);
     {
-    #ifdef TOUCH_CONTROLS
+    #ifdef TOUCH_CONTROLS // TODO: Get translations for touch controls options
         struct DjuiButton* n64bindsButton = djui_button_create(body, DLANG(CONTROLS, N64_BINDS), DJUI_BUTTON_STYLE_NORMAL, djui_panel_controls_n64_create);
         djui_base_set_size(&n64bindsButton->base, 1.0f, 46);
         struct DjuiButton* extrabindsButton = djui_button_create(body, DLANG(CONTROLS, EXTRA_BINDS), DJUI_BUTTON_STYLE_NORMAL, djui_panel_controls_extra_create);

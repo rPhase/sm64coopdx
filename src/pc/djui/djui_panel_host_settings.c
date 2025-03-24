@@ -6,7 +6,6 @@
 #include "pc/network/network.h"
 #include "pc/utils/misc.h"
 #include "pc/configfile.h"
-#include "pc/network/version.h"
 #include "djui_inputbox.h"
 
 static unsigned int sKnockbackIndex = 0;
@@ -69,6 +68,7 @@ void djui_panel_host_settings_create(struct DjuiBase* caller) {
         djui_checkbox_create(body, DLANG(HOST_SETTINGS, PAUSE_ANYWHERE), &configPauseAnywhere, NULL);
         djui_checkbox_create(body, DLANG(HOST_SETTINGS, BUBBLE_ON_DEATH), &configBubbleDeath, NULL);
         djui_checkbox_create(body, DLANG(HOST_SETTINGS, NAMETAGS), &configNametags, NULL);
+
         struct DjuiRect* rect1 = djui_rect_container_create(body, 32);
         {
             struct DjuiText* text1 = djui_text_create(&rect1->base, DLANG(HOST_SETTINGS, AMOUNT_OF_PLAYERS));

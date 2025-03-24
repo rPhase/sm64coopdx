@@ -436,7 +436,7 @@ int main(int argc, char *argv[]) {
     char gamedir[SYS_MAX_PATH] = { 0 };
     char nomedia[SYS_MAX_PATH] = { 0 };
     const char *basedir = get_gamedir();
-    snprintf(nomedia, SYS_MAX_PATH, "%s/%s", basedir, ".nomedia");
+    snprintf(nomedia, SYS_MAX_PATH, "%s/%s", basedir, ".nomedia"); // The `.nomedia` folder prevents media from beind detected in apps like the gallery
     snprintf(gamedir, SYS_MAX_PATH, "%s/%s", basedir, FS_BASEDIR);
     if (stat(gamedir, NULL) == -1) {
         mkdir(gamedir, 0770);

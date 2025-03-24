@@ -41,6 +41,8 @@ struct DateTime {
 
 /* |description|Gets the current area's networked timer|descriptionEnd| */
 u32 get_network_area_timer(void);
+/* |description|Gets the area update counter incremented when objects are updated|descriptionEnd| */
+u16 get_area_update_counter(void);
 
 /* |description|Creates a DJUI popup that is broadcasted to every client|descriptionEnd| */
 void djui_popup_create_global(const char* message, int lines);
@@ -134,9 +136,9 @@ void save_file_set_using_backup_slot(bool usingBackupSlot);
 
 /* |description|Registers a custom moving texture entry (used for vanilla water boxes)|descriptionEnd| */
 void movtexqc_register(const char* name, s16 level, s16 area, s16 type);
-/* |description|Gets the water level in an area|descriptionEnd| */
+/* |description|Gets the water level in an area corresponding to `index` (0-indexed)|descriptionEnd| */
 s16 get_water_level(u8 index);
-/* |description|Sets the water level in an area|descriptionEnd| */
+/* |description|Sets the water level in an area corresponding to `index` (0-indexed)|descriptionEnd| */
 void set_water_level(u8 index, s16 height, bool sync);
 
 /* |description|Plays a screen transition|descriptionEnd| */
@@ -195,6 +197,8 @@ void set_environment_region(u8 index, s32 value);
 
 /* |description|Checks if a file exists inside of a mod|descriptionEnd| */
 bool mod_file_exists(const char* filename);
+/* |description|Gets the mod currently being processed|descriptionEnd| */
+struct Mod* get_active_mod(void);
 
 /* |description|Sets the window title to a custom title|descriptionEnd| */
 void set_window_title(const char* title);

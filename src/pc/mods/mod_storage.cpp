@@ -81,11 +81,11 @@ void cache_key(const char  *key, const char  *value) {
     }
 }
 
-bool char_valid(const char* buffer) {
+bool char_valid(const char* buffer, bool isKey) {
     if (buffer[0] == '\0') { return false; }
 
     while (*buffer != '\0') {
-        if ((*buffer >= 'a' && *buffer <= 'z') || (*buffer >= 'A' && *buffer <= 'Z') || (*buffer >= '0' && *buffer <= '9') || *buffer == '_' || *buffer == '.' || *buffer == '-') {
+        if (*buffer >= ' ' && !(isKey && (*buffer == '[' || *buffer == ']' || *buffer == '='))) {
             buffer++;
             continue;
         }
@@ -106,7 +106,7 @@ void mod_storage_get_filename(char* dest) {
 C_FIELD bool mod_storage_save(const char* key, const char* value) {
     if (gLuaActiveMod == NULL) { return false; }
     if (strlen(key) > MAX_KEY_VALUE_LENGTH || strlen(value) > MAX_KEY_VALUE_LENGTH) { return false; }
-    if (!char_valid(key) || !char_valid(value)) { return false; }
+    if (!char_valid(key, true) || !char_valid(value, false)) { return false; }
 
 #ifdef TARGET_ANDROID
     if (!key_cached(key, value)) {
@@ -155,7 +155,7 @@ C_FIELD bool mod_storage_save_bool(const char* key, bool value) {
 C_FIELD const char* mod_storage_load(const char* key) {
     if (gLuaActiveMod == NULL) { return NULL; }
     if (strlen(key) > MAX_KEY_VALUE_LENGTH) { return NULL; }
-    if (!char_valid(key)) { return NULL; }
+    if (!char_valid(key, true)) { return NULL; }
 
 #ifdef __ANDROID__
     char *cached_value = NULL;
@@ -204,7 +204,7 @@ C_FIELD bool mod_storage_load_bool(const char* key) {
 C_FIELD bool mod_storage_exists(const char* key) {
     if (gLuaActiveMod == NULL) { return false; }
     if (strlen(key) > MAX_KEY_VALUE_LENGTH) { return false; }
-    if (!char_valid((char *)key)) { return false; }
+    if (!char_valid(key, true)) { return false; }
 
     char filename[SYS_MAX_PATH] = { 0 };
     mod_storage_get_filename(filename);
@@ -220,7 +220,7 @@ C_FIELD bool mod_storage_exists(const char* key) {
 C_FIELD bool mod_storage_remove(const char* key) {
     if (gLuaActiveMod == NULL) { return false; }
     if (strlen(key) > MAX_KEY_VALUE_LENGTH) { return false; }
-    if (!char_valid((char *)key)) { return false; }
+    if (!char_valid(key, true)) { return false; }
 
     char filename[SYS_MAX_PATH] = { 0 };
     mod_storage_get_filename(filename);

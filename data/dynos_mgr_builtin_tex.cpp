@@ -685,7 +685,7 @@ static const struct BuiltinTexInfo sDynosBuiltinTexs[] = {
     define_builtin_tex(texture_hud_char_divide, "textures/segment2/custom_hud_divide.rgba16.png", 16, 16, 16),
     define_builtin_tex(texture_hud_char_period, "textures/segment2/custom_hud_period.rgba16.png", 16, 16, 16),
     define_builtin_tex(texture_hud_char_plus, "textures/segment2/custom_hud_plus.rgba16.png", 16, 16, 16),
-#ifdef TOUCH_CONTROLS
+#ifdef TOUCH_CONTROLS // Make sure to allow other devices to use the textures later
     define_builtin_tex(texture_touch_joystick, "textures/touchcontrols/touch_joystick.rgba16.png", 16, 16, 16),
     define_builtin_tex(texture_touch_joystick_base, "textures/touchcontrols/touch_joystick_base.rgba16.png", 32, 32, 16),
     define_builtin_tex(texture_touch_c_up, "textures/touchcontrols/touch_button_c_up.rgba16.png", 16, 16, 16),

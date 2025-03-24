@@ -219,9 +219,9 @@ $(eval $(call level_rules,menu,generic)) # Menu (File Select)
 $(BUILD_DIR)/levels/ending/cake_eu.inc.c: levels/ending/cake_eu.png
 	@$(PRINT) "$(GREEN)Splitting $(YELLOW)$< $(GREEN)to:  $(BLUE)$@ $(NO_COL)\n"
 	$(V)$(SKYCONV) $(SKYCONV_ARGS) --type cake-eu --split $^ $(BUILD_DIR)/levels/ending
-$(BUILD_DIR)/levels/ending/cake.inc.c: levels/ending/cake.png
-	@$(PRINT) "$(GREEN)Splitting $(YELLOW)$< $(GREEN)to:  $(BLUE)$@ $(NO_COL)\n"
-	$(V)$(SKYCONV) $(SKYCONV_ARGS) --type cake --split $^ $(BUILD_DIR)/levels/ending
+#$(BUILD_DIR)/levels/ending/cake.inc.c: levels/ending/cake.png
+#	@$(PRINT) "$(GREEN)Splitting $(YELLOW)$< $(GREEN)to:  $(BLUE)$@ $(NO_COL)\n"
+#	$(V)$(SKYCONV) $(SKYCONV_ARGS) --type cake --split $^ $(BUILD_DIR)/levels/ending
 
 # --------------------------------------
 # Texture Bin Rules
@@ -243,7 +243,6 @@ SKY_TEXTURES                    := $(wildcard $(TEXTURE_DIR)/sky/*.png)
 MACHINE_TEXTURES                := $(wildcard $(TEXTURE_DIR)/machine/*.png)
 MOUNTAIN_TEXTURES               := $(wildcard $(TEXTURE_DIR)/mountain/*.png)
 GRASS_TEXTURES                  := $(wildcard $(TEXTURE_DIR)/grass/*.png)
-CUSTOM_FONT_TITLE_TEXTURES      := $(wildcard $(TEXTURE_DIR)/custom_font_title/*.png)
 CUSTOM_FONT_TEXTURES            := $(wildcard $(TEXTURE_DIR)/custom_font/*.png)
 ifeq ($(TOUCH_CONTROLS),1)
 TOUCH_SCREEN_TEXTURES           := $(wildcard $(TEXTURE_DIR)/touchcontrols/*.png)

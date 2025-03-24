@@ -186,7 +186,7 @@ void djui_render(void) {
     }
 
     djui_cursor_update();
-#ifdef TOUCH_CONTROLS
+#ifdef TOUCH_CONTROLS // In the future, check if touch controls exist rather than checking if the TOUCH_CONTROLS define exists
     render_touch_controls();
 #endif
     djui_base_render(&gDjuiConsole->base);

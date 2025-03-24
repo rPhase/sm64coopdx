@@ -9,8 +9,12 @@ RUN apt-get update && \
         libglew-dev \
         libcurl4-openssl-dev
 
+RUN mkdir /sm64
 WORKDIR /sm64
+ENV PATH="/sm64/tools:${PATH}"
 
-# docker build . -t sm64ex-coop
-# cp /path/to/baserom.us.z64 .
-# docker run --rm -v $(pwd):/sm64 sm64ex-coop sh -c "TOUCH_CONTROLS=1 make -j$(nproc)"
+# docker build -t sm64coopdx .
+# docker run --rm --mount type=bind,source="$(pwd)",destination=/sm64 sm64coopdx make -j HEADLESS=1 
+# see https://github.com/n64decomp/sm64/blob/master/README.md for advanced usage
+
+# update this file later

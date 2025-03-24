@@ -6650,6 +6650,31 @@ Sets the frequency of an `audio` stream
 
 <br />
 
+## [audio_stream_set_loop_points](#audio_stream_set_loop_points)
+
+### Description
+Sets an `audio` stream's loop points (samples)
+
+### Lua Example
+`audio_stream_set_loop_points(audio, loopStart, loopEnd)`
+
+### Parameters
+| Field | Type |
+| ----- | ---- |
+| audio | [ModAudio](structs.md#ModAudio) |
+| loopStart | `integer` |
+| loopEnd | `integer` |
+
+### Returns
+- None
+
+### C Prototype
+`void audio_stream_set_loop_points(struct ModAudio* audio, s64 loopStart, s64 loopEnd);`
+
+[:arrow_up_small:](#)
+
+<br />
+
 ## [audio_stream_set_looping](#audio_stream_set_looping)
 
 ### Description
@@ -6838,6 +6863,75 @@ Overrides if Analog Camera is enabled
 
 <br />
 
+## [camera_config_enable_centering](#camera_config_enable_centering)
+
+### Description
+Overrides if the L button will center the camera
+
+### Lua Example
+`camera_config_enable_centering(enable)`
+
+### Parameters
+| Field | Type |
+| ----- | ---- |
+| enable | `boolean` |
+
+### Returns
+- None
+
+### C Prototype
+`void camera_config_enable_centering(bool enable);`
+
+[:arrow_up_small:](#)
+
+<br />
+
+## [camera_config_enable_collisions](#camera_config_enable_collisions)
+
+### Description
+Overrides if Camera Collision is enabled
+
+### Lua Example
+`camera_config_enable_collisions(enable)`
+
+### Parameters
+| Field | Type |
+| ----- | ---- |
+| enable | `boolean` |
+
+### Returns
+- None
+
+### C Prototype
+`void camera_config_enable_collisions(bool enable);`
+
+[:arrow_up_small:](#)
+
+<br />
+
+## [camera_config_enable_dpad](#camera_config_enable_dpad)
+
+### Description
+Overrides if Freecam DPad Behavior is enabled
+
+### Lua Example
+`camera_config_enable_dpad(enable)`
+
+### Parameters
+| Field | Type |
+| ----- | ---- |
+| enable | `boolean` |
+
+### Returns
+- None
+
+### C Prototype
+`void camera_config_enable_dpad(bool enable);`
+
+[:arrow_up_small:](#)
+
+<br />
+
 ## [camera_config_enable_free_cam](#camera_config_enable_free_cam)
 
 ### Description
@@ -6897,6 +6991,27 @@ Overrides if camera mouse look is enabled
 
 ### C Prototype
 `u32 camera_config_get_aggression(void);`
+
+[:arrow_up_small:](#)
+
+<br />
+
+## [camera_config_get_centering](#camera_config_get_centering)
+
+### Description
+Gets if the L button will center the camera
+
+### Lua Example
+`local booleanValue = camera_config_get_centering()`
+
+### Parameters
+- None
+
+### Returns
+- `boolean`
+
+### C Prototype
+`bool camera_config_get_centering(void);`
 
 [:arrow_up_small:](#)
 
@@ -7036,6 +7151,48 @@ Checks if Analog Camera is enabled
 
 ### C Prototype
 `bool camera_config_is_analog_cam_enabled(void);`
+
+[:arrow_up_small:](#)
+
+<br />
+
+## [camera_config_is_collision_enabled](#camera_config_is_collision_enabled)
+
+### Description
+Checks if Camera Collision is enabled
+
+### Lua Example
+`local booleanValue = camera_config_is_collision_enabled()`
+
+### Parameters
+- None
+
+### Returns
+- `boolean`
+
+### C Prototype
+`bool camera_config_is_collision_enabled(void);`
+
+[:arrow_up_small:](#)
+
+<br />
+
+## [camera_config_is_dpad_enabled](#camera_config_is_dpad_enabled)
+
+### Description
+Checks if Freecam DPad Behavior is enabled
+
+### Lua Example
+`local booleanValue = camera_config_is_dpad_enabled()`
+
+### Parameters
+- None
+
+### Returns
+- `boolean`
+
+### C Prototype
+`bool camera_config_is_dpad_enabled(void);`
 
 [:arrow_up_small:](#)
 
@@ -7261,6 +7418,27 @@ Freezes the camera by not updating it
 
 <br />
 
+## [camera_get_allow_toxic_gas_camera](#camera_get_allow_toxic_gas_camera)
+
+### Description
+Gets if the romhack camera should fly above poison gas
+
+### Lua Example
+`local integerValue = camera_get_allow_toxic_gas_camera()`
+
+### Parameters
+- None
+
+### Returns
+- `integer`
+
+### C Prototype
+`u8 camera_get_allow_toxic_gas_camera(void);`
+
+[:arrow_up_small:](#)
+
+<br />
+
 ## [camera_get_checking_surfaces](#camera_get_checking_surfaces)
 
 ### Description
@@ -7277,6 +7455,27 @@ Checks if the camera should account for surfaces
 
 ### C Prototype
 `bool camera_get_checking_surfaces(void);`
+
+[:arrow_up_small:](#)
+
+<br />
+
+## [camera_get_romhack_override](#camera_get_romhack_override)
+
+### Description
+Gets the current romhack camera override status
+
+### Lua Example
+`local enumValue = camera_get_romhack_override()`
+
+### Parameters
+- None
+
+### Returns
+[enum RomhackCameraOverride](constants.md#enum-RomhackCameraOverride)
+
+### C Prototype
+`enum RomhackCameraOverride camera_get_romhack_override(void);`
 
 [:arrow_up_small:](#)
 
@@ -7327,7 +7526,7 @@ Resets camera config overrides
 ## [camera_romhack_allow_centering](#camera_romhack_allow_centering)
 
 ### Description
-Sets if the romhack camera should allow centering
+Sets if the romhack camera should allow centering, triggered with the L button
 
 ### Lua Example
 `camera_romhack_allow_centering(allow)`
@@ -7365,6 +7564,268 @@ Sets if the romhack camera should allow D-Pad movement
 
 ### C Prototype
 `void camera_romhack_allow_dpad_usage(u8 allow);`
+
+[:arrow_up_small:](#)
+
+<br />
+
+## [camera_romhack_allow_only_mods](#camera_romhack_allow_only_mods)
+
+### Description
+Sets if only mods are allowed to modify the camera (Enabling prevents the player from modifying the camera through the settings)
+
+### Lua Example
+`camera_romhack_allow_only_mods(allow)`
+
+### Parameters
+| Field | Type |
+| ----- | ---- |
+| allow | `integer` |
+
+### Returns
+- None
+
+### C Prototype
+`void camera_romhack_allow_only_mods(u8 allow);`
+
+[:arrow_up_small:](#)
+
+<br />
+
+## [camera_romhack_get_allow_centering](#camera_romhack_get_allow_centering)
+
+### Description
+Gets if the romhack camera should allow centering
+
+### Lua Example
+`local integerValue = camera_romhack_get_allow_centering()`
+
+### Parameters
+- None
+
+### Returns
+- `integer`
+
+### C Prototype
+`u8 camera_romhack_get_allow_centering(void);`
+
+[:arrow_up_small:](#)
+
+<br />
+
+## [camera_romhack_get_allow_dpad_usage](#camera_romhack_get_allow_dpad_usage)
+
+### Description
+Gets if the romhack camera should allow D-Pad movement
+
+### Lua Example
+`local integerValue = camera_romhack_get_allow_dpad_usage()`
+
+### Parameters
+- None
+
+### Returns
+- `integer`
+
+### C Prototype
+`u8 camera_romhack_get_allow_dpad_usage(void);`
+
+[:arrow_up_small:](#)
+
+<br />
+
+## [camera_romhack_get_collisions](#camera_romhack_get_collisions)
+
+### Description
+Gets if the romhack camera has surface collisions
+
+### Lua Example
+`local integerValue = camera_romhack_get_collisions()`
+
+### Parameters
+- None
+
+### Returns
+- `integer`
+
+### C Prototype
+`u8 camera_romhack_get_collisions(void);`
+
+[:arrow_up_small:](#)
+
+<br />
+
+## [camera_romhack_get_zoomed_in_dist](#camera_romhack_get_zoomed_in_dist)
+
+### Description
+Gets the romhack camera's zoomed in distance
+
+### Lua Example
+`local integerValue = camera_romhack_get_zoomed_in_dist()`
+
+### Parameters
+- None
+
+### Returns
+- `integer`
+
+### C Prototype
+`u32 camera_romhack_get_zoomed_in_dist(void);`
+
+[:arrow_up_small:](#)
+
+<br />
+
+## [camera_romhack_get_zoomed_in_height](#camera_romhack_get_zoomed_in_height)
+
+### Description
+Gets the romhack camera's zoomed in height
+
+### Lua Example
+`local integerValue = camera_romhack_get_zoomed_in_height()`
+
+### Parameters
+- None
+
+### Returns
+- `integer`
+
+### C Prototype
+`u32 camera_romhack_get_zoomed_in_height(void);`
+
+[:arrow_up_small:](#)
+
+<br />
+
+## [camera_romhack_get_zoomed_out_dist](#camera_romhack_get_zoomed_out_dist)
+
+### Description
+Gets the romhack camera's additional zoomed out distance
+
+### Lua Example
+`local integerValue = camera_romhack_get_zoomed_out_dist()`
+
+### Parameters
+- None
+
+### Returns
+- `integer`
+
+### C Prototype
+`u32 camera_romhack_get_zoomed_out_dist(void);`
+
+[:arrow_up_small:](#)
+
+<br />
+
+## [camera_romhack_get_zoomed_out_height](#camera_romhack_get_zoomed_out_height)
+
+### Description
+Gets the romhack camera's additional zoomed out height
+
+### Lua Example
+`local integerValue = camera_romhack_get_zoomed_out_height()`
+
+### Parameters
+- None
+
+### Returns
+- `integer`
+
+### C Prototype
+`u32 camera_romhack_get_zoomed_out_height(void);`
+
+[:arrow_up_small:](#)
+
+<br />
+
+## [camera_romhack_set_zoomed_in_dist](#camera_romhack_set_zoomed_in_dist)
+
+### Description
+Sets the romhack camera's zoomed in distance (Default: 900)
+
+### Lua Example
+`camera_romhack_set_zoomed_in_dist(val)`
+
+### Parameters
+| Field | Type |
+| ----- | ---- |
+| val | `integer` |
+
+### Returns
+- None
+
+### C Prototype
+`void camera_romhack_set_zoomed_in_dist(u32 val);`
+
+[:arrow_up_small:](#)
+
+<br />
+
+## [camera_romhack_set_zoomed_in_height](#camera_romhack_set_zoomed_in_height)
+
+### Description
+Sets the romhack camera's zoomed in height (Default: 300)
+
+### Lua Example
+`camera_romhack_set_zoomed_in_height(val)`
+
+### Parameters
+| Field | Type |
+| ----- | ---- |
+| val | `integer` |
+
+### Returns
+- None
+
+### C Prototype
+`void camera_romhack_set_zoomed_in_height(u32 val);`
+
+[:arrow_up_small:](#)
+
+<br />
+
+## [camera_romhack_set_zoomed_out_dist](#camera_romhack_set_zoomed_out_dist)
+
+### Description
+Sets the romhack camera's zoomed out additional distance (Default: 500)
+
+### Lua Example
+`camera_romhack_set_zoomed_out_dist(val)`
+
+### Parameters
+| Field | Type |
+| ----- | ---- |
+| val | `integer` |
+
+### Returns
+- None
+
+### C Prototype
+`void camera_romhack_set_zoomed_out_dist(u32 val);`
+
+[:arrow_up_small:](#)
+
+<br />
+
+## [camera_romhack_set_zoomed_out_height](#camera_romhack_set_zoomed_out_height)
+
+### Description
+Sets the romhack camera's zoomed out additional height (Default: 150)
+
+### Lua Example
+`camera_romhack_set_zoomed_out_height(val)`
+
+### Parameters
+| Field | Type |
+| ----- | ---- |
+| val | `integer` |
+
+### Returns
+- None
+
+### C Prototype
+`void camera_romhack_set_zoomed_out_height(u32 val);`
 
 [:arrow_up_small:](#)
 
@@ -7432,6 +7893,29 @@ Unfreezes the camera
 
 ### C Prototype
 `void camera_unfreeze(void);`
+
+[:arrow_up_small:](#)
+
+<br />
+
+## [rom_hack_cam_set_collisions](#rom_hack_cam_set_collisions)
+
+### Description
+Toggles collision settings for the ROM hack camera. This enables or disables specific collision behaviors in modded levels
+
+### Lua Example
+`rom_hack_cam_set_collisions(enable)`
+
+### Parameters
+| Field | Type |
+| ----- | ---- |
+| enable | `integer` |
+
+### Returns
+- None
+
+### C Prototype
+`void rom_hack_cam_set_collisions(u8 enable);`
 
 [:arrow_up_small:](#)
 
@@ -7652,1055 +8136,6 @@ Gets the `level` terrain collision from `area`
 
 <br />
 
-
----
-# functions from smlua_gfx_utils.h
-
-<br />
-
-
-## [get_fog_color](#get_fog_color)
-
-### Description
-Gets a value of the global fog color
-
-### Lua Example
-`local integerValue = get_fog_color(index)`
-
-### Parameters
-| Field | Type |
-| ----- | ---- |
-| index | `integer` |
-
-### Returns
-- `integer`
-
-### C Prototype
-`u8 get_fog_color(u8 index);`
-
-[:arrow_up_small:](#)
-
-<br />
-
-## [get_fog_intensity](#get_fog_intensity)
-
-### Description
-Gets the intensity of the fog
-
-### Lua Example
-`local numberValue = get_fog_intensity()`
-
-### Parameters
-- None
-
-### Returns
-- `number`
-
-### C Prototype
-`f32 get_fog_intensity(void);`
-
-[:arrow_up_small:](#)
-
-<br />
-
-## [get_lighting_color](#get_lighting_color)
-
-### Description
-Gets a value of the global lighting color
-
-### Lua Example
-`local integerValue = get_lighting_color(index)`
-
-### Parameters
-| Field | Type |
-| ----- | ---- |
-| index | `integer` |
-
-### Returns
-- `integer`
-
-### C Prototype
-`u8 get_lighting_color(u8 index);`
-
-[:arrow_up_small:](#)
-
-<br />
-
-## [get_lighting_color_ambient](#get_lighting_color_ambient)
-
-### Description
-Gets a value of the global ambient lighting color
-
-### Lua Example
-`local integerValue = get_lighting_color_ambient(index)`
-
-### Parameters
-| Field | Type |
-| ----- | ---- |
-| index | `integer` |
-
-### Returns
-- `integer`
-
-### C Prototype
-`u8 get_lighting_color_ambient(u8 index);`
-
-[:arrow_up_small:](#)
-
-<br />
-
-## [get_lighting_dir](#get_lighting_dir)
-
-### Description
-Gets a value of the global lighting direction
-
-### Lua Example
-`local numberValue = get_lighting_dir(index)`
-
-### Parameters
-| Field | Type |
-| ----- | ---- |
-| index | `integer` |
-
-### Returns
-- `number`
-
-### C Prototype
-`f32 get_lighting_dir(u8 index);`
-
-[:arrow_up_small:](#)
-
-<br />
-
-## [get_skybox](#get_skybox)
-
-### Description
-Gets the current skybox
-
-### Lua Example
-`local integerValue = get_skybox()`
-
-### Parameters
-- None
-
-### Returns
-- `integer`
-
-### C Prototype
-`s8 get_skybox(void);`
-
-[:arrow_up_small:](#)
-
-<br />
-
-## [get_skybox_color](#get_skybox_color)
-
-### Description
-Gets a value of the global skybox color
-
-### Lua Example
-`local integerValue = get_skybox_color(index)`
-
-### Parameters
-| Field | Type |
-| ----- | ---- |
-| index | `integer` |
-
-### Returns
-- `integer`
-
-### C Prototype
-`u8 get_skybox_color(u8 index);`
-
-[:arrow_up_small:](#)
-
-<br />
-
-## [get_vertex_color](#get_vertex_color)
-
-### Description
-Gets a value of the global vertex shading color
-
-### Lua Example
-`local integerValue = get_vertex_color(index)`
-
-### Parameters
-| Field | Type |
-| ----- | ---- |
-| index | `integer` |
-
-### Returns
-- `integer`
-
-### C Prototype
-`u8 get_vertex_color(u8 index);`
-
-[:arrow_up_small:](#)
-
-<br />
-
-## [set_fog_color](#set_fog_color)
-
-### Description
-Sets a value of the global fog color
-
-### Lua Example
-`set_fog_color(index, value)`
-
-### Parameters
-| Field | Type |
-| ----- | ---- |
-| index | `integer` |
-| value | `integer` |
-
-### Returns
-- None
-
-### C Prototype
-`void set_fog_color(u8 index, u8 value);`
-
-[:arrow_up_small:](#)
-
-<br />
-
-## [set_fog_intensity](#set_fog_intensity)
-
-### Description
-Sets the intensity of the fog (this value scales very quickly, 1.0 to 1.1 is a desirable range)
-
-### Lua Example
-`set_fog_intensity(intensity)`
-
-### Parameters
-| Field | Type |
-| ----- | ---- |
-| intensity | `number` |
-
-### Returns
-- None
-
-### C Prototype
-`void set_fog_intensity(f32 intensity);`
-
-[:arrow_up_small:](#)
-
-<br />
-
-## [set_lighting_color](#set_lighting_color)
-
-### Description
-Sets a value of the global lighting color
-
-### Lua Example
-`set_lighting_color(index, value)`
-
-### Parameters
-| Field | Type |
-| ----- | ---- |
-| index | `integer` |
-| value | `integer` |
-
-### Returns
-- None
-
-### C Prototype
-`void set_lighting_color(u8 index, u8 value);`
-
-[:arrow_up_small:](#)
-
-<br />
-
-## [set_lighting_color_ambient](#set_lighting_color_ambient)
-
-### Description
-Sets a value of the global lighting color (run this after `set_lighting_color` for the ambient color to not be overriden)
-
-### Lua Example
-`set_lighting_color_ambient(index, value)`
-
-### Parameters
-| Field | Type |
-| ----- | ---- |
-| index | `integer` |
-| value | `integer` |
-
-### Returns
-- None
-
-### C Prototype
-`void set_lighting_color_ambient(u8 index, u8 value);`
-
-[:arrow_up_small:](#)
-
-<br />
-
-## [set_lighting_dir](#set_lighting_dir)
-
-### Description
-Sets a value of the global lighting direction
-
-### Lua Example
-`set_lighting_dir(index, value)`
-
-### Parameters
-| Field | Type |
-| ----- | ---- |
-| index | `integer` |
-| value | `number` |
-
-### Returns
-- None
-
-### C Prototype
-`void set_lighting_dir(u8 index, f32 value);`
-
-[:arrow_up_small:](#)
-
-<br />
-
-## [set_override_far](#set_override_far)
-
-### Description
-Sets the override far plane
-
-### Lua Example
-`set_override_far(far)`
-
-### Parameters
-| Field | Type |
-| ----- | ---- |
-| far | `number` |
-
-### Returns
-- None
-
-### C Prototype
-`void set_override_far(f32 far);`
-
-[:arrow_up_small:](#)
-
-<br />
-
-## [set_override_fov](#set_override_fov)
-
-### Description
-Sets the override FOV
-
-### Lua Example
-`set_override_fov(fov)`
-
-### Parameters
-| Field | Type |
-| ----- | ---- |
-| fov | `number` |
-
-### Returns
-- None
-
-### C Prototype
-`void set_override_fov(f32 fov);`
-
-[:arrow_up_small:](#)
-
-<br />
-
-## [set_override_near](#set_override_near)
-
-### Description
-Sets the override near plane
-
-### Lua Example
-`set_override_near(near)`
-
-### Parameters
-| Field | Type |
-| ----- | ---- |
-| near | `number` |
-
-### Returns
-- None
-
-### C Prototype
-`void set_override_near(f32 near);`
-
-[:arrow_up_small:](#)
-
-<br />
-
-## [set_override_skybox](#set_override_skybox)
-
-### Description
-Sets the override skybox
-
-### Lua Example
-`set_override_skybox(background)`
-
-### Parameters
-| Field | Type |
-| ----- | ---- |
-| background | `integer` |
-
-### Returns
-- None
-
-### C Prototype
-`void set_override_skybox(s8 background);`
-
-[:arrow_up_small:](#)
-
-<br />
-
-## [set_skybox_color](#set_skybox_color)
-
-### Description
-Sets a value of the global skybox color
-
-### Lua Example
-`set_skybox_color(index, value)`
-
-### Parameters
-| Field | Type |
-| ----- | ---- |
-| index | `integer` |
-| value | `integer` |
-
-### Returns
-- None
-
-### C Prototype
-`void set_skybox_color(u8 index, u8 value);`
-
-[:arrow_up_small:](#)
-
-<br />
-
-## [set_vertex_color](#set_vertex_color)
-
-### Description
-Sets a value of the global vertex shading color
-
-### Lua Example
-`set_vertex_color(index, value)`
-
-### Parameters
-| Field | Type |
-| ----- | ---- |
-| index | `integer` |
-| value | `integer` |
-
-### Returns
-- None
-
-### C Prototype
-`void set_vertex_color(u8 index, u8 value);`
-
-[:arrow_up_small:](#)
-
-<br />
-
----
-# functions from smlua_level_utils.h
-
-<br />
-
-
-## [level_is_vanilla_level](#level_is_vanilla_level)
-
-### Description
-Checks if `levelNum` is a vanilla level
-
-### Lua Example
-`local booleanValue = level_is_vanilla_level(levelNum)`
-
-### Parameters
-| Field | Type |
-| ----- | ---- |
-| levelNum | `integer` |
-
-### Returns
-- `boolean`
-
-### C Prototype
-`bool level_is_vanilla_level(s16 levelNum);`
-
-[:arrow_up_small:](#)
-
-<br />
-
-## [level_register](#level_register)
-
-### Description
-Registers a fully custom level. Level ID begins at 50
-
-### Lua Example
-`local integerValue = level_register(scriptEntryName, courseNum, fullName, shortName, acousticReach, echoLevel1, echoLevel2, echoLevel3)`
-
-### Parameters
-| Field | Type |
-| ----- | ---- |
-| scriptEntryName | `string` |
-| courseNum | `integer` |
-| fullName | `string` |
-| shortName | `string` |
-| acousticReach | `integer` |
-| echoLevel1 | `integer` |
-| echoLevel2 | `integer` |
-| echoLevel3 | `integer` |
-
-### Returns
-- `integer`
-
-### C Prototype
-`s16 level_register(const char* scriptEntryName, s16 courseNum, const char* fullName, const char* shortName, u32 acousticReach, u32 echoLevel1, u32 echoLevel2, u32 echoLevel3);`
-
-[:arrow_up_small:](#)
-
-<br />
-
-## [smlua_level_util_change_area](#smlua_level_util_change_area)
-
-### Description
-Instantly changes the current area to `areaIndex`
-
-### Lua Example
-`smlua_level_util_change_area(areaIndex)`
-
-### Parameters
-| Field | Type |
-| ----- | ---- |
-| areaIndex | `integer` |
-
-### Returns
-- None
-
-### C Prototype
-`void smlua_level_util_change_area(s32 areaIndex);`
-
-[:arrow_up_small:](#)
-
-<br />
-
-## [smlua_level_util_get_info](#smlua_level_util_get_info)
-
-### Description
-Gets information on a custom level from `levelNum`
-
-### Lua Example
-`local CustomLevelInfoValue = smlua_level_util_get_info(levelNum)`
-
-### Parameters
-| Field | Type |
-| ----- | ---- |
-| levelNum | `integer` |
-
-### Returns
-[CustomLevelInfo](structs.md#CustomLevelInfo)
-
-### C Prototype
-`struct CustomLevelInfo* smlua_level_util_get_info(s16 levelNum);`
-
-[:arrow_up_small:](#)
-
-<br />
-
-## [smlua_level_util_get_info_from_course_num](#smlua_level_util_get_info_from_course_num)
-
-### Description
-Gets information on a custom level from `courseNum`
-
-### Lua Example
-`local CustomLevelInfoValue = smlua_level_util_get_info_from_course_num(courseNum)`
-
-### Parameters
-| Field | Type |
-| ----- | ---- |
-| courseNum | `integer` |
-
-### Returns
-[CustomLevelInfo](structs.md#CustomLevelInfo)
-
-### C Prototype
-`struct CustomLevelInfo* smlua_level_util_get_info_from_course_num(u8 courseNum);`
-
-[:arrow_up_small:](#)
-
-<br />
-
-## [smlua_level_util_get_info_from_short_name](#smlua_level_util_get_info_from_short_name)
-
-### Description
-Gets information on a custom level from `shortName`
-
-### Lua Example
-`local CustomLevelInfoValue = smlua_level_util_get_info_from_short_name(shortName)`
-
-### Parameters
-| Field | Type |
-| ----- | ---- |
-| shortName | `string` |
-
-### Returns
-[CustomLevelInfo](structs.md#CustomLevelInfo)
-
-### C Prototype
-`struct CustomLevelInfo* smlua_level_util_get_info_from_short_name(const char* shortName);`
-
-[:arrow_up_small:](#)
-
-<br />
-
-## [warp_exit_level](#warp_exit_level)
-
-### Description
-Exits the current level after `aDelay`
-
-### Lua Example
-`local booleanValue = warp_exit_level(aDelay)`
-
-### Parameters
-| Field | Type |
-| ----- | ---- |
-| aDelay | `integer` |
-
-### Returns
-- `boolean`
-
-### C Prototype
-`bool warp_exit_level(s32 aDelay);`
-
-[:arrow_up_small:](#)
-
-<br />
-
-## [warp_restart_level](#warp_restart_level)
-
-### Description
-Restarts the current level
-
-### Lua Example
-`local booleanValue = warp_restart_level()`
-
-### Parameters
-- None
-
-### Returns
-- `boolean`
-
-### C Prototype
-`bool warp_restart_level(void);`
-
-[:arrow_up_small:](#)
-
-<br />
-
-## [warp_to_castle](#warp_to_castle)
-
-### Description
-Warps back to the castle from `aLevel`
-
-### Lua Example
-`local booleanValue = warp_to_castle(aLevel)`
-
-### Parameters
-| Field | Type |
-| ----- | ---- |
-| aLevel | `integer` |
-
-### Returns
-- `boolean`
-
-### C Prototype
-`bool warp_to_castle(s32 aLevel);`
-
-[:arrow_up_small:](#)
-
-<br />
-
-## [warp_to_level](#warp_to_level)
-
-### Description
-Warps to `aArea` of `aLevel` in `aAct`
-
-### Lua Example
-`local booleanValue = warp_to_level(aLevel, aArea, aAct)`
-
-### Parameters
-| Field | Type |
-| ----- | ---- |
-| aLevel | `integer` |
-| aArea | `integer` |
-| aAct | `integer` |
-
-### Returns
-- `boolean`
-
-### C Prototype
-`bool warp_to_level(s32 aLevel, s32 aArea, s32 aAct);`
-
-[:arrow_up_small:](#)
-
-<br />
-
-## [warp_to_start_level](#warp_to_start_level)
-
-### Description
-Warps to the start level (Castle Grounds by default)
-
-### Lua Example
-`local booleanValue = warp_to_start_level()`
-
-### Parameters
-- None
-
-### Returns
-- `boolean`
-
-### C Prototype
-`bool warp_to_start_level(void);`
-
-[:arrow_up_small:](#)
-
-<br />
-
-## [warp_to_warpnode](#warp_to_warpnode)
-
-### Description
-Warps to `aWarpId` of `aArea` in `aLevel` during `aAct`
-
-### Lua Example
-`local booleanValue = warp_to_warpnode(aLevel, aArea, aAct, aWarpId)`
-
-### Parameters
-| Field | Type |
-| ----- | ---- |
-| aLevel | `integer` |
-| aArea | `integer` |
-| aAct | `integer` |
-| aWarpId | `integer` |
-
-### Returns
-- `boolean`
-
-### C Prototype
-`bool warp_to_warpnode(s32 aLevel, s32 aArea, s32 aAct, s32 aWarpId);`
-
-[:arrow_up_small:](#)
-
-<br />
-
----
-# functions from smlua_math_utils.h
-
-<br />
-
-
-## [clamp](#clamp)
-
-### Description
-Clamps a signed 32-bit integer `a` between bounds `b` (minimum) and `c` (maximum)
-
-### Lua Example
-`local integerValue = clamp(a, b, c)`
-
-### Parameters
-| Field | Type |
-| ----- | ---- |
-| a | `integer` |
-| b | `integer` |
-| c | `integer` |
-
-### Returns
-- `integer`
-
-### C Prototype
-`s32 clamp(s32 a, s32 b, s32 c);`
-
-[:arrow_up_small:](#)
-
-<br />
-
-## [clampf](#clampf)
-
-### Description
-Clamps a floating-point number `a` between bounds `b` (minimum) and `c` (maximum)
-
-### Lua Example
-`local numberValue = clampf(a, b, c)`
-
-### Parameters
-| Field | Type |
-| ----- | ---- |
-| a | `number` |
-| b | `number` |
-| c | `number` |
-
-### Returns
-- `number`
-
-### C Prototype
-`f32 clampf(f32 a, f32 b, f32 c);`
-
-[:arrow_up_small:](#)
-
-<br />
-
-## [degrees_to_sm64](#degrees_to_sm64)
-
-### Description
-Converts an angle from degrees to SM64 format
-
-### Lua Example
-`local integerValue = degrees_to_sm64(degreesAngle)`
-
-### Parameters
-| Field | Type |
-| ----- | ---- |
-| degreesAngle | `number` |
-
-### Returns
-- `integer`
-
-### C Prototype
-`s16 degrees_to_sm64(f32 degreesAngle);`
-
-[:arrow_up_small:](#)
-
-<br />
-
-## [hypotf](#hypotf)
-
-### Description
-Computes the hypotenuse of a right triangle given sides `a` and `b` using the Pythagorean theorem
-
-### Lua Example
-`local numberValue = hypotf(a, b)`
-
-### Parameters
-| Field | Type |
-| ----- | ---- |
-| a | `number` |
-| b | `number` |
-
-### Returns
-- `number`
-
-### C Prototype
-`f32 hypotf(f32 a, f32 b);`
-
-[:arrow_up_small:](#)
-
-<br />
-
-## [max](#max)
-
-### Description
-Finds the maximum of two signed 32-bit integers
-
-### Lua Example
-`local integerValue = max(a, b)`
-
-### Parameters
-| Field | Type |
-| ----- | ---- |
-| a | `integer` |
-| b | `integer` |
-
-### Returns
-- `integer`
-
-### C Prototype
-`s32 max(s32 a, s32 b);`
-
-[:arrow_up_small:](#)
-
-<br />
-
-## [maxf](#maxf)
-
-### Description
-Finds the maximum of two floating-point numbers
-
-### Lua Example
-`local numberValue = maxf(a, b)`
-
-### Parameters
-| Field | Type |
-| ----- | ---- |
-| a | `number` |
-| b | `number` |
-
-### Returns
-- `number`
-
-### C Prototype
-`f32 maxf(f32 a, f32 b);`
-
-[:arrow_up_small:](#)
-
-<br />
-
-## [min](#min)
-
-### Description
-Finds the minimum of two signed 32-bit integers
-
-### Lua Example
-`local integerValue = min(a, b)`
-
-### Parameters
-| Field | Type |
-| ----- | ---- |
-| a | `integer` |
-| b | `integer` |
-
-### Returns
-- `integer`
-
-### C Prototype
-`s32 min(s32 a, s32 b);`
-
-[:arrow_up_small:](#)
-
-<br />
-
-## [minf](#minf)
-
-### Description
-Finds the minimum of two floating-point numbers
-
-### Lua Example
-`local numberValue = minf(a, b)`
-
-### Parameters
-| Field | Type |
-| ----- | ---- |
-| a | `number` |
-| b | `number` |
-
-### Returns
-- `number`
-
-### C Prototype
-`f32 minf(f32 a, f32 b);`
-
-[:arrow_up_small:](#)
-
-<br />
-
-## [radians_to_sm64](#radians_to_sm64)
-
-### Description
-Converts an angle from radians to SM64 format
-
-### Lua Example
-`local integerValue = radians_to_sm64(radiansAngle)`
-
-### Parameters
-| Field | Type |
-| ----- | ---- |
-| radiansAngle | `number` |
-
-### Returns
-- `integer`
-
-### C Prototype
-`s16 radians_to_sm64(f32 radiansAngle);`
-
-[:arrow_up_small:](#)
-
-<br />
-
-## [sm64_to_degrees](#sm64_to_degrees)
-
-### Description
-Converts an angle from SM64 format to degrees
-
-### Lua Example
-`local numberValue = sm64_to_degrees(sm64Angle)`
-
-### Parameters
-| Field | Type |
-| ----- | ---- |
-| sm64Angle | `integer` |
-
-### Returns
-- `number`
-
-### C Prototype
-`f32 sm64_to_degrees(s16 sm64Angle);`
-
-[:arrow_up_small:](#)
-
-<br />
-
-## [sm64_to_radians](#sm64_to_radians)
-
-### Description
-Converts an angle from SM64 format to radians
-
-### Lua Example
-`local numberValue = sm64_to_radians(sm64Angle)`
-
-### Parameters
-| Field | Type |
-| ----- | ---- |
-| sm64Angle | `integer` |
-
-### Returns
-- `number`
-
-### C Prototype
-`f32 sm64_to_radians(s16 sm64Angle);`
-
-[:arrow_up_small:](#)
-
-<br />
-
-## [sqr](#sqr)
-
-### Description
-Computes the square of a signed 32-bit integer
-
-### Lua Example
-`local integerValue = sqr(x)`
-
-### Parameters
-| Field | Type |
-| ----- | ---- |
-| x | `integer` |
-
-### Returns
-- `integer`
-
-### C Prototype
-`s32 sqr(s32 x);`
-
-[:arrow_up_small:](#)
-
-<br />
-
-## [sqrf](#sqrf)
-
-### Description
-Computes the square of a floating-point number
-
-### Lua Example
-`local numberValue = sqrf(x)`
-
-### Parameters
-| Field | Type |
-| ----- | ---- |
-| x | `number` |
-
-### Returns
-- `number`
-
-### C Prototype
-`f32 sqrf(f32 x);`
-
-[:arrow_up_small:](#)
-
-<br />
 ---
 
 [< prev](functions-4.md) | [1](functions.md) | [2](functions-2.md) | [3](functions-3.md) | [4](functions-4.md) | 5 | [6](functions-6.md) | [next >](functions-6.md)]

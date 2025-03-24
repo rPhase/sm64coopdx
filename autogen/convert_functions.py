@@ -83,7 +83,6 @@ override_allowed_functions = {
     "src/pc/lua/utils/smlua_model_utils.h": [ "smlua_model_util_get_id" ],
     "src/game/object_list_processor.h":     [ "set_object_respawn_info_bits" ],
     "src/game/mario_misc.h":                [ "bhv_toad.*", "bhv_unlock_door.*", "geo_get_.*_state" ],
-    "src/pc/utils/misc.h":                  [ "update_all_mario_stars" ],
     "src/game/level_update.h":              [ "level_trigger_warp", "get_painting_warp_node", "initiate_painting_warp", "warp_special", "lvl_set_current_level", "level_control_timer_running", "fade_into_special_warp", "get_instant_warp" ],
     "src/game/area.h":                      [ "area_get_warp_node" ],
     "src/engine/level_script.h":            [ "area_create_warp_node" ],
@@ -110,13 +109,13 @@ override_disallowed_functions = {
     "src/game/interaction.h":                   [ "process_interaction", "_handle_" ],
     "src/game/sound_init.h":                    [ "_loop_", "thread4_", "set_sound_mode" ],
     "src/pc/network/network_utils.h":           [ "network_get_player_text_color[^_]" ],
-    "src/pc/network/network_player.h":          [ "_init", "_connected[^_]", "_shutdown", "_disconnected", "_update", "construct_player_popup" ],
+    "src/pc/network/network_player.h":          [ "_init", "_connected[^_]", "_shutdown", "_disconnected", "_update", "construct_player_popup", "network_player_name_valid" ],
     "src/game/object_helpers.c":                [ "spawn_obj", "^bhv_", "abs[fi]", "^bit_shift", "_debug$", "^stub_", "_set_model", "cur_obj_set_direction_table", "cur_obj_progress_direction_table" ],
     "src/game/obj_behaviors.c":                 [ "debug_" ],
     "src/game/obj_behaviors_2.c":               [ "wiggler_jumped_on_attack_handler", "huge_goomba_weakly_attacked" ],
     "src/game/level_info.h":                    [ "_name_table" ],
     "src/pc/lua/utils/smlua_obj_utils.h":       [ "spawn_object_remember_field" ],
-    "src/game/camera.h":                        [ "update_camera", "init_camera", "stub_camera", "^reset_camera", "move_point_along_spline" ],
+    "src/game/camera.h":                        [ "update_camera", "init_camera", "stub_camera", "^reset_camera", "move_point_along_spline", "romhack_camera_init_settings", "romhack_camera_reset_settings" ],
     "src/game/behavior_actions.h":              [ "bhv_dust_smoke_loop", "bhv_init_room" ],
     "src/pc/lua/utils/smlua_audio_utils.h":     [ "smlua_audio_utils_override", "audio_custom_shutdown", "smlua_audio_custom_deinit", "audio_sample_destroy_pending_copies", "audio_custom_update_volume" ],
     "src/pc/djui/djui_hud_utils.h":             [ "djui_hud_render_texture", "djui_hud_render_texture_raw", "djui_hud_render_texture_tile", "djui_hud_render_texture_tile_raw" ],
@@ -124,10 +123,10 @@ override_disallowed_functions = {
     "src/pc/lua/utils/smlua_text_utils.h":      [ "smlua_text_utils_init", "smlua_text_utils_shutdown" ],
     "src/pc/lua/utils/smlua_anim_utils.h":      [ "smlua_anim_util_reset", "smlua_anim_util_register_animation" ],
     "src/pc/network/lag_compensation.h":        [ "lag_compensation_clear" ],
-    "src/pc/mods/mod_storage.h":                [ "key_cache_init" ],
     "src/game/first_person_cam.h":              [ "first_person_update" ],
     "src/pc/lua/utils/smlua_collision_utils.h": [ "collision_find_surface_on_ray" ],
-    "src/engine/behavior_script.h":             [ "stub_behavior_script_2", "cur_obj_update" ]
+    "src/engine/behavior_script.h":             [ "stub_behavior_script_2", "cur_obj_update" ],
+    "src/pc/utils/misc.h":                      [ "str_.*", "file_get_line", "delta_interpolate_(normal|rgba|mtx)", "detect_and_skip_mtx_interpolation" ]
 }
 
 override_hide_functions = {
@@ -213,6 +212,8 @@ manual_index_documentation = """
    - [add_scroll_target](#add_scroll_target)
    - [collision_find_surface_on_ray](#collision_find_surface_on_ray)
    - [cast_graph_node](#cast_graph_node)
+   - [get_uncolored_string](#get_uncolored_string)
+   - [gfx_set_command](#gfx_set_command)
 
 <br />
 
@@ -727,6 +728,56 @@ N/A
 
 <br />
 
+## [get_uncolored_string](#get_uncolored_string)
+
+Removes color codes from a string.
+
+### Lua Example
+```lua
+print(get_uncolored_string("\\#210059\\Colored \\#FF086F\\String")) -- "Colored String"
+```
+
+### Parameters
+| Field | Type |
+| ----- | ---- |
+| str   | 'string' |
+
+### Returns
+- `string`
+
+### C Prototype
+N/A
+
+[:arrow_up_small:](#)
+
+<br />
+
+## [gfx_set_command](#gfx_set_command)
+
+Sets the specified display list command on the display list given.
+
+### Lua Example
+```lua
+gfx_set_command(gfx, "gsDPSetEnvColor", 0x00, 0xFF, 0x00, 0xFF)
+```
+
+### Parameters
+| Field | Type |
+| ----- | ---- |
+| gfx   | [Gfx](structs.md#Gfx) |
+| command | `string` |
+| (Any number of arguments) | `integer` |
+
+### Returns
+- None
+
+### C Prototype
+N/A
+
+[:arrow_up_small:](#)
+
+<br />
+
 """
 
 ############################################################################
@@ -854,9 +905,9 @@ def build_call(function):
         lfunc = 'lua_pushstring'
     elif translate_type_to_lot(ftype) == 'LOT_POINTER':
         lvt = translate_type_to_lvt(ftype)
-        return '    smlua_push_pointer(L, %s, (void*)%s);\n' % (lvt, ccall)
+        return '    smlua_push_pointer(L, %s, (void*)%s, NULL);\n' % (lvt, ccall)
     elif '???' not in flot and flot != 'LOT_NONE':
-        return '    smlua_push_object(L, %s, %s);\n' % (flot, ccall)
+        return '    smlua_push_object(L, %s, %s, NULL);\n' % (flot, ccall)
 
     return '    %s(L, %s);\n' % (lfunc, ccall)
 

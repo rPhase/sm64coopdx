@@ -3,7 +3,6 @@
 
 #define SM64COOPDX_VERSION "v1.2.1"
 
-
 // internal version
 #define VERSION_TEXT "v"
 #define VERSION_NUMBER 39
@@ -33,5 +32,9 @@
 #define MAX_VERSION_LENGTH 32
 
 const char* get_version(void);
-
+/* Fix Compile Time
+#ifdef COMPILE_TIME
+const char* get_version_with_build_date(void);
+#endif
+*/
 #endif

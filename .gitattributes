@@ -13,6 +13,7 @@
 *.ld text
 *.inc text
 *.txt text
+*.lua text
 *.json text
 *.yaml text
 
@@ -21,3 +22,8 @@
 *.m64 binary
 *.png binary
 *.aiff binary
+*.ico binary
+*.mp3 binary
+*.lvl binary
+*.tex binary
+*.luac binary
