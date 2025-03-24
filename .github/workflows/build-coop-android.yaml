@@ -59,6 +59,17 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     steps:
+      - name: install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get upgrade -y
+          sudo apt-get install -y zipalign
+      - uses: actions/checkout@v4.2.2
+      - name: Fetch libmain.so (x86)
+        uses: actions/download-artifact@v4
+        with:
+          name: main-i686
+          path: platform/android/android/lib/x86
       - uses: actions/checkout@v4.2.2
       - name: Fetch libmain.so (x86)
         uses: actions/download-artifact@v4
