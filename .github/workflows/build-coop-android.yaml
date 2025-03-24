@@ -33,11 +33,17 @@ jobs:
     steps:
       - name: fix executable bit for all binaries in $PREFIX/bin for all users
         run: chmod -R o+x ${PREFIX}/bin
+      - name: set pkg command to use the packages-cf.termux.dev mirror
+        run: ln -sf ${PREFIX}/etc/termux/mirrors/default ${PREFIX}/etc/termux/chosen_mirrors
+      - name: upgrade all packages to prepare for installing nodejs
+        run: /entrypoint.sh bash -c "yes | pkg upgrade -y"
       - name: install bionic-libc nodejs to force compatibility with actions/checkout and actions/upload-artifact
         run: |
           /entrypoint.sh pkg install -y nodejs-lts
           ln -sf ${PREFIX}/bin /__e/node20/bin
       - uses: actions/checkout@v4.2.2
+      - name: fix permissions of repository after actions/checkout, which ran as root user
+        run: chown -R 1000:1000 .
       - name: build
         run: /entrypoint.sh .github/build-android.sh
       - uses: actions/upload-artifact@v4.6.0
@@ -47,7 +53,7 @@ jobs:
       - uses: actions/upload-artifact@v4.6.0
         with:
           name: libc++-${{ matrix.architecture }}
-          path: ${PREFIX}/lib/libc++_shared.so
+          path: ${{ env.PREFIX }}/lib/libc++_shared.so
 
   merge:
     needs: build
