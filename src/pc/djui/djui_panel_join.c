@@ -26,7 +26,7 @@ void djui_panel_join_create(struct DjuiBase* caller) {
         djui_button_create(body, DLANG(JOIN, DIRECT), DJUI_BUTTON_STYLE_NORMAL, djui_panel_join_direct_create);
         djui_button_create(body, DLANG(MENU, BACK), DJUI_BUTTON_STYLE_BACK, djui_panel_menu_back);
     }
-#if defined(UPDATE_CHECKER)
+
     if (gUpdateMessage) {
         struct DjuiText* message = djui_text_create(&panel->base, DLANG(NOTIF, UPDATE_AVAILABLE));
         djui_base_set_size_type(&message->base, DJUI_SVT_RELATIVE, DJUI_SVT_ABSOLUTE);
@@ -34,7 +34,6 @@ void djui_panel_join_create(struct DjuiBase* caller) {
         djui_base_set_color(&message->base, 255, 255, 160, 255);
         djui_text_set_alignment(message, DJUI_HALIGN_CENTER, DJUI_VALIGN_BOTTOM);
     }
-#endif
 
     djui_panel_add(caller, panel, NULL);
 #endif

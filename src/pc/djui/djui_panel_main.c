@@ -53,7 +53,6 @@ void djui_panel_main_create(struct DjuiBase* caller) {
             if (!configExCoopTheme) { djui_base_set_location(&button4->base, 0, -30); }
         }
 
-#if defined(UPDATE_CHECKER)
         // these two cannot co-exist for some reason
         if (gUpdateMessage) {
             struct DjuiText* message = djui_text_create(&panel->base, DLANG(NOTIF, UPDATE_AVAILABLE));
@@ -62,7 +61,6 @@ void djui_panel_main_create(struct DjuiBase* caller) {
             djui_base_set_color(&message->base, 255, 255, 160, 255);
             djui_text_set_alignment(message, DJUI_HALIGN_CENTER, DJUI_VALIGN_BOTTOM);
         } else {
-#endif
           #ifdef COMPILE_TIME
             struct DjuiText* version = djui_text_create(&panel->base, get_version_with_build_date());
           #else
@@ -72,9 +70,7 @@ void djui_panel_main_create(struct DjuiBase* caller) {
             djui_base_set_size(&version->base, 1.0f, 1.0f);
             djui_base_set_color(&version->base, 50, 50, 50, 255);
             djui_text_set_alignment(version, DJUI_HALIGN_RIGHT, DJUI_VALIGN_BOTTOM);
-#if defined(UPDATE_CHECKER)
         }
-#endif
     }
 
     djui_panel_add(caller, panel, NULL);

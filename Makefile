@@ -75,9 +75,6 @@ endif
 # Make some small adjustments for handheld devices
 HANDHELD ?= 0
 
-# Enable the update checker, keep off for android until it's fixed
-UPDATE_CHECKER ?= 0
-
 # Various workarounds for weird toolchains
 NO_BZERO_BCOPY ?= 0
 NO_LDIV ?= 0
@@ -372,13 +369,13 @@ OPT_FLAGS += $(BITS)
 
 TARGET := sm64.$(VERSION)
 
-# Stuff for showing the git hash in the intro on nightly builds
-# From https://stackoverflow.com/questions/44038428/include-git-commit-hash-and-or-branch-name-in-c-c-source
-#ifeq ($(shell git rev-parse --abbrev-ref HEAD),nightly)
-#  GIT_HASH=`git rev-parse --short HEAD`
-#  COMPILE_TIME=`date -u +'%Y-%m-%d %H:%M:%S UTC'`
-#  DEFINES += -DNIGHTLY -DGIT_HASH="\"$(GIT_HASH)\"" -DCOMPILE_TIME="\"$(COMPILE_TIME)\""
-#endif
+# Stuff for showing the git hash and build time in dev builds
+# Originally from https://stackoverflow.com/questions/44038428/include-git-commit-hash-and-or-branch-name-in-c-c-source
+ifneq ($(shell git rev-parse --abbrev-ref HEAD),main)
+  GIT_HASH=$(shell git rev-parse --short HEAD)
+  COMPILE_TIME=$(shell date -u +'%Y-%m-%d %H:%M:%S UTC')
+  C_DEFINES += -DGIT_HASH="\"$(GIT_HASH)\"" -DCOMPILE_TIME="\"$(COMPILE_TIME)\""
+endif
 
 
 # GRUCODE - selects which RSP microcode to use.
@@ -1052,12 +1049,10 @@ else
 endif
 
 # Update checker library
-ifeq ($(UPDATE_CHECKER),1)
-  ifeq ($(WINDOWS_BUILD),1)
-    LDFLAGS += -lwininet
-  else
-    LDFLAGS += -lcurl
-  endif
+ifeq ($(WINDOWS_BUILD),1)
+  LDFLAGS += -lwininet
+else
+  LDFLAGS += -lcurl
 endif
 
 # Lua
@@ -1231,12 +1226,6 @@ endif
 ifeq ($(HANDHELD),1)
   CC_CHECK_CFLAGS += -DHANDHELD
   CFLAGS += -DHANDHELD
-endif
-
-# Check for update checker option
-ifeq ($(UPDATE_CHECKER),1)
-  CC_CHECK_CFLAGS += -DUPDATE_CHECKER
-  CFLAGS += -DUPDATE_CHECKER
 endif
 
 # Check for no bzero/bcopy workaround option
