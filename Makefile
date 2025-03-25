@@ -1065,7 +1065,7 @@ else ifeq ($(TARGET_RPI),1)
     LDFLAGS += -Llib/lua/linux -l:liblua53-arm.a
   endif
 else ifeq ($(TARGET_ANDROID),1)
-  LDFLAGS += -L$(LIBLUA_DIR)/src -l:liblua.a # Precompile lua lib Later
+  LDFLAGS += -L$(LIBLUA_DIR)/src -l:liblua.a
 else ifeq ($(TARGET_RK3588),1)
   LDFLAGS += -Llib/lua/linux -l:liblua53-arm64.a
 else
