@@ -24,7 +24,7 @@ void djui_panel_controls_create(struct DjuiBase* caller) {
         djui_base_set_size(&n64bindsButton->base, 1.0f, 43);
         struct DjuiButton* extrabindsButton = djui_button_create(body, DLANG(CONTROLS, EXTRA_BINDS), DJUI_BUTTON_STYLE_NORMAL, djui_panel_controls_extra_create);
         djui_base_set_size(&extrabindsButton->base, 1.0f, 43);
-        struct DjuiButton* touchbindsButton = djui_button_create(body, "Touch Binds", DJUI_BUTTON_STYLE_NORMAL, djui_panel_shutdown_touchconfig);
+        struct DjuiButton* touchbindsButton = djui_button_create(body, DLANG(CONTROLS, TOUCH_BINDS), DJUI_BUTTON_STYLE_NORMAL, djui_panel_shutdown_touchconfig);
         djui_base_set_size(&touchbindsButton->base, 1.0f, 43);
         djui_checkbox_create(body, "Autohide Touch Controls", &configAutohideTouch, NULL);
         djui_checkbox_create(body, "Slide Touch", &configSlideTouch, NULL);
