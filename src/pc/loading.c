@@ -190,7 +190,7 @@ void render_rom_setup_screen(void) {
     if (!sLoading) { init_loading_screen(); }
 
 #ifdef TARGET_ANDROID
-    loading_screen_set_segment_text("No rom detected, place Super Mario 64 (U) [!].z64 in user folder.");
+    loading_screen_set_segment_text("No rom detected, place Super Mario 64 (U) [!].z64 in com.maniscat2.sm64coopdx or the user folder");
 #else
     loading_screen_set_segment_text("No rom detected, drag & drop Super Mario 64 (U) [!].z64 on to this screen");
 #endif
