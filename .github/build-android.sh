@@ -1,6 +1,6 @@
 #!/bin/bash
 
-yes | pkg upgrade -y # Upgrading Packages
+yes | pkg upgrade -y
 
 pkg install -y git wget make python getconf zip apksigner clang binutils libglvnd-dev aapt which patchelf curl # Installing Dependencies
 
