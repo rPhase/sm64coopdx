@@ -45,31 +45,14 @@ const Gfx dl_djui_simple_rect[] = {
 };
 
 f32 djui_gfx_get_scale(void) {
-#ifndef __ANDROID__
     if (configDjuiScale == 0) { // auto
         u32 windowWidth, windowHeight;
         wm_api->get_dimensions(&windowWidth, &windowHeight);
-        if (windowHeight < 768) {
-            return 0.5f;
-        } else if (windowHeight < 1440) {
-            return 1.0f;
-        } else {
-            return 1.5f;
-        }
-    } else {
-        switch (configDjuiScale) {
-            case 1:  return 0.5f;
-            case 2:  return 0.85f;
-            case 3:  return 1.0f;
-            case 4:  return 1.5f;
-            default: return 1.0f;
-        }
-    }
-#else
-    if (configDjuiScale == 0) { // auto
-        u32 windowWidth, windowHeight;
-        wm_api->get_dimensions(&windowWidth, &windowHeight);
+#ifdef __ANDROID__
         u32 correctHeight = windowHeight / 720.0f;
+#else
+        u32 correctHeight = windowHeight;
+#endif
         if (correctHeight < 768) {
             return 0.5f;
         } else if (correctHeight < 1440) {
@@ -86,7 +69,6 @@ f32 djui_gfx_get_scale(void) {
             default: return 1.0f;
         }
     }
-#endif
 }
 
 /////////////////////////////////////////////
