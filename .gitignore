@@ -95,9 +95,8 @@ tools/ido5.3_compiler/usr/lib/libc.so.1
 /.vs
 
 
-# Temp Android files - Planned for removal later
+# Android files
 !platform/android/android/**/*.so
-platform/android/android/lib/*/libc++_shared.so
-platform/android/android/lib/*/libmain.so
 lib/src/lua/src/lua
 lib/src/lua/src/luac
+!lib/coopnet/android/*.a
