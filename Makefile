@@ -504,8 +504,6 @@ LUA_PLATFORM := linux
 
 ZLIB_DIR := lib/src/zlib
 
-COOPNET_DIR := lib/src/coopnet
-
 # (This is a bit hacky, but a lot of rules implicitly depend
 # on tools and assets, and we use directory globs further down
 # in the makefile that we want should cover assets.)
@@ -534,14 +532,6 @@ ifeq ($(filter clean distclean print-%,$(MAKECMDGOALS)),)
     DUMMY != $(MAKE) -C $(ZLIB_DIR) libz.a >&2 || echo FAIL
     ifeq ($(DUMMY),FAIL)
       $(error Failed to build zlib)
-    endif
-  endif
-
-  # Make coopnet
-  ifeq ($(TARGET_ANDROID),1)
-    DUMMY != $(MAKE) -C $(COOPNET_DIR) >&2 || echo FAIL
-    ifeq ($(DUMMY),FAIL)
-      $(error Failed to build coopnet)
     endif
   endif
 
@@ -1108,7 +1098,7 @@ ifeq ($(COOPNET),1)
       LDFLAGS += -Llib/coopnet/linux -l:libcoopnet-arm.a -l:libjuice-arm.a
     endif
   else ifeq ($(TARGET_ANDROID),1)
-    LDFLAGS += -L$(COOPNET_DIR)/bin -L$(COOPNET_DIR)/lib/libjuice -l:libcoopnet.a -l:libjuice.a
+    LDFLAGS += -Llib/coopnet/linux -l:libcoopnet-arm64.a -l:libjuice-arm64.a
   else ifeq ($(TARGET_RK3588),1)
     LDFLAGS += -Llib/coopnet/linux -l:libcoopnet-arm64.a -l:libjuice.a
   else
@@ -1323,7 +1313,6 @@ clean:
 	$(RM) -r $(BUILD_DIR_BASE)
 	$(MAKE) -s -C $(LIBLUA_DIR) clean
 	$(MAKE) -s -C $(ZLIB_DIR) clean
-	$(MAKE) -s -C $(COOPNET_DIR) clean
 
 cleantools:
 	$(MAKE) -s -C $(TOOLS_DIR) clean
