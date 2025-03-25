@@ -5,7 +5,6 @@
 #include "pc/pc_main.h"
 #include "pc/utils/misc.h"
 #include "pc/configfile.h"
-#include "djui_panel_touch_control_settings.h" // TODO: Move this out of here and place it under Touch Controls and make it per buttons
 
 #define MSAA_ORIGINAL_UNSET ((u32)-1)
 
@@ -63,9 +62,6 @@ void djui_panel_display_create(struct DjuiBase* caller) {
     {
 #ifndef __ANDROID__
         djui_checkbox_create(body, DLANG(DISPLAY, FULLSCREEN), &configWindow.fullscreen, djui_panel_display_apply);
-#endif
-#ifdef TOUCH_CONTROLS
-        djui_button_create(body, "Touch Buttons Graphics", DJUI_BUTTON_STYLE_NORMAL, djui_panel_touchcontrol_settings_create);
 #endif
         djui_checkbox_create(body, DLANG(DISPLAY, SHOW_FPS), &configShowFPS, NULL);
         djui_checkbox_create(body, DLANG(DISPLAY, VSYNC), &configWindow.vsync, djui_panel_display_apply);
