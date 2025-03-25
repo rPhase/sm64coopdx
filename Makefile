@@ -137,21 +137,6 @@ ifneq ($(shell which termux-setup-storage),)
   TARGET_ANDROID := 1
 endif
 
-# If parent folder is the gradle repository for Android, 
-# copy mods and lang files to assets for later gradle build
-ifneq ($(shell ls ../../src/main/),)
-  DUMMY != mkdir -p ../../src/main/assets && \
-           cp -r mods ../../src/main/assets/ && \
-           cp -r lang ../../src/main/assets/ && \
-           cp -r palettes ../../src/main/assets/ && \
-           cp -r dynos ../../src/main/assets/
-endif
-
-# Attempt to detect 32-bit
-ifneq ($(shell uname -m | grep -e i386 -e i686 -e arm -e armhf -e armv6l -e armv7l -e armv8l -e armv8b),)
-  TARGET_BITS = 32
-endif
-
 ifeq ($(HOST_OS),Linux)
   machine = $(shell sh -c 'uname -m 2>/dev/null || echo unknown')
   ifneq (,$(findstring aarch64,$(machine)))
@@ -177,6 +162,7 @@ ifeq ($(TARGET_ANDROID),1)
   CONTROLLER_API := SDL2
   TOUCH_CONTROLS := 1
   DISCORD_SDK := 0
+  HANDHELD := 1
 endif
 
 ifeq ($(WINDOWS_BUILD),1)
