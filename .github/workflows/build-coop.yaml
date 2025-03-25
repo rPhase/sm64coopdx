@@ -151,22 +151,15 @@ jobs:
                   chmod -R o+x ${PREFIX}/bin
                   /entrypoint.sh pkg install -y nodejs-lts
                   ln -sf ${PREFIX}/bin /__e/node20/bin
-            - uses: actions/checkout@v4.2.2
+
+            - name: Checkout repository
+              uses: actions/checkout@v4.2.2
 
             - name: Reset permissions
               run: chown -R 1000:1000 .
 
             - name: Build the game
-              run: |
-                  /entrypoint.sh yes | pkg upgrade -y
-                  /entrypoint.sh pkg install -y git wget make python getconf zip apksigner clang binutils libglvnd-dev aapt which patchelf curl
-                  /entrypoint.sh pkg reinstall -y libglvnd
-                  /entrypoint.sh rm $PREFIX/lib/libGLESv2.so
-                  /entrypoint.sh rm $PREFIX/lib/libGLESv2.so.2
-                  /entrypoint.sh mv $PREFIX/lib/libGLESv2.so.2.1.0 $PREFIX/lib/libGLESv2.so
-                  /entrypoint.sh patchelf --set-soname libGLESv2.so $PREFIX/lib/libGLESv2.so
-                  /entrypoint.sh patchelf --set-soname libcurl.so $PREFIX/lib/libcurl.so
-                  /entrypoint.sh make
+              run: /entrypoint.sh .github/build-android.sh
 
             - name: Upload artifact
               uses: actions/upload-artifact@v4
