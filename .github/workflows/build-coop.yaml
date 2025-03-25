@@ -144,21 +144,29 @@ jobs:
             LANG: en_US.UTF-8
             TZ: UTC
         steps:
-            - name: Set pkg command to use the packages-cf.termux.dev mirror
-              run: ln -sf ${PREFIX}/etc/termux/mirrors/default ${PREFIX}/etc/termux/chosen_mirrors
-            - name: Upgrade all packages to prepare for installing nodejs
-              run: /entrypoint.sh bash -c "yes | pkg upgrade -y"
-            - name: Fix executable bit for all binaries in $PREFIX/bin for all users
-              run: chmod -R o+x ${PREFIX}/bin
-            - name: Install bionic-libc nodejs to force compatibility with actions/checkout and actions/upload-artifact
+            - name: Install dependencies
               run: |
+                  ln -sf ${PREFIX}/etc/termux/mirrors/default ${PREFIX}/etc/termux/chosen_mirrors
+                  /entrypoint.sh bash -c "yes | pkg upgrade -y"
+                  chmod -R o+x ${PREFIX}/bin
                   /entrypoint.sh pkg install -y nodejs-lts
                   ln -sf ${PREFIX}/bin /__e/node20/bin
             - uses: actions/checkout@v4.2.2
-            - name: Fix permissions of repository after actions/checkout, which ran as root user
+
+            - name: Reset permissions
               run: chown -R 1000:1000 .
-            - name: Build
-              run: /entrypoint.sh .github/build-android.sh
+
+            - name: Build the game
+              run: |
+                  /entrypoint.sh yes | pkg upgrade -y
+                  /entrypoint.sh pkg install -y git wget make python getconf zip apksigner clang binutils libglvnd-dev aapt which patchelf curl
+                  /entrypoint.sh pkg reinstall -y libglvnd
+                  /entrypoint.sh rm $PREFIX/lib/libGLESv2.so
+                  /entrypoint.sh rm $PREFIX/lib/libGLESv2.so.2
+                  /entrypoint.sh mv $PREFIX/lib/libGLESv2.so.2.1.0 $PREFIX/lib/libGLESv2.so
+                  /entrypoint.sh patchelf --set-soname libGLESv2.so $PREFIX/lib/libGLESv2.so
+                  /entrypoint.sh patchelf --set-soname libcurl.so $PREFIX/lib/libcurl.so
+                  /entrypoint.sh make
 
             - name: Upload artifact
               uses: actions/upload-artifact@v4
