@@ -179,7 +179,7 @@ jobs:
                   name: libc++-${{ matrix.architecture }}
                   path: ${{ env.PREFIX }}/lib/libc++_shared.so
                   
-    generate-apk:
+    generate-android-apk:
         if: ${{ github.event_name == 'workflow_dispatch' || contains(github.event.head_commit.message, '[build]') }}
         needs: build-android
         runs-on: ubuntu-latest
@@ -199,7 +199,7 @@ jobs:
               with:
                   name: libc++-aarch64
                   path: platform/android/android/lib/arm64-v8a
-            - name: Generate Merged APK
+            - name: Generate APK
               run: |
                   mkdir platform/android/android/assets/
                   cp -r {mods,lang,palettes,dynos} platform/android/android/assets/
