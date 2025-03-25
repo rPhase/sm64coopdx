@@ -404,13 +404,13 @@ const char *sys_exe_path_dir(void) {
 }
 
 const char *sys_exe_path_file(void) {
-#ifdef __ANDROID__
-    return ".";
-#endif
     static char path[SYS_MAX_PATH];
     if ('\0' != path[0]) { return path; }
 
-#if defined(__APPLE__)
+#if defined(__ANDROID__)
+    ssize_t res = readlink("/proc/self/exe", path, SYS_MAX_PATH);
+
+#elif defined(__APPLE__)
     uint32_t bufsize = SYS_MAX_PATH;
     int res = _NSGetExecutablePath(path, &bufsize);
 
