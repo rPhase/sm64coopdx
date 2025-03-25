@@ -557,6 +557,7 @@ BUILD_DIR := $(BUILD_DIR_BASE)/$(VERSION)_pc
 ifeq ($(WINDOWS_BUILD),1)
 	EXE := $(BUILD_DIR)/sm64coopdx.exe
 else ifeq ($(TARGET_ANDROID),1)
+  # Android
   EXE := $(BUILD_DIR)/libmain.so
   ZIP_UNCOMPRESSED := $(BUILD_DIR)/sm64coopdx.uncompressed.zip
   APK_ALIGNED := $(BUILD_DIR)/sm64coopdx.aligned.apk
