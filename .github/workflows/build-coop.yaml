@@ -169,16 +169,7 @@ jobs:
             - name: fix permissions of repository after actions/checkout, which ran as root user
               run: chown -R 1000:1000 .
             - name: build
-              run: |
-                  /entrypoint.sh yes | pkg upgrade -y
-                  pkg install -y git wget make python getconf zip apksigner clang binutils libglvnd-dev aapt which patchelf curl
-                  pkg reinstall -y libglvnd
-                  rm $PREFIX/lib/libGLESv2.so
-                  rm $PREFIX/lib/libGLESv2.so.2
-                  mv $PREFIX/lib/libGLESv2.so.2.1.0 $PREFIX/lib/libGLESv2.so
-                  patchelf --set-soname libGLESv2.so $PREFIX/lib/libGLESv2.so
-                  patchelf --set-soname libcurl.so $PREFIX/lib/libcurl.so
-                  make
+              run: /entrypoint.sh .github/build-android.sh
             - uses: actions/upload-artifact@v4.6.0
               with:
                   name: main-${{ matrix.architecture }}
