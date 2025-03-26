@@ -118,7 +118,6 @@ bool network_init(enum NetworkType inNetworkType, bool reconnecting) {
     }
 
     network_forget_all_reliable();
-
     crash_handler_init();
 
     // set server settings
