@@ -735,7 +735,6 @@ static const struct BuiltinTexInfo sDynosBuiltinTexs[] = {
     define_builtin_tex(texture_touch_snap, "textures/touchcontrols/touch_button_snap.rgba16.png", 16, 16, 16),
     define_builtin_tex(texture_touch_snap_pressed, "textures/touchcontrols/touch_button_snap_pressed.rgba16.png", 16, 16, 16),
     define_builtin_tex(texture_touch_trash, "textures/touchcontrols/touch_trash.rgba16.png", 16, 16, 16),
-
 #endif
     define_builtin_tex(texture_credits_char_3, "textures/segment2/segment2.06200.rgba16.png", 8, 8, 16),
     define_builtin_tex(texture_credits_char_4, "textures/segment2/segment2.06280.rgba16.png", 8, 8, 16),
