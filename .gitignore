@@ -76,7 +76,6 @@ sm64config.txt
 !/textures/**/*custom*.png
 !/textures/**/*custom*/**/*.png
 !/textures/touchcontrols/*.png
-!/textures/touchcontrols/excoop/*.png
 !/sound/**/*custom*.m64
 !/sound/**/*custom*/**/*.m64
 !/sound/**/*custom*.aiff

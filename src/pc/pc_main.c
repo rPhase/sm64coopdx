@@ -426,7 +426,48 @@ void* main_game_init(UNUSED void* dummy) {
 
 #ifdef TARGET_ANDROID
 
-#define FS_BASEDIR "res"
+struct BuiltinMod {
+    const char* name;
+    bool dir;
+};
+
+//every builtin mod needs to be in here, otherwise if the mod updates some things may break
+struct BuiltinMod builtin_mods[] = {
+    {"arena", true},
+    {"char-select-cjes-and-vl", true},
+    {"char-select-extra-chars", true},
+    {"character-select-coop", true},
+    {"day-night-cycle", true},
+    {"sm74", true},
+    {"star-road", true},
+    {"cheats.lua", false},
+    {"faster-swimming.lua", false},
+    {"hide-and-seek.lua", false},
+    {"personal-starcount-ex.lua", false}
+};
+
+void delete_builtin_mod(const char* name, bool dir) {
+    char moddir[SYS_MAX_PATH] = { 0 };
+    const char *basedir = sys_resource_path();
+
+    snprintf(moddir, SYS_MAX_PATH, "%s/%s/%s", basedir, "mods", name);
+
+    if (dir) {
+        if (fs_sys_dir_exists(moddir)) {
+            fs_sys_rmdir(moddir);
+        } else {
+            LOG_ERROR("Mod directory '%s' doesn't exist!", moddir);
+        }
+    } else {
+        if (fs_sys_file_exists(moddir)) {
+            if (unlink(moddir) == -1) {
+                LOG_ERROR("Failed to remove file '%s'", moddir);
+            }
+        } else {
+            LOG_ERROR("Mod file '%s' doesn't exist!", moddir);
+        }
+    }
+}
 
 int SDL_main(int argc, char *argv[]) {
 #else
@@ -434,18 +475,22 @@ int main(int argc, char *argv[]) {
 #endif
 
 // create com.maniscat2.sm64coopdx folder
-
 #ifdef TARGET_ANDROID
     char gamedir[SYS_MAX_PATH] = { 0 };
-    char nomedia[SYS_MAX_PATH] = { 0 };
     const char *basedir = get_gamedir();
-    snprintf(nomedia, SYS_MAX_PATH, "%s/%s", basedir, ".nomedia"); // The `.nomedia` folder prevents media from beind detected in apps like the gallery
-    snprintf(gamedir, SYS_MAX_PATH, "%s/%s", basedir, FS_BASEDIR);
+
+    snprintf(gamedir, SYS_MAX_PATH, "%s/%s", basedir, ".nomedia"); // the `.nomedia` folder prevents media from beind detected in apps like the gallery
     if (stat(gamedir, NULL) == -1) {
         mkdir(gamedir, 0770);
-        mkdir(nomedia, 0770);
     }
-    // TODO: some way to inhibit this on launch if the apk doesn't contain updated/differing files?
+
+    // delete and copy new stuff
+    for (s32 i = 0; i < ARRAY_COUNT(builtin_mods); i++) {
+        if (builtin_mods[i].dir) {
+            delete_builtin_mod(builtin_mods[i].name, builtin_mods[i].dir);
+        }
+    }
+
     SDL_AndroidCopyAssetFilesToDir(basedir);
 #endif
 
@@ -478,9 +523,9 @@ int main(int argc, char *argv[]) {
     fs_init(gCLIOpts.savePath[0] ? gCLIOpts.savePath : sys_user_path());
 #endif
 
+#ifndef __ANDROID__
 #if !defined(RAPI_DUMMY) && !defined(WAPI_DUMMY)
     if (gCLIOpts.headless) {
-#ifndef __ANDROID__
         memcpy(&WAPI, &gfx_dummy_wm_api, sizeof(struct GfxWindowManagerAPI));
         memcpy(&RAPI, &gfx_dummy_renderer_api, sizeof(struct GfxRenderingAPI));
 #endif
