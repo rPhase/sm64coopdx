@@ -475,11 +475,11 @@ static int smlua__get_field(lua_State* L) {
 
     const CObject *cobj = lua_touserdata(L, 1);
     enum LuaObjectType lot = cobj->lot;
-    #ifdef TARGET_ANDROID
+#ifdef TARGET_ANDROID
     u64 pointer = (u64)(uintptr_t) cobj->pointer;
-    #else
+#else
     u64 pointer = (u64)(intptr_t) cobj->pointer;
-    #endif
+#endif
 
     if (cobj->freed) {
         LOG_LUA_LINE("_get_field on freed object");
@@ -582,11 +582,11 @@ static int smlua__set_field(lua_State* L) {
 
     const CObject *cobj = lua_touserdata(L, 1);
     enum LuaObjectType lot = cobj->lot;
-    #ifdef TARGET_ANDROID
+#ifdef TARGET_ANDROID
     u64 pointer = (u64)(uintptr_t) cobj->pointer;
-    #else
+#else
     u64 pointer = (u64)(intptr_t) cobj->pointer;
-    #endif
+#endif
 
     if (cobj->freed) {
         LOG_LUA_LINE("_set_field on freed object");

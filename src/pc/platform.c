@@ -408,7 +408,7 @@ const char *sys_exe_path_file(void) {
     if ('\0' != path[0]) { return path; }
 
 #if defined(__ANDROID__)
-    ssize_t res = readlink("/proc/self/exe", path, SYS_MAX_PATH);
+    ssize_t res = readlink("/proc/self/exe", path, SYS_MAX_PATH); //returns path to libmain.so on android
 
 #elif defined(__APPLE__)
     uint32_t bufsize = SYS_MAX_PATH;

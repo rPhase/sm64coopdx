@@ -497,9 +497,9 @@ void djui_interactable_hook_focus(struct DjuiBase* base,
     // on Android, if I don't make this change, the onscreen keyboard
     // does not automatically appear when the Player Name box is
     // touched
-    #ifdef __ANDROID__
+#ifdef __ANDROID__
     if (on_focus_begin != NULL)
-    #endif
+#endif
     interactable->on_focus_begin = on_focus_begin;
     interactable->on_focus       = on_focus;
     interactable->on_focus_end   = on_focus_end;

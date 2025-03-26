@@ -130,9 +130,9 @@ static void gfx_sdl_init(const char *window_title) {
     // This causes Android to show the onscreen keyboard
     // Haven't needed this instance on Android yet
     // gfx_sdl_start_text_input() gets called when needed
-    #ifndef __ANDROID__
+#ifndef __ANDROID__
     SDL_StartTextInput();
-    #endif
+#endif
 
     #ifdef TARGET_ANDROID
     SDL_SetHint(SDL_HINT_ORIENTATIONS, "LandscapeLeft LandscapeRight");
