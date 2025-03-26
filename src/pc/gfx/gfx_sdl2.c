@@ -134,9 +134,9 @@ static void gfx_sdl_init(const char *window_title) {
     SDL_StartTextInput();
 #endif
 
-    #ifdef TARGET_ANDROID
+#ifdef TARGET_ANDROID
     SDL_SetHint(SDL_HINT_ORIENTATIONS, "LandscapeLeft LandscapeRight");
-    #endif
+#endif
 
     if (configWindow.msaa > 0) {
         SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
