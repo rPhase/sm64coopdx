@@ -14,7 +14,7 @@ static struct DjuiSlider *sSliderG = NULL;
 static struct DjuiSlider *sSliderB = NULL;
 
 void djui_panel_touch_controls_create(struct DjuiBase* caller) {
-    struct DjuiThreePanel* panel = djui_panel_menu_create(DLANG(CONTROLS, TOUCH_CONTROLS_PANEL), false); //use TOUCH_CONTROLS_PANEL to fix stuff in russian and stuff
+    struct DjuiThreePanel* panel = djui_panel_menu_create(DLANG(CONTROLS, TOUCH_CONTROLS), false);
     struct DjuiBase* body = djui_three_panel_get_body(panel);
     {
         sSliderR = djui_slider_create(body, DLANG(PLAYER, RED), &configTouchControlRed, 0, 255, NULL);

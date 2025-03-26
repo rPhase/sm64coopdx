@@ -25,7 +25,7 @@ void djui_panel_controls_create(struct DjuiBase* caller) {
         djui_base_set_size(&n64bindsButton->base, 1.0f, 43);
         struct DjuiButton* extrabindsButton = djui_button_create(body, DLANG(CONTROLS, EXTRA_BINDS), DJUI_BUTTON_STYLE_NORMAL, djui_panel_controls_extra_create);
         djui_base_set_size(&extrabindsButton->base, 1.0f, 43);
-        struct DjuiButton* touchcontrolsButton = djui_button_create(body, DLANG(CONTROLS, TOUCH_CONTROLS), DJUI_BUTTON_STYLE_NORMAL, djui_panel_touch_controls_create);
+        struct DjuiButton* touchcontrolsButton = djui_button_create(body, DLANG(OPTIONS, TOUCH_CONTROLS), DJUI_BUTTON_STYLE_NORMAL, djui_panel_touch_controls_create);
         djui_base_set_size(&touchcontrolsButton->base, 1.0f, 43);
 #else
         djui_button_create(body, DLANG(CONTROLS, N64_BINDS), DJUI_BUTTON_STYLE_NORMAL, djui_panel_controls_n64_create);
