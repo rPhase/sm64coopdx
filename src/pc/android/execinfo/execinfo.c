@@ -28,7 +28,7 @@
 #if defined(__ANDROID__)
 #include <dlfcn.h>
 #include <errno.h>
-#include <execinfo.h>
+#include "execinfo.h"
 #include <fcntl.h>
 #include <inttypes.h>
 #include <paths.h>
