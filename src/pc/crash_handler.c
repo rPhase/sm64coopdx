@@ -131,7 +131,11 @@ static ULONG CaptureStackWalkBackTrace(CONTEXT* ctx, DWORD FramesToSkip, DWORD F
 
 #elif __linux__
 
+#ifdef __ANDROID__
+#define OS_NAME "Android"
+#else
 #define OS_NAME "Linux"
+#endif
 
 #if IS_64_BIT
     #define CRASH_HANDLER_TYPE LONG
@@ -151,7 +155,7 @@ static ULONG CaptureStackWalkBackTrace(CONTEXT* ctx, DWORD FramesToSkip, DWORD F
 
 #include <signal.h>
 #ifdef __ANDROID__
-#include "pc/android/execinfo/execinfo.h"
+#include "pc/android/execinfo/android_execinfo.h"
 #else
 #include <execinfo.h>
 #endif
