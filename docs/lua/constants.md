@@ -650,7 +650,9 @@
 | id_editor_Scroll_Texture | 536 |
 | id_bhvBlueCoinNumber | 537 |
 | id_bhvStarNumber | 538 |
-| id_bhv_max_count | 539 |
+| id_bhvAmbientLight | 539 |
+| id_bhvPointLight | 540 |
+| id_bhv_max_count | 541 |
 
 [:arrow_up_small:](#)
 
@@ -4705,6 +4707,8 @@
 - HAZARD_TYPE_LAVA_FLOOR
 - HAZARD_TYPE_LAVA_WALL
 - HAZARD_TYPE_QUICKSAND
+- HAZARD_TYPE_HORIZONTAL_WIND
+- HAZARD_TYPE_VERTICAL_WIND
 - SURFACE_0004
 - SURFACE_BOSS_FIGHT_CAMERA
 - SURFACE_BURNING
