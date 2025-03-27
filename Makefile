@@ -392,7 +392,13 @@ endif
 
 ifeq ($(TARGET_RPI),1) # Define RPi to change SDL2 title & GLES2 hints
   DEFINES += USE_GLES=1
-else ifeq ($(TARGET_ANDROID),1)
+endif
+
+ifeq ($(TARGET_RK3588),1) # Define RK3588 to change SDL2 title & GLES2 hints
+  DEFINES += USE_GLES=1
+endif
+
+ifeq ($(TARGET_ANDROID),1) # Define Android to change SDL2 title & GLES2 hints
   DEFINES += TARGET_ANDROID=1 USE_GLES=1 _LANGUAGE_C=1
 endif
 
