@@ -69,8 +69,8 @@ enum ConfigControlConfigElementIndex {
 };
 
 typedef struct {
-    u32 x[MAX_BINDS], y[MAX_BINDS], size[MAX_BINDS];
-    enum ConfigControlElementAnchor anchor[MAX_BINDS];
+    u32 x, y, size;
+    enum ConfigControlElementAnchor anchor;
 } ConfigControlElement;
 
 extern ConfigControlElement configControlElements[];
