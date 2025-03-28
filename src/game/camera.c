@@ -10913,7 +10913,12 @@ BAD_RETURN(s32) cutscene_door_mode(struct Camera *c) {
 }
 
 // coop specific
+#ifdef TOUCH_CONTROLS
+extern struct DjuiButton* gDjuiPaletteToggle;
+extern bool gToggleWearCap;
+#else
 extern struct DjuiText* gDjuiPaletteToggle;
+#endif
 void cutscene_palette_editor(struct Camera *c) {
     if (!c) { return; }
     struct MarioState* m = gMarioState;
@@ -10939,7 +10944,12 @@ void cutscene_palette_editor(struct Camera *c) {
 
     // Press the Z bind to toggle cap
     static bool pressed = false;
+#ifdef TOUCH_CONTROLS
+    if (gToggleWearCap) {
+        gToggleWearCap = false;
+#else
     if (gInteractablePad.button & PAD_BUTTON_Z) {
+#endif 
         if (!pressed && m->action == ACT_IDLE) {
             if (m->flags & MARIO_CAP_ON_HEAD) {
                 set_mario_action(m, ACT_TAKING_OFF_CAP, 1); // Add palette editor action arg
