@@ -1095,7 +1095,7 @@ ifeq ($(IS_DEV_OR_DEBUG),0)
   endif
 endif
 
-ifneq ($(TARGET_ANDROID),1)
+ifneq ($(TARGET_ANDROID),1) # fPIE causes random errors in geo_layout.c
   # Enable ASLR
   CFLAGS += -fPIE
 endif
