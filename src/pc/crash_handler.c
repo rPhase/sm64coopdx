@@ -364,7 +364,7 @@ static void crash_handler(const int signalNum, siginfo_t *info, UNUSED ucontext_
 
     // Registers
     crash_handler_set_text(8, 22, 0xFF, 0xFF, 0xFF, "%s", "Registers:");
-#if defined(_WIN32) || (defined(__linux__) && defined(__x86_64__))
+#if defined(_WIN32) || (defined(__linux__) && defined(__x86_64__)) || (defined(__ANDROID__) && defined(__aarch64__))
 #ifdef _WIN32
     if (ExceptionInfo && ExceptionInfo->ContextRecord) {
         PCONTEXT cr = ExceptionInfo->ContextRecord;
@@ -405,7 +405,7 @@ static void crash_handler(const int signalNum, siginfo_t *info, UNUSED ucontext_
         crash_handler_set_text( 8, 62, 0xFF, 0xFF, 0xFF,   "DR0: 0x%016llX", (PTR)cr->Dr0);
         crash_handler_set_text(-1, 62, 0xFF, 0xFF, 0xFF, "  DR1: 0x%016llX", (PTR)cr->Dr1);
 #endif
-#elif __linux__
+#elif defined(__linux__) || defined(__ANDROID__)
     if (context->uc_mcontext.gregs[REG_RSP] != 0) {
 #if IS_64_BIT
         crash_handler_set_text( 8, 30, 0xFF, 0xFF, 0xFF,   "RSP: 0x%016llX", context->uc_mcontext.gregs[REG_RSP]);
