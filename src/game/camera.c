@@ -42,6 +42,7 @@
 
 static u8 sSoftResettingCamera = FALSE;
 u8 gCameraUseCourseSpecificSettings = TRUE;
+u8 CCSSChangedByMod = FALSE;
 u8 gOverrideFreezeCamera = FALSE;
 u8 gOverrideAllowToxicGasCamera = FALSE;
 
@@ -69,6 +70,8 @@ void romhack_camera_reset_settings(void) {
     gRomhackCameraSettings.zoomedInHeight = 300;
     gRomhackCameraSettings.zoomedOutHeight = 450;
     gRomhackCameraSettings.modsOnly = FALSE;
+    gCameraUseCourseSpecificSettings = TRUE;
+    CCSSChangedByMod = FALSE;
 }
 
 /**
@@ -532,11 +535,6 @@ void skip_camera_interpolation(void) {
     gLakituState.skipCameraInterpolationTimestamp = gGlobalTimer;
     extern s32 gCamSkipInterp;
     gCamSkipInterp = 1;
-}
-
-static void set_gcamera(struct Camera *c) {
-    gCamera = c;
-    if (gCameraCObject != NULL) { gCameraCObject->pointer = c; }
 }
 
 /**
@@ -3175,7 +3173,7 @@ void update_camera(struct Camera *c) {
     if (!c) { return; }
     UNUSED u8 unused[24];
 
-    set_gcamera(c);
+    gCamera = c;
     update_camera_hud_status(c);
 
     if ((gOverrideFreezeCamera || get_first_person_enabled()) && !gDjuiInMainMenu) {
@@ -3417,7 +3415,7 @@ void soft_reset_camera(struct Camera* c) {
  */
 void reset_camera(struct Camera *c) {
     if (!c) { return; }
-    set_gcamera(c);
+    gCamera = c;
     gCameraMovementFlags = 0;
     s2ndRotateFlags = 0;
     sStatusFlags = 0;
@@ -12181,6 +12179,7 @@ void obj_rotate_towards_point(struct Object *o, Vec3f point, s16 pitchOff, s16 y
 
 void camera_set_use_course_specific_settings(u8 enable) {
     gCameraUseCourseSpecificSettings = enable;
+    CCSSChangedByMod = TRUE;
 }
 
 #include "behaviors/intro_peach.inc.c"
@@ -12222,7 +12221,9 @@ void romhack_camera_init_settings(void) {
     }
 
     gRomhackCameraSettings.enable = override;
-    gCameraUseCourseSpecificSettings = (dynos_level_is_vanilla_level(gCurrLevelNum));
+    if (!CCSSChangedByMod) {
+        gCameraUseCourseSpecificSettings = dynos_level_is_vanilla_level(gCurrLevelNum);
+    }
     gRomhackCameraSettings.collisions = configRomhackCameraHasCollision;
     gRomhackCameraSettings.centering = configRomhackCameraHasCentering;
     gRomhackCameraSettings.dpad = configRomhackCameraDPadBehavior;

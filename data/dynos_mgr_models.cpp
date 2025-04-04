@@ -65,40 +65,40 @@ void DynOS_Model_Dump() {
 
 static struct GraphNode* DynOS_Model_LoadCommonInternal(u32* aId, enum ModelPool aModelPool, void* aAsset, u8 aLayer, struct GraphNode* aGraphNode, bool aDeDuplicate, enum ModelLoadType mlt) {
     // sanity check pool
-    if (aModelPool >= MODEL_POOL_MAX) { return NULL; }
+    if (aModelPool < 0 || aModelPool >= MODEL_POOL_MAX) { return NULL; }
 
     // allocate pool
     if (!sModelPools[aModelPool]) {
         sModelPools[aModelPool] = dynamic_pool_init();
     }
 
-    // check perm map
-    auto& permMap = sAssetMap[MODEL_POOL_PERMANENT];
-    if (aDeDuplicate && permMap.count(aAsset)) {
-        auto& found = permMap[aAsset];
-        if (*aId && *aId == found.id) {
-            return found.graphNode;
-        }
-        if (*aId == 0) {
+    // check maps, permanent pool is always checked
+    for (int i = 0; i < MODEL_POOL_MAX; ++i) {
+        auto& map = sAssetMap[i];
+        if (aDeDuplicate && map.count(aAsset)) {
+            auto& found = map[aAsset];
+
+            // if the expected pool has a higher priority,
+            // we need to move the asset to the new pool
+            if (i > aModelPool) {
+                found.modelPool = aModelPool;
+                sAssetMap[aModelPool][aAsset] = found;
+                map.erase(aAsset);
+            }
+
+            if (i != MODEL_POOL_PERMANENT && *aId && *aId != found.id) {
+                sOverwriteMap[*aId] = found.id;
+            }
+
             *aId = found.id;
             return found.graphNode;
         }
+        if (i < aModelPool) { i = aModelPool; } // to force check permanent pool, and then skip to the expected pool
     }
-
-    // check map
-    auto& map = sAssetMap[aModelPool];
-    if (aDeDuplicate && map.count(aAsset)) {
-        auto& found = map[aAsset];
-        if (*aId && *aId != found.id) {
-            sOverwriteMap[*aId] = found.id;
-        }
-        *aId = found.id;
-        return found.graphNode;
-    }
-
-    sCurrModelDuplicates = new std::vector<void*>();
 
     // load geo
+    auto& map = sAssetMap[aModelPool];
+    sCurrModelDuplicates = new std::vector<void*>();
     struct GraphNode* node = NULL;
     switch (mlt) {
         case MLT_GEO:
@@ -266,6 +266,7 @@ Gfx *DynOS_Model_Duplicate_DisplayList(Gfx* aGfx) {
             u32 size = C0(cmd, 12, 8) * sizeof(Vtx);
             Vtx *vtxDuplicate = (Vtx *) malloc(size);
             memcpy(vtxDuplicate, (Vtx *) cmd->words.w1, size);
+            DynOS_Find_Pending_Scroll_Target((Vtx *) cmd->words.w1, vtxDuplicate);
             cmd->words.w1 = (uintptr_t) vtxDuplicate;
             sCurrModelDuplicates->push_back(vtxDuplicate);
         }
