@@ -24,6 +24,7 @@
 #include "djui/djui_hud_utils.h"
 #include "game/save_file.h"
 #include "pc/network/network_player.h"
+#include "pc/pc_main.h"
 
 #define ARRAY_LEN(arr) (sizeof(arr) / sizeof(arr[0]))
 
@@ -201,6 +202,7 @@ bool         configMenuRandom                     = false;
 bool         configMenuDemos                      = false;
 bool         configDisablePopups                  = false;
 char         configLanguage[MAX_CONFIG_STRING]    = "";
+bool         configForce4By3                      = false;
 bool         configDynosLocalPlayerModelOnly      = false;
 unsigned int configPvpType                        = PLAYER_PVP_CLASSIC;
 // CoopNet settings
@@ -215,6 +217,7 @@ bool         configDjuiThemeCenter                = false;
 #else
 bool         configDjuiThemeCenter                = true;
 #endif
+bool         configDjuiThemeGradients             = true;
 unsigned int configDjuiThemeFont                  = FONT_NORMAL;
 #ifdef __ANDROID__
 unsigned int configDjuiScale                      = 4;
@@ -455,6 +458,7 @@ static const struct ConfigOption options[] = {
     {.name = "touch_phantom",            .type = CONFIG_TYPE_BOOL, .boolValue = &configPhantomTouch},
     {.name = "touch_snap",               .type = CONFIG_TYPE_BOOL, .boolValue = &configElementSnap},
 #endif
+    {.name = "force_4by3",                     .type = CONFIG_TYPE_BOOL,   .boolValue   = &configForce4By3},
     {.name = "dynos_local_player_model_only",  .type = CONFIG_TYPE_BOOL,   .boolValue   = &configDynosLocalPlayerModelOnly},
     // CoopNet settings
     {.name = "coopnet_ip",                     .type = CONFIG_TYPE_STRING, .stringValue = (char*)&configCoopNetIp, .maxStringLength = MAX_CONFIG_STRING},
@@ -464,6 +468,7 @@ static const struct ConfigOption options[] = {
     // DJUI settings
     {.name = "djui_theme",                     .type = CONFIG_TYPE_UINT,   .uintValue   = &configDjuiTheme},
     {.name = "djui_theme_center",              .type = CONFIG_TYPE_BOOL,   .boolValue   = &configDjuiThemeCenter},
+    {.name = "djui_theme_gradients",           .type = CONFIG_TYPE_BOOL,   .boolValue   = &configDjuiThemeGradients},
     {.name = "djui_theme_font",                .type = CONFIG_TYPE_UINT,   .uintValue   = &configDjuiThemeFont},
     {.name = "djui_scale",                     .type = CONFIG_TYPE_UINT,   .uintValue   = &configDjuiScale},
     // other
@@ -892,6 +897,8 @@ NEXT_OPTION:
 
     if (configFrameLimit < 30)   { configFrameLimit = 30; }
     if (configFrameLimit > 3000) { configFrameLimit = 3000; }
+    
+    gMasterVolume = (f32)configMasterVolume / 127.0f;
 
     if (configPlayerModel >= CT_MAX) { configPlayerModel = 0; }
 
