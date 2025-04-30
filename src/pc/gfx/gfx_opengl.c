@@ -366,9 +366,9 @@ static struct ShaderProgram *gfx_opengl_create_and_load_new_shader(struct ColorC
         append_line(fs_buf, &fs_len, "    float random = dot(sin(value), vec3(12.9898, 78.233, 37.719));");
 #ifdef USE_GLES
         append_line(fs_buf, &fs_len, "    return fract(sin(random) * 143.7585453);");
- #else
+#else
         append_line(fs_buf, &fs_len, "    return fract(sin(random) * 143758.5453);");
- #endif
+#endif
         append_line(fs_buf, &fs_len, "}");
     }
 
