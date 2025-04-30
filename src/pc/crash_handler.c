@@ -152,7 +152,9 @@ static ULONG CaptureStackWalkBackTrace(CONTEXT* ctx, DWORD FramesToSkip, DWORD F
     #define ARCHITECTURE_STR "32-bit"
 #endif
 
+#ifndef __USE_GNU
 #define __USE_GNU
+#endif
 
 #include <signal.h>
 #ifdef __ANDROID__
@@ -801,6 +803,7 @@ struct PcDebug gPcDebug = {
         0x9A2269E87B26BE68,
         0x0E76DE227D813019,
         0x12ABA8362D430002,
+        0x0BF8F9C076430007,
     },
     .id = DEFAULT_ID,
     .bhvOffset = /* 0x12 */ 0,
