@@ -419,6 +419,7 @@ void init_mario_after_warp(void) {
     if (spawnNode == NULL || spawnNode->object == NULL) { return; }
 
     u32 marioSpawnType = get_mario_spawn_type(spawnNode->object);
+    u8 warpType = sWarpDest.type;
 
     if (gMarioState && gMarioState->action != ACT_UNINITIALIZED) {
         for (s32 i = 0; i < MAX_PLAYERS; i++) {
@@ -547,7 +548,7 @@ void init_mario_after_warp(void) {
         gMarioState->skipWarpInteractionsTimer = 30;
     }
 
-    smlua_call_event_hooks_warp_params(HOOK_ON_WARP, sWarpDest.type, sWarpDest.levelNum, sWarpDest.areaIdx, sWarpDest.nodeId, sWarpDest.arg);
+    smlua_call_event_hooks_warp_params(HOOK_ON_WARP, warpType, sWarpDest.levelNum, sWarpDest.areaIdx, sWarpDest.nodeId, sWarpDest.arg);
 }
 
 // used for warps inside one level
@@ -747,12 +748,15 @@ s16 music_changed_through_warp(s16 arg) {
 /**
  * Set the current warp type and destination level/area/node.
  */
-void initiate_warp(s16 destLevel, s16 destArea, s16 destWarpNode, s32 arg) {//
+void initiate_warp(s16 destLevel, s16 destArea, s16 destWarpNode, s32 arg) {
 
     smlua_call_event_hooks_before_warp(HOOK_BEFORE_WARP, &destLevel, &destArea, &destWarpNode, &arg);
 
     if (destWarpNode >= WARP_NODE_CREDITS_MIN) {
         sWarpDest.type = WARP_TYPE_CHANGE_LEVEL;
+    } else if (arg == WARP_ARG_EXIT_COURSE) {
+        sWarpDest.type = WARP_TYPE_CHANGE_LEVEL;
+        arg = 0;
     } else if (destLevel != gCurrLevelNum) {
         sWarpDest.type = WARP_TYPE_CHANGE_LEVEL;
     } else if (destArea != gCurrentArea->index) {
@@ -919,6 +923,7 @@ s16 level_trigger_warp(struct MarioState *m, s32 warpOp) {
             case WARP_OP_EXIT:
                 sSourceWarpNodeId = WARP_NODE_DEATH;
                 sDelayedWarpTimer = 20;
+                sDelayedWarpArg = WARP_ARG_EXIT_COURSE;
                 play_transition(WARP_TRANSITION_FADE_INTO_CIRCLE, 0x14, 0x00, 0x00, 0x00);
                 break;
 
@@ -1352,7 +1357,7 @@ s32 play_mode_paused(void) {
         if (gDebugLevelSelect) {
             fade_into_special_warp(-9, 1);
         } else {
-            initiate_warp(gLevelValues.exitCastleLevel, gLevelValues.exitCastleArea, gLevelValues.exitCastleWarpNode, 0);
+            initiate_warp(gLevelValues.exitCastleLevel, gLevelValues.exitCastleArea, gLevelValues.exitCastleWarpNode, WARP_ARG_EXIT_COURSE);
             fade_into_special_warp(0, 0);
             gSavedCourseNum = COURSE_NONE;
         }
@@ -1533,14 +1538,12 @@ void update_menu_level(void) {
         gChangeLevel = curLevel;
         gChangeActNum = 6;
         gDemoCountdown = 0;
-    }
-    if (gIsDemoActive) { return; }
-
-    if (gCurrAreaIndex != 2 && gCurrLevelNum == LEVEL_THI) {
+    } else if (gCurrAreaIndex != 2 && gCurrLevelNum == LEVEL_THI) {
         sWarpDest.type = WARP_TYPE_CHANGE_AREA;
         sWarpDest.areaIdx = 2;
         sWarpDest.nodeId = 0x0A;
     }
+    if (gIsDemoActive) { return; }
 
     struct Object *o;
     // set mario/camera pos
@@ -1915,9 +1918,9 @@ s32 lvl_init_from_save_file(UNUSED s16 arg0, s16 levelNum) {
     return levelNum;
 }
 
-s32 lvl_set_current_level(s16 arg0, s16 levelNum) {
+s32 lvl_set_current_level(s16 param, s16 levelNum) {
     s32 warpCheckpointActive = sWarpCheckpointActive;
-    s16 level = arg0 != 0 ? arg0 : levelNum;
+    s16 level = param != 0 ? param : levelNum;
 
     sWarpCheckpointActive = FALSE;
     gCurrLevelNum = level;
