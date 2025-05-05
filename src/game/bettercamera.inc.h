@@ -430,15 +430,15 @@ static void newcam_rotate_button(void) {
     }
 
     if ((newcam_mouse == 1) && !gDjuiInMainMenu && !gDjuiChatBoxFocus && !gDjuiConsoleFocus) {
-        #ifdef TOUCH_CONTROLS // In the future, check if touch controls exist instead of checking for the TOUCH_CONTROLS define
+#ifdef TOUCH_CONTROLS // In the future, check if touch controls exist instead of checking for the TOUCH_CONTROLS define
         newcam_yaw += ivrt(0) * touch_x * 2 * configFreeCameraXSens;
         newcam_tilt += ivrt(1) * touch_y * 2 * configFreeCameraYSens;
-        #else
+#else
         if (!newcam_use_dpad || !newcam_direction_locked) {
             newcam_yaw += (f32)ivrt(0) * (f32)mouse_x * 16.0f * ((f32)newcam_sensitivityX / 250.0f);
         }
         newcam_tilt += (f32)ivrt(1) * (f32)mouse_y * 16.0f * ((f32)newcam_sensitivityY / 250.0f);
-        #endif
+#endif
     }
 
     // Dpad behaviors
