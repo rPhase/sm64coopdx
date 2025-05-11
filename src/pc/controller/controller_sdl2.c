@@ -22,6 +22,7 @@
 #include "pc/configfile.h"
 #include "pc/platform.h"
 #include "pc/fs/fs.h"
+#include "game/bettercamera.h"
 #include "controller_touchscreen.h"
 
 #include "game/level_update.h"
