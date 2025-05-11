@@ -265,8 +265,8 @@ static void newcam_rotate_button(void) {
             gNewCamera.yaw += newcam_ivrt(0) * mouse_x * 16.f * (gNewCamera.sensitivityX / 250.f);
         }
         gNewCamera.tilt += newcam_ivrt(1) * mouse_y * 16.f * (gNewCamera.sensitivityY / 250.f);
-    }
 #endif
+    }
 
     // Dpad behaviors
     if (gNewCamera.useDPad) {
