@@ -4,11 +4,7 @@
 #define SM64COOPDX_VERSION "v1.3.2"
 
 // internal version
-#ifdef __ANDROID__
-#define VERSION_TEXT "av"
-#else
 #define VERSION_TEXT "v"
-#endif
 #define VERSION_NUMBER 40
 #define MINOR_VERSION_NUMBER 2
 
