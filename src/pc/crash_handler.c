@@ -157,63 +157,7 @@ static ULONG CaptureStackWalkBackTrace(CONTEXT* ctx, DWORD FramesToSkip, DWORD F
 #endif
 
 #include <signal.h>
-#ifdef __ANDROID__
-#include "pc/android/execinfo/android_execinfo.h"
-//taken from https://android.googlesource.com/platform/prebuilts/gcc/linux-x86/host/x86_64-linux-glibc2.7-4.6/+/jb-release/sysroot/usr/include/sys/ucontext.h
-#ifdef __USE_GNU
-enum
-{
-  REG_R8 = 0,
-# define REG_R8		REG_R8
-  REG_R9,
-# define REG_R9		REG_R9
-  REG_R10,
-# define REG_R10	REG_R10
-  REG_R11,
-# define REG_R11	REG_R11
-  REG_R12,
-# define REG_R12	REG_R12
-  REG_R13,
-# define REG_R13	REG_R13
-  REG_R14,
-# define REG_R14	REG_R14
-  REG_R15,
-# define REG_R15	REG_R15
-  REG_RDI,
-# define REG_RDI	REG_RDI
-  REG_RSI,
-# define REG_RSI	REG_RSI
-  REG_RBP,
-# define REG_RBP	REG_RBP
-  REG_RBX,
-# define REG_RBX	REG_RBX
-  REG_RDX,
-# define REG_RDX	REG_RDX
-  REG_RAX,
-# define REG_RAX	REG_RAX
-  REG_RCX,
-# define REG_RCX	REG_RCX
-  REG_RSP,
-# define REG_RSP	REG_RSP
-  REG_RIP,
-# define REG_RIP	REG_RIP
-  REG_EFL,
-# define REG_EFL	REG_EFL
-  REG_CSGSFS,		/* Actually short cs, gs, fs, __pad0.  */
-# define REG_CSGSFS	REG_CSGSFS
-  REG_ERR,
-# define REG_ERR	REG_ERR
-  REG_TRAPNO,
-# define REG_TRAPNO	REG_TRAPNO
-  REG_OLDMASK,
-# define REG_OLDMASK	REG_OLDMASK
-  REG_CR2
-# define REG_CR2	REG_CR2
-};
-#endif
-#else
 #include <execinfo.h>
-#endif
 #include <ucontext.h>
 #include <dlfcn.h>
 
@@ -504,43 +448,33 @@ static void crash_handler(const int signalNum, siginfo_t *info, UNUSED ucontext_
         crash_handler_set_text(-1, 62, 0xFF, 0xFF, 0xFF, "  DR1: 0x%016llX", context->uc_mcontext.gregs[REG_RDX]);
 #endif
 #elif __ANDROID__
-    if (context->uc_mcontext.regs[REG_RSP] != 0) {
+    if (context->uc_mcontext.sp != 0) {
 #if IS_64_BIT
-        crash_handler_set_text( 8, 30, 0xFF, 0xFF, 0xFF,   "RSP: 0x%016llX", context->uc_mcontext.regs[REG_RSP]);
-        crash_handler_set_text(-1, 30, 0xFF, 0xFF, 0xFF, "  RBP: 0x%016llX", context->uc_mcontext.regs[REG_RBP]);
-        crash_handler_set_text(-1, 30, 0xFF, 0xFF, 0xFF, "  RIP: 0x%016llX", context->uc_mcontext.regs[REG_RIP]);
-        crash_handler_set_text( 8, 38, 0xFF, 0xFF, 0xFF,   "RAX: 0x%016llX", context->uc_mcontext.regs[REG_RAX]);
-        crash_handler_set_text(-1, 38, 0xFF, 0xFF, 0xFF, "  RBX: 0x%016llX", context->uc_mcontext.regs[REG_RBX]);
-        crash_handler_set_text(-1, 38, 0xFF, 0xFF, 0xFF, "  RCX: 0x%016llX", context->uc_mcontext.regs[REG_RCX]);
-        crash_handler_set_text(-1, 38, 0xFF, 0xFF, 0xFF, "  RDX: 0x%016llX", context->uc_mcontext.regs[REG_RDX]);
-        crash_handler_set_text( 8, 46, 0xFF, 0xFF, 0xFF,   "R08: 0x%016llX", context->uc_mcontext.regs[REG_R8]);
-        crash_handler_set_text(-1, 46, 0xFF, 0xFF, 0xFF, "  R09: 0x%016llX", context->uc_mcontext.regs[REG_R9]);
-        crash_handler_set_text(-1, 46, 0xFF, 0xFF, 0xFF, "  R10: 0x%016llX", context->uc_mcontext.regs[REG_R10]);
-        crash_handler_set_text(-1, 46, 0xFF, 0xFF, 0xFF, "  R11: 0x%016llX", context->uc_mcontext.regs[REG_R11]);
-        crash_handler_set_text( 8, 54, 0xFF, 0xFF, 0xFF,   "R12: 0x%016llX", context->uc_mcontext.regs[REG_R12]);
-        crash_handler_set_text(-1, 54, 0xFF, 0xFF, 0xFF, "  R13: 0x%016llX", context->uc_mcontext.regs[REG_R13]);
-        crash_handler_set_text(-1, 54, 0xFF, 0xFF, 0xFF, "  R14: 0x%016llX", context->uc_mcontext.regs[REG_R14]);
-        crash_handler_set_text(-1, 54, 0xFF, 0xFF, 0xFF, "  R15: 0x%016llX", context->uc_mcontext.regs[REG_R15]);
-        crash_handler_set_text( 8, 62, 0xFF, 0xFF, 0xFF,   "RSI: 0x%016llX", context->uc_mcontext.regs[REG_RSI]);
-        crash_handler_set_text(-1, 62, 0xFF, 0xFF, 0xFF, "  RDI: 0x%016llX", context->uc_mcontext.regs[REG_RDI]);
+        crash_handler_set_text( 8, 30, 0xFF, 0xFF, 0xFF,   " SP: 0x%016llX", context->uc_mcontext.sp);
+        crash_handler_set_text(-1, 30, 0xFF, 0xFF, 0xFF, "   FP: 0x%016llX", context->uc_mcontext.regs[29]);
+        crash_handler_set_text(-1, 30, 0xFF, 0xFF, 0xFF, "   LR: 0x%016llX", context->uc_mcontext.regs[30]);
+        crash_handler_set_text( 8, 38, 0xFF, 0xFF, 0xFF,   " PC: 0x%016llX", context->uc_mcontext.pc);
+        crash_handler_set_text( 8, 46, 0xFF, 0xFF, 0xFF,   "X08: 0x%016llX", context->uc_mcontext.regs[8]);
+        crash_handler_set_text(-1, 46, 0xFF, 0xFF, 0xFF, "  X09: 0x%016llX", context->uc_mcontext.regs[9]);
+        crash_handler_set_text(-1, 46, 0xFF, 0xFF, 0xFF, "  X10: 0x%016llX", context->uc_mcontext.regs[10]);
+        crash_handler_set_text(-1, 46, 0xFF, 0xFF, 0xFF, "  X11: 0x%016llX", context->uc_mcontext.regs[11]);
+        crash_handler_set_text( 8, 54, 0xFF, 0xFF, 0xFF,   "X12: 0x%016llX", context->uc_mcontext.regs[12]);
+        crash_handler_set_text(-1, 54, 0xFF, 0xFF, 0xFF, "  X13: 0x%016llX", context->uc_mcontext.regs[13]);
+        crash_handler_set_text(-1, 54, 0xFF, 0xFF, 0xFF, "  X14: 0x%016llX", context->uc_mcontext.regs[14]);
+        crash_handler_set_text(-1, 54, 0xFF, 0xFF, 0xFF, "  X15: 0x%016llX", context->uc_mcontext.regs[15]);
 #else
-        crash_handler_set_text( 8, 30, 0xFF, 0xFF, 0xFF,   "EAX: 0x%016llX", context->uc_mcontext.regs[REG_EAX]);
-        crash_handler_set_text(-1, 30, 0xFF, 0xFF, 0xFF, "  EBX: 0x%016llX", context->uc_mcontext.regs[REG_EBX]);
-        crash_handler_set_text(-1, 30, 0xFF, 0xFF, 0xFF, "  ECX: 0x%016llX", context->uc_mcontext.regs[REG_ECX]);
-        crash_handler_set_text( 8, 38, 0xFF, 0xFF, 0xFF,   "EDX: 0x%016llX", context->uc_mcontext.regs[REG_EDX]);
-        crash_handler_set_text(-1, 38, 0xFF, 0xFF, 0xFF, "  ESI: 0x%016llX", context->uc_mcontext.regs[REG_ESI]);
-        crash_handler_set_text(-1, 38, 0xFF, 0xFF, 0xFF, "  EDI: 0x%016llX", context->uc_mcontext.regs[REG_EDI]);
-        crash_handler_set_text(-1, 38, 0xFF, 0xFF, 0xFF, "  EBP: 0x%016llX", context->uc_mcontext.regs[REG_EBP]);
-        crash_handler_set_text( 8, 46, 0xFF, 0xFF, 0xFF,   "EIP: 0x%016llX", context->uc_mcontext.regs[REG_EIP]);
-        crash_handler_set_text(-1, 46, 0xFF, 0xFF, 0xFF, "  ESP: 0x%016llX", context->uc_mcontext.regs[REG_ESP]);
-        crash_handler_set_text(-1, 46, 0xFF, 0xFF, 0xFF, "   CS: 0x%016llX", context->uc_mcontext.regs[REG_CS]);
-        crash_handler_set_text(-1, 46, 0xFF, 0xFF, 0xFF, "   DS: 0x%016llX", context->uc_mcontext.regs[REG_DS]);
-        crash_handler_set_text( 8, 54, 0xFF, 0xFF, 0xFF,   " ES: 0x%016llX", context->uc_mcontext.regs[REG_ES]);
-        crash_handler_set_text(-1, 54, 0xFF, 0xFF, 0xFF, "   FS: 0x%016llX", context->uc_mcontext.regs[REG_FS]);
-        crash_handler_set_text(-1, 54, 0xFF, 0xFF, 0xFF, "   GS: 0x%016llX", context->uc_mcontext.regs[REG_GS]);
-        crash_handler_set_text(-1, 54, 0xFF, 0xFF, 0xFF, "   SS: 0x%016llX", context->uc_mcontext.regs[REG_SS]);
-        crash_handler_set_text( 8, 62, 0xFF, 0xFF, 0xFF,   "DR0: 0x%016llX", context->uc_mcontext.regs[REG_RDI]);
-        crash_handler_set_text(-1, 62, 0xFF, 0xFF, 0xFF, "  DR1: 0x%016llX", context->uc_mcontext.regs[REG_RDX]);
+        crash_handler_set_text( 8, 30, 0xFF, 0xFF, 0xFF,   " SP: 0x%08lX", context->uc_mcontext.arm_sp);
+        crash_handler_set_text(-1, 30, 0xFF, 0xFF, 0xFF, "   FP: 0x%08lX", context->uc_mcontext.arm_fp);
+        crash_handler_set_text(-1, 30, 0xFF, 0xFF, 0xFF, "   LR: 0x%08lX", context->uc_mcontext.arm_lr);
+        crash_handler_set_text( 8, 38, 0xFF, 0xFF, 0xFF,   " PC: 0x%08lX", context->uc_mcontext.arm_pc);
+        crash_handler_set_text( 8, 46, 0xFF, 0xFF, 0xFF,   "X08: 0x%08lX", context->uc_mcontext.arm_r8);
+        crash_handler_set_text(-1, 46, 0xFF, 0xFF, 0xFF, "  X09: 0x%08lX", context->uc_mcontext.arm_r9);
+        crash_handler_set_text(-1, 46, 0xFF, 0xFF, 0xFF, "  X10: 0x%08lX", context->uc_mcontext.arm_r10);
+        crash_handler_set_text(-1, 46, 0xFF, 0xFF, 0xFF, "  X11: 0x%08lX", context->uc_mcontext.arm_r11);
+        crash_handler_set_text( 8, 54, 0xFF, 0xFF, 0xFF,   "X12: 0x%08lX", context->uc_mcontext.arm_r12);
+        crash_handler_set_text(-1, 54, 0xFF, 0xFF, 0xFF, "  X13: 0x%08lX", context->uc_mcontext.arm_r13);
+        crash_handler_set_text(-1, 54, 0xFF, 0xFF, 0xFF, "  X14: 0x%08lX", context->uc_mcontext.arm_r14);
+        crash_handler_set_text(-1, 54, 0xFF, 0xFF, 0xFF, "  X15: 0x%08lX", context->uc_mcontext.arm_r15);
 #endif
 #endif
     } else {
