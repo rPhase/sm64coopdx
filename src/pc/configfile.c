@@ -223,7 +223,7 @@ bool         configDjuiThemeCenter                = true;
 bool         configDjuiThemeGradients             = true;
 unsigned int configDjuiThemeFont                  = FONT_NORMAL;
 #ifdef __ANDROID__
-unsigned int configDjuiScale                      = 2;
+unsigned int configDjuiScale                      = 3;
 #else
 unsigned int configDjuiScale                      = 0;
 #endif
