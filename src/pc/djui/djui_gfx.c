@@ -67,7 +67,14 @@ f32 djui_gfx_get_scale(void) {
         gfx_get_dimensions(&windowWidth, &windowHeight);
 #ifdef __ANDROID__
         u32 correctHeight = windowHeight / 720.0f;
-        return ((f32)correctHeight / (f32)SCREEN_HEIGHT) / 4.0f;
+
+        if (correctHeight < 768) {
+            return 0.5f;
+        } else if (correctHeight < 1440) {
+            return 1.0f;
+        } else {
+            return 1.5f;
+        }
 #else
         return ((f32)windowHeight / (f32)SCREEN_HEIGHT) / 4.0f;
 #endif
