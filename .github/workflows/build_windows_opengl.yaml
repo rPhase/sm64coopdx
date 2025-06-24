@@ -2,8 +2,6 @@ name: Build coop windows
 
 on:
     workflow_dispatch:
-    push:
-        branches: [ dev-build ]
 
 jobs:
     build-windows-opengl:
