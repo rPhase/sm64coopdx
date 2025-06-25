@@ -232,7 +232,8 @@ unsigned int configDjuiScale                      = 0;
 unsigned int configRulesVersion                   = 0;
 bool         configCompressOnStartup              = false;
 #ifdef TOUCH_CONTROLS
-unsigned int configAndroidBiggerButtons           = 1;
+unsigned int configTouchButtonSize                = 1;
+unsigned int configTouchStickSize                 = 0;
 unsigned int configTouchControlRed                = 255;
 unsigned int configTouchControlGreen              = 255;
 unsigned int configTouchControlBlue               = 255;
@@ -488,7 +489,8 @@ static const struct ConfigOption options[] = {
     {.name = "compress_on_startup",            .type = CONFIG_TYPE_BOOL,   .boolValue   = &configCompressOnStartup},
     {.name = "skip_pack_generation",           .type = CONFIG_TYPE_BOOL,   .boolValue   = &configSkipPackGeneration},
 #ifdef TOUCH_CONTROLS
-    {.name = "android_touch_scale",            .type = CONFIG_TYPE_UINT,   .uintValue   = &configAndroidBiggerButtons},
+    {.name = "android_touch_scale",            .type = CONFIG_TYPE_UINT,   .uintValue   = &configTouchButtonSize},
+    {.name = "android_touch_stick_scale",      .type = CONFIG_TYPE_UINT,   .uintValue   = &configTouchStickSize},
     {.name = "android_touch_red",              .type = CONFIG_TYPE_UINT,   .uintValue   = &configTouchControlRed},
     {.name = "android_touch_green",            .type = CONFIG_TYPE_UINT,   .uintValue   = &configTouchControlGreen},
     {.name = "android_touch_blue",             .type = CONFIG_TYPE_UINT,   .uintValue   = &configTouchControlBlue},

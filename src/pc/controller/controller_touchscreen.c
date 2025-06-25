@@ -444,7 +444,7 @@ void render_touch_controls(void) {
         select_joystick_tex_base();
         switch (ControlElements[i].type) {
             case Joystick:
-                DrawSpriteTexJoyBase(pos.x, pos.y, 2);
+                DrawSpriteTexJoyBase(pos.x, pos.y, configTouchStickSize + 2);
                 if (absi(ControlElements[i].joyX) + absi(ControlElements[i].joyY) != 0) {
                     normalizedVectorMultiplier = sqrt((ControlElements[i].joyX * ControlElements[i].joyX) + (ControlElements[i].joyY * ControlElements[i].joyY))/(absi(ControlElements[i].joyX) + absi(ControlElements[i].joyY));
                 } else {
@@ -453,7 +453,7 @@ void render_touch_controls(void) {
                 stick.x = ControlElements[i].joyX * normalizedVectorMultiplier;
                 stick.y = ControlElements[i].joyY * normalizedVectorMultiplier;
                 select_joystick_tex();
-                DrawSprite(pos.x + stick.x, pos.y + stick.y, 2);
+                DrawSprite(pos.x + stick.x, pos.y + stick.y, configTouchStickSize + 2);
                 break;
             case Mouse:
                 break; // Does nothing, just removes the warning
@@ -464,7 +464,7 @@ void render_touch_controls(void) {
                     select_char_texture(ControlElements[i].buttonTexture.buttonUp);
                 }
 
-                DrawSprite(pos.x, pos.y, configAndroidBiggerButtons + size / 100);
+                DrawSprite(pos.x, pos.y, configTouchButtonSize + size / 100);
                 
                 break;
         }

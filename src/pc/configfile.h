@@ -164,7 +164,8 @@ extern unsigned int configDjuiScale;
 extern unsigned int configRulesVersion;
 extern bool         configCompressOnStartup;
 #ifdef TOUCH_CONTROLS
-extern unsigned int configAndroidBiggerButtons;
+extern unsigned int configTouchButtonSize;
+extern unsigned int configTouchStickSize;
 extern unsigned int configTouchControlRed;
 extern unsigned int configTouchControlGreen;
 extern unsigned int configTouchControlBlue;

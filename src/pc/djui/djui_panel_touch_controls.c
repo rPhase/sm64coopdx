@@ -28,7 +28,8 @@ void djui_panel_touch_controls_create(struct DjuiBase* caller) {
         sSliderB->updateRectValueColor = false;
 
         djui_slider_create(body, DLANG(TOUCH_CONTROLS, TOUCH_CONTROLS_OPACITY), &configTouchControlAlpha, 0, 255, NULL);
-        djui_slider_create(body, DLANG(TOUCH_CONTROLS, TOUCH_CONTROLS_SCALE), &configAndroidBiggerButtons, 0, 2, NULL);
+        djui_slider_create(body, DLANG(TOUCH_CONTROLS, TOUCH_CONTROLS_SCALE), &configTouchButtonSize, 0, 2, NULL);
+        djui_slider_create(body, DLANG(TOUCH_CONTROLS, TOUCH_CONTROLS_SCALE), &configTouchStickSize, 0, 2, NULL);
 
         djui_checkbox_create(body, DLANG(TOUCH_CONTROLS, TOUCH_AUTOHIDE), &configAutohideTouch, NULL);
         djui_checkbox_create(body, DLANG(TOUCH_CONTROLS, TOUCH_SLIDE_TOUCH), &configSlideTouch, NULL);
