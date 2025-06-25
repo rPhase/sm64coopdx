@@ -117,6 +117,7 @@ struct LuaHookedModMenuElement {
     u32 sliderMax;
     int reference;
     struct Mod* mod;
+    struct ModFile* modFile;
 };
 
 extern u32 gLuaMarioActionIndex[];
@@ -140,7 +141,7 @@ bool smlua_is_behavior_hooked(const BehaviorScript *behavior);
 const char* smlua_get_name_from_hooked_behavior_id(enum BehaviorId id);
 bool smlua_call_behavior_hook(const BehaviorScript** behavior, struct Object* object, bool before);
 
-int smlua_call_hook(lua_State* L, int nargs, int nresults, int errfunc, struct Mod* activeMod);
+int smlua_call_hook(lua_State* L, int nargs, int nresults, int errfunc, struct Mod* activeMod, struct ModFile* activeModFile);
 bool smlua_call_action_hook(enum LuaActionHookType hookType, struct MarioState* m, s32* returnValue);
 u32 smlua_get_action_interaction_type(struct MarioState* m);
 
@@ -154,6 +155,7 @@ bool smlua_subcommand_exists(const char* maincommand, const char* subcommand);
 
 void smlua_call_mod_menu_element_hook(struct LuaHookedModMenuElement* hooked, int index);
 
+void smlua_hook_replace_function_references(lua_State* L, int oldReference, int newReference);
 void smlua_clear_hooks(void);
 void smlua_bind_hooks(void);
 

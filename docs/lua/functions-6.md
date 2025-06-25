@@ -2112,6 +2112,75 @@ Gets a table of the surface types from `data`
 
 <br />
 
+## [surface_is_quicksand](#surface_is_quicksand)
+
+### Description
+Checks if the surface is quicksand
+
+### Lua Example
+`local booleanValue = surface_is_quicksand(surf)`
+
+### Parameters
+| Field | Type |
+| ----- | ---- |
+| surf | [Surface](structs.md#Surface) |
+
+### Returns
+- `boolean`
+
+### C Prototype
+`bool surface_is_quicksand(struct Surface* surf);`
+
+[:arrow_up_small:](#)
+
+<br />
+
+## [surface_is_not_hard](#surface_is_not_hard)
+
+### Description
+Checks if the surface is not a hard surface
+
+### Lua Example
+`local booleanValue = surface_is_not_hard(surf)`
+
+### Parameters
+| Field | Type |
+| ----- | ---- |
+| surf | [Surface](structs.md#Surface) |
+
+### Returns
+- `boolean`
+
+### C Prototype
+`bool surface_is_not_hard(struct Surface* surf);`
+
+[:arrow_up_small:](#)
+
+<br />
+
+## [surface_is_painting_warp](#surface_is_painting_warp)
+
+### Description
+Checks if the surface is a painting warp
+
+### Lua Example
+`local booleanValue = surface_is_painting_warp(surf)`
+
+### Parameters
+| Field | Type |
+| ----- | ---- |
+| surf | [Surface](structs.md#Surface) |
+
+### Returns
+- `boolean`
+
+### C Prototype
+`bool surface_is_painting_warp(struct Surface* surf);`
+
+[:arrow_up_small:](#)
+
+<br />
+
 ---
 # functions from smlua_deprecated.h
 
@@ -5166,7 +5235,7 @@ Gets the extended model ID for the `name` of a `GeoLayout`
 ## [spawn_sync_object](#spawn_sync_object)
 
 ### Description
-Spawns a synchronized object in at `x`, `y`, and `z` as a child object of the local Mario with his rotation. You can change the fields of the object in `objSetupFunction`
+Spawns a synchronized object at `x`, `y`, and `z` as a child object of the local Mario with his rotation. You can change the fields of the object in `objSetupFunction`
 
 ### Lua Example
 `local ObjectValue = spawn_sync_object(behaviorId, modelId, x, y, z, objSetupFunction)`
@@ -5194,7 +5263,7 @@ Spawns a synchronized object in at `x`, `y`, and `z` as a child object of the lo
 ## [spawn_non_sync_object](#spawn_non_sync_object)
 
 ### Description
-Spawns a synchronized object in at `x`, `y`, and `z` as a child object of the local Mario with his rotation. You can change the fields of the object in `objSetupFunction`
+Spawns a non-synchronized object at `x`, `y`, and `z` as a child object of the local Mario with his rotation. You can change the fields of the object in `objSetupFunction`
 
 ### Lua Example
 `local ObjectValue = spawn_non_sync_object(behaviorId, modelId, x, y, z, objSetupFunction)`

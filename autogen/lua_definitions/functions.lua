@@ -10223,6 +10223,27 @@ function smlua_collision_util_find_surface_types(data)
     -- ...
 end
 
+--- @param surf Surface
+--- @return boolean
+--- Checks if the surface is quicksand
+function surface_is_quicksand(surf)
+    -- ...
+end
+
+--- @param surf Surface
+--- @return boolean
+--- Checks if the surface is not a hard surface
+function surface_is_not_hard(surf)
+    -- ...
+end
+
+--- @param surf Surface
+--- @return boolean
+--- Checks if the surface is a painting warp
+function surface_is_painting_warp(surf)
+    -- ...
+end
+
 --- @param fov number
 --- Sets the override FOV
 function set_override_fov(fov)
@@ -11118,7 +11139,7 @@ end
 --- @param z number
 --- @param objSetupFunction function
 --- @return Object
---- Spawns a synchronized object in at `x`, `y`, and `z` as a child object of the local Mario with his rotation. You can change the fields of the object in `objSetupFunction`
+--- Spawns a synchronized object at `x`, `y`, and `z` as a child object of the local Mario with his rotation. You can change the fields of the object in `objSetupFunction`
 function spawn_sync_object(behaviorId, modelId, x, y, z, objSetupFunction)
     -- ...
 end
@@ -11130,7 +11151,7 @@ end
 --- @param z number
 --- @param objSetupFunction function
 --- @return Object
---- Spawns a synchronized object in at `x`, `y`, and `z` as a child object of the local Mario with his rotation. You can change the fields of the object in `objSetupFunction`
+--- Spawns a non-synchronized object at `x`, `y`, and `z` as a child object of the local Mario with his rotation. You can change the fields of the object in `objSetupFunction`
 function spawn_non_sync_object(behaviorId, modelId, x, y, z, objSetupFunction)
     -- ...
 end

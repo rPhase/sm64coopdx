@@ -8,6 +8,7 @@
 #include "gfx_dimensions.h"
 #include "djui_gfx.h"
 #include "pc/debuglog.h"
+#include "engine/math_util.h"
 
 const Gfx dl_djui_display_list_begin[] = {
     gsSPTextureAddrDjui(1),
@@ -61,23 +62,15 @@ const Gfx dl_djui_simple_rect[] = {
     gsSPEndDisplayList(),
 };
 
+f32 round_to_multiple_f(f32 value, f32 multiple) {
+    return roundf(value / multiple) * multiple;
+}
+
 f32 djui_gfx_get_scale(void) {
     if (configDjuiScale == 0) { // auto
         u32 windowWidth, windowHeight;
         gfx_get_dimensions(&windowWidth, &windowHeight);
-#ifdef __ANDROID__
-        u32 correctHeight = windowHeight / 720.0f;
-
-        if (correctHeight < 768) {
-            return 0.5f;
-        } else if (correctHeight < 1440) {
-            return 1.0f;
-        } else {
-            return 1.5f;
-        }
-#else
-        return ((f32)windowHeight / (f32)SCREEN_HEIGHT) / 4.0f;
-#endif
+        return clamp(round_to_multiple_f(((f32)windowHeight / (f32)SCREEN_HEIGHT) / 4.0f, 0.5f), 0.5f, 1.5f);
     } else {
         switch (configDjuiScale) {
             case 1:  return 0.5f;
