@@ -336,6 +336,10 @@ static struct ShaderProgram *gfx_opengl_create_and_load_new_shader(struct ColorC
     append_line(fs_buf, &fs_len, "#version 120");
 #endif
 
+#ifdef USE_GLES3
+    append_line(fs_buf, &fs_len, "out vec4 fragColor;");
+#endif
+
     if (ccf.used_textures[0] || ccf.used_textures[1]) {
         append_line(fs_buf, &fs_len, VARYING_FS " vec2 vTexCoord;");
     }
@@ -359,11 +363,14 @@ static struct ShaderProgram *gfx_opengl_create_and_load_new_shader(struct ColorC
         append_line(fs_buf, &fs_len, "uniform bool uTex1Filter;");
     }
 
-    // 3 point texture filtering
-    // Original author: ArthurCarvalho
-    // Modified GLSL implementation by twinaphex, mupen64plus-libretro project.
-    if (ccf.used_textures[0] || ccf.used_textures[1]) {
+    // 3-point texture filtering macro
+#ifdef USE_GLES3
+        append_line(fs_buf, &fs_len, "#define TEX_OFFSET(off) texture(tex, texCoord - (off)/texSize)");
+#else
         append_line(fs_buf, &fs_len, "#define TEX_OFFSET(off) texture2D(tex, texCoord - (off)/texSize)");
+#endif
+
+    if (ccf.used_textures[0] || ccf.used_textures[1]) {
         append_line(fs_buf, &fs_len, "vec4 filter3point(in sampler2D tex, in vec2 texCoord, in vec2 texSize) {");
         append_line(fs_buf, &fs_len, "    vec2 offset = fract(texCoord*texSize - vec2(0.5));");
         append_line(fs_buf, &fs_len, "    offset -= step(1.0, offset.x + offset.y);");
@@ -375,14 +382,16 @@ static struct ShaderProgram *gfx_opengl_create_and_load_new_shader(struct ColorC
         append_line(fs_buf, &fs_len, "vec4 sampleTex(in sampler2D tex, in vec2 uv, in vec2 texSize, in bool dofilter, in int filter) {");
         append_line(fs_buf, &fs_len, "    if (dofilter && filter == 2)");
         append_line(fs_buf, &fs_len, "        return filter3point(tex, uv, texSize);");
-        append_line(fs_buf, &fs_len, "    else");
-        append_line(fs_buf, &fs_len, "        return texture2D(tex, uv);");
+#ifdef USE_GLES3
+        append_line(fs_buf, &fs_len, "    else return texture(tex, uv);");
+#else
+        append_line(fs_buf, &fs_len, "    else return texture2D(tex, uv);");
+#endif
         append_line(fs_buf, &fs_len, "}");
     }
 
     if ((opt_alpha && opt_dither) || ccf.do_noise) {
         append_line(fs_buf, &fs_len, "uniform float uFrameCount;");
-
         append_line(fs_buf, &fs_len, "float random(in vec3 value) {");
         append_line(fs_buf, &fs_len, "    float random = dot(sin(value), vec3(12.9898, 78.233, 37.719));");
         append_line(fs_buf, &fs_len, "    return fract(sin(random) * 143758.5453);");
@@ -394,7 +403,6 @@ static struct ShaderProgram *gfx_opengl_create_and_load_new_shader(struct ColorC
     }
 
     append_line(fs_buf, &fs_len, "uniform int uFilter;");
-
     append_line(fs_buf, &fs_len, "void main() {");
 
     if ((opt_alpha && opt_dither) || ccf.do_noise) {
@@ -451,11 +459,20 @@ static struct ShaderProgram *gfx_opengl_create_and_load_new_shader(struct ColorC
         append_line(fs_buf, &fs_len, "texel.a *= noise;");
     }
 
+#ifdef USE_GLES3
+    if (opt_alpha) {
+        append_line(fs_buf, &fs_len, "fragColor = texel;");
+    } else {
+        append_line(fs_buf, &fs_len, "fragColor = vec4(texel, 1.0);");
+    }
+#else
     if (opt_alpha) {
         append_line(fs_buf, &fs_len, "gl_FragColor = texel;");
     } else {
         append_line(fs_buf, &fs_len, "gl_FragColor = vec4(texel, 1.0);");
     }
+#endif
+
     append_line(fs_buf, &fs_len, "}");
 
     vs_buf[vs_len] = '\0';
