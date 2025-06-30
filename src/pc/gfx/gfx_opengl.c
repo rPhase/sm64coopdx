@@ -25,9 +25,7 @@
 # include <SDL2/SDL.h>
 # ifdef USE_GLES
 #  include <SDL2/SDL_opengles2.h>
-#  ifdef USE_GLES3
-#   include <GLES3/gl3.h>
-#  endif
+#  include <GLES3/gl3.h>
 # else
 #  include <SDL2/SDL_opengl.h>
 # endif
@@ -70,9 +68,7 @@ static struct ShaderProgram shader_program_pool[CC_MAX_SHADERS];
 static uint8_t shader_program_pool_size = 0;
 static uint8_t shader_program_pool_index = 0;
 static GLuint opengl_vbo;
-#if (defined(USE_GLES3)) || (!defined(USE_GLES))
 static GLuint opengl_vao;
-#endif
 
 static int tex_cache_size = 0;
 static int num_textures = 0;
@@ -250,7 +246,7 @@ static void append_formula(char *buf, size_t *len, uint8_t* cmd, bool do_single,
     }
 }
 
-#ifdef USE_GLES3
+#ifdef USE_GLES
     #define ATTR "in"
     #define VARYING_VS "out"
     #define VARYING_FS "in"
@@ -283,11 +279,7 @@ static struct ShaderProgram *gfx_opengl_create_and_load_new_shader(struct ColorC
 
     // Vertex shader
 #ifdef USE_GLES
-#ifdef USE_GLES3
     append_line(vs_buf, &vs_len, "#version 300 es");
-#else
-    append_line(vs_buf, &vs_len, "#version 100");
-#endif
 #else
     append_line(vs_buf, &vs_len, "#version 120");
 #endif
@@ -330,17 +322,13 @@ static struct ShaderProgram *gfx_opengl_create_and_load_new_shader(struct ColorC
 
     // Fragment shader
 #ifdef USE_GLES
-#ifdef USE_GLES3
     append_line(fs_buf, &fs_len, "#version 300 es");
-#else
-    append_line(fs_buf, &fs_len, "#version 100");
-#endif
     append_line(fs_buf, &fs_len, "precision mediump float;");
 #else
     append_line(fs_buf, &fs_len, "#version 120");
 #endif
 
-#ifdef USE_GLES3
+#ifdef USE_GLES
     append_line(fs_buf, &fs_len, "out vec4 fragColor;");
 #endif
 
@@ -368,7 +356,7 @@ static struct ShaderProgram *gfx_opengl_create_and_load_new_shader(struct ColorC
     }
 
     // 3-point texture filtering macro
-#ifdef USE_GLES3
+#ifdef USE_GLES
         append_line(fs_buf, &fs_len, "#define TEX_OFFSET(off) texture(tex, texCoord - (off)/texSize)");
 #else
         append_line(fs_buf, &fs_len, "#define TEX_OFFSET(off) texture2D(tex, texCoord - (off)/texSize)");
@@ -386,7 +374,7 @@ static struct ShaderProgram *gfx_opengl_create_and_load_new_shader(struct ColorC
         append_line(fs_buf, &fs_len, "vec4 sampleTex(in sampler2D tex, in vec2 uv, in vec2 texSize, in bool dofilter, in int filterMode) {");
         append_line(fs_buf, &fs_len, "    if (dofilter && filterMode == 2) {");
         append_line(fs_buf, &fs_len, "        return filter3point(tex, uv, texSize);");
-#ifdef USE_GLES3
+#ifdef USE_GLES
         append_line(fs_buf, &fs_len, "    } else {");
         append_line(fs_buf, &fs_len, "        return texture(tex, uv);");
 #else
@@ -467,7 +455,7 @@ static struct ShaderProgram *gfx_opengl_create_and_load_new_shader(struct ColorC
         append_line(fs_buf, &fs_len, "texel.a *= noise;");
     }
 
-#ifdef USE_GLES3
+#ifdef USE_GLES
     if (opt_alpha) {
         append_line(fs_buf, &fs_len, "fragColor = texel;");
     } else {
@@ -752,12 +740,10 @@ static void gfx_opengl_init(void) {
 
     glBindBuffer(GL_ARRAY_BUFFER, opengl_vbo);
 
-#if (defined(USE_GLES3)) || (!defined(USE_GLES))
     if (vmajor >= 3) {
         glGenVertexArrays(1, &opengl_vao);
         glBindVertexArray(opengl_vao);
     }
-#endif
 
     glDepthFunc(GL_LEQUAL);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
