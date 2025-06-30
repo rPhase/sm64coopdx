@@ -269,7 +269,11 @@ static struct ShaderProgram *gfx_opengl_create_and_load_new_shader(struct ColorC
     bool opt_texture_edge = cc->cm.texture_edge;
     bool opt_2cycle = cc->cm.use_2cycle;
     bool opt_light_map = cc->cm.light_map;
+#ifdef USE_GLES
+    bool opt_dither = false;
+#else
     bool opt_dither = cc->cm.use_dither;
+#endif
 
     char vs_buf[1024];
     char fs_buf[2048];
