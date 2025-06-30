@@ -380,15 +380,19 @@ static struct ShaderProgram *gfx_opengl_create_and_load_new_shader(struct ColorC
         append_line(fs_buf, &fs_len, "    return c0 + abs(offset.x)*(c1-c0) + abs(offset.y)*(c2-c0);");
         append_line(fs_buf, &fs_len, "}");
         append_line(fs_buf, &fs_len, "vec4 sampleTex(in sampler2D tex, in vec2 uv, in vec2 texSize, in bool dofilter, in int filter) {");
-        append_line(fs_buf, &fs_len, "    if (dofilter && filter == 2)");
+        append_line(fs_buf, &fs_len, "    if (dofilter && filter == 2) {");
         append_line(fs_buf, &fs_len, "        return filter3point(tex, uv, texSize);");
 #ifdef USE_GLES3
-        append_line(fs_buf, &fs_len, "    else return texture(tex, uv);");
+        append_line(fs_buf, &fs_len, "    } else {");
+        append_line(fs_buf, &fs_len, "        return texture(tex, uv);");
 #else
-        append_line(fs_buf, &fs_len, "    else return texture2D(tex, uv);");
+        append_line(fs_buf, &fs_len, "    } else {");
+        append_line(fs_buf, &fs_len, "        return texture2D(tex, uv);");
 #endif
+        append_line(fs_buf, &fs_len, "    }");
         append_line(fs_buf, &fs_len, "}");
     }
+
 
     if ((opt_alpha && opt_dither) || ccf.do_noise) {
         append_line(fs_buf, &fs_len, "uniform float uFrameCount;");
