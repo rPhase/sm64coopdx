@@ -250,6 +250,16 @@ static void append_formula(char *buf, size_t *len, uint8_t* cmd, bool do_single,
     }
 }
 
+#ifdef USE_GLES3
+    #define ATTR "in"
+    #define VARYING_VS "out"
+    #define VARYING_FS "in"
+#else
+    #define ATTR "attribute"
+    #define VARYING_VS "varying"
+    #define VARYING_FS "varying"
+#endif
+
 static struct ShaderProgram *gfx_opengl_create_and_load_new_shader(struct ColorCombiner* cc) {
     struct CCFeatures ccf = { 0 };
     gfx_cc_get_features(cc, &ccf);
@@ -277,25 +287,25 @@ static struct ShaderProgram *gfx_opengl_create_and_load_new_shader(struct ColorC
 #else
     append_line(vs_buf, &vs_len, "#version 120");
 #endif
-    append_line(vs_buf, &vs_len, "attribute vec4 aVtxPos;");
+    append_line(vs_buf, &vs_len, ATTR " vec4 aVtxPos;");
     if (ccf.used_textures[0] || ccf.used_textures[1]) {
-        append_line(vs_buf, &vs_len, "attribute vec2 aTexCoord;");
-        append_line(vs_buf, &vs_len, "varying vec2 vTexCoord;");
+        append_line(vs_buf, &vs_len, ATTR " vec2 aTexCoord;");
+        append_line(vs_buf, &vs_len, VARYING_VS " vec2 vTexCoord;");
         num_floats += 2;
     }
     if (opt_fog) {
-        append_line(vs_buf, &vs_len, "attribute vec4 aFog;");
-        append_line(vs_buf, &vs_len, "varying vec4 vFog;");
+        append_line(vs_buf, &vs_len, ATTR " vec4 aFog;");
+        append_line(vs_buf, &vs_len, VARYING_VS " vec4 vFog;");
         num_floats += 4;
     }
     if (opt_light_map) {
-        append_line(vs_buf, &vs_len, "attribute vec2 aLightMap;");
-        append_line(vs_buf, &vs_len, "varying vec2 vLightMap;");
+        append_line(vs_buf, &vs_len, ATTR " vec2 aLightMap;");
+        append_line(vs_buf, &vs_len, VARYING_VS " vec2 vLightMap;");
         num_floats += 2;
     }
     for (int i = 0; i < ccf.num_inputs; i++) {
-        vs_len += sprintf(vs_buf + vs_len, "attribute vec%d aInput%d;\n", opt_alpha ? 4 : 3, i + 1);
-        vs_len += sprintf(vs_buf + vs_len, "varying vec%d vInput%d;\n", opt_alpha ? 4 : 3, i + 1);
+        vs_len += sprintf(vs_buf + vs_len, ATTR " vec%d aInput%d;\n", opt_alpha ? 4 : 3, i + 1);
+        vs_len += sprintf(vs_buf + vs_len, VARYING_VS " vec%d vInput%d;\n", opt_alpha ? 4 : 3, i + 1);
         num_floats += opt_alpha ? 4 : 3;
     }
     append_line(vs_buf, &vs_len, "void main() {");
@@ -327,16 +337,16 @@ static struct ShaderProgram *gfx_opengl_create_and_load_new_shader(struct ColorC
 #endif
 
     if (ccf.used_textures[0] || ccf.used_textures[1]) {
-        append_line(fs_buf, &fs_len, "varying vec2 vTexCoord;");
+        append_line(fs_buf, &fs_len, VARYING_FS " vec2 vTexCoord;");
     }
     if (opt_fog) {
-        append_line(fs_buf, &fs_len, "varying vec4 vFog;");
+        append_line(fs_buf, &fs_len, VARYING_FS " vec4 vFog;");
     }
     if (opt_light_map) {
-        append_line(fs_buf, &fs_len, "varying vec2 vLightMap;");
+        append_line(fs_buf, &fs_len, VARYING_FS " vec2 vLightMap;");
     }
     for (int i = 0; i < ccf.num_inputs; i++) {
-        fs_len += sprintf(fs_buf + fs_len, "varying vec%d vInput%d;\n", opt_alpha ? 4 : 3, i + 1);
+        fs_len += sprintf(fs_buf + fs_len, VARYING_FS " vec%d vInput%d;\n", opt_alpha ? 4 : 3, i + 1);
     }
     if (ccf.used_textures[0]) {
         append_line(fs_buf, &fs_len, "uniform sampler2D uTex0;");
