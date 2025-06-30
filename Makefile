@@ -135,7 +135,7 @@ ifeq ($(HOST_OS),Darwin)
 endif
 
 # Attempt to detect Termux Android build
-ifneq ($(shell which termux-setup-storage),)
+ifneq ($(shell command -v termux-setup-storage >/dev/null 2>&1; echo $$?),1)
   TARGET_ANDROID := 1
 endif
 
@@ -919,7 +919,7 @@ endif
 CPPFLAGS := -P -Wno-trigraphs $(DEF_INC_CFLAGS)
 
 ifeq ($(TARGET_ANDROID),1)
-  ifneq ($(shell which termux-setup-storage),) # Termux has clang
+  ifeq ($(shell command -v termux-setup-storage >/dev/null 2>&1; echo $$?),0) # Termux has clang
     CPPFLAGS := -E -P -x c -Wno-trigraphs $(DEF_INC_CFLAGS)
   endif
 endif
