@@ -83,6 +83,8 @@ NO_LDIV ?= 0
 
 # Renderers: GL, GL_LEGACY, D3D11, DUMMY
 RENDER_API ?= GL
+# Use OpenGL ES Version 3 for android users
+USE_GLES3 ?= 1
 # Window managers: SDL1, SDL2, DXGI (forced if RENDER_API is D3D11), DUMMY (forced if RENDER_API is DUMMY)
 WINDOW_API ?= SDL2
 # Audio backends: SDL1, SDL2, DUMMY
@@ -389,8 +391,11 @@ ifeq ($(TARGET_RK3588),1) # Define RK3588 to change SDL2 title & GLES2 hints
   DEFINES += USE_GLES=1
 endif
 
-ifeq ($(TARGET_ANDROID),1) # Define Android to change SDL2 title & GLES2 hints
+ifeq ($(TARGET_ANDROID),1) # Define Android to change SDL2 title & GLES hints
   DEFINES += TARGET_ANDROID=1 USE_GLES=1 _LANGUAGE_C=1
+  ifeq ($(USE_GLES3),1)
+    DEFINES += USE_GLES3=1
+  endif
 endif
 
 ifeq ($(OSX_BUILD),1) # Modify GFX & SDL2 for OSX GL
@@ -817,7 +822,11 @@ else ifeq ($(findstring SDL,$(WINDOW_API)),SDL)
   ifeq ($(WINDOWS_BUILD),1)
     BACKEND_LDFLAGS += -lglew32 -lglu32 -lopengl32
   else ifeq ($(TARGET_ANDROID),1)
-    BACKEND_LDFLAGS += -lGLESv2 -llog
+    ifeq ($(USE_GLES3),1)
+      BACKEND_LDFLAGS += -lGLESv3 -llog
+    else
+      BACKEND_LDFLAGS += -lGLESv2 -llog
+    endif
   else ifeq ($(TARGET_RPI),1)
     BACKEND_LDFLAGS += -lGLESv2
   else ifeq ($(TARGET_RK3588),1)

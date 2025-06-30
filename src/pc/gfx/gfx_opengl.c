@@ -25,6 +25,9 @@
 # include <SDL2/SDL.h>
 # ifdef USE_GLES
 #  include <SDL2/SDL_opengles2.h>
+#  ifdef USE_GLES3
+#   include <GLES3/gl3.h>
+#  endif
 # else
 #  include <SDL2/SDL_opengl.h>
 # endif
@@ -67,7 +70,7 @@ static struct ShaderProgram shader_program_pool[CC_MAX_SHADERS];
 static uint8_t shader_program_pool_size = 0;
 static uint8_t shader_program_pool_index = 0;
 static GLuint opengl_vbo;
-#ifndef TARGET_ANDROID
+#if (defined(USE_GLES3)) || (!defined(USE_GLES))
 static GLuint opengl_vao;
 #endif
 
@@ -266,7 +269,11 @@ static struct ShaderProgram *gfx_opengl_create_and_load_new_shader(struct ColorC
 
     // Vertex shader
 #ifdef USE_GLES
+#ifdef USE_GLES3
+    append_line(vs_buf, &vs_len, "#version 300 es");
+#else
     append_line(vs_buf, &vs_len, "#version 100");
+#endif
 #else
     append_line(vs_buf, &vs_len, "#version 120");
 #endif
@@ -309,7 +316,11 @@ static struct ShaderProgram *gfx_opengl_create_and_load_new_shader(struct ColorC
 
     // Fragment shader
 #ifdef USE_GLES
+#ifdef USE_GLES3
+    append_line(fs_buf, &fs_len, "#version 300 es");
+#else
     append_line(fs_buf, &fs_len, "#version 100");
+#endif
     append_line(fs_buf, &fs_len, "precision mediump float;");
 #else
     append_line(fs_buf, &fs_len, "#version 120");
@@ -364,11 +375,7 @@ static struct ShaderProgram *gfx_opengl_create_and_load_new_shader(struct ColorC
 
         append_line(fs_buf, &fs_len, "float random(in vec3 value) {");
         append_line(fs_buf, &fs_len, "    float random = dot(sin(value), vec3(12.9898, 78.233, 37.719));");
-#ifdef USE_GLES
-        append_line(fs_buf, &fs_len, "    return fract(sin(random) * 143.7585453);");
-#else
         append_line(fs_buf, &fs_len, "    return fract(sin(random) * 143758.5453);");
-#endif
         append_line(fs_buf, &fs_len, "}");
     }
 
@@ -710,8 +717,8 @@ static void gfx_opengl_init(void) {
 
     glBindBuffer(GL_ARRAY_BUFFER, opengl_vbo);
 
-#ifndef TARGET_ANDROID
-    if (vmajor >= 3 && !is_es) {
+#if (defined(USE_GLES3)) || (!defined(USE_GLES))
+    if (vmajor >= 3) {
         glGenVertexArrays(1, &opengl_vao);
         glBindVertexArray(opengl_vao);
     }
