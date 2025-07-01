@@ -95,10 +95,10 @@ struct Position get_pos(ConfigControlElement *config) {
     } else {
         switch (config->anchor) {
             case CONTROL_ELEMENT_LEFT:
-                ret.x = LEFT_EDGE(config->x << 2);
+                ret.x = RECT_FROM_LEFT_EDGE(config->x << 2);
                 break;
             case CONTROL_ELEMENT_RIGHT:
-                ret.x = RIGHT_EDGE(config->x << 2);
+                ret.x = RECT_FROM_RIGHT_EDGE(config->x << 2);
                 break;
             case CONTROL_ELEMENT_CENTER:
             default:
@@ -141,10 +141,10 @@ void move_touch_element(struct TouchEvent *event, enum ConfigControlElementIndex
 
     switch (config->anchor) {
         case CONTROL_ELEMENT_LEFT:
-            config->x = (x_raw - LEFT_EDGE(0)) >> 2;
+            config->x = (x_raw - RECT_FROM_LEFT_EDGE(0)) >> 2;
             break;
         case CONTROL_ELEMENT_RIGHT:
-            config->x = (RIGHT_EDGE(0) - x_raw) >> 2;
+            config->x = (RECT_FROM_RIGHT_EDGE(0) - x_raw) >> 2;
             break;
         case CONTROL_ELEMENT_CENTER:
         default:
