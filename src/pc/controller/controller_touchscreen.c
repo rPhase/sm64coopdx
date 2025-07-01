@@ -87,9 +87,9 @@ struct Position get_pos(ConfigControlElement *config) {
         case CONTROL_ELEMENT_LEFT:
         case CONTROL_ELEMENT_RIGHT:
         case CONTROL_ELEMENT_CENTER:
-            if (config->x < SCREEN_WIDTH_API / 2 - 30) {
+            if (config->x < SCREEN_WIDTH_API / 2) {
                 ret.x = GFX_DIMENSIONS_RECT_FROM_LEFT_EDGE(config->x) << 2;
-            } else if (config->x > SCREEN_WIDTH_API / 2 + 30) {
+            } else if (config->x > SCREEN_WIDTH_API / 2) {
                 ret.x = GFX_DIMENSIONS_RECT_FROM_RIGHT_EDGE(config->x) << 2;
             } else {
                 ret.x = SCREEN_WIDTH_API / 2;
@@ -99,9 +99,9 @@ struct Position get_pos(ConfigControlElement *config) {
         case CONTROL_ELEMENT_HIDDEN:
         default:
             if (gInTouchConfig) {
-                if (config->x < SCREEN_WIDTH_API / 2 - 30) {
+                if (config->x < SCREEN_WIDTH_API / 2) {
                     ret.x = GFX_DIMENSIONS_RECT_FROM_LEFT_EDGE(config->x) << 2;
-                } else if (config->x > SCREEN_WIDTH_API / 2 + 30) {
+                } else if (config->x > SCREEN_WIDTH_API / 2) {
                     ret.x = GFX_DIMENSIONS_RECT_FROM_RIGHT_EDGE(config->x) << 2;
                 } else {
                     ret.x = SCREEN_WIDTH_API / 2;
@@ -358,6 +358,9 @@ void render_touch_controls(void) {
                     normalizedVectorMultiplier = 0;
                 }
                 if (!gInTouchConfig) {
+                    stick.x = 0;
+                    stick.y = 0;
+                } else {
                     stick.x = controlElements[i].joyX * normalizedVectorMultiplier;
                     stick.y = controlElements[i].joyY * normalizedVectorMultiplier;
                 }
