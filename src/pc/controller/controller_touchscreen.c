@@ -342,7 +342,6 @@ void render_touch_controls(void) {
     Colors color;
     s32 size;
     f32 normalizedVectorMultiplier;
-    // All normal elements
     for (u32 i = 0; i < ControlElementsLength; i++) {
         pos = get_pos(&configControlElements[i]);
         color = get_color(&configControlElements[i]);

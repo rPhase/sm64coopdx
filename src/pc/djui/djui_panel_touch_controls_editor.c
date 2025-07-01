@@ -57,6 +57,11 @@ static void djui_panel_touch_controls_editor_move(struct DjuiBase* caller) {
     djui_panel_add(caller, panel, NULL);
 }
 
+void djui_panel_touch_controls_editor_menu_back(UNUSED struct DjuiBase* base) {
+    gInTouchConfig = false;
+    djui_panel_back();
+}
+
 void djui_panel_touch_controls_editor_create(struct DjuiBase* caller) {
     struct DjuiThreePanel* panel = djui_panel_menu_create(DLANG(CONTROLS, CONTROLS), false);
     struct DjuiBase* body = djui_three_panel_get_body(panel);
@@ -101,7 +106,7 @@ void djui_panel_touch_controls_editor_create(struct DjuiBase* caller) {
         }
 
         {
-            struct DjuiButton* backButton = djui_button_left_create(body, DLANG(MENU, BACK), DJUI_BUTTON_STYLE_BACK, djui_panel_menu_back);
+            struct DjuiButton* backButton = djui_button_left_create(body, DLANG(MENU, BACK), DJUI_BUTTON_STYLE_BACK, djui_panel_touch_controls_editor_menu_back);
             djui_base_set_size(&backButton->base, 0.97f / 2.0f, 48);
             djui_base_set_alignment(&backButton->base, DJUI_HALIGN_LEFT, DJUI_VALIGN_BOTTOM);
             struct DjuiButton* moveButton = djui_button_right_create(body, "Move" /*DLANG(TOUCH_CONTROLS, TOUCH_CONTROLS_MOVE)*/, DJUI_BUTTON_STYLE_BACK, djui_panel_touch_controls_editor_move);
