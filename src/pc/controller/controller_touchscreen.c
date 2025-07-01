@@ -134,11 +134,22 @@ Colors get_color(ConfigControlElement *config) {
 }
 
 void move_touch_element(struct TouchEvent * event, enum ConfigControlElementIndex i) {
-    s32 x, y;
-    x = CORRECT_TOUCH_X(event->x);
+    s32 x_raw, x, y;
+    enum ConfigControlElementAnchor anchor;
+    x_raw = CORRECT_TOUCH_X(event->x);
     y = CORRECT_TOUCH_Y(event->y);
+    if (x_raw < SCREEN_WIDTH_API / 2 - 30) {
+        x = -GFX_DIMENSIONS_RECT_FROM_LEFT_EDGE(-(x_raw >> 2));
+    }
+    else if (x_raw > SCREEN_WIDTH_API / 2 + 30) {
+        x = GFX_DIMENSIONS_RECT_FROM_RIGHT_EDGE(x_raw >> 2);
+    }
+    else {
+        x = SCREEN_WIDTH_API / 2;
+    }
     configControlElements[i].x = x;
     configControlElements[i].y = y;
+    configControlElements[i].anchor = anchor;
 }
 
 void touch_down(struct TouchEvent* event) {
