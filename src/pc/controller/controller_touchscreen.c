@@ -95,10 +95,10 @@ struct Position get_pos(ConfigControlElement *config) {
     } else {
         switch (config->anchor) {
             case CONTROL_ELEMENT_LEFT:
-                ret.x = GFX_DIMENSIONS_RECT_FROM_LEFT_EDGE(config->x) << 2;
+                ret.x = GFX_DIMENSIONS_RECT_FROM_LEFT_EDGE(config->x << 2);
                 break;
             case CONTROL_ELEMENT_RIGHT:
-                ret.x = GFX_DIMENSIONS_RECT_FROM_RIGHT_EDGE(config->x) << 2;
+                ret.x = GFX_DIMENSIONS_RECT_FROM_RIGHT_EDGE(config->x << 2);
                 break;
             case CONTROL_ELEMENT_CENTER:
             default:
@@ -135,27 +135,22 @@ Colors get_color(ConfigControlElement *config) {
 void move_touch_element(struct TouchEvent *event, enum ConfigControlElementIndex i) {
     s32 x_raw = CORRECT_TOUCH_X(event->x);
     s32 y = CORRECT_TOUCH_Y(event->y);
-    s32 x;
-
     ConfigControlElement *config = &configControlElements[i];
+
+    config->y = y;
 
     switch (config->anchor) {
         case CONTROL_ELEMENT_LEFT:
-            x = (x_raw - GFX_DIMENSIONS_RECT_FROM_LEFT_EDGE(0)) >> 2;
+            config->x = (x_raw - GFX_DIMENSIONS_RECT_FROM_LEFT_EDGE(0)) >> 2;
             break;
         case CONTROL_ELEMENT_RIGHT:
-            x = (GFX_DIMENSIONS_RECT_FROM_RIGHT_EDGE(0) - x_raw) >> 2;
+            config->x = (GFX_DIMENSIONS_RECT_FROM_RIGHT_EDGE(0) - x_raw) >> 2;
             break;
         case CONTROL_ELEMENT_CENTER:
-            x = x_raw;
-            break;
         default:
-            x = x_raw;
+            config->x = x_raw;
             break;
     }
-
-    config->x = x;
-    config->y = y;
 }
 
 void touch_down(struct TouchEvent* event) {
