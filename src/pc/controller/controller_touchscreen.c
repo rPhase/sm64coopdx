@@ -142,10 +142,10 @@ void move_touch_element(struct TouchEvent * event, enum ConfigControlElementInde
     s32 x_raw, x, y;
     x_raw = CORRECT_TOUCH_X(event->x);
     y = CORRECT_TOUCH_Y(event->y);
-    if (x_raw < SCREEN_WIDTH_API / 2 - 30) {
+    if (x_raw < SCREEN_WIDTH_API / 2) {
         x = -GFX_DIMENSIONS_RECT_FROM_LEFT_EDGE(-(x_raw >> 2));
     }
-    else if (x_raw > SCREEN_WIDTH_API / 2 + 30) {
+    else if (x_raw > SCREEN_WIDTH_API / 2) {
         x = GFX_DIMENSIONS_RECT_FROM_RIGHT_EDGE(x_raw >> 2);
     }
     else {
