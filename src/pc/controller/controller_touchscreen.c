@@ -85,24 +85,29 @@ struct Position get_pos(ConfigControlElement *config) {
     struct Position ret;
     switch (config->anchor) {
         case CONTROL_ELEMENT_LEFT:
-            ret.x = GFX_DIMENSIONS_RECT_FROM_LEFT_EDGE(config->x) << 2;
-            ret.y = config->y;
-            break;
         case CONTROL_ELEMENT_RIGHT:
-            ret.x = GFX_DIMENSIONS_RECT_FROM_RIGHT_EDGE(config->x) << 2;
-            ret.y = config->y;
-            break;
         case CONTROL_ELEMENT_CENTER:
-            ret.x = SCREEN_WIDTH_API / 2;
+            if (config->x < SCREEN_WIDTH_API / 2 - 30) {
+                ret.x = GFX_DIMENSIONS_RECT_FROM_LEFT_EDGE(config->x) << 2;
+            } else if (config->x > SCREEN_WIDTH_API / 2 + 30) {
+                ret.x = GFX_DIMENSIONS_RECT_FROM_RIGHT_EDGE(config->x) << 2;
+            } else {
+                ret.x = SCREEN_WIDTH_API / 2;
+            }
             ret.y = config->y;
             break;
         case CONTROL_ELEMENT_HIDDEN:
         default:
             if (gInTouchConfig) {
-                ret.x = GFX_DIMENSIONS_RECT_FROM_LEFT_EDGE(config->x) << 2;
+                if (config->x < SCREEN_WIDTH_API / 2 - 30) {
+                    ret.x = GFX_DIMENSIONS_RECT_FROM_LEFT_EDGE(config->x) << 2;
+                } else if (config->x > SCREEN_WIDTH_API / 2 + 30) {
+                    ret.x = GFX_DIMENSIONS_RECT_FROM_RIGHT_EDGE(config->x) << 2;
+                } else {
+                    ret.x = SCREEN_WIDTH_API / 2;
+                }
                 ret.y = config->y;
-            }
-            else {
+            } else {
                 ret.x = HIDE_POS;
                 ret.y = HIDE_POS;
             }
@@ -154,35 +159,33 @@ void touch_down(struct TouchEvent* event) {
     gGamepadActive = false;
     struct Position pos;
     s32 size;
-    if (!gInTouchConfig) {
-        for(u32 i = 0; i < ControlElementsLength; i++) {
-            if (controlElements[i].touchID == 0) {
-                pos = get_pos(&configControlElements[i]);
-                if (pos.y == HIDE_POS) continue;
-                size = configControlElements[i].size;
-                if (!TRIGGER_DETECT(size)) continue;
-                switch (controlElements[i].type) {
-                    case Joystick:
-                        controlElements[i].touchID = event->touchID;
-                        gSelectedTouchElement = i;
-                        if (!gInTouchConfig) {
-                            controlElements[i].joyX = CORRECT_TOUCH_X(event->x) - pos.x;
-                            controlElements[i].joyY = CORRECT_TOUCH_Y(event->y) - pos.y;
-                        }
-                        break;
-                    case Mouse:
-                        controlElements[i].touchID = event->touchID;
-                        break;
-                    case Button:
-                        controlElements[i].touchID = event->touchID;
-                        gSelectedTouchElement = i;
-                        // messy
-                        if (controlElements[i].buttonID == CHAT_BUTTON && !gInTouchConfig)
-                            djui_interactable_on_key_down(configKeyChat[0]);
-                        if (controlElements[i].buttonID == PLAYERLIST_BUTTON && !gInTouchConfig)
-                            djui_interactable_on_key_down(configKeyPlayerList[0]);
-                        break;
-                }
+    for(u32 i = 0; i < ControlElementsLength; i++) {
+        if (controlElements[i].touchID == 0) {
+            pos = get_pos(&configControlElements[i]);
+            if (pos.y == HIDE_POS) continue;
+            size = configControlElements[i].size;
+            if (!TRIGGER_DETECT(size)) continue;
+            switch (controlElements[i].type) {
+                case Joystick:
+                    controlElements[i].touchID = event->touchID;
+                    gSelectedTouchElement = i;
+                    if (!gInTouchConfig) {
+                        controlElements[i].joyX = CORRECT_TOUCH_X(event->x) - pos.x;
+                        controlElements[i].joyY = CORRECT_TOUCH_Y(event->y) - pos.y;
+                    }
+                    break;
+                case Mouse:
+                    controlElements[i].touchID = event->touchID;
+                    break;
+                case Button:
+                    controlElements[i].touchID = event->touchID;
+                    gSelectedTouchElement = i;
+                    // messy
+                    if (controlElements[i].buttonID == CHAT_BUTTON && !gInTouchConfig)
+                        djui_interactable_on_key_down(configKeyChat[0]);
+                    if (controlElements[i].buttonID == PLAYERLIST_BUTTON && !gInTouchConfig)
+                        djui_interactable_on_key_down(configKeyPlayerList[0]);
+                    break;
             }
         }
     }
@@ -195,14 +198,11 @@ void touch_motion(struct TouchEvent* event) {
         pos = get_pos(&configControlElements[i]);
         if (pos.y == HIDE_POS) continue;
         size = configControlElements[i].size;
-        // config mode
         if (gInTouchConfig) {
             if (controlElements[i].touchID == event->touchID && controlElements[i].type != Mouse && gSelectedTouchElement == i) {
                 move_touch_element(event, gSelectedTouchElement);
             }
-        }
-        // normal use
-        else {
+        } else {
             if (controlElements[i].touchID == event->touchID) {
                 s32 x, y;
                 switch (controlElements[i].type) {
@@ -403,8 +403,10 @@ static void touchscreen_read(OSContPad *pad) {
             case Mouse:
                 break;
             case Button:
-                if (controlElements[i].touchID && controlElements[i].buttonID != CHAT_BUTTON && controlElements[i].buttonID != PLAYERLIST_BUTTON && controlElements[i].buttonID != CONSOLE_BUTTON) {
-                    pad->button |= controlElements[i].buttonID;
+                if (!gInTouchConfig) {
+                    if (controlElements[i].touchID && controlElements[i].buttonID != CHAT_BUTTON && controlElements[i].buttonID != PLAYERLIST_BUTTON && controlElements[i].buttonID != CONSOLE_BUTTON) {
+                        pad->button |= controlElements[i].buttonID;
+                    }
                 }
                 break;
         }
