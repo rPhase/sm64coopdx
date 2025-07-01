@@ -154,33 +154,35 @@ void touch_down(struct TouchEvent* event) {
     gGamepadActive = false;
     struct Position pos;
     s32 size;
-    for(u32 i = 0; i < ControlElementsLength; i++) {
-        if (controlElements[i].touchID == 0) {
-            pos = get_pos(&configControlElements[i]);
-            if (pos.y == HIDE_POS) continue;
-            size = configControlElements[i].size;
-            if (!TRIGGER_DETECT(size)) continue;
-            switch (controlElements[i].type) {
-                case Joystick:
-                    controlElements[i].touchID = event->touchID;
-                    gSelectedTouchElement = i;
-                    if (!gInTouchConfig) {
-                        controlElements[i].joyX = CORRECT_TOUCH_X(event->x) - pos.x;
-                        controlElements[i].joyY = CORRECT_TOUCH_Y(event->y) - pos.y;
-                    }
-                    break;
-                case Mouse:
-                    controlElements[i].touchID = event->touchID;
-                    break;
-                case Button:
-                    controlElements[i].touchID = event->touchID;
-                    gSelectedTouchElement = i;
-                    // messy
-                    if (controlElements[i].buttonID == CHAT_BUTTON && !gInTouchConfig)
-                        djui_interactable_on_key_down(configKeyChat[0]);
-                    if (controlElements[i].buttonID == PLAYERLIST_BUTTON && !gInTouchConfig)
-                        djui_interactable_on_key_down(configKeyPlayerList[0]);
-                    break;
+    if (!gInTouchConfig) {
+        for(u32 i = 0; i < ControlElementsLength; i++) {
+            if (controlElements[i].touchID == 0) {
+                pos = get_pos(&configControlElements[i]);
+                if (pos.y == HIDE_POS) continue;
+                size = configControlElements[i].size;
+                if (!TRIGGER_DETECT(size)) continue;
+                switch (controlElements[i].type) {
+                    case Joystick:
+                        controlElements[i].touchID = event->touchID;
+                        gSelectedTouchElement = i;
+                        if (!gInTouchConfig) {
+                            controlElements[i].joyX = CORRECT_TOUCH_X(event->x) - pos.x;
+                            controlElements[i].joyY = CORRECT_TOUCH_Y(event->y) - pos.y;
+                        }
+                        break;
+                    case Mouse:
+                        controlElements[i].touchID = event->touchID;
+                        break;
+                    case Button:
+                        controlElements[i].touchID = event->touchID;
+                        gSelectedTouchElement = i;
+                        // messy
+                        if (controlElements[i].buttonID == CHAT_BUTTON && !gInTouchConfig)
+                            djui_interactable_on_key_down(configKeyChat[0]);
+                        if (controlElements[i].buttonID == PLAYERLIST_BUTTON && !gInTouchConfig)
+                            djui_interactable_on_key_down(configKeyPlayerList[0]);
+                        break;
+                }
             }
         }
     }
@@ -355,18 +357,20 @@ void render_touch_controls(void) {
                 } else {
                     normalizedVectorMultiplier = 0;
                 }
-                stick.x = controlElements[i].joyX * normalizedVectorMultiplier;
-                stick.y = controlElements[i].joyY * normalizedVectorMultiplier;
+                if (!gInTouchConfig) {
+                    stick.x = controlElements[i].joyX * normalizedVectorMultiplier;
+                    stick.y = controlElements[i].joyY * normalizedVectorMultiplier;
+                }
                 render_texture(touch_textures[TEXTURE_TOUCH_JOYSTICK_BASE], pos.x, pos.y, 32, 32, 1 + size / 100, color.r, color.g, color.b, color.a);
                 render_texture(touch_textures[TEXTURE_TOUCH_JOYSTICK], pos.x + stick.x, pos.y + stick.y, 16, 16, 1 + size / 100, color.r, color.g, color.b, color.a);
                 break;
             case Mouse:
                 break;
             case Button:
-                if (controlElements[i].touchID) {
-                    render_texture(touch_textures[controlElements[i].buttonTexture.buttonDown], pos.x, pos.y, 16, 16, 1 + size / 100, color.r, color.g, color.b, color.a);
-                } else {
+                if (!controlElements[i].touchID || gInTouchConfig) {
                     render_texture(touch_textures[controlElements[i].buttonTexture.buttonUp], pos.x, pos.y, 16, 16, 1 + size / 100, color.r, color.g, color.b, color.a);
+                } else {
+                    render_texture(touch_textures[controlElements[i].buttonTexture.buttonDown], pos.x, pos.y, 16, 16, 1 + size / 100, color.r, color.g, color.b, color.a);
                 }
                 break;
         }
