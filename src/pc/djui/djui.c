@@ -166,11 +166,14 @@ void djui_reset_hud_params(void) {
 
 void djui_render(void) {
     if (!sDjuiInited || gDjuiDisabled) { return; }
+#ifdef TOUCH_CONTROLS
+    render_touch_controls();
+#endif
     djui_reset_hud_params();
 
     sSavedDisplayListHead = gDisplayListHead;
     gDjuiHudUtilsZ = 0;
-
+    
     create_dl_ortho_matrix();
     djui_gfx_displaylist_begin();
 
@@ -200,9 +203,6 @@ void djui_render(void) {
     }
 
     djui_cursor_update();
-#ifdef TOUCH_CONTROLS // In the future, check if touch controls exist rather than checking if the TOUCH_CONTROLS define exists
-    render_touch_controls();
-#endif
     djui_base_render(&gDjuiConsole->base);
     djui_interactable_update();
     djui_gfx_displaylist_end();
