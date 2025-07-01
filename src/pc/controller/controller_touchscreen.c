@@ -83,42 +83,36 @@ static u32 ControlElementsLength = sizeof(controlElements)/sizeof(struct Control
 
 struct Position get_pos(ConfigControlElement *config) {
     struct Position ret;
-    switch (config->anchor) {
-        case CONTROL_ELEMENT_LEFT:
-        case CONTROL_ELEMENT_RIGHT:
-        case CONTROL_ELEMENT_CENTER:
-            if (config->x < SCREEN_WIDTH_API / 2) {
-                ret.x = GFX_DIMENSIONS_RECT_FROM_LEFT_EDGE(config->x) << 2;
-            } else if (config->x > SCREEN_WIDTH_API / 2) {
-                ret.x = GFX_DIMENSIONS_RECT_FROM_RIGHT_EDGE(config->x) << 2;
-            } else {
-                ret.x = SCREEN_WIDTH_API / 2;
-            }
+
+    if (config->anchor == CONTROL_ELEMENT_HIDDEN) {
+        if (gInTouchConfig) {
+            ret.x = config->x;
             ret.y = config->y;
-            break;
-        case CONTROL_ELEMENT_HIDDEN:
-        default:
-            if (gInTouchConfig) {
-                if (config->x < SCREEN_WIDTH_API / 2) {
-                    ret.x = GFX_DIMENSIONS_RECT_FROM_LEFT_EDGE(config->x) << 2;
-                } else if (config->x > SCREEN_WIDTH_API / 2) {
-                    ret.x = GFX_DIMENSIONS_RECT_FROM_RIGHT_EDGE(config->x) << 2;
-                } else {
-                    ret.x = SCREEN_WIDTH_API / 2;
-                }
-                ret.y = config->y;
-            } else {
-                ret.x = HIDE_POS;
-                ret.y = HIDE_POS;
-            }
-            break;
+        } else {
+            ret.x = HIDE_POS;
+            ret.y = HIDE_POS;
+        }
+    } else {
+        switch (config->anchor) {
+            case CONTROL_ELEMENT_LEFT:
+                ret.x = GFX_DIMENSIONS_RECT_FROM_LEFT_EDGE(config->x) << 2;
+                break;
+            case CONTROL_ELEMENT_RIGHT:
+                ret.x = GFX_DIMENSIONS_RECT_FROM_RIGHT_EDGE(config->x) << 2;
+                break;
+            case CONTROL_ELEMENT_CENTER:
+            default:
+                ret.x = config->x;
+                break;
+        }
+        ret.y = config->y;
     }
-    
+
     if (configSnapTouch) {
-        ret.x = 50 * ((ret.x + 49) / 50) - 25; 
-        ret.y = 50 * ((ret.y + 49) / 50) - 25; 
+        ret.x = 50 * ((ret.x + 49) / 50) - 25;
+        ret.y = 50 * ((ret.y + 49) / 50) - 25;
     }
-    
+
     if (!gInTouchConfig && (gDjuiInMainMenu && !gDjuiDisabled)) {
         ret.x = HIDE_POS;
         ret.y = HIDE_POS;
@@ -138,21 +132,30 @@ Colors get_color(ConfigControlElement *config) {
     return ret;
 }
 
-void move_touch_element(struct TouchEvent * event, enum ConfigControlElementIndex i) {
-    s32 x_raw, x, y;
-    x_raw = CORRECT_TOUCH_X(event->x);
-    y = CORRECT_TOUCH_Y(event->y);
-    if (x_raw < SCREEN_WIDTH_API / 2) {
-        x = -GFX_DIMENSIONS_RECT_FROM_LEFT_EDGE(-(x_raw >> 2));
+void move_touch_element(struct TouchEvent *event, enum ConfigControlElementIndex i) {
+    s32 x_raw = CORRECT_TOUCH_X(event->x);
+    s32 y = CORRECT_TOUCH_Y(event->y);
+    s32 x;
+
+    ConfigControlElement *config = &configControlElements[i];
+
+    switch (config->anchor) {
+        case CONTROL_ELEMENT_LEFT:
+            x = (x_raw - GFX_DIMENSIONS_RECT_FROM_LEFT_EDGE(0)) >> 2;
+            break;
+        case CONTROL_ELEMENT_RIGHT:
+            x = (GFX_DIMENSIONS_RECT_FROM_RIGHT_EDGE(0) - x_raw) >> 2;
+            break;
+        case CONTROL_ELEMENT_CENTER:
+            x = x_raw;
+            break;
+        default:
+            x = x_raw;
+            break;
     }
-    else if (x_raw > SCREEN_WIDTH_API / 2) {
-        x = GFX_DIMENSIONS_RECT_FROM_RIGHT_EDGE(x_raw >> 2);
-    }
-    else {
-        x = SCREEN_WIDTH_API / 2;
-    }
-    configControlElements[i].x = x;
-    configControlElements[i].y = y;
+
+    config->x = x;
+    config->y = y;
 }
 
 void touch_down(struct TouchEvent* event) {
