@@ -214,14 +214,14 @@ void touch_motion(struct TouchEvent* event) {
                             }
                             x = CORRECT_TOUCH_X(event->x) - pos.x;
                             y = CORRECT_TOUCH_Y(event->y) - pos.y;
-                            if (pos.x + size < CORRECT_TOUCH_X(event->x))
-                                x = size;
-                            if (pos.x - size > CORRECT_TOUCH_X(event->x))
-                                x = - size;
-                            if (pos.y + size < CORRECT_TOUCH_Y(event->y))
-                                y = size;
-                            if (pos.y - size > CORRECT_TOUCH_Y(event->y))
-                                y = - size;
+                            if (pos.x + size / 2 < CORRECT_TOUCH_X(event->x))
+                                x = size / 2;
+                            if (pos.x - size / 2 > CORRECT_TOUCH_X(event->x))
+                                x = - size / 2;
+                            if (pos.y + size / 2 < CORRECT_TOUCH_Y(event->y))
+                                y = size / 2;
+                            if (pos.y - size / 2 > CORRECT_TOUCH_Y(event->y))
+                                y = - size / 2;
                             controlElements[i].joyX = x;
                             controlElements[i].joyY = y;
                             break;
@@ -352,8 +352,8 @@ void render_touch_controls(void) {
                     stick.x = 0;
                     stick.y = 0;
                 } else {
-                    stick.x = controlElements[i].joyX * normalizedVectorMultiplier;
-                    stick.y = controlElements[i].joyY * normalizedVectorMultiplier;
+                    stick.x = (controlElements[i].joyX * normalizedVectorMultiplier * 2);
+                    stick.y = (controlElements[i].joyY * normalizedVectorMultiplier * 2);
                 }
                 render_texture(touch_textures[TEXTURE_TOUCH_JOYSTICK_BASE], pos.x, pos.y, 32, 32, 1 + size, color.r, color.g, color.b, color.a);
                 render_texture(touch_textures[TEXTURE_TOUCH_JOYSTICK], pos.x + stick.x, pos.y + stick.y, 16, 16, 1 + size, color.r, color.g, color.b, color.a);
