@@ -354,7 +354,7 @@ void render_touch_controls(void) {
                 } else {
                     normalizedVectorMultiplier = 0;
                 }
-                if (!gInTouchConfig) {
+                if (gInTouchConfig || gDjuiPauseOptions) {
                     stick.x = 0;
                     stick.y = 0;
                 } else {
@@ -367,7 +367,7 @@ void render_touch_controls(void) {
             case Mouse:
                 break;
             case Button:
-                if (!controlElements[i].touchID || gInTouchConfig) {
+                if (!controlElements[i].touchID || gInTouchConfig || gDjuiPauseOptions) {
                     render_texture(touch_textures[controlElements[i].buttonTexture.buttonUp], pos.x, pos.y, 16, 16, 1 + size / 100, color.r, color.g, color.b, color.a);
                 } else {
                     render_texture(touch_textures[controlElements[i].buttonTexture.buttonDown], pos.x, pos.y, 16, 16, 1 + size / 100, color.r, color.g, color.b, color.a);
@@ -393,22 +393,22 @@ static void touchscreen_read(OSContPad *pad) {
         pos = get_pos(&configControlElements[i]);
         size = configControlElements[i].size;
         if (pos.y == HIDE_POS) continue;
-        switch (controlElements[i].type) {
-            case Joystick:
-                if (controlElements[i].joyX || controlElements[i].joyY) {
-                    pad->stick_x = (controlElements[i].joyX + size / 2) * 255 / size - 128;
-                    pad->stick_y = (-controlElements[i].joyY + size / 2) * 255 / size - 128; //inverted for some reason
-                }
-                break;
-            case Mouse:
-                break;
-            case Button:
-                if (!gInTouchConfig) {
+        if (!gInTouchConfig && !gDjuiPauseOptions) {
+            switch (controlElements[i].type) {
+                case Joystick:
+                    if (controlElements[i].joyX || controlElements[i].joyY) {
+                        pad->stick_x = (controlElements[i].joyX + size / 2) * 255 / size - 128;
+                        pad->stick_y = (-controlElements[i].joyY + size / 2) * 255 / size - 128; //inverted for some reason
+                    }
+                    break;
+                case Mouse:
+                    break;
+                case Button:
                     if (controlElements[i].touchID && controlElements[i].buttonID != CHAT_BUTTON && controlElements[i].buttonID != PLAYERLIST_BUTTON && controlElements[i].buttonID != CONSOLE_BUTTON) {
                         pad->button |= controlElements[i].buttonID;
                     }
-                }
-                break;
+                    break;
+            }
         }
     }
 }
