@@ -8,6 +8,20 @@ extern "C" {
 #include "src/pc/lua/utils/smlua_gfx_utils.h"
 #include "include/macros.h"
 }
+#ifdef __clang__
+#ifdef max
+#undef max
+#endif
+
+#ifdef min
+#undef min
+#endif
+
+#ifdef size
+#undef size
+#endif
+#include <vector>
+#endif
 
 #define GFX_PARAM_TYPE_INT 'i'
 #define GFX_PARAM_TYPE_STR 's'
@@ -1245,7 +1259,11 @@ static std::string ResolveGfxCommand(lua_State *L, GfxData *aGfxData, const char
 
     // Count parameters
     // Find the position of each % to retrieve the correct expected type from the command paramInfo
+#ifdef __clang__
+    std::vector<u8> paramPos(paramInfo->count, 0);
+#else
     u8 paramPos[paramInfo->count] = { 0 };
+#endif
     u8 paramPosIndex = 0;
     u8 paramCount = 1;
     bool inBrackets = false;
