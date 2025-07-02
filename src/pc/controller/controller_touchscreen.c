@@ -383,24 +383,26 @@ static void touchscreen_init(void) {
 static void touchscreen_read(OSContPad *pad) {
     struct Position pos;
     s32 size;
-    for(u32 i = 0; i < ControlElementsLength; i++) {
-        pos = get_pos(&configControlElements[i]);
-        size = configControlElements[i].size * 100;
-        if (pos.y == HIDE_POS) continue;
-        switch (controlElements[i].type) {
-            case Joystick:
-                if (controlElements[i].joyX || controlElements[i].joyY) {
-                    pad->stick_x = (controlElements[i].joyX + size / 2) * 255 / size - 128;
-                    pad->stick_y = (-controlElements[i].joyY + size / 2) * 255 / size - 128; //inverted for some reason
-                }
-                break;
-            case Mouse:
-                break;
-            case Button:
-                if (controlElements[i].touchID && controlElements[i].buttonID != CHAT_BUTTON && controlElements[i].buttonID != PLAYERLIST_BUTTON && controlElements[i].buttonID != CONSOLE_BUTTON) {
-                    pad->button |= controlElements[i].buttonID;
-                }
-                break;
+    if (!gInTouchConfig && !gDjuiPanelPauseCreated) {
+        for(u32 i = 0; i < ControlElementsLength; i++) {
+            pos = get_pos(&configControlElements[i]);
+            size = configControlElements[i].size * 100;
+            if (pos.y == HIDE_POS) continue;
+            switch (controlElements[i].type) {
+                case Joystick:
+                    if (controlElements[i].joyX || controlElements[i].joyY) {
+                        pad->stick_x = (controlElements[i].joyX + size / 2) * 255 / size - 128;
+                        pad->stick_y = (-controlElements[i].joyY + size / 2) * 255 / size - 128; //inverted for some reason
+                    }
+                    break;
+                case Mouse:
+                    break;
+                case Button:
+                    if (controlElements[i].touchID && controlElements[i].buttonID != CHAT_BUTTON && controlElements[i].buttonID != PLAYERLIST_BUTTON && controlElements[i].buttonID != CONSOLE_BUTTON) {
+                        pad->button |= controlElements[i].buttonID;
+                    }
+                    break;
+            }
         }
     }
 }
