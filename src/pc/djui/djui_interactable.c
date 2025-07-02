@@ -285,14 +285,11 @@ void djui_interactable_on_key_up(int scancode) {
     }
 
 #ifdef TOUCH_CONTROLS
-    if (scancode == SCANCODE_BACK && djui_panel_is_active()) {
+    if ((scancode == SCANCODE_ESCAPE || scancode == SCANCODE_BACK) && djui_panel_is_active()) {
 #else
     if (scancode == SCANCODE_ESCAPE && djui_panel_is_active()) {
 #endif
         // pressed escape button on keyboard
-#ifdef TOUCH_CONTROLS
-        gInTouchConfig = false;
-#endif
         djui_panel_back();
         return;
     }
