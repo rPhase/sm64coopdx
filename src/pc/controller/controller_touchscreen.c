@@ -178,9 +178,9 @@ void touch_down(struct TouchEvent* event) {
                     }
                     break;
                 case Button:
+                    controlElements[i].touchID = event->touchID;
+                    gSelectedTouchElement = i;
                     if (!gInTouchConfig && !gDjuiPauseOptions) {
-                        controlElements[i].touchID = event->touchID;
-                        gSelectedTouchElement = i;
                         // messy
                         if (controlElements[i].buttonID == CHAT_BUTTON && !gInTouchConfig)
                             djui_interactable_on_key_down(configKeyChat[0]);
@@ -407,8 +407,10 @@ static void touchscreen_read(OSContPad *pad) {
             case Mouse:
                 break;
             case Button:
-                if (controlElements[i].touchID && controlElements[i].buttonID != CHAT_BUTTON && controlElements[i].buttonID != PLAYERLIST_BUTTON && controlElements[i].buttonID != CONSOLE_BUTTON) {
-                    pad->button |= controlElements[i].buttonID;
+                if (!gInTouchConfig && !gDjuiPauseOptions) {
+                    if (controlElements[i].touchID && controlElements[i].buttonID != CHAT_BUTTON && controlElements[i].buttonID != PLAYERLIST_BUTTON && controlElements[i].buttonID != CONSOLE_BUTTON) {
+                        pad->button |= controlElements[i].buttonID;
+                    }
                 }
                 break;
         }
