@@ -167,26 +167,20 @@ void touch_down(struct TouchEvent* event) {
                 case Joystick:
                     controlElements[i].touchID = event->touchID;
                     gSelectedTouchElement = i;
-                    if (!gInTouchConfig && !gDjuiPauseOptions) {
-                        controlElements[i].joyX = CORRECT_TOUCH_X(event->x) - pos.x;
-                        controlElements[i].joyY = CORRECT_TOUCH_Y(event->y) - pos.y;
-                    }
+                    controlElements[i].joyX = CORRECT_TOUCH_X(event->x) - pos.x;
+                    controlElements[i].joyY = CORRECT_TOUCH_Y(event->y) - pos.y;
                     break;
                 case Mouse:
-                    if (!gInTouchConfig && !gDjuiPauseOptions) {
-                        controlElements[i].touchID = event->touchID;
-                    }
+                    controlElements[i].touchID = event->touchID;
                     break;
                 case Button:
-                    controlElements[i].touchID = event->touchID;
                     gSelectedTouchElement = i;
-                    if (!gInTouchConfig && !gDjuiPauseOptions) {
-                        // messy
-                        if (controlElements[i].buttonID == CHAT_BUTTON && !gInTouchConfig)
-                            djui_interactable_on_key_down(configKeyChat[0]);
-                        if (controlElements[i].buttonID == PLAYERLIST_BUTTON && !gInTouchConfig)
-                            djui_interactable_on_key_down(configKeyPlayerList[0]);
-                    }
+                    controlElements[i].touchID = event->touchID;
+                    // messy
+                    if (controlElements[i].buttonID == CHAT_BUTTON && !gInTouchConfig)
+                        djui_interactable_on_key_down(configKeyChat[0]);
+                    if (controlElements[i].buttonID == PLAYERLIST_BUTTON && !gInTouchConfig)
+                        djui_interactable_on_key_down(configKeyPlayerList[0]);
                     break;
             }
         }
