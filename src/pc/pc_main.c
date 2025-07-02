@@ -425,6 +425,7 @@ void* main_game_init(UNUSED void* dummy) {
 #endif
 
     gGameInited = true;
+    return NULL;
 }
 
 #ifdef TARGET_ANDROID
