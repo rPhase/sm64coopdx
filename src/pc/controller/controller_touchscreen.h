@@ -22,10 +22,10 @@
 #define CORRECT_TOUCH_X(x) ((x * (RIGHT_EDGE - LEFT_EDGE)) + LEFT_EDGE)
 #define CORRECT_TOUCH_Y(y) (y * SCREEN_HEIGHT_API)
 
-#define TRIGGER_DETECT(size) (((pos.x + size / 2 > CORRECT_TOUCH_X(event->x)) &&\
-                               (pos.x - size / 2 < CORRECT_TOUCH_X(event->x))) &&\
-                              ((pos.y + size / 2 > CORRECT_TOUCH_Y(event->y)) &&\
-                               (pos.y - size / 2 < CORRECT_TOUCH_Y(event->y))))
+#define TRIGGER_DETECT(size) (((pos.x + (size * 100) / 2 > CORRECT_TOUCH_X(event->x)) &&\
+                               (pos.x - (size * 100) / 2 < CORRECT_TOUCH_X(event->x))) &&\
+                              ((pos.y + (size * 100) / 2 > CORRECT_TOUCH_Y(event->y)) &&\
+                               (pos.y - (size * 100) / 2 < CORRECT_TOUCH_Y(event->y))))
 
 enum ConfigControlElementAnchor {
     CONTROL_ELEMENT_LEFT,

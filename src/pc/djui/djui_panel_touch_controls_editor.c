@@ -94,7 +94,7 @@ void djui_panel_touch_controls_editor_create(struct DjuiBase* caller) {
         
         sTouchConfigSliderA = djui_slider_create(body, DLANG(TOUCH_CONTROLS, TOUCH_CONTROLS_OPACITY), &configControlElements[gSelectedTouchElement].a, 0, 255, NULL);
         
-        sTouchConfigSliderS = djui_slider_create(body, DLANG(TOUCH_CONTROLS, TOUCH_CONTROLS_SCALE), &configControlElements[gSelectedTouchElement].size, 100, 300, NULL);
+        sTouchConfigSliderS = djui_slider_create(body, DLANG(TOUCH_CONTROLS, TOUCH_CONTROLS_SCALE), &configControlElements[gSelectedTouchElement].size, 1, 3, NULL);
 
         if (gSelectedTouchElement == TOUCH_MOUSE) {
             djui_base_set_enabled(&sTouchConfigSelectionboxAnchor->base, false);

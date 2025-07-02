@@ -201,78 +201,72 @@ void touch_motion(struct TouchEvent* event) {
                 move_touch_element(event, gSelectedTouchElement);
             }
         } else {
-            if (controlElements[i].touchID == event->touchID) {
-                s32 x, y;
-                switch (controlElements[i].type) {
-                    case Joystick:
-                        if (configPhantomTouch && !TRIGGER_DETECT(size * 2)) {
-                            controlElements[i].joyX = 0;
-                            controlElements[i].joyY = 0;
-                            controlElements[i].touchID = 0;
+            if (!gDjuiPanelPauseCreated) {
+                if (controlElements[i].touchID == event->touchID) {
+                    s32 x, y;
+                    switch (controlElements[i].type) {
+                        case Joystick:
+                            if (configPhantomTouch && !TRIGGER_DETECT(size * 6)) {
+                                controlElements[i].joyX = 0;
+                                controlElements[i].joyY = 0;
+                                controlElements[i].touchID = 0;
+                                break;
+                            }
+                            x = CORRECT_TOUCH_X(event->x) - pos.x;
+                            y = CORRECT_TOUCH_Y(event->y) - pos.y;
+                            if (pos.x + size / 2 < CORRECT_TOUCH_X(event->x))
+                                x = size / 2;
+                            if (pos.x - size / 2 > CORRECT_TOUCH_X(event->x))
+                                x = - size / 2;
+                            if (pos.y + size / 2 < CORRECT_TOUCH_Y(event->y))
+                                y = size / 2;
+                            if (pos.y - size / 2 > CORRECT_TOUCH_Y(event->y))
+                                y = - size / 2;
+                            controlElements[i].joyX = x;
+                            controlElements[i].joyY = y;
                             break;
-                        }
-                        x = CORRECT_TOUCH_X(event->x) - pos.x;
-                        y = CORRECT_TOUCH_Y(event->y) - pos.y;
-                        if (pos.x + size / 2 < CORRECT_TOUCH_X(event->x))
-                            x = size / 2;
-                        if (pos.x - size / 2 > CORRECT_TOUCH_X(event->x))
-                            x = - size / 2;
-                        if (pos.y + size / 2 < CORRECT_TOUCH_Y(event->y))
-                            y = size / 2;
-                        if (pos.y - size / 2 > CORRECT_TOUCH_Y(event->y))
-                            y = - size / 2;
-                        controlElements[i].joyX = x;
-                        controlElements[i].joyY = y;
-                        break;
-                    case Mouse:
-                        if (configPhantomTouch && !TRIGGER_DETECT(size)) {
-                            touch_x = before_x = 0;
-                            touch_y = before_y = 0;
-                            controlElements[i].touchID = 0;
+                        case Mouse:
+                            if (configPhantomTouch && !TRIGGER_DETECT(size)) {
+                                touch_x = before_x = 0;
+                                touch_y = before_y = 0;
+                                controlElements[i].touchID = 0;
+                                break;
+                            }
+                            if (before_x > 0)
+                                touch_x = CORRECT_TOUCH_X(event->x) - before_x;
+                            if (before_y > 0)
+                                touch_y = CORRECT_TOUCH_Y(event->y) - before_y;
+                            before_x = CORRECT_TOUCH_X(event->x);
+                            before_y = CORRECT_TOUCH_Y(event->y);
+                            if ((u16)abs(touch_x) < configStickDeadzone / 4)
+                                touch_x = 0;
+                            if ((u16)abs(touch_y) < configStickDeadzone / 4)
+                                touch_y = 0;
                             break;
-                        }
-                        if (before_x > 0)
-                            touch_x = CORRECT_TOUCH_X(event->x) - before_x;
-                        if (before_y > 0)
-                            touch_y = CORRECT_TOUCH_Y(event->y) - before_y;
-                        before_x = CORRECT_TOUCH_X(event->x);
-                        before_y = CORRECT_TOUCH_Y(event->y);
-                        if ((u16)abs(touch_x) < configStickDeadzone / 4)
-                            touch_x = 0;
-                        if ((u16)abs(touch_y) < configStickDeadzone / 4)
-                            touch_y = 0;
-                        break;
-                    case Button:
-                        if ((controlElements[i].slideTouch && !TRIGGER_DETECT(size)) ||
-                            (configPhantomTouch && !controlElements[i].slideTouch && !TRIGGER_DETECT(size * 3))) {
-                            controlElements[i].slideTouch = 0;
-                            controlElements[i].touchID = 0;
-                        }
-                        break;
-                }
-            }
-            // slide touch
-            else if ((TRIGGER_DETECT(size) ||
-                     (configPhantomTouch && TRIGGER_DETECT(size * 2) &&
-                      controlElements[i].type == Joystick)) &&
-                     (controlElements[TOUCH_MOUSE].touchID != event->touchID ||
-                      !configFreeCameraMouse) &&
-                     configSlideTouch) {
-                if (configPhantomTouch)
-                    controlElements[i].touchID = event->touchID;
-                switch (controlElements[i].type) {
-                    case Joystick:
-                        break;
-                    case Mouse:
-                        break;
-                    case Button:
-                        controlElements[i].slideTouch = 1;
+                        case Button:
+                            if ((controlElements[i].slideTouch && !TRIGGER_DETECT(size)) || (configPhantomTouch && !controlElements[i].slideTouch && !TRIGGER_DETECT(size * 3))) {
+                                controlElements[i].slideTouch = 0;
+                                controlElements[i].touchID = 0;
+                            }
+                            break;
+                    }
+                } else if ((TRIGGER_DETECT(size) || (configPhantomTouch && TRIGGER_DETECT(size * 6) && controlElements[i].type == Joystick)) && (controlElements[TOUCH_MOUSE].touchID != event->touchID || !configFreeCameraMouse) && configSlideTouch) {
+                    if (configPhantomTouch)
                         controlElements[i].touchID = event->touchID;
-                        if (controlElements[i].buttonID == CHAT_BUTTON)
-                            djui_interactable_on_key_down(configKeyChat[0]);
-                        if (controlElements[i].buttonID == PLAYERLIST_BUTTON)
-                            djui_interactable_on_key_down(configKeyPlayerList[0]);
-                        break;
+                    switch (controlElements[i].type) {
+                        case Joystick:
+                            break;
+                        case Mouse:
+                            break;
+                        case Button:
+                            controlElements[i].slideTouch = 1;
+                            controlElements[i].touchID = event->touchID;
+                            if (controlElements[i].buttonID == CHAT_BUTTON)
+                                djui_interactable_on_key_down(configKeyChat[0]);
+                            if (controlElements[i].buttonID == PLAYERLIST_BUTTON)
+                                djui_interactable_on_key_down(configKeyPlayerList[0]);
+                            break;
+                    }
                 }
             }
         }
@@ -361,16 +355,16 @@ void render_touch_controls(void) {
                     stick.x = controlElements[i].joyX * normalizedVectorMultiplier;
                     stick.y = controlElements[i].joyY * normalizedVectorMultiplier;
                 }
-                render_texture(touch_textures[TEXTURE_TOUCH_JOYSTICK_BASE], pos.x, pos.y, 32, 32, 1 + size / 100, color.r, color.g, color.b, color.a);
-                render_texture(touch_textures[TEXTURE_TOUCH_JOYSTICK], pos.x + stick.x, pos.y + stick.y, 16, 16, 1 + size / 100, color.r, color.g, color.b, color.a);
+                render_texture(touch_textures[TEXTURE_TOUCH_JOYSTICK_BASE], pos.x, pos.y, 32, 32, 1 + size, color.r, color.g, color.b, color.a);
+                render_texture(touch_textures[TEXTURE_TOUCH_JOYSTICK], pos.x + stick.x, pos.y + stick.y, 16, 16, 1 + size, color.r, color.g, color.b, color.a);
                 break;
             case Mouse:
                 break;
             case Button:
                 if (!controlElements[i].touchID || gInTouchConfig || gDjuiPanelPauseCreated) {
-                    render_texture(touch_textures[controlElements[i].buttonTexture.buttonUp], pos.x, pos.y, 16, 16, 1 + size / 100, color.r, color.g, color.b, color.a);
+                    render_texture(touch_textures[controlElements[i].buttonTexture.buttonUp], pos.x, pos.y, 16, 16, 1 + size, color.r, color.g, color.b, color.a);
                 } else {
-                    render_texture(touch_textures[controlElements[i].buttonTexture.buttonDown], pos.x, pos.y, 16, 16, 1 + size / 100, color.r, color.g, color.b, color.a);
+                    render_texture(touch_textures[controlElements[i].buttonTexture.buttonDown], pos.x, pos.y, 16, 16, 1 + size, color.r, color.g, color.b, color.a);
                 }
                 break;
         }
@@ -393,22 +387,20 @@ static void touchscreen_read(OSContPad *pad) {
         pos = get_pos(&configControlElements[i]);
         size = configControlElements[i].size;
         if (pos.y == HIDE_POS) continue;
-        if (!gInTouchConfig && !gDjuiPanelPauseCreated) {
-            switch (controlElements[i].type) {
-                case Joystick:
-                    if (controlElements[i].joyX || controlElements[i].joyY) {
-                        pad->stick_x = (controlElements[i].joyX + size / 2) * 255 / size - 128;
-                        pad->stick_y = (-controlElements[i].joyY + size / 2) * 255 / size - 128; //inverted for some reason
-                    }
-                    break;
-                case Mouse:
-                    break;
-                case Button:
-                    if (controlElements[i].touchID && controlElements[i].buttonID != CHAT_BUTTON && controlElements[i].buttonID != PLAYERLIST_BUTTON && controlElements[i].buttonID != CONSOLE_BUTTON) {
-                        pad->button |= controlElements[i].buttonID;
-                    }
-                    break;
-            }
+        switch (controlElements[i].type) {
+            case Joystick:
+                if (controlElements[i].joyX || controlElements[i].joyY) {
+                    pad->stick_x = (controlElements[i].joyX + size / 2) * 255 / size - 128;
+                    pad->stick_y = (-controlElements[i].joyY + size / 2) * 255 / size - 128; //inverted for some reason
+                }
+                break;
+            case Mouse:
+                break;
+            case Button:
+                if (controlElements[i].touchID && controlElements[i].buttonID != CHAT_BUTTON && controlElements[i].buttonID != PLAYERLIST_BUTTON && controlElements[i].buttonID != CONSOLE_BUTTON) {
+                    pad->button |= controlElements[i].buttonID;
+                }
+                break;
         }
     }
 }
