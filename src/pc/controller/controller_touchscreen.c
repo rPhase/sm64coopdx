@@ -167,22 +167,26 @@ void touch_down(struct TouchEvent* event) {
                 case Joystick:
                     controlElements[i].touchID = event->touchID;
                     gSelectedTouchElement = i;
-                    if (!gInTouchConfig) {
+                    if (!gInTouchConfig && !gDjuiPauseOptions) {
                         controlElements[i].joyX = CORRECT_TOUCH_X(event->x) - pos.x;
                         controlElements[i].joyY = CORRECT_TOUCH_Y(event->y) - pos.y;
                     }
                     break;
                 case Mouse:
-                    controlElements[i].touchID = event->touchID;
+                    if (!gInTouchConfig && !gDjuiPauseOptions) {
+                        controlElements[i].touchID = event->touchID;
+                    }
                     break;
                 case Button:
-                    controlElements[i].touchID = event->touchID;
-                    gSelectedTouchElement = i;
-                    // messy
-                    if (controlElements[i].buttonID == CHAT_BUTTON && !gInTouchConfig)
-                        djui_interactable_on_key_down(configKeyChat[0]);
-                    if (controlElements[i].buttonID == PLAYERLIST_BUTTON && !gInTouchConfig)
-                        djui_interactable_on_key_down(configKeyPlayerList[0]);
+                    if (!gInTouchConfig && !gDjuiPauseOptions) {
+                        controlElements[i].touchID = event->touchID;
+                        gSelectedTouchElement = i;
+                        // messy
+                        if (controlElements[i].buttonID == CHAT_BUTTON && !gInTouchConfig)
+                            djui_interactable_on_key_down(configKeyChat[0]);
+                        if (controlElements[i].buttonID == PLAYERLIST_BUTTON && !gInTouchConfig)
+                            djui_interactable_on_key_down(configKeyPlayerList[0]);
+                    }
                     break;
             }
         }
@@ -393,22 +397,20 @@ static void touchscreen_read(OSContPad *pad) {
         pos = get_pos(&configControlElements[i]);
         size = configControlElements[i].size;
         if (pos.y == HIDE_POS) continue;
-        if (!gInTouchConfig && !gDjuiPauseOptions) {
-            switch (controlElements[i].type) {
-                case Joystick:
-                    if (controlElements[i].joyX || controlElements[i].joyY) {
-                        pad->stick_x = (controlElements[i].joyX + size / 2) * 255 / size - 128;
-                        pad->stick_y = (-controlElements[i].joyY + size / 2) * 255 / size - 128; //inverted for some reason
-                    }
-                    break;
-                case Mouse:
-                    break;
-                case Button:
-                    if (controlElements[i].touchID && controlElements[i].buttonID != CHAT_BUTTON && controlElements[i].buttonID != PLAYERLIST_BUTTON && controlElements[i].buttonID != CONSOLE_BUTTON) {
-                        pad->button |= controlElements[i].buttonID;
-                    }
-                    break;
-            }
+        switch (controlElements[i].type) {
+            case Joystick:
+                if (controlElements[i].joyX || controlElements[i].joyY) {
+                    pad->stick_x = (controlElements[i].joyX + size / 2) * 255 / size - 128;
+                    pad->stick_y = (-controlElements[i].joyY + size / 2) * 255 / size - 128; //inverted for some reason
+                }
+                break;
+            case Mouse:
+                break;
+            case Button:
+                if (controlElements[i].touchID && controlElements[i].buttonID != CHAT_BUTTON && controlElements[i].buttonID != PLAYERLIST_BUTTON && controlElements[i].buttonID != CONSOLE_BUTTON) {
+                    pad->button |= controlElements[i].buttonID;
+                }
+                break;
         }
     }
 }
