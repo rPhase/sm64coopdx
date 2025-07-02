@@ -214,14 +214,14 @@ void touch_motion(struct TouchEvent* event) {
                             }
                             x = CORRECT_TOUCH_X(event->x) - pos.x;
                             y = CORRECT_TOUCH_Y(event->y) - pos.y;
-                            if (pos.x + size / 2 < CORRECT_TOUCH_X(event->x))
-                                x = size / 2;
-                            if (pos.x - size / 2 > CORRECT_TOUCH_X(event->x))
-                                x = - size / 2;
-                            if (pos.y + size / 2 < CORRECT_TOUCH_Y(event->y))
-                                y = size / 2;
-                            if (pos.y - size / 2 > CORRECT_TOUCH_Y(event->y))
-                                y = - size / 2;
+                            if (pos.x + size < CORRECT_TOUCH_X(event->x))
+                                x = size;
+                            if (pos.x - size > CORRECT_TOUCH_X(event->x))
+                                x = - size;
+                            if (pos.y + size < CORRECT_TOUCH_Y(event->y))
+                                y = size;
+                            if (pos.y - size > CORRECT_TOUCH_Y(event->y))
+                                y = - size;
                             controlElements[i].joyX = x;
                             controlElements[i].joyY = y;
                             break;
