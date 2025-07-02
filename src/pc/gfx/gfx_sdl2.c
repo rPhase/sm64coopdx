@@ -40,6 +40,7 @@
 #include "pc/controller/controller_keyboard.h"
 #ifdef TOUCH_CONTROLS
 #include "pc/controller/controller_touchscreen.h"
+#include "pc/djui/djui_interactable.h"
 #endif
 #include "pc/controller/controller_sdl.h"
 #include "pc/controller/controller_bind_mapping.h"
@@ -270,6 +271,11 @@ static void gfx_sdl_handle_events(void) {
                 break;
             case SDL_KEYDOWN:
                 gfx_sdl_onkeydown(event.key.keysym.scancode);
+#ifdef __ANDROID__
+                if (event.key.keysym.sym == SDLK_AC_BACK) {
+                    djui_interactable_on_key_down(configKeyB[0]);
+                }
+#endif
                 break;
             case SDL_KEYUP:
                 gfx_sdl_onkeyup(event.key.keysym.scancode);

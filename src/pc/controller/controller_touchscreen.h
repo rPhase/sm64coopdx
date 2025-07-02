@@ -81,7 +81,7 @@ struct TouchEvent {
     // But X11 SDL2 populated this with 699!
     // For X11 compatibility, I matched the types.
     SDL_TouchID touchID; //Should not be 0
-    float x, y; //Should be from 0 to 1
+    f32 x, y; //Should be from 0 to 1
 };
 
 struct Position {
