@@ -161,7 +161,7 @@ void touch_down(struct TouchEvent* event) {
         if (controlElements[i].touchID == 0) {
             pos = get_pos(&configControlElements[i]);
             if (pos.y == HIDE_POS) continue;
-            size = configControlElements[i].size;
+            size = configControlElements[i].size * 100;
             if (!TRIGGER_DETECT(size)) continue;
             switch (controlElements[i].type) {
                 case Joystick:
@@ -195,7 +195,7 @@ void touch_motion(struct TouchEvent* event) {
     for(u32 i = 0; i < ControlElementsLength; i++) {
         pos = get_pos(&configControlElements[i]);
         if (pos.y == HIDE_POS) continue;
-        size = configControlElements[i].size;
+        size = configControlElements[i].size * 100;
         if (gInTouchConfig) {
             if (controlElements[i].touchID == event->touchID && controlElements[i].type != Mouse && gSelectedTouchElement == i) {
                 move_touch_element(event, gSelectedTouchElement);
@@ -214,14 +214,14 @@ void touch_motion(struct TouchEvent* event) {
                             }
                             x = CORRECT_TOUCH_X(event->x) - pos.x;
                             y = CORRECT_TOUCH_Y(event->y) - pos.y;
-                            if (pos.x + (size * 100) / 2 < CORRECT_TOUCH_X(event->x))
-                                x = (size * 100) / 2;
-                            if (pos.x - (size * 100) / 2 > CORRECT_TOUCH_X(event->x))
-                                x = - (size * 100) / 2;
-                            if (pos.y + (size * 100) / 2 < CORRECT_TOUCH_Y(event->y))
-                                y = (size * 100) / 2;
-                            if (pos.y - (size * 100) / 2 > CORRECT_TOUCH_Y(event->y))
-                                y = - (size * 100) / 2;
+                            if (pos.x + size / 2 < CORRECT_TOUCH_X(event->x))
+                                x = size / 2;
+                            if (pos.x - size / 2 > CORRECT_TOUCH_X(event->x))
+                                x = - size / 2;
+                            if (pos.y + size / 2 < CORRECT_TOUCH_Y(event->y))
+                                y = size / 2;
+                            if (pos.y - size / 2 > CORRECT_TOUCH_Y(event->y))
+                                y = - size / 2;
                             controlElements[i].joyX = x;
                             controlElements[i].joyY = y;
                             break;
@@ -385,13 +385,13 @@ static void touchscreen_read(OSContPad *pad) {
     s32 size;
     for(u32 i = 0; i < ControlElementsLength; i++) {
         pos = get_pos(&configControlElements[i]);
-        size = configControlElements[i].size;
+        size = configControlElements[i].size * 100;
         if (pos.y == HIDE_POS) continue;
         switch (controlElements[i].type) {
             case Joystick:
                 if (controlElements[i].joyX || controlElements[i].joyY) {
-                    pad->stick_x = (controlElements[i].joyX + (size * 100) / 2) * 255 / size - 128;
-                    pad->stick_y = (-controlElements[i].joyY + (size * 100) / 2) * 255 / size - 128; //inverted for some reason
+                    pad->stick_x = (controlElements[i].joyX + size / 2) * 255 / size - 128;
+                    pad->stick_y = (-controlElements[i].joyY + size / 2) * 255 / size - 128; //inverted for some reason
                 }
                 break;
             case Mouse:
