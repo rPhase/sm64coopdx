@@ -271,11 +271,6 @@ static void gfx_sdl_handle_events(void) {
                 break;
             case SDL_KEYDOWN:
                 gfx_sdl_onkeydown(event.key.keysym.scancode);
-#ifdef __ANDROID__
-                if (event.key.keysym.sym == SDLK_AC_BACK) { // "back" button
-                    djui_interactable_on_key_down(configKeyB[0]);
-                }
-#endif
                 break;
             case SDL_KEYUP:
                 gfx_sdl_onkeyup(event.key.keysym.scancode);
