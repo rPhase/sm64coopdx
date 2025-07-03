@@ -8,20 +8,6 @@ extern "C" {
 #include "src/pc/lua/utils/smlua_gfx_utils.h"
 #include "include/macros.h"
 }
-#ifdef __clang__
-#ifdef max
-#undef max
-#endif
-
-#ifdef min
-#undef min
-#endif
-
-#ifdef size
-#undef size
-#endif
-#include <vector>
-#endif
 
 #define GFX_PARAM_TYPE_INT 'i'
 #define GFX_PARAM_TYPE_STR 's'
