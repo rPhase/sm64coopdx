@@ -310,7 +310,6 @@ void touch_up(struct TouchEvent* event) {
 }
 
 static void render_texture(const Texture *texture, s32 x, s32 y, u32 w, u32 h, s32 scaling, u8 r, u8 g, u8 b, u8 a) {
-    create_dl_ortho_matrix();
     gSPClearGeometryMode(gDisplayListHead++, G_LIGHTING);
     gDPSetCombineMode(gDisplayListHead++, G_CC_FADEA, G_CC_FADEA);
     gDPSetRenderMode(gDisplayListHead++, G_RM_XLU_SURF, G_RM_XLU_SURF2);
@@ -340,6 +339,9 @@ void render_touch_controls(void) {
     Colors color;
     s32 size;
     f32 normalizedVectorMultiplier;
+    
+    create_dl_ortho_matrix();
+
     for (u32 i = 0; i < controlElementsLength; i++) {
         pos = get_pos(&configControlElements[i]);
         color = get_color(&configControlElements[i]);
