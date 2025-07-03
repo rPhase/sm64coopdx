@@ -1,7 +1,11 @@
 //Feel free to use it in your port too, but please keep authorship!
 //Touch Controls made by: VDavid003
-//Heavily modified by xLuigiGamerx and ManIsCat2
-//New Djui Based Touch Editor by xLuigiGamerx and ManIsCat2
+/* Heavily modified by xLuigiGamerx and ManIsCat2 to add new features, like:
+
+- DJUI Based touch controls editor
+- Different texture per button and joystick (joystick base as well)
+
+*/
 
 #ifdef TOUCH_CONTROLS
 #include <ultra64.h>
@@ -56,30 +60,30 @@ ConfigControlElement configControlElementsLast[TOUCH_COUNT] = {
 
 // This order must match configControlElements and ConfigControlElementIndex
 static struct ControlElement controlElements[TOUCH_COUNT] = {
-[TOUCH_STICK] =      {.type = Joystick},
-[TOUCH_MOUSE] =      {.type = Mouse},
-[TOUCH_A] =          {.type = Button, .buttonTexture = { .buttonUp = TEXTURE_TOUCH_A,          .buttonDown = TEXTURE_TOUCH_A_PRESSED },          .buttonID = A_BUTTON},
-[TOUCH_B] =          {.type = Button, .buttonTexture = { .buttonUp = TEXTURE_TOUCH_B,          .buttonDown = TEXTURE_TOUCH_B_PRESSED },          .buttonID = B_BUTTON},
-[TOUCH_X] =          {.type = Button, .buttonTexture = { .buttonUp = TEXTURE_TOUCH_X,          .buttonDown = TEXTURE_TOUCH_X_PRESSED },          .buttonID = X_BUTTON},
-[TOUCH_Y] =          {.type = Button, .buttonTexture = { .buttonUp = TEXTURE_TOUCH_Y,          .buttonDown = TEXTURE_TOUCH_Y_PRESSED },          .buttonID = Y_BUTTON},
-[TOUCH_START] =      {.type = Button, .buttonTexture = { .buttonUp = TEXTURE_TOUCH_START,      .buttonDown = TEXTURE_TOUCH_START_PRESSED },      .buttonID = START_BUTTON},
-[TOUCH_L] =          {.type = Button, .buttonTexture = { .buttonUp = TEXTURE_TOUCH_L,          .buttonDown = TEXTURE_TOUCH_L_PRESSED },          .buttonID = L_TRIG},
-[TOUCH_R] =          {.type = Button, .buttonTexture = { .buttonUp = TEXTURE_TOUCH_R,          .buttonDown = TEXTURE_TOUCH_R_PRESSED },          .buttonID = R_TRIG},
-[TOUCH_Z] =          {.type = Button, .buttonTexture = { .buttonUp = TEXTURE_TOUCH_Z,          .buttonDown = TEXTURE_TOUCH_Z_PRESSED },          .buttonID = Z_TRIG},
-[TOUCH_CUP] =        {.type = Button, .buttonTexture = { .buttonUp = TEXTURE_TOUCH_C_UP,       .buttonDown = TEXTURE_TOUCH_C_UP_PRESSED },       .buttonID = U_CBUTTONS},
-[TOUCH_CDOWN] =      {.type = Button, .buttonTexture = { .buttonUp = TEXTURE_TOUCH_C_DOWN,     .buttonDown = TEXTURE_TOUCH_C_DOWN_PRESSED },     .buttonID = D_CBUTTONS},
-[TOUCH_CLEFT] =      {.type = Button, .buttonTexture = { .buttonUp = TEXTURE_TOUCH_C_LEFT,     .buttonDown = TEXTURE_TOUCH_C_LEFT_PRESSED },     .buttonID = L_CBUTTONS},
-[TOUCH_CRIGHT] =     {.type = Button, .buttonTexture = { .buttonUp = TEXTURE_TOUCH_C_RIGHT,    .buttonDown = TEXTURE_TOUCH_C_RIGHT_PRESSED },    .buttonID = R_CBUTTONS},
-[TOUCH_CHAT] =       {.type = Button, .buttonTexture = { .buttonUp = TEXTURE_TOUCH_CHAT,       .buttonDown = TEXTURE_TOUCH_CHAT_PRESSED },       .buttonID = CHAT_BUTTON},
-[TOUCH_PLAYERLIST] = {.type = Button, .buttonTexture = { .buttonUp = TEXTURE_TOUCH_PLAYERLIST, .buttonDown = TEXTURE_TOUCH_PLAYERLIST_PRESSED }, .buttonID = PLAYERLIST_BUTTON},
-[TOUCH_DUP] =        {.type = Button, .buttonTexture = { .buttonUp = TEXTURE_TOUCH_DPAD_UP,    .buttonDown = TEXTURE_TOUCH_DPAD_UP_PRESSED },    .buttonID = U_JPAD},
-[TOUCH_DDOWN] =      {.type = Button, .buttonTexture = { .buttonUp = TEXTURE_TOUCH_DPAD_DOWN,  .buttonDown = TEXTURE_TOUCH_DPAD_DOWN_PRESSED },  .buttonID = D_JPAD},
-[TOUCH_DLEFT] =      {.type = Button, .buttonTexture = { .buttonUp = TEXTURE_TOUCH_DPAD_LEFT,  .buttonDown = TEXTURE_TOUCH_DPAD_LEFT_PRESSED },  .buttonID = L_JPAD},
-[TOUCH_DRIGHT] =     {.type = Button, .buttonTexture = { .buttonUp = TEXTURE_TOUCH_DPAD_RIGHT, .buttonDown = TEXTURE_TOUCH_DPAD_RIGHT_PRESSED }, .buttonID = R_JPAD},
-[TOUCH_CONSOLE] =    {.type = Button, .buttonTexture = { .buttonUp = TEXTURE_TOUCH_CONSOLE,    .buttonDown = TEXTURE_TOUCH_CONSOLE_PRESSED },    .buttonID = CONSOLE_BUTTON},
+    [TOUCH_STICK] =      {.type = Joystick},
+    [TOUCH_MOUSE] =      {.type = Mouse},
+    [TOUCH_A] =          {.type = Button, .buttonTexture = { .buttonUp = TEXTURE_TOUCH_A,          .buttonDown = TEXTURE_TOUCH_A_PRESSED },          .buttonID = A_BUTTON},
+    [TOUCH_B] =          {.type = Button, .buttonTexture = { .buttonUp = TEXTURE_TOUCH_B,          .buttonDown = TEXTURE_TOUCH_B_PRESSED },          .buttonID = B_BUTTON},
+    [TOUCH_X] =          {.type = Button, .buttonTexture = { .buttonUp = TEXTURE_TOUCH_X,          .buttonDown = TEXTURE_TOUCH_X_PRESSED },          .buttonID = X_BUTTON},
+    [TOUCH_Y] =          {.type = Button, .buttonTexture = { .buttonUp = TEXTURE_TOUCH_Y,          .buttonDown = TEXTURE_TOUCH_Y_PRESSED },          .buttonID = Y_BUTTON},
+    [TOUCH_START] =      {.type = Button, .buttonTexture = { .buttonUp = TEXTURE_TOUCH_START,      .buttonDown = TEXTURE_TOUCH_START_PRESSED },      .buttonID = START_BUTTON},
+    [TOUCH_L] =          {.type = Button, .buttonTexture = { .buttonUp = TEXTURE_TOUCH_L,          .buttonDown = TEXTURE_TOUCH_L_PRESSED },          .buttonID = L_TRIG},
+    [TOUCH_R] =          {.type = Button, .buttonTexture = { .buttonUp = TEXTURE_TOUCH_R,          .buttonDown = TEXTURE_TOUCH_R_PRESSED },          .buttonID = R_TRIG},
+    [TOUCH_Z] =          {.type = Button, .buttonTexture = { .buttonUp = TEXTURE_TOUCH_Z,          .buttonDown = TEXTURE_TOUCH_Z_PRESSED },          .buttonID = Z_TRIG},
+    [TOUCH_CUP] =        {.type = Button, .buttonTexture = { .buttonUp = TEXTURE_TOUCH_C_UP,       .buttonDown = TEXTURE_TOUCH_C_UP_PRESSED },       .buttonID = U_CBUTTONS},
+    [TOUCH_CDOWN] =      {.type = Button, .buttonTexture = { .buttonUp = TEXTURE_TOUCH_C_DOWN,     .buttonDown = TEXTURE_TOUCH_C_DOWN_PRESSED },     .buttonID = D_CBUTTONS},
+    [TOUCH_CLEFT] =      {.type = Button, .buttonTexture = { .buttonUp = TEXTURE_TOUCH_C_LEFT,     .buttonDown = TEXTURE_TOUCH_C_LEFT_PRESSED },     .buttonID = L_CBUTTONS},
+    [TOUCH_CRIGHT] =     {.type = Button, .buttonTexture = { .buttonUp = TEXTURE_TOUCH_C_RIGHT,    .buttonDown = TEXTURE_TOUCH_C_RIGHT_PRESSED },    .buttonID = R_CBUTTONS},
+    [TOUCH_CHAT] =       {.type = Button, .buttonTexture = { .buttonUp = TEXTURE_TOUCH_CHAT,       .buttonDown = TEXTURE_TOUCH_CHAT_PRESSED },       .buttonID = CHAT_BUTTON},
+    [TOUCH_PLAYERLIST] = {.type = Button, .buttonTexture = { .buttonUp = TEXTURE_TOUCH_PLAYERLIST, .buttonDown = TEXTURE_TOUCH_PLAYERLIST_PRESSED }, .buttonID = PLAYERLIST_BUTTON},
+    [TOUCH_DUP] =        {.type = Button, .buttonTexture = { .buttonUp = TEXTURE_TOUCH_DPAD_UP,    .buttonDown = TEXTURE_TOUCH_DPAD_UP_PRESSED },    .buttonID = U_JPAD},
+    [TOUCH_DDOWN] =      {.type = Button, .buttonTexture = { .buttonUp = TEXTURE_TOUCH_DPAD_DOWN,  .buttonDown = TEXTURE_TOUCH_DPAD_DOWN_PRESSED },  .buttonID = D_JPAD},
+    [TOUCH_DLEFT] =      {.type = Button, .buttonTexture = { .buttonUp = TEXTURE_TOUCH_DPAD_LEFT,  .buttonDown = TEXTURE_TOUCH_DPAD_LEFT_PRESSED },  .buttonID = L_JPAD},
+    [TOUCH_DRIGHT] =     {.type = Button, .buttonTexture = { .buttonUp = TEXTURE_TOUCH_DPAD_RIGHT, .buttonDown = TEXTURE_TOUCH_DPAD_RIGHT_PRESSED }, .buttonID = R_JPAD},
+    [TOUCH_CONSOLE] =    {.type = Button, .buttonTexture = { .buttonUp = TEXTURE_TOUCH_CONSOLE,    .buttonDown = TEXTURE_TOUCH_CONSOLE_PRESSED },    .buttonID = CONSOLE_BUTTON},
 };
 
-static u32 ControlElementsLength = sizeof(controlElements)/sizeof(struct ControlElement);
+static u32 controlElementsLength = sizeof(controlElements)/sizeof(struct ControlElement);
 
 struct Position get_pos(ConfigControlElement *config) {
     struct Position ret;
@@ -157,7 +161,7 @@ void touch_down(struct TouchEvent* event) {
     gGamepadActive = false;
     struct Position pos;
     s32 size;
-    for(u32 i = 0; i < ControlElementsLength; i++) {
+    for(u32 i = 0; i < controlElementsLength; i++) {
         if (controlElements[i].touchID == 0) {
             pos = get_pos(&configControlElements[i]);
             if (pos.y == HIDE_POS) continue;
@@ -192,7 +196,7 @@ void touch_down(struct TouchEvent* event) {
 void touch_motion(struct TouchEvent* event) {
     struct Position pos;
     s32 size;
-    for(u32 i = 0; i < ControlElementsLength; i++) {
+    for(u32 i = 0; i < controlElementsLength; i++) {
         pos = get_pos(&configControlElements[i]);
         if (pos.y == HIDE_POS) continue;
         size = configControlElements[i].size * 100;
@@ -298,7 +302,7 @@ static void handle_touch_up(u32 i) { // separated for when the layout changes
 }
 
 void touch_up(struct TouchEvent* event) {
-    for(u32 i = 0; i < ControlElementsLength; i++) {
+    for(u32 i = 0; i < controlElementsLength; i++) {
         if (controlElements[i].touchID == event->touchID) {
             handle_touch_up(i);
         }
@@ -336,7 +340,7 @@ void render_touch_controls(void) {
     Colors color;
     s32 size;
     f32 normalizedVectorMultiplier;
-    for (u32 i = 0; i < ControlElementsLength; i++) {
+    for (u32 i = 0; i < controlElementsLength; i++) {
         pos = get_pos(&configControlElements[i]);
         color = get_color(&configControlElements[i]);
         size = configControlElements[i].size;
@@ -372,7 +376,7 @@ void render_touch_controls(void) {
 }
 
 static void touchscreen_init(void) {
-    for (u32 i = 0; i < ControlElementsLength; i++) {
+    for (u32 i = 0; i < controlElementsLength; i++) {
         controlElements[i].touchID = 0;
         controlElements[i].joyX = 0;
         controlElements[i].joyY = 0;
@@ -384,7 +388,7 @@ static void touchscreen_read(OSContPad *pad) {
     struct Position pos;
     s32 size;
     if (!gInTouchConfig && !gDjuiPanelPauseCreated) {
-        for(u32 i = 0; i < ControlElementsLength; i++) {
+        for(u32 i = 0; i < controlElementsLength; i++) {
             pos = get_pos(&configControlElements[i]);
             size = configControlElements[i].size * 100;
             if (pos.y == HIDE_POS) continue;

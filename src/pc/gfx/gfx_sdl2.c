@@ -332,7 +332,7 @@ void (*on_all_keys_up)(void), void (*on_text_input)(char*), void (*on_text_editi
 }
 
 #ifdef TOUCH_CONTROLS
-void gfx_sdl_set_touchscreen_callbacks(void (*down)(void* event), void (*motion)(void* event), void (*up)(void* event)) {
+static void gfx_sdl_set_touchscreen_callbacks(void (*down)(void* event), void (*motion)(void* event), void (*up)(void* event)) {
     touch_down_callback = down;
     touch_motion_callback = motion;
     touch_up_callback = up;
