@@ -4407,6 +4407,27 @@ Gets the DJUI menu theme
 
 <br />
 
+## [djui_is_playerlist_ping_visible](#djui_is_playerlist_ping_visible)
+
+### Description
+Checks if the DJUI playerlist ping icon is visible
+
+### Lua Example
+`local booleanValue = djui_is_playerlist_ping_visible()`
+
+### Parameters
+- None
+
+### Returns
+- `boolean`
+
+### C Prototype
+`bool djui_is_playerlist_ping_visible(void);`
+
+[:arrow_up_small:](#)
+
+<br />
+
 ## [get_dialog_box_state](#get_dialog_box_state)
 
 ### Description
@@ -4876,6 +4897,75 @@ Sets if the star counter on the HUD should flash
 
 ### C Prototype
 `void hud_set_flash(s8 value);`
+
+[:arrow_up_small:](#)
+
+<br />
+
+## [act_select_hud_hide](#act_select_hud_hide)
+
+### Description
+Hides part of the Act Select HUD
+
+### Lua Example
+`act_select_hud_hide(part)`
+
+### Parameters
+| Field | Type |
+| ----- | ---- |
+| part | [enum ActSelectHudPart](constants.md#enum-ActSelectHudPart) |
+
+### Returns
+- None
+
+### C Prototype
+`void act_select_hud_hide(enum ActSelectHudPart part);`
+
+[:arrow_up_small:](#)
+
+<br />
+
+## [act_select_hud_show](#act_select_hud_show)
+
+### Description
+Shows part of the Act Select HUD
+
+### Lua Example
+`act_select_hud_show(part)`
+
+### Parameters
+| Field | Type |
+| ----- | ---- |
+| part | [enum ActSelectHudPart](constants.md#enum-ActSelectHudPart) |
+
+### Returns
+- None
+
+### C Prototype
+`void act_select_hud_show(enum ActSelectHudPart part);`
+
+[:arrow_up_small:](#)
+
+<br />
+
+## [act_select_hud_is_hidden](#act_select_hud_is_hidden)
+
+### Description
+Checks if part of the Act Select HUD is hidden
+
+### Lua Example
+`local booleanValue = act_select_hud_is_hidden(part)`
+
+### Parameters
+| Field | Type |
+| ----- | ---- |
+| part | [enum ActSelectHudPart](constants.md#enum-ActSelectHudPart) |
+
+### Returns
+- `boolean`
+
+### C Prototype
+`bool act_select_hud_is_hidden(enum ActSelectHudPart part);`
 
 [:arrow_up_small:](#)
 

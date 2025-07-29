@@ -8,6 +8,7 @@
 #include "game/camera.h"
 #include "game/hardcoded.h"
 #include "game/hud.h"
+#include "menu/star_select.h"
 #include "pc/lua/smlua.h"
 #include "smlua_misc_utils.h"
 #include "pc/debuglog.h"
@@ -117,6 +118,10 @@ struct DjuiTheme* djui_menu_get_theme(void) {
     return gDjuiThemes[configDjuiTheme];
 }
 
+bool djui_is_playerlist_ping_visible(void) {
+    return configShowPing;
+}
+
 ///
 
 extern s8 gDialogBoxState;
@@ -210,6 +215,18 @@ void hud_set_value(enum HudDisplayValue type, s32 value) {
         case HUD_DISPLAY_TIMER:         gHudDisplay.timer  = value;   break;
         case HUD_DISPLAY_CAMERA_STATUS: set_hud_camera_status(value); break;
     }
+}
+
+void act_select_hud_hide(enum ActSelectHudPart part) {
+    gOverrideHideActSelectHud |= part;
+}
+
+void act_select_hud_show(enum ActSelectHudPart part) {
+    gOverrideHideActSelectHud &= ~part;
+}
+
+bool act_select_hud_is_hidden(enum ActSelectHudPart part) {
+    return (gOverrideHideActSelectHud & part) != 0;
 }
 
 extern const u8 texture_power_meter_left_side[];
@@ -539,13 +556,13 @@ struct Mod* get_active_mod(void) {
 ///
 
 void set_window_title(const char* title) {
-#ifndef TARGET_ANDROID
+#ifndef __ANDROID__
     WAPI.set_window_title(title);
 #endif
 }
 
 void reset_window_title(void) {
-#ifndef TARGET_ANDROID
+#ifndef __ANDROID__
     WAPI.reset_window_title();
 #endif
 }

@@ -72,7 +72,13 @@ gGlobalSoundSource = create_read_only_table({ x = 0, y = 0, z = 0 })
 --- @return number
 function SOUND_ARG_LOAD(bank, soundID, priority, flags)
     if flags == nil then flags = 0 end
-    return (bank << 28) | (soundID << 16) | (priority << 8) | flags | SOUND_STATUS_WAITING
+    return math.s32(
+        ((bank << SOUNDARGS_SHIFT_BANK) & SOUNDARGS_MASK_BANK) |
+        ((soundID << SOUNDARGS_SHIFT_SOUNDID) & SOUNDARGS_MASK_SOUNDID) |
+        ((priority << SOUNDARGS_SHIFT_PRIORITY) & SOUNDARGS_MASK_PRIORITY) |
+        (flags & SOUNDARGS_MASK_BITFLAGS) |
+        SOUND_STATUS_WAITING
+    )
 end
 
 -------------
@@ -3612,7 +3618,7 @@ HUD_DISPLAY_DEFAULT               = HUD_DISPLAY_FLAG_LIVES | HUD_DISPLAY_FLAG_CO
 --- | `HUD_DISPLAY_DEFAULT`
 
 --- @type integer
-LE_MAX_LIGHTS = 128
+LE_MAX_LIGHTS = 256
 
 LE_MODE_AFFECT_ALL_SHADED_AND_COLORED = 0 --- @type LEMode
 LE_MODE_AFFECT_ALL_SHADED             = 1 --- @type LEMode
@@ -8203,6 +8209,25 @@ HUD_DISPLAY_FLAGS_EMPHASIZE_POWER  = 0x8000 --- @type HudDisplayFlags
 --- | `HUD_DISPLAY_FLAGS_POWER`
 --- | `HUD_DISPLAY_FLAGS_EMPHASIZE_POWER`
 
+ACT_SELECT_HUD_SCORE            =                                                                                                                                                            1 << 0 --- @type ActSelectHudPart
+ACT_SELECT_HUD_LEVEL_NAME       =                                                                                                                                                            1 << 1 --- @type ActSelectHudPart
+ACT_SELECT_HUD_COURSE_NUM       =                                                                                                                                                            1 << 2 --- @type ActSelectHudPart
+ACT_SELECT_HUD_ACT_NAME         =                                                                                                                                                            1 << 3 --- @type ActSelectHudPart
+ACT_SELECT_HUD_STAR_NUM         =                                                                                                                                                            1 << 4 --- @type ActSelectHudPart
+ACT_SELECT_HUD_PLAYERS_IN_LEVEL =                                                                                                                                                            1 << 5 --- @type ActSelectHudPart
+ACT_SELECT_HUD_NONE             =                                                                                                                                                                 0 --- @type ActSelectHudPart
+ACT_SELECT_HUD_ALL              = ACT_SELECT_HUD_SCORE | ACT_SELECT_HUD_LEVEL_NAME | ACT_SELECT_HUD_COURSE_NUM | ACT_SELECT_HUD_ACT_NAME |ACT_SELECT_HUD_STAR_NUM | ACT_SELECT_HUD_PLAYERS_IN_LEVEL --- @type ActSelectHudPart
+
+--- @alias ActSelectHudPart
+--- | `ACT_SELECT_HUD_SCORE`
+--- | `ACT_SELECT_HUD_LEVEL_NAME`
+--- | `ACT_SELECT_HUD_COURSE_NUM`
+--- | `ACT_SELECT_HUD_ACT_NAME`
+--- | `ACT_SELECT_HUD_STAR_NUM`
+--- | `ACT_SELECT_HUD_PLAYERS_IN_LEVEL`
+--- | `ACT_SELECT_HUD_NONE`
+--- | `ACT_SELECT_HUD_ALL`
+
 E_MODEL_NONE                               =   0 --- @type ModelExtendedId
 E_MODEL_MARIO                              =   1 --- @type ModelExtendedId
 E_MODEL_SMOKE                              =   2 --- @type ModelExtendedId
@@ -8981,6 +9006,9 @@ SOUNDARGS_MASK_PRIORITY = 0x0000FF00
 
 --- @type integer
 SOUNDARGS_MASK_STATUS = 0x0000000F
+
+--- @type integer
+SOUNDARGS_MASK_BITFLAGS = 0x0F0000F0
 
 --- @type integer
 SOUNDARGS_SHIFT_BANK = 28
@@ -11110,16 +11138,16 @@ COOP_OBJ_FLAG_NON_SYNC = (1 << 2)
 COOP_OBJ_FLAG_INITIALIZED = (1 << 3)
 
 --- @type string
-SM64COOPDX_VERSION = "v1.3.2"
+SM64COOPDX_VERSION = "v1.4"
 
 --- @type string
 VERSION_TEXT = "v"
 
 --- @type integer
-VERSION_NUMBER = 40
+VERSION_NUMBER = 41
 
 --- @type integer
-MINOR_VERSION_NUMBER = 2
+MINOR_VERSION_NUMBER = 0
 
 --- @type integer
 MAX_VERSION_LENGTH = 128
