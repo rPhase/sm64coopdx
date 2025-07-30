@@ -65,7 +65,7 @@ static bool djui_panel_touch_controls_editor_leave_menu(UNUSED struct DjuiBase* 
 void djui_panel_touch_controls_editor_create(struct DjuiBase* caller) {
     struct DjuiThreePanel* panel = djui_panel_menu_create(DLANG(CONTROLS, CONTROLS), false);
     struct DjuiBase* body = djui_three_panel_get_body(panel);
-    djui_base_set_size(&panel->base, (DJUI_DEFAULT_PANEL_WIDTH * 1.3f) / 1.25f, 0.921f * 0.65f);
+    djui_base_set_size(&panel->base, (DJUI_DEFAULT_PANEL_WIDTH * 1.3f) / 1.25f, 0.921f * 0.65f * 4.f);
     djui_base_set_alignment(&panel->base, DJUI_HALIGN_CENTER, DJUI_VALIGN_CENTER);
     djui_base_set_color(&panel->base, panel->base.color.r, panel->base.color.g, panel->base.color.b, panel->base.color.a - 50);
     djui_base_set_border_color(&panel->base, panel->base.borderColor.r, panel->base.borderColor.g, panel->base.borderColor.b, panel->base.borderColor.a - 50);
