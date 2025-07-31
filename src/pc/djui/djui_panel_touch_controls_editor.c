@@ -62,6 +62,13 @@ static bool djui_panel_touch_controls_editor_leave_menu(UNUSED struct DjuiBase* 
     return false;
 }
 
+static void djui_panel_touch_controls_editor_set_alpha(UNUSED struct DjuiBase* base) {
+    u8 alpha = configControlElements[gSelectedTouchElement].a;
+    for (s32 i = 0; i < TOUCH_COUNT; i++) {
+        configControlElements[i].a = alpha;
+    }
+}
+
 void djui_panel_touch_controls_editor_create(struct DjuiBase* caller) {
     struct DjuiThreePanel* panel = djui_panel_menu_create(DLANG(CONTROLS, CONTROLS), false);
     struct DjuiBase* body = djui_three_panel_get_body(panel);
@@ -106,6 +113,8 @@ void djui_panel_touch_controls_editor_create(struct DjuiBase* caller) {
         }
 
         {
+            struct DjuiButton* applyAButton = djui_button_create(body, "Apply Opacity to All", DJUI_BUTTON_STYLE_NORMAL, djui_panel_touch_controls_editor_set_alpha);
+            djui_base_set_size(&applyAButton->base, 1.0f, 32);
             struct DjuiButton* backButton = djui_button_left_create(body, DLANG(MENU, BACK), DJUI_BUTTON_STYLE_BACK, djui_panel_menu_back);
             djui_base_set_size(&backButton->base, 0.97f / 2.0f, 48);
             djui_base_set_alignment(&backButton->base, DJUI_HALIGN_LEFT, DJUI_VALIGN_BOTTOM);

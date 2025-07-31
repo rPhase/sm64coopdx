@@ -10961,7 +10961,7 @@ void cutscene_palette_editor(struct Camera *c) {
         gToggleWearCap = false;
 #else
     if (gInteractablePad.button & PAD_BUTTON_Z) {
-#endif 
+#endif
         if (!pressed && m->action == ACT_IDLE) {
             if (m->flags & MARIO_CAP_ON_HEAD) {
                 set_mario_action(m, ACT_TAKING_OFF_CAP, 1); // Add palette editor action arg
