@@ -442,7 +442,9 @@ void* main_game_init(UNUSED void* dummy) {
     sync_objects_init_system();
 
     if (gCLIOpts.network != NT_SERVER && !gCLIOpts.skipUpdateCheck) {
+#ifndef __ANDROID__
         check_for_updates();
+#endif
     }
 
     LOADING_SCREEN_MUTEX(loading_screen_set_segment_text("Loading ROM Assets"));
@@ -588,8 +590,9 @@ int main(int argc, char *argv[]) {
     djui_unicode_init();
     djui_init_late();
     djui_console_message_dequeue();
-
+#ifndef __ANDROID__
     show_update_popup();
+#endif
 
     // initialize network
     if (gCLIOpts.network == NT_CLIENT) {
