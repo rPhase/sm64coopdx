@@ -1006,6 +1006,7 @@ else
     LDFLAGS += -Llib/curl/android/$(ARCH_APK) -l:libcurl.a
   else
     LDFLAGS += -lcurl
+  endif
 endif
 
 # Lua
