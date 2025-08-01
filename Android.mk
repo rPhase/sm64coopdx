@@ -31,8 +31,8 @@ include $(PREBUILT_STATIC_LIBRARY)
 # Curl
 include $(CLEAR_VARS)
 LOCAL_MODULE := curl
-LOCAL_SRC_FILES := $(LOCAL_PATH)/lib/curl/android/$(ARCH_APK)/libcurl.a
-include $(PREBUILT_STATIC_LIBRARY)
+LOCAL_SRC_FILES := $(LOCAL_PATH)/platform/android/android/lib/$(ARCH_APK)/libcurl.so
+include $(PREBUILT_SHARED_LIBRARY)
 
 include $(CLEAR_VARS)
 LOCAL_MODULE := main

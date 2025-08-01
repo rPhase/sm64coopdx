@@ -1002,11 +1002,7 @@ endif
 ifeq ($(WINDOWS_BUILD),1)
   LDFLAGS += -lwininet
 else
-  ifeq ($(TARGET_ANDROID),1)
-    LDFLAGS += -Llib/curl/android/$(ARCH_APK) -l:libcurl.a
-  else
-    LDFLAGS += -lcurl
-  endif
+  LDFLAGS += -lcurl
 endif
 
 # Lua
