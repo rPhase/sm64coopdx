@@ -95,4 +95,4 @@ tools/ido5.3_compiler/usr/lib/libc.so.1
 
 # Android files
 !platform/android/android/**/*.so
-!lib/**/android/*.a
+!lib/**/android/**/*.a

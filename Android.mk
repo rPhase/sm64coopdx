@@ -1,28 +1,38 @@
 LOCAL_PATH := $(call my-dir)
 
+ifneq ($(shell uname -m | grep "i.86"),)
+    ARCH_APK := x86
+  else ifeq ($(shell uname -m),x86_64)
+    ARCH_APK := x86_64
+  else ifeq ($(shell getconf LONG_BIT),64)
+    ARCH_APK := arm64-v8a
+  else
+    ARCH_APK := armeabi-v7a
+endif
+
 # Lua
 include $(CLEAR_VARS)
 LOCAL_MODULE := lua5.3.5
-LOCAL_SRC_FILES := $(LOCAL_PATH)/lib/lua/android/liblua.a
+LOCAL_SRC_FILES := $(LOCAL_PATH)/lib/lua/android/$(ARCH_APK)/liblua.a
 include $(PREBUILT_STATIC_LIBRARY)
 
 # Coopnet
 include $(CLEAR_VARS)
 LOCAL_MODULE := coopnet
-LOCAL_SRC_FILES := $(LOCAL_PATH)/lib/coopnet/android/libcoopnet.a
+LOCAL_SRC_FILES := $(LOCAL_PATH)/lib/coopnet/android/$(ARCH_APK)/libcoopnet.a
 include $(PREBUILT_STATIC_LIBRARY)
 
 # Libjuice
 include $(CLEAR_VARS)
 LOCAL_MODULE := libjuice
-LOCAL_SRC_FILES := $(LOCAL_PATH)/lib/coopnet/android/libjuice.a
+LOCAL_SRC_FILES := $(LOCAL_PATH)/lib/coopnet/android/$(ARCH_APK)/libjuice.a
 include $(PREBUILT_STATIC_LIBRARY)
 
 # Curl
 include $(CLEAR_VARS)
 LOCAL_MODULE := curl
-LOCAL_SRC_FILES := $(LOCAL_PATH)/platform/android/android/lib/arm64-v8a/libcurl.so
-include $(PREBUILT_SHARED_LIBRARY)
+LOCAL_SRC_FILES := $(LOCAL_PATH)/lib/curl/android/$(ARCH_APK)/libcurl.a
+include $(PREBUILT_STATIC_LIBRARY)
 
 include $(CLEAR_VARS)
 LOCAL_MODULE := main
@@ -88,8 +98,8 @@ GENERATED_C_FILES := $(PC_BUILD_DIR)/assets/mario_anim_data.c $(PC_BUILD_DIR)/as
   $(addprefix $(LOCAL_PATH)/bin/,$(addsuffix _skybox.c,$(notdir $(basename $(wildcard $(LOCAL_PATH)/textures/skyboxes/*.png)))))
 
 LOCAL_SHORT_COMMANDS := true
-LOCAL_SHARED_LIBRARIES := SDL2 curl
-LOCAL_STATIC_LIBRARIES := lua5.3.5 coopnet libjuice
+LOCAL_SHARED_LIBRARIES := SDL2
+LOCAL_STATIC_LIBRARIES := lua5.3.5 coopnet libjuice curl
 LOCAL_LDLIBS := -lEGL -lGLESv3 -llog -lz -lunwind -pthread -rdynamic -ldl -landroid
 LOCAL_C_INCLUDES := $(LOCAL_PATH)/platform/android/include $(LOCAL_PATH)/include $(LOCAL_PATH)/src $(LOCAL_PATH)/sound $(LOCAL_PATH)/lib/lua/include $(LOCAL_PATH)/lib/coopnet/include $(PC_BUILD_DIR) $(PC_BUILD_DIR)/include
 LOCAL_CFLAGS := -DNON_MATCHING -DAVOID_UB -DTARGET_LINUX -DTARGET_ANDROID -DENABLE_OPENGL -DWIDESCREEN -DF3DEX_GBI_2E -D_LANGUAGE_C -DNO_SEGMENTED_MEMORY -D$(VERSION_DEF) -DSTDC_HEADERS -DDYNOS -DCOOP -DCOOPNET -DUSE_GLES -DTEXTURE_FIX -DBETTERCAMERA -DEXT_OPTIONS_MENU -DIMMEDIATELOAD -DRAPI_GL=1 -DWAPI_SDL2=1 -DAAPI_SDL2=1 -DCAPI_SDL2 -DHAVE_SDL2=1 -O3 -w

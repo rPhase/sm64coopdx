@@ -993,7 +993,7 @@ endif
 
 # Zlib
 ifeq ($(TARGET_ANDROID),1)
-  LDFLAGS += -Llib/zlib/android -l:libz.a
+  LDFLAGS += -Llib/zlib/android/$(ARCH_APK) -l:libz.a
 else
   LDFLAGS += -lz
 endif
@@ -1002,7 +1002,10 @@ endif
 ifeq ($(WINDOWS_BUILD),1)
   LDFLAGS += -lwininet
 else
-  LDFLAGS += -lcurl
+  ifeq ($(TARGET_ANDROID),1)
+    LDFLAGS += -Llib/curl/android/$(ARCH_APK) -l:libcurl.a
+  else
+    LDFLAGS += -lcurl
 endif
 
 # Lua
@@ -1025,7 +1028,7 @@ else ifeq ($(TARGET_RPI),1)
     LDFLAGS += -Llib/lua/linux -l:liblua53-arm.a
   endif
 else ifeq ($(TARGET_ANDROID),1)
-  LDFLAGS += -Llib/lua/android -l:liblua.a
+  LDFLAGS += -Llib/lua/android/$(ARCH_APK) -l:liblua.a
 else ifeq ($(TARGET_RK3588),1)
   LDFLAGS += -Llib/lua/linux -l:liblua53-arm64.a
 else
@@ -1058,7 +1061,7 @@ ifeq ($(COOPNET),1)
       LDFLAGS += -Llib/coopnet/linux -l:libcoopnet-arm.a -l:libjuice-arm.a
     endif
   else ifeq ($(TARGET_ANDROID),1)
-    LDFLAGS += -Llib/coopnet/android -l:libcoopnet.a -l:libjuice.a
+    LDFLAGS += -Llib/coopnet/android/$(ARCH_APK) -l:libcoopnet.a -l:libjuice.a
   else ifeq ($(TARGET_RK3588),1)
     LDFLAGS += -Llib/coopnet/linux -l:libcoopnet-arm64.a -l:libjuice.a
   else
