@@ -114,7 +114,7 @@ void djui_panel_touch_controls_editor_create(struct DjuiBase* caller) {
 
         {
             struct DjuiButton* applyAButton = djui_button_create(body, "Apply Opacity to All", DJUI_BUTTON_STYLE_NORMAL, djui_panel_touch_controls_editor_set_alpha);
-            djui_base_set_size(&applyAButton->base, 1.0f, 32);
+            djui_base_set_size(&applyAButton->base, 1.0f, 36);
             struct DjuiButton* backButton = djui_button_left_create(body, DLANG(MENU, BACK), DJUI_BUTTON_STYLE_BACK, djui_panel_menu_back);
             djui_base_set_size(&backButton->base, 0.97f / 2.0f, 48);
             djui_base_set_alignment(&backButton->base, DJUI_HALIGN_LEFT, DJUI_VALIGN_BOTTOM);
