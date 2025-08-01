@@ -148,4 +148,7 @@ void check_for_updates(void) {
         gUpdateMessage = true;
     }
 }
+#else
+#include <stdbool.h>
+bool gUpdateMessage = false;
 #endif
