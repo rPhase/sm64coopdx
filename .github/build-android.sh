@@ -13,4 +13,4 @@ mv $PREFIX/lib/libGLESv2.so.2.1.0 $PREFIX/lib/libGLESv3.so
 patchelf --set-soname libGLESv2.so $PREFIX/lib/libGLESv3.so
 patchelf --set-soname libcurl.so $PREFIX/lib/libcurl.so
 
-make
+make -j12

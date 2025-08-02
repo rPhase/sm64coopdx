@@ -243,11 +243,21 @@ jobs:
                 path: ./build/us_pc/sm64coopdx_macOS_Intel.zip
     build-android:
         if: ${{ github.event_name == 'workflow_dispatch' || contains(github.event.head_commit.message, '[build]') }}
-        runs-on: ubuntu-24.04-arm
+        runs-on: ubuntu-24.04
+        strategy:
+          matrix:
+            arch: [aarch64, x86_64]
+            include:
+              - arch: aarch64
+                image: termux/termux-docker:aarch64
+              - arch: x86_64
+                image: termux/termux-docker:x86_64
+
         container:
-          image: termux/termux-docker:aarch64
-          volumes: 
+            image: ${{ matrix.image }}
+            volumes: 
               - /tmp/node20:/__e/node20
+
         env:
             ANDROID_ROOT: /system
             ANDROID_DATA: /data
@@ -257,32 +267,33 @@ jobs:
             TMPDIR: /data/data/com.termux/files/usr/tmp
             LANG: en_US.UTF-8
             TZ: UTC
+
         steps:
-            - name: Install dependencies
-              run: |
-                  ln -sf ${PREFIX}/etc/termux/mirrors/default ${PREFIX}/etc/termux/chosen_mirrors
-                  /entrypoint.sh bash -c "yes | pkg upgrade -y"
-                  chmod -R o+x ${PREFIX}/bin
-                  /entrypoint.sh pkg install -y nodejs-lts
-                  ln -sf ${PREFIX}/bin /__e/node20/bin
+          - name: Install dependencies
+            run: |
+              ln -sf ${PREFIX}/etc/termux/mirrors/default ${PREFIX}/etc/termux/chosen_mirrors
+              /entrypoint.sh bash -c "yes | pkg upgrade -y"
+              chmod -R o+x ${PREFIX}/bin
+              /entrypoint.sh pkg install -y nodejs-lts
+              ln -sf ${PREFIX}/bin /__e/node20/bin
 
-            - name: Checkout repository
-              uses: actions/checkout@v4.2.2
+          - name: Checkout repository
+            uses: actions/checkout@v4.2.2
 
-            - name: Reset permissions
-              run: chown -R 1000:1000 .
+          - name: Reset permissions
+            run: chown -R 1000:1000 .
 
-            - name: Build the game
-              run: /entrypoint.sh .github/build-android.sh
+          - name: Build the game
+            run: /entrypoint.sh .github/build-android.sh
 
-            - name: Generate hash
-              run: |
-                cd tools
-                g++ -std=c++17 -o hash_file hash_file.cpp
-                echo "::notice ::$(./hash_file ../build/us_pc/libmain.so)"
+          - name: Generate hash
+            run: |
+              cd tools
+              g++ -std=c++17 -o hash_file hash_file.cpp
+              echo "::notice ::${{ matrix.arch }}: $(./hash_file ../build/us_pc/libmain.so)"
 
-            - name: Upload artifact
-              uses: actions/upload-artifact@v4
-              with:
-                name: sm64coopdx-android
-                path: ./build/us_pc/sm64coopdx.apk
+          - name: Upload APK
+            uses: actions/upload-artifact@v4
+            with:
+              name: sm64coopdx-android-${{ matrix.arch }}
+              path: ./build/us_pc/sm64coopdx.apk

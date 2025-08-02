@@ -371,7 +371,7 @@ static void crash_handler(const int signalNum, siginfo_t *info, UNUSED ucontext_
 
     // Registers
     crash_handler_set_text(8, 22, 0xFF, 0xFF, 0xFF, "%s", "Registers:");
-#if defined(_WIN32) || (defined(__linux__) && defined(__x86_64__)) || (defined(__ANDROID__) && defined(__aarch64__))
+#if defined(_WIN32) || (defined(__linux__) && defined(__x86_64__)) || (defined(__ANDROID__) && (defined(__aarch64__) || defined(__x86_64__)))
 #ifdef _WIN32
     if (ExceptionInfo && ExceptionInfo->ContextRecord) {
         PCONTEXT cr = ExceptionInfo->ContextRecord;
@@ -453,7 +453,7 @@ static void crash_handler(const int signalNum, siginfo_t *info, UNUSED ucontext_
 #endif
 #elif __ANDROID__
     if (context->uc_mcontext.sp != 0) {
-#if IS_64_BIT
+#if defined(__aarch64__)
         crash_handler_set_text( 8, 30, 0xFF, 0xFF, 0xFF,   " SP: 0x%016llX", context->uc_mcontext.sp);
         crash_handler_set_text(-1, 30, 0xFF, 0xFF, 0xFF, "   FP: 0x%016llX", context->uc_mcontext.regs[29]);
         crash_handler_set_text(-1, 30, 0xFF, 0xFF, 0xFF, "   LR: 0x%016llX", context->uc_mcontext.regs[30]);
@@ -466,7 +466,7 @@ static void crash_handler(const int signalNum, siginfo_t *info, UNUSED ucontext_
         crash_handler_set_text(-1, 54, 0xFF, 0xFF, 0xFF, "  X13: 0x%016llX", context->uc_mcontext.regs[13]);
         crash_handler_set_text(-1, 54, 0xFF, 0xFF, 0xFF, "  X14: 0x%016llX", context->uc_mcontext.regs[14]);
         crash_handler_set_text(-1, 54, 0xFF, 0xFF, 0xFF, "  X15: 0x%016llX", context->uc_mcontext.regs[15]);
-#else
+#elif defined(__arm__)
         crash_handler_set_text( 8, 30, 0xFF, 0xFF, 0xFF,   " SP: 0x%08lX", context->uc_mcontext.arm_sp);
         crash_handler_set_text(-1, 30, 0xFF, 0xFF, 0xFF, "   FP: 0x%08lX", context->uc_mcontext.arm_fp);
         crash_handler_set_text(-1, 30, 0xFF, 0xFF, 0xFF, "   LR: 0x%08lX", context->uc_mcontext.arm_lr);
@@ -479,6 +479,24 @@ static void crash_handler(const int signalNum, siginfo_t *info, UNUSED ucontext_
         crash_handler_set_text(-1, 54, 0xFF, 0xFF, 0xFF, "  X13: 0x%08lX", context->uc_mcontext.arm_r13);
         crash_handler_set_text(-1, 54, 0xFF, 0xFF, 0xFF, "  X14: 0x%08lX", context->uc_mcontext.arm_r14);
         crash_handler_set_text(-1, 54, 0xFF, 0xFF, 0xFF, "  X15: 0x%08lX", context->uc_mcontext.arm_r15);
+#elif defined(__x86_64__)
+       crash_handler_set_text( 8, 30, 0xFF, 0xFF, 0xFF,   "RSP: 0x%016llX",  (unsigned long long) context->uc_mcontext.gregs[REG_RSP]);
+        crash_handler_set_text(-1, 30, 0xFF, 0xFF, 0xFF, "  RBP: 0x%016llX", (unsigned long long) context->uc_mcontext.gregs[REG_RBP]);
+        crash_handler_set_text(-1, 30, 0xFF, 0xFF, 0xFF, "  RIP: 0x%016llX", (unsigned long long) context->uc_mcontext.gregs[REG_RIP]);
+        crash_handler_set_text( 8, 38, 0xFF, 0xFF, 0xFF,   "RAX: 0x%016llX", (unsigned long long) context->uc_mcontext.gregs[REG_RAX]);
+        crash_handler_set_text(-1, 38, 0xFF, 0xFF, 0xFF, "  RBX: 0x%016llX", (unsigned long long) context->uc_mcontext.gregs[REG_RBX]);
+        crash_handler_set_text(-1, 38, 0xFF, 0xFF, 0xFF, "  RCX: 0x%016llX", (unsigned long long) context->uc_mcontext.gregs[REG_RCX]);
+        crash_handler_set_text(-1, 38, 0xFF, 0xFF, 0xFF, "  RDX: 0x%016llX", (unsigned long long) context->uc_mcontext.gregs[REG_RDX]);
+        crash_handler_set_text( 8, 46, 0xFF, 0xFF, 0xFF,   "R08: 0x%016llX", (unsigned long long) context->uc_mcontext.gregs[REG_R8]);
+        crash_handler_set_text(-1, 46, 0xFF, 0xFF, 0xFF, "  R09: 0x%016llX", (unsigned long long) context->uc_mcontext.gregs[REG_R9]);
+        crash_handler_set_text(-1, 46, 0xFF, 0xFF, 0xFF, "  R10: 0x%016llX", (unsigned long long) context->uc_mcontext.gregs[REG_R10]);
+        crash_handler_set_text(-1, 46, 0xFF, 0xFF, 0xFF, "  R11: 0x%016llX", (unsigned long long)  context->uc_mcontext.gregs[REG_R11]);
+        crash_handler_set_text( 8, 54, 0xFF, 0xFF, 0xFF,   "R12: 0x%016llX", (unsigned long long) context->uc_mcontext.gregs[REG_R12]);
+        crash_handler_set_text(-1, 54, 0xFF, 0xFF, 0xFF, "  R13: 0x%016llX", (unsigned long long) context->uc_mcontext.gregs[REG_R13]);
+        crash_handler_set_text(-1, 54, 0xFF, 0xFF, 0xFF, "  R14: 0x%016llX", (unsigned long long) context->uc_mcontext.gregs[REG_R14]);
+        crash_handler_set_text(-1, 54, 0xFF, 0xFF, 0xFF, "  R15: 0x%016llX", (unsigned long long) context->uc_mcontext.gregs[REG_R15]);
+        crash_handler_set_text( 8, 62, 0xFF, 0xFF, 0xFF,   "RSI: 0x%016llX", (unsigned long long) ontext->uc_mcontext.gregs[REG_RSI]);
+        crash_handler_set_text(-1, 62, 0xFF, 0xFF, 0xFF, "  RDI: 0x%016llX", (unsigned long long) context->uc_mcontext.gregs[REG_RDI]);
 #endif
 #endif
     } else {
