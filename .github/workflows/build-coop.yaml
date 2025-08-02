@@ -311,7 +311,8 @@ jobs:
       needs: build-android
       runs-on: ubuntu-latest
       steps:
-        - uses: actions/checkout@v4.2.2
+        - name: Checkout repository
+          uses: actions/checkout@v4.2.2
 
         - name: Set up Java
           uses: actions/setup-java@v4
@@ -354,21 +355,10 @@ jobs:
             name: libc++-x86_64
             path: platform/android/android/lib/x86_64
 
-        - name: Rename native libs for aarch64
-          run: |
-            mv platform/android/android/lib/arm64-v8a/libmain-arm64-v8a.so platform/android/android/lib/arm64-v8a/libmain.so
-            mv platform/android/android/lib/arm64-v8a/libc++-arm64-v8a.so platform/android/android/lib/arm64-v8a/libc++_shared.so
-
-        - name: Rename native libs for x86_64
-          run: |
-            mv platform/android/android/lib/x86_64/libmain-x86_64.so platform/android/android/lib/x86_64/libmain.so
-            mv platform/android/android/lib/x86_64/libc++-x86_64.so platform/android/android/lib/x86_64/libc++_shared.so
-
         - name: Prepare assets and merge APK
           run: |
             mkdir -p platform/android/android/assets/
-            # Copy your game data assets here, if any (mods, lang, palettes, dynos)
-            cp -r mods lang palettes dynos platform/android/android/assets/ || echo "No assets to copy"
+            cp -r mods lang palettes dynos platform/android/android/assets/
 
             pushd platform/android/android
             zip -0 -r ../../../sm64coopdx_unaligned.zip ./*

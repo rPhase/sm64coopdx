@@ -1002,9 +1002,7 @@ endif
 ifeq ($(WINDOWS_BUILD),1)
   LDFLAGS += -lwininet
 else
-  ifeq ($(TARGET_ANDROID),0)
-    LDFLAGS += -lcurl
-  endif
+  LDFLAGS += -lcurl
 endif
 
 # Lua
