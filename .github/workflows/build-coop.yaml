@@ -241,59 +241,94 @@ jobs:
               with:
                 name: sm64coopdx-macos-intel
                 path: ./build/us_pc/sm64coopdx_macOS_Intel.zip
-    build-android:
-        if: ${{ github.event_name == 'workflow_dispatch' || contains(github.event.head_commit.message, '[build]') }}
-        runs-on: ubuntu-24.04
-        strategy:
-          matrix:
-            arch: [aarch64, x86_64]
-            include:
-              - arch: aarch64
-                image: termux/termux-docker:aarch64
-              - arch: x86_64
-                image: termux/termux-docker:x86_64
+    build-android-aarch64:
+      name: Build Android (aarch64)
+      runs-on: ubuntu-24.04-arm
+      container:
+        image: termux/termux-docker:aarch64
+        volumes:
+          - /tmp/node20:/__e/node20
+      env:
+        ANDROID_ROOT: /system
+        ANDROID_DATA: /data
+        PREFIX: /data/data/com.termux/files/usr
+        HOME: /data/data/com.termux/files/home
+        PATH: /data/data/com.termux/files/usr/bin
+        TMPDIR: /data/data/com.termux/files/usr/tmp
+        LANG: en_US.UTF-8
+        TZ: UTC
+      steps:
+        - name: Install dependencies
+          run: |
+            ln -sf ${PREFIX}/etc/termux/mirrors/default ${PREFIX}/etc/termux/chosen_mirrors
+            /entrypoint.sh bash -c "yes | pkg upgrade -y"
+            chmod -R o+x ${PREFIX}/bin
+            /entrypoint.sh pkg install -y nodejs-lts
+            ln -sf ${PREFIX}/bin /__e/node20/bin
 
-        container:
-            image: ${{ matrix.image }}
-            volumes: 
-              - /tmp/node20:/__e/node20
+        - name: Checkout repository
+          uses: actions/checkout@v4.2.2
 
-        env:
-            ANDROID_ROOT: /system
-            ANDROID_DATA: /data
-            PREFIX: /data/data/com.termux/files/usr
-            HOME: /data/data/com.termux/files/home
-            PATH: /data/data/com.termux/files/usr/bin
-            TMPDIR: /data/data/com.termux/files/usr/tmp
-            LANG: en_US.UTF-8
-            TZ: UTC
+        - name: Reset permissions
+          run: chown -R 1000:1000 .
 
-        steps:
-          - name: Install dependencies
-            run: |
-              ln -sf ${PREFIX}/etc/termux/mirrors/default ${PREFIX}/etc/termux/chosen_mirrors
-              /entrypoint.sh bash -c "yes | pkg upgrade -y"
-              chmod -R o+x ${PREFIX}/bin
-              /entrypoint.sh pkg install -y nodejs-lts
-              ln -sf ${PREFIX}/bin /__e/node20/bin
+        - name: Build the game
+          run: /entrypoint.sh .github/build-android.sh
 
-          - name: Checkout repository
-            uses: actions/checkout@v4.2.2
+        - name: Generate hash
+          run: |
+            cd tools
+            g++ -std=c++17 -o hash_file hash_file.cpp
+            echo "::notice ::aarch64: $(./hash_file ../build/us_pc/libmain.so)"
 
-          - name: Reset permissions
-            run: chown -R 1000:1000 .
+        - name: Upload APK
+          uses: actions/upload-artifact@v4
+          with:
+            name: sm64coopdx-android-aarch64
+            path: ./build/us_pc/sm64coopdx.apk
 
-          - name: Build the game
-            run: /entrypoint.sh .github/build-android.sh
+    build-android-x86_64:
+      name: Build Android (x86_64)
+      runs-on: ubuntu-24.04
+      container:
+        image: termux/termux-docker:x86_64
+        volumes:
+          - /tmp/node20:/__e/node20
+      env:
+        ANDROID_ROOT: /system
+        ANDROID_DATA: /data
+        PREFIX: /data/data/com.termux/files/usr
+        HOME: /data/data/com.termux/files/home
+        PATH: /data/data/com.termux/files/usr/bin
+        TMPDIR: /data/data/com.termux/files/usr/tmp
+        LANG: en_US.UTF-8
+        TZ: UTC
+      steps:
+        - name: Install dependencies
+          run: |
+            ln -sf ${PREFIX}/etc/termux/mirrors/default ${PREFIX}/etc/termux/chosen_mirrors
+            /entrypoint.sh bash -c "yes | pkg upgrade -y"
+            chmod -R o+x ${PREFIX}/bin
+            /entrypoint.sh pkg install -y nodejs-lts
+            ln -sf ${PREFIX}/bin /__e/node20/bin
 
-          - name: Generate hash
-            run: |
-              cd tools
-              g++ -std=c++17 -o hash_file hash_file.cpp
-              echo "::notice ::${{ matrix.arch }}: $(./hash_file ../build/us_pc/libmain.so)"
+        - name: Checkout repository
+          uses: actions/checkout@v4.2.2
 
-          - name: Upload APK
-            uses: actions/upload-artifact@v4
-            with:
-              name: sm64coopdx-android-${{ matrix.arch }}
-              path: ./build/us_pc/sm64coopdx.apk
+        - name: Reset permissions
+          run: chown -R 1000:1000 .
+
+        - name: Build the game
+          run: /entrypoint.sh .github/build-android.sh
+
+        - name: Generate hash
+          run: |
+            cd tools
+            g++ -std=c++17 -o hash_file hash_file.cpp
+            echo "::notice ::x86_64: $(./hash_file ../build/us_pc/libmain.so)"
+
+        - name: Upload APK
+          uses: actions/upload-artifact@v4
+          with:
+            name: sm64coopdx-android-x86_64
+            path: ./build/us_pc/sm64coopdx.apk
