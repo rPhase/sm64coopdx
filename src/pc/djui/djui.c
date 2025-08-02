@@ -173,7 +173,7 @@ void djui_render(void) {
 
     sSavedDisplayListHead = gDisplayListHead;
     gDjuiHudUtilsZ = 0;
-    
+
     create_dl_ortho_matrix();
     djui_gfx_displaylist_begin();
 
