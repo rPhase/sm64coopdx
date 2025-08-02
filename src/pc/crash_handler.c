@@ -452,8 +452,8 @@ static void crash_handler(const int signalNum, siginfo_t *info, UNUSED ucontext_
         crash_handler_set_text(-1, 62, 0xFF, 0xFF, 0xFF, "  DR1: 0x%016llX", context->uc_mcontext.gregs[REG_RDX]);
 #endif
 #elif __ANDROID__
-    if (context->uc_mcontext.sp != 0) {
 #if defined(__aarch64__)
+    if (context->uc_mcontext.sp != 0) {
         crash_handler_set_text( 8, 30, 0xFF, 0xFF, 0xFF,   " SP: 0x%016llX", context->uc_mcontext.sp);
         crash_handler_set_text(-1, 30, 0xFF, 0xFF, 0xFF, "   FP: 0x%016llX", context->uc_mcontext.regs[29]);
         crash_handler_set_text(-1, 30, 0xFF, 0xFF, 0xFF, "   LR: 0x%016llX", context->uc_mcontext.regs[30]);
@@ -467,6 +467,7 @@ static void crash_handler(const int signalNum, siginfo_t *info, UNUSED ucontext_
         crash_handler_set_text(-1, 54, 0xFF, 0xFF, 0xFF, "  X14: 0x%016llX", context->uc_mcontext.regs[14]);
         crash_handler_set_text(-1, 54, 0xFF, 0xFF, 0xFF, "  X15: 0x%016llX", context->uc_mcontext.regs[15]);
 #elif defined(__arm__)
+    if (context->uc_mcontext.arm_sp != 0) {
         crash_handler_set_text( 8, 30, 0xFF, 0xFF, 0xFF,   " SP: 0x%08lX", context->uc_mcontext.arm_sp);
         crash_handler_set_text(-1, 30, 0xFF, 0xFF, 0xFF, "   FP: 0x%08lX", context->uc_mcontext.arm_fp);
         crash_handler_set_text(-1, 30, 0xFF, 0xFF, 0xFF, "   LR: 0x%08lX", context->uc_mcontext.arm_lr);
@@ -480,7 +481,8 @@ static void crash_handler(const int signalNum, siginfo_t *info, UNUSED ucontext_
         crash_handler_set_text(-1, 54, 0xFF, 0xFF, 0xFF, "  X14: 0x%08lX", context->uc_mcontext.arm_r14);
         crash_handler_set_text(-1, 54, 0xFF, 0xFF, 0xFF, "  X15: 0x%08lX", context->uc_mcontext.arm_r15);
 #elif defined(__x86_64__)
-       crash_handler_set_text( 8, 30, 0xFF, 0xFF, 0xFF,   "RSP: 0x%016llX",  (unsigned long long) context->uc_mcontext.gregs[REG_RSP]);
+    if (context->uc_mcontext.gregs[REG_RSP] != 0) {
+        crash_handler_set_text( 8, 30, 0xFF, 0xFF, 0xFF,   "RSP: 0x%016llX", (unsigned long long) context->uc_mcontext.gregs[REG_RSP]);
         crash_handler_set_text(-1, 30, 0xFF, 0xFF, 0xFF, "  RBP: 0x%016llX", (unsigned long long) context->uc_mcontext.gregs[REG_RBP]);
         crash_handler_set_text(-1, 30, 0xFF, 0xFF, 0xFF, "  RIP: 0x%016llX", (unsigned long long) context->uc_mcontext.gregs[REG_RIP]);
         crash_handler_set_text( 8, 38, 0xFF, 0xFF, 0xFF,   "RAX: 0x%016llX", (unsigned long long) context->uc_mcontext.gregs[REG_RAX]);
@@ -495,7 +497,7 @@ static void crash_handler(const int signalNum, siginfo_t *info, UNUSED ucontext_
         crash_handler_set_text(-1, 54, 0xFF, 0xFF, 0xFF, "  R13: 0x%016llX", (unsigned long long) context->uc_mcontext.gregs[REG_R13]);
         crash_handler_set_text(-1, 54, 0xFF, 0xFF, 0xFF, "  R14: 0x%016llX", (unsigned long long) context->uc_mcontext.gregs[REG_R14]);
         crash_handler_set_text(-1, 54, 0xFF, 0xFF, 0xFF, "  R15: 0x%016llX", (unsigned long long) context->uc_mcontext.gregs[REG_R15]);
-        crash_handler_set_text( 8, 62, 0xFF, 0xFF, 0xFF,   "RSI: 0x%016llX", (unsigned long long) ontext->uc_mcontext.gregs[REG_RSI]);
+        crash_handler_set_text( 8, 62, 0xFF, 0xFF, 0xFF,   "RSI: 0x%016llX", (unsigned long long) context->uc_mcontext.gregs[REG_RSI]);
         crash_handler_set_text(-1, 62, 0xFF, 0xFF, 0xFF, "  RDI: 0x%016llX", (unsigned long long) context->uc_mcontext.gregs[REG_RDI]);
 #endif
 #endif

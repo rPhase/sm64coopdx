@@ -241,13 +241,27 @@ jobs:
               with:
                 name: sm64coopdx-macos-intel
                 path: ./build/us_pc/sm64coopdx_macOS_Intel.zip
-    build-android-aarch64:
-      name: Build Android (aarch64)
-      runs-on: ubuntu-24.04-arm
+
+    build-android:
+      if: ${{ github.event_name == 'workflow_dispatch' || contains(github.event.head_commit.message, '[build]') }}
+      strategy:
+        matrix:
+          include:
+            - runner: ubuntu-24.04-arm
+              architecture: aarch64
+              abi: arm64-v8a
+              image: termux/termux-docker:aarch64
+            - runner: ubuntu-24.04
+              architecture: x86_64
+              abi: x86_64
+              image: termux/termux-docker:x86_64
+
+      runs-on: ${{ matrix.runner }}
       container:
-        image: termux/termux-docker:aarch64
-        volumes:
+        image: ${{ matrix.image }}
+        volumes: 
           - /tmp/node20:/__e/node20
+
       env:
         ANDROID_ROOT: /system
         ANDROID_DATA: /data
@@ -257,6 +271,7 @@ jobs:
         TMPDIR: /data/data/com.termux/files/usr/tmp
         LANG: en_US.UTF-8
         TZ: UTC
+
       steps:
         - name: Install dependencies
           run: |
@@ -273,62 +288,101 @@ jobs:
           run: chown -R 1000:1000 .
 
         - name: Build the game
-          run: /entrypoint.sh .github/build-android.sh
+          run: /entrypoint.sh .github/build-android.sh ${{ matrix.architecture }}
 
-        - name: Generate hash
-          run: |
-            cd tools
-            g++ -std=c++17 -o hash_file hash_file.cpp
-            echo "::notice ::aarch64: $(./hash_file ../build/us_pc/libmain.so)"
+        - name: Upload libs
+          uses: actions/upload-artifact@v4
+          with:
+            name: libmain-${{ matrix.abi }}
+            path: build/us_pc/libmain.so
+
+        - uses: actions/upload-artifact@v4
+          with:
+            name: libc++-${{ matrix.abi }}
+            path: /data/data/com.termux/files/usr/lib/libc++_shared.so
 
         - name: Upload APK
           uses: actions/upload-artifact@v4
           with:
-            name: sm64coopdx-android-aarch64
-            path: ./build/us_pc/sm64coopdx.apk
+            name: sm64coopdx-${{ matrix.abi }}-apk
+            path: build/us_pc/sm64coopdx.apk
 
-    build-android-x86_64:
-      name: Build Android (x86_64)
-      runs-on: ubuntu-24.04
-      container:
-        image: termux/termux-docker:x86_64
-        volumes:
-          - /tmp/node20:/__e/node20
-      env:
-        ANDROID_ROOT: /system
-        ANDROID_DATA: /data
-        PREFIX: /data/data/com.termux/files/usr
-        HOME: /data/data/com.termux/files/home
-        PATH: /data/data/com.termux/files/usr/bin
-        TMPDIR: /data/data/com.termux/files/usr/tmp
-        LANG: en_US.UTF-8
-        TZ: UTC
+    merge:
+      needs: build-android
+      runs-on: ubuntu-latest
       steps:
-        - name: Install dependencies
-          run: |
-            ln -sf ${PREFIX}/etc/termux/mirrors/default ${PREFIX}/etc/termux/chosen_mirrors
-            /entrypoint.sh bash -c "yes | pkg upgrade -y"
-            chmod -R o+x ${PREFIX}/bin
-            /entrypoint.sh pkg install -y nodejs-lts
-            ln -sf ${PREFIX}/bin /__e/node20/bin
+        - uses: actions/checkout@v4.2.2
 
-        - name: Checkout repository
-          uses: actions/checkout@v4.2.2
-
-        - name: Reset permissions
-          run: chown -R 1000:1000 .
-
-        - name: Build the game
-          run: /entrypoint.sh .github/build-android.sh
-
-        - name: Generate hash
-          run: |
-            cd tools
-            g++ -std=c++17 -o hash_file hash_file.cpp
-            echo "::notice ::x86_64: $(./hash_file ../build/us_pc/libmain.so)"
-
-        - name: Upload APK
-          uses: actions/upload-artifact@v4
+        - name: Set up Java
+          uses: actions/setup-java@v4
           with:
-            name: sm64coopdx-android-x86_64
-            path: ./build/us_pc/sm64coopdx.apk
+            distribution: 'temurin'
+            java-version: '17'
+
+        - name: Install Android SDK tools
+          run: |
+            sudo apt-get update
+            sudo apt-get install -y wget unzip zipalign apksigner
+            wget https://dl.google.com/android/repository/commandlinetools-linux-9477386_latest.zip
+            mkdir -p $HOME/android-sdk/cmdline-tools
+            unzip commandlinetools-linux-9477386_latest.zip -d $HOME/android-sdk/cmdline-tools
+            mv $HOME/android-sdk/cmdline-tools/cmdline-tools $HOME/android-sdk/cmdline-tools/latest
+            export ANDROID_HOME=$HOME/android-sdk
+            export PATH=$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/platform-tools:$ANDROID_HOME/build-tools/34.0.0:$PATH
+            yes | sdkmanager --licenses
+            sdkmanager "build-tools;34.0.0"
+
+        - name: Fetch native libs aarch64
+          uses: actions/download-artifact@v4
+          with:
+            name: libmain-arm64-v8a
+            path: platform/android/android/lib/arm64-v8a
+        - name: Fetch libc++ aarch64
+          uses: actions/download-artifact@v4
+          with:
+            name: libc++-arm64-v8a
+            path: platform/android/android/lib/arm64-v8a
+
+        - name: Fetch native libs x86_64
+          uses: actions/download-artifact@v4
+          with:
+            name: libmain-x86_64
+            path: platform/android/android/lib/x86_64
+        - name: Fetch libc++ x86_64
+          uses: actions/download-artifact@v4
+          with:
+            name: libc++-x86_64
+            path: platform/android/android/lib/x86_64
+
+        - name: Rename native libs for aarch64
+          run: |
+            mv platform/android/android/lib/arm64-v8a/libmain-arm64-v8a.so platform/android/android/lib/arm64-v8a/libmain.so
+            mv platform/android/android/lib/arm64-v8a/libc++-arm64-v8a.so platform/android/android/lib/arm64-v8a/libc++_shared.so
+
+        - name: Rename native libs for x86_64
+          run: |
+            mv platform/android/android/lib/x86_64/libmain-x86_64.so platform/android/android/lib/x86_64/libmain.so
+            mv platform/android/android/lib/x86_64/libc++-x86_64.so platform/android/android/lib/x86_64/libc++_shared.so
+
+        - name: Prepare assets and merge APK
+          run: |
+            mkdir -p platform/android/android/assets/
+            # Copy your game data assets here, if any (mods, lang, palettes, dynos)
+            cp -r mods lang palettes dynos platform/android/android/assets/ || echo "No assets to copy"
+
+            pushd platform/android/android
+            zip -0 -r ../../../sm64coopdx_unaligned.zip ./*
+            popd
+
+            export ANDROID_HOME=$HOME/android-sdk
+            export PATH=$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/platform-tools:$ANDROID_HOME/build-tools/34.0.0:$PATH
+
+            zipalign -f -p 4 sm64coopdx_unaligned.zip sm64coopdx.apk
+            apksigner sign --cert platform/android/certificate.pem \
+                            --key platform/android/key.pk8 \
+                            sm64coopdx.apk
+
+        - uses: actions/upload-artifact@v4
+          with:
+            name: sm64coopdx-universal-apk
+            path: sm64coopdx.apk
