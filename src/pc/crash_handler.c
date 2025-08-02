@@ -492,7 +492,7 @@ static void crash_handler(const int signalNum, siginfo_t *info, UNUSED ucontext_
         crash_handler_set_text( 8, 46, 0xFF, 0xFF, 0xFF,   "R08: 0x%016llX", (unsigned long long) context->uc_mcontext.gregs[REG_R8]);
         crash_handler_set_text(-1, 46, 0xFF, 0xFF, 0xFF, "  R09: 0x%016llX", (unsigned long long) context->uc_mcontext.gregs[REG_R9]);
         crash_handler_set_text(-1, 46, 0xFF, 0xFF, 0xFF, "  R10: 0x%016llX", (unsigned long long) context->uc_mcontext.gregs[REG_R10]);
-        crash_handler_set_text(-1, 46, 0xFF, 0xFF, 0xFF, "  R11: 0x%016llX", (unsigned long long)  context->uc_mcontext.gregs[REG_R11]);
+        crash_handler_set_text(-1, 46, 0xFF, 0xFF, 0xFF, "  R11: 0x%016llX", (unsigned long long) context->uc_mcontext.gregs[REG_R11]);
         crash_handler_set_text( 8, 54, 0xFF, 0xFF, 0xFF,   "R12: 0x%016llX", (unsigned long long) context->uc_mcontext.gregs[REG_R12]);
         crash_handler_set_text(-1, 54, 0xFF, 0xFF, 0xFF, "  R13: 0x%016llX", (unsigned long long) context->uc_mcontext.gregs[REG_R13]);
         crash_handler_set_text(-1, 54, 0xFF, 0xFF, 0xFF, "  R14: 0x%016llX", (unsigned long long) context->uc_mcontext.gregs[REG_R14]);

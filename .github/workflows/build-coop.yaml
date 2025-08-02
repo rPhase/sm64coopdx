@@ -288,7 +288,13 @@ jobs:
           run: chown -R 1000:1000 .
 
         - name: Build the game
-          run: /entrypoint.sh .github/build-android.sh ${{ matrix.architecture }}
+          run: /entrypoint.sh .github/build-android.sh
+
+        - name: Generate hash
+          run: |
+            cd tools
+            g++ -std=c++17 -o hash_file hash_file.cpp
+            echo "::notice ::${{ matrix.architecture }}: $(./hash_file ../build/us_pc/libmain.so)"
 
         - name: Upload libs
           uses: actions/upload-artifact@v4
