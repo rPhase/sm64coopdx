@@ -307,7 +307,7 @@ jobs:
             name: sm64coopdx-${{ matrix.abi }}-apk
             path: build/us_pc/sm64coopdx.apk
 
-    merge:
+    merge-apks:
       needs: build-android
       runs-on: ubuntu-latest
       steps:
