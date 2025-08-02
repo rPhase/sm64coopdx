@@ -133,7 +133,7 @@ ifeq ($(HOST_OS),Darwin)
 endif
 
 # Attempt to detect Termux Android build
-ifneq ($(shell command -v termux-setup-storage >/dev/null 2>&1; echo $$?),1)
+ifneq ($(shell command -v termux-setup-storage >/dev/null 2>&1 && echo Building for termux),)
   TARGET_ANDROID := 1
 endif
 
