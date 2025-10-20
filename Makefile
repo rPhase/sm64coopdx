@@ -947,7 +947,7 @@ else ifeq ($(TARGET_ANDROID),1)
     $(error $(ANDROID_ARCH) is not supported)
   endif
   CFLAGS  += -fPIC
-  LDFLAGS := -L ./lib/sdl2/$(ANDROID_ARCH)/ ./lib/curl/$(ANDROID_ARCH)/ -lm $(BACKEND_LDFLAGS) -shared
+  LDFLAGS := -L ./lib/sdl2/android/$(ANDROID_ARCH)/ ./lib/curl/android/$(ANDROID_ARCH)/ -lm $(BACKEND_LDFLAGS) -shared
 else ifeq ($(TARGET_RK3588),1)
   LDFLAGS := $(OPT_FLAGS) -lm $(BACKEND_LDFLAGS) -no-pie
 else ifeq ($(OSX_BUILD),1)
