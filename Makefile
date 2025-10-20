@@ -792,6 +792,10 @@ else
   INCLUDE_DIRS += sound lib/lua/include lib/coopnet/include $(EXTRA_INCLUDES)
 endif
 
+ifeq ($(TARGET_ANDROID),1)
+  INCLUDE_DIRS += lib/sdl2/include
+endif
+
 # Connfigure backend flags
 
 SDLCONFIG := $(CROSS)sdl2-config
