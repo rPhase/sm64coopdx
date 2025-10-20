@@ -1,37 +1,46 @@
-LOCAL_PATH := $(call my-dir)
+LOCAL_PATH := $(realpath $(call my-dir))
 
-ifneq ($(shell uname -m | grep "i.86"),)
-    ARCH_APK := x86
-  else ifeq ($(shell uname -m),x86_64)
-    ARCH_APK := x86_64
-  else ifeq ($(shell getconf LONG_BIT),64)
-    ARCH_APK := arm64-v8a
-  else
-    ARCH_APK := armeabi-v7a
+# Check Arch
+VALID_ARCH := 0
+ifeq ($(TARGET_ARCH_ABI),x86_64)
+  VALID_ARCH := 1
+endif
+ifeq ($(TARGET_ARCH_ABI),arm64-v8a)
+  VALID_ARCH := 1
+endif
+
+ifeq ($(VALID_ARCH),0)
+  $(error $(TARGET_ARCH_ABI) is not supported)
 endif
 
 # Lua
 include $(CLEAR_VARS)
 LOCAL_MODULE := lua5.3.5
-LOCAL_SRC_FILES := $(LOCAL_PATH)/lib/lua/android/$(ARCH_APK)/liblua.a
+LOCAL_SRC_FILES := $(LOCAL_PATH)/lib/lua/android/$(TARGET_ARCH_ABI)/liblua.a
 include $(PREBUILT_STATIC_LIBRARY)
 
 # Coopnet
 include $(CLEAR_VARS)
 LOCAL_MODULE := coopnet
-LOCAL_SRC_FILES := $(LOCAL_PATH)/lib/coopnet/android/$(ARCH_APK)/libcoopnet.a
+LOCAL_SRC_FILES := $(LOCAL_PATH)/lib/coopnet/android/$(TARGET_ARCH_ABI)/libcoopnet.a
 include $(PREBUILT_STATIC_LIBRARY)
 
 # Libjuice
 include $(CLEAR_VARS)
 LOCAL_MODULE := libjuice
-LOCAL_SRC_FILES := $(LOCAL_PATH)/lib/coopnet/android/$(ARCH_APK)/libjuice.a
+LOCAL_SRC_FILES := $(LOCAL_PATH)/lib/coopnet/android/$(TARGET_ARCH_ABI)/libjuice.a
 include $(PREBUILT_STATIC_LIBRARY)
+
+# SDL2
+include $(CLEAR_VARS)
+LOCAL_MODULE := sdl2
+LOCAL_SRC_FILES := $(LOCAL_PATH)/lib/sdl2/android/$(TARGET_ARCH_ABI)/libsdl2.so
+include $(PREBUILT_SHARED_LIBRARY)
 
 # Curl
 include $(CLEAR_VARS)
 LOCAL_MODULE := curl
-LOCAL_SRC_FILES := $(LOCAL_PATH)/platform/android/android/lib/$(ARCH_APK)/libcurl.so
+LOCAL_SRC_FILES := $(LOCAL_PATH)/lib/curl/android/$(TARGET_ARCH_ABI)/libcurl.so
 include $(PREBUILT_SHARED_LIBRARY)
 
 include $(CLEAR_VARS)
@@ -48,21 +57,15 @@ TOUCH_CONTROLS ?= 1
 
 ifeq ($(VERSION),jp)
   VERSION_DEF := VERSION_JP
-else
-ifeq ($(VERSION),us)
+else ifeq ($(VERSION),us)
   VERSION_DEF := VERSION_US
-else
-ifeq ($(VERSION),eu)
+else ifeq ($(VERSION),eu)
   VERSION_DEF := VERSION_EU
-else
-ifeq ($(VERSION),sh)
+else ifeq ($(VERSION),sh)
   $(warning Building SH is experimental and is prone to breaking. Try at your own risk.)
   VERSION_DEF := VERSION_SH
 else
   $(error unknown version "$(VERSION)")
-endif
-endif
-endif
 endif
 
 PC_BUILD_DIR := $(LOCAL_PATH)/build/$(VERSION)_pc
@@ -98,10 +101,10 @@ GENERATED_C_FILES := $(PC_BUILD_DIR)/assets/mario_anim_data.c $(PC_BUILD_DIR)/as
   $(addprefix $(LOCAL_PATH)/bin/,$(addsuffix _skybox.c,$(notdir $(basename $(wildcard $(LOCAL_PATH)/textures/skyboxes/*.png)))))
 
 LOCAL_SHORT_COMMANDS := true
-LOCAL_SHARED_LIBRARIES := SDL2
-LOCAL_STATIC_LIBRARIES := lua5.3.5 coopnet libjuice curl
-LOCAL_LDLIBS := -lEGL -lGLESv3 -llog -lz -lunwind -pthread -rdynamic -ldl -landroid
-LOCAL_C_INCLUDES := $(LOCAL_PATH)/platform/android/include $(LOCAL_PATH)/include $(LOCAL_PATH)/src $(LOCAL_PATH)/sound $(LOCAL_PATH)/lib/lua/include $(LOCAL_PATH)/lib/coopnet/include $(PC_BUILD_DIR) $(PC_BUILD_DIR)/include
+LOCAL_SHARED_LIBRARIES := sdl2 curl
+LOCAL_STATIC_LIBRARIES := lua5.3.5 coopnet libjuice
+LOCAL_LDLIBS := -lEGL -lGLESv3 -llog -lz -pthread -rdynamic -ldl -landroid
+LOCAL_C_INCLUDES := $(LOCAL_PATH)/include $(LOCAL_PATH)/src $(LOCAL_PATH)/sound $(LOCAL_PATH)/lib/lua/include $(LOCAL_PATH)/lib/coopnet/include $(LOCAL_PATH)/lib/sdl2/include $(LOCAL_PATH)/lib/curl/include $(PC_BUILD_DIR) $(PC_BUILD_DIR)/include
 LOCAL_CFLAGS := -DNON_MATCHING -DAVOID_UB -DTARGET_LINUX -DTARGET_ANDROID -DENABLE_OPENGL -DWIDESCREEN -DF3DEX_GBI_2E -D_LANGUAGE_C -DNO_SEGMENTED_MEMORY -D$(VERSION_DEF) -DSTDC_HEADERS -DDYNOS -DCOOP -DCOOPNET -DUSE_GLES -DTEXTURE_FIX -DBETTERCAMERA -DEXT_OPTIONS_MENU -DIMMEDIATELOAD -DRAPI_GL=1 -DWAPI_SDL2=1 -DAAPI_SDL2=1 -DCAPI_SDL2 -DHAVE_SDL2=1 -O3 -w
 ifeq ($(TOUCH_CONTROLS),1)
   LOCAL_CFLAGS += -DTOUCH_CONTROLS

@@ -792,10 +792,6 @@ else
   INCLUDE_DIRS += sound lib/lua/include lib/coopnet/include $(EXTRA_INCLUDES)
 endif
 
-ifeq ($(TARGET_ANDROID),1)
-  INCLUDE_DIRS += platform/android/include
-endif
-
 # Connfigure backend flags
 
 SDLCONFIG := $(CROSS)sdl2-config
@@ -938,17 +934,16 @@ ifeq ($(WINDOWS_BUILD),1)
 else ifeq ($(TARGET_RPI),1)
   LDFLAGS := $(OPT_FLAGS) -lm $(BACKEND_LDFLAGS) -no-pie
 else ifeq ($(TARGET_ANDROID),1)
-  ifneq ($(shell uname -m | grep "i.86"),)
-    ARCH_APK := x86
-  else ifeq ($(shell uname -m),x86_64)
-    ARCH_APK := x86_64
+  ifeq ($(shell uname -m),x86_64)
+    ANDROID_ARCH := x86_64
   else ifeq ($(shell getconf LONG_BIT),64)
-    ARCH_APK := arm64-v8a
+    ANDROID_ARCH := arm64-v8a
   else
-    ARCH_APK := armeabi-v7a
+    ANDROID_ARCH := $(shell uname -m)
+    $(error $(ANDROID_ARCH) is not supported)
   endif
   CFLAGS  += -fPIC
-  LDFLAGS := -L ./platform/android/android/lib/$(ARCH_APK)/ -lm $(BACKEND_LDFLAGS) -shared
+  LDFLAGS := -L ./lib/sdl2/$(ANDROID_ARCH)/ ./lib/curl/$(ANDROID_ARCH)/ -lm $(BACKEND_LDFLAGS) -shared
 else ifeq ($(TARGET_RK3588),1)
   LDFLAGS := $(OPT_FLAGS) -lm $(BACKEND_LDFLAGS) -no-pie
 else ifeq ($(OSX_BUILD),1)
@@ -1649,31 +1644,32 @@ ifeq ($(TARGET_N64),1)
   $(BUILD_DIR)/$(TARGET).objdump: $(ELF)
 	$(OBJDUMP) -D $< > $@
 else
+  # Android Files
+  ifeq ($(TARGET_ANDROID),1)
+    APK_FILES := $(shell find platform/android/ -type f)
 
-ifeq ($(TARGET_ANDROID),1)
-APK_FILES := $(shell find platform/android/ -type f)
+    # Copying Libraries and Assets
+    $(ZIP_UNCOMPRESSED): $(EXE) $(APK_FILES)
+      @cp -r platform/android $(BUILD_DIR)/platform/ >/dev/null 2>&1 && \
+      mkdir -p $(BUILD_DIR)/platform/android/app/assets/ >/dev/null 2>&1 && \
+      cp -r mods lang palettes dynos $(BUILD_DIR)/platform/android/app/assets/ >/dev/null 2>&1 && \
+      cp $(PREFIX)/lib/libc++_shared.so $(BUILD_DIR)/platform/android/app/lib/$(ANDROID_ARCH)/ >/dev/null 2>&1 && \
+      cp $(EXE) $(BUILD_DIR)/platform/android/app/lib/$(ANDROID_ARCH)/ >/dev/null 2>&1 && \
+      cd $(BUILD_DIR)/platform/android/app && \
+      zip -0 -r ../../../../../$@ ./* >/dev/null 2>&1 && \
+      cd - >/dev/null 2>&1 && \
+      rm -rf $(BUILD_DIR)/platform/android/app >/dev/null 2>&1
 
-$(ZIP_UNCOMPRESSED): $(EXE) $(APK_FILES)
-	cp -r platform/android $(BUILD_DIR)/platform/ && \
-	mkdir $(BUILD_DIR)/platform/android/android/assets/ && \
-	cp -r mods $(BUILD_DIR)/platform/android/android/assets/ && \
-	cp -r lang $(BUILD_DIR)/platform/android/android/assets/ && \
-  cp -r palettes $(BUILD_DIR)/platform/android/android/assets/ && \
-  cp -r dynos $(BUILD_DIR)/platform/android/android/assets/ && \
-	cp $(PREFIX)/lib/libc++_shared.so $(BUILD_DIR)/platform/android/android/lib/$(ARCH_APK)/ && \
-	cp $(EXE) $(BUILD_DIR)/platform/android/android/lib/$(ARCH_APK)/ && \
-	cd $(BUILD_DIR)/platform/android/android && \
-	zip -0 -r ../../../../../$@ ./* && \
-	cd - && \
-	rm -rf $(BUILD_DIR)/platform/android/android
+    # Aligning the zip
+    $(APK_ALIGNED): $(ZIP_UNCOMPRESSED)
+      @zipalign -f -p 4 $< $@ >/dev/null 2>&1
 
-$(APK_ALIGNED): $(ZIP_UNCOMPRESSED)
-	zipalign -f -p 4 $< $@
+    # Signing the apk
+    $(APK_SIGNED): $(APK_ALIGNED)
+      @cp $< $@ >/dev/null 2>&1 && \
+      apksigner sign --cert platform/android/certificate.pem --key platform/android/key.pk8 $@ >/dev/null 2>&1
+  endif
 
-$(APK_SIGNED): $(APK_ALIGNED)
-	cp $< $@ && \
-	apksigner sign --cert platform/android/certificate.pem --key platform/android/key.pk8 $@
-endif
 
   $(EXE): $(O_FILES) $(MIO0_FILES:.mio0=.o) $(ULTRA_O_FILES) $(GODDARD_O_FILES) $(BUILD_DIR)/$(RPC_LIBS) $(BUILD_DIR)/$(DISCORD_SDK_LIBS) $(BUILD_DIR)/$(COOPNET_LIBS) $(BUILD_DIR)/$(LANG_DIR) $(BUILD_DIR)/$(MOD_DIR) $(BUILD_DIR)/$(PALETTES_DIR)
 	@$(PRINT) "$(GREEN)Linking executable: $(BLUE)$@ $(NO_COL)\n"

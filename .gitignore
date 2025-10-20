@@ -20,6 +20,7 @@
 *.a
 *.la
 *.lo
+*.so
 
 # Executables
 *.exe
@@ -94,5 +95,11 @@ tools/ido5.3_compiler/usr/lib/libc.so.1
 /.vs
 
 # Android files
-!platform/android/android/**/*.so
-!lib/**/android/**/*.a
+platform/.gradle
+platform/app/.externalNativeBuild
+platform/app/.cxx
+platform/app/src/main/assets
+platform/app/build/
+platform/app/debug/
+platform/local.properties
+
