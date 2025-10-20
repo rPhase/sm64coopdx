@@ -947,7 +947,7 @@ else ifeq ($(TARGET_ANDROID),1)
     $(error $(ANDROID_ARCH) is not supported)
   endif
   CFLAGS  += -fPIC
-  LDFLAGS := -L ./lib/sdl2/android/$(ANDROID_ARCH)/ ./lib/curl/android/$(ANDROID_ARCH)/ -lm $(BACKEND_LDFLAGS) -shared
+  LDFLAGS := -L ./lib/sdl2/android/$(ANDROID_ARCH)/ -L ./lib/curl/android/$(ANDROID_ARCH)/ -lm $(BACKEND_LDFLAGS) -shared
 else ifeq ($(TARGET_RK3588),1)
   LDFLAGS := $(OPT_FLAGS) -lm $(BACKEND_LDFLAGS) -no-pie
 else ifeq ($(OSX_BUILD),1)
@@ -992,7 +992,7 @@ endif
 
 # Zlib
 ifeq ($(TARGET_ANDROID),1)
-  LDFLAGS += -Llib/zlib/android/$(ARCH_APK) -l:libz.a
+  LDFLAGS += -Llib/zlib/android/$(ANDROID_ARCH) -l:libz.a
 else
   LDFLAGS += -lz
 endif
@@ -1024,7 +1024,7 @@ else ifeq ($(TARGET_RPI),1)
     LDFLAGS += -Llib/lua/linux -l:liblua53-arm.a
   endif
 else ifeq ($(TARGET_ANDROID),1)
-  LDFLAGS += -Llib/lua/android/$(ARCH_APK) -l:liblua.a
+  LDFLAGS += -Llib/lua/android/$(ANDROID_ARCH) -l:liblua.a
 else ifeq ($(TARGET_RK3588),1)
   LDFLAGS += -Llib/lua/linux -l:liblua53-arm64.a
 else
@@ -1057,7 +1057,7 @@ ifeq ($(COOPNET),1)
       LDFLAGS += -Llib/coopnet/linux -l:libcoopnet-arm.a -l:libjuice-arm.a
     endif
   else ifeq ($(TARGET_ANDROID),1)
-    LDFLAGS += -Llib/coopnet/android/$(ARCH_APK) -l:libcoopnet.a -l:libjuice.a
+    LDFLAGS += -Llib/coopnet/android/$(ANDROID_ARCH) -l:libcoopnet.a -l:libjuice.a
   else ifeq ($(TARGET_RK3588),1)
     LDFLAGS += -Llib/coopnet/linux -l:libcoopnet-arm64.a -l:libjuice.a
   else
