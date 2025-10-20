@@ -1648,28 +1648,27 @@ else
   ifeq ($(TARGET_ANDROID),1)
     APK_FILES := $(shell find platform/android/ -type f)
 
-    # Copying Libraries and Assets
-    $(ZIP_UNCOMPRESSED): $(EXE) $(APK_FILES)
-      @cp -r platform/android $(BUILD_DIR)/platform/ >/dev/null 2>&1 && \
-      mkdir -p $(BUILD_DIR)/platform/android/app/assets/ >/dev/null 2>&1 && \
-      cp -r mods lang palettes dynos $(BUILD_DIR)/platform/android/app/assets/ >/dev/null 2>&1 && \
-      cp $(PREFIX)/lib/libc++_shared.so $(BUILD_DIR)/platform/android/app/lib/$(ANDROID_ARCH)/ >/dev/null 2>&1 && \
-      cp $(EXE) $(BUILD_DIR)/platform/android/app/lib/$(ANDROID_ARCH)/ >/dev/null 2>&1 && \
-      cd $(BUILD_DIR)/platform/android/app && \
-      zip -0 -r ../../../../../$@ ./* >/dev/null 2>&1 && \
-      cd - >/dev/null 2>&1 && \
-      rm -rf $(BUILD_DIR)/platform/android/app >/dev/null 2>&1
+# Copying Libraries and Assets
+$(ZIP_UNCOMPRESSED): $(EXE) $(APK_FILES)
+	@cp -r platform/android $(BUILD_DIR)/platform/ >/dev/null 2>&1 && \
+	mkdir -p $(BUILD_DIR)/platform/android/app/assets/ >/dev/null 2>&1 && \
+	cp -r mods lang palettes dynos $(BUILD_DIR)/platform/android/app/assets/ >/dev/null 2>&1 && \
+	cp $(PREFIX)/lib/libc++_shared.so $(BUILD_DIR)/platform/android/app/lib/$(ANDROID_ARCH)/ >/dev/null 2>&1 && \
+	cp $(EXE) $(BUILD_DIR)/platform/android/app/lib/$(ANDROID_ARCH)/ >/dev/null 2>&1 && \
+	cd $(BUILD_DIR)/platform/android/app && \
+	zip -0 -r ../../../../../$@ ./* >/dev/null 2>&1 && \
+	cd - >/dev/null 2>&1 && \
+	rm -rf $(BUILD_DIR)/platform/android/app >/dev/null 2>&1
 
-    # Aligning the zip
-    $(APK_ALIGNED): $(ZIP_UNCOMPRESSED)
-      @zipalign -f -p 4 $< $@ >/dev/null 2>&1
+# Aligning the zip
+$(APK_ALIGNED): $(ZIP_UNCOMPRESSED)
+	@zipalign -f -p 4 $< $@ >/dev/null 2>&1
 
-    # Signing the apk
-    $(APK_SIGNED): $(APK_ALIGNED)
-      @cp $< $@ >/dev/null 2>&1 && \
-      apksigner sign --cert platform/android/certificate.pem --key platform/android/key.pk8 $@ >/dev/null 2>&1
+# Signing the apk
+$(APK_SIGNED): $(APK_ALIGNED)
+	@cp $< $@ >/dev/null 2>&1 && \
+	apksigner sign --cert platform/android/certificate.pem --key platform/android/key.pk8 $@ >/dev/null 2>&1
   endif
-
 
   $(EXE): $(O_FILES) $(MIO0_FILES:.mio0=.o) $(ULTRA_O_FILES) $(GODDARD_O_FILES) $(BUILD_DIR)/$(RPC_LIBS) $(BUILD_DIR)/$(DISCORD_SDK_LIBS) $(BUILD_DIR)/$(COOPNET_LIBS) $(BUILD_DIR)/$(LANG_DIR) $(BUILD_DIR)/$(MOD_DIR) $(BUILD_DIR)/$(PALETTES_DIR)
 	@$(PRINT) "$(GREEN)Linking executable: $(BLUE)$@ $(NO_COL)\n"
