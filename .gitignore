@@ -102,5 +102,3 @@ platform/app/src/main/assets
 platform/app/build/
 platform/app/debug/
 platform/local.properties
-
-!lib/sdl2/android/**/*.so

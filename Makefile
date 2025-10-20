@@ -861,18 +861,20 @@ endif
 ifneq ($(SDL1_USED)$(SDL2_USED),00)
   ifeq ($(TARGET_ANDROID),1)
     BACKEND_LDFLAGS += -lSDL2
-  else ifeq ($(OSX_BUILD),1)
-    # on OSX at least the homebrew version of sdl-config gives include path as `.../include/SDL2` instead of `.../include`
-    OSX_PREFIX := $(shell $(SDLCONFIG) --prefix)
-    BACKEND_CFLAGS += -I$(OSX_PREFIX)/include $(shell $(SDLCONFIG) --cflags)
   else
-    BACKEND_CFLAGS += `$(SDLCONFIG) --cflags`
-  endif
+    ifeq ($(OSX_BUILD),1)
+      # on OSX at least the homebrew version of sdl-config gives include path as `.../include/SDL2` instead of `.../include`
+      OSX_PREFIX := $(shell $(SDLCONFIG) --prefix)
+      BACKEND_CFLAGS += -I$(OSX_PREFIX)/include $(shell $(SDLCONFIG) --cflags)
+    else
+      BACKEND_CFLAGS += `$(SDLCONFIG) --cflags`
+    endif
 
-  ifeq ($(WINDOWS_BUILD),1)
-    BACKEND_LDFLAGS += `$(SDLCONFIG) --static-libs` -lsetupapi -luser32 -limm32 -lole32 -loleaut32 -lshell32 -lshlwapi -lwinmm -lversion
-  else
-    BACKEND_LDFLAGS += `$(SDLCONFIG) --libs`
+    ifeq ($(WINDOWS_BUILD),1)
+      BACKEND_LDFLAGS += `$(SDLCONFIG) --static-libs` -lsetupapi -luser32 -limm32 -lole32 -loleaut32 -lshell32 -lshlwapi -lwinmm -lversion
+    else
+      BACKEND_LDFLAGS += `$(SDLCONFIG) --libs`
+    endif
   endif
 endif
 
