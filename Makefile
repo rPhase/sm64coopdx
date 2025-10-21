@@ -1662,6 +1662,7 @@ $(ZIP_UNCOMPRESSED): $(EXE) $(APK_FILES)
   mkdir -p $(BUILD_DIR)/platform/android/app/lib/$(ANDROID_ARCH) >/dev/null 2>&1 && \
 	cp $(PREFIX)/lib/libc++_shared.so $(BUILD_DIR)/platform/android/app/lib/$(ANDROID_ARCH)/ >/dev/null 2>&1 && \
   cp lib/sdl2/android/$(ANDROID_ARCH)/libSDL2.so $(BUILD_DIR)/platform/android/app/lib/$(ANDROID_ARCH)/ >/dev/null 2>&1 && \
+  cp lib/curl/android/$(ANDROID_ARCH)/libcurl.so $(BUILD_DIR)/platform/android/app/lib/$(ANDROID_ARCH)/ >/dev/null 2>&1 && \
 	cp $(EXE) $(BUILD_DIR)/platform/android/app/lib/$(ANDROID_ARCH)/ >/dev/null 2>&1 && \
 	cd $(BUILD_DIR)/platform/android/app && \
 	zip -0 -r ../../../../../$@ ./* >/dev/null 2>&1 && \
