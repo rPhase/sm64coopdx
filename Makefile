@@ -861,18 +861,20 @@ endif
 ifneq ($(SDL1_USED)$(SDL2_USED),00)
   ifeq ($(TARGET_ANDROID),1)
     BACKEND_LDFLAGS += -lSDL2
-  else ifeq ($(OSX_BUILD),1)
-    # on OSX at least the homebrew version of sdl-config gives include path as `.../include/SDL2` instead of `.../include`
-    OSX_PREFIX := $(shell $(SDLCONFIG) --prefix)
-    BACKEND_CFLAGS += -I$(OSX_PREFIX)/include $(shell $(SDLCONFIG) --cflags)
   else
-    BACKEND_CFLAGS += `$(SDLCONFIG) --cflags`
-  endif
+    ifeq ($(OSX_BUILD),1)
+      # on OSX at least the homebrew version of sdl-config gives include path as `.../include/SDL2` instead of `.../include`
+      OSX_PREFIX := $(shell $(SDLCONFIG) --prefix)
+      BACKEND_CFLAGS += -I$(OSX_PREFIX)/include $(shell $(SDLCONFIG) --cflags)
+    else
+      BACKEND_CFLAGS += `$(SDLCONFIG) --cflags`
+    endif
 
-  ifeq ($(WINDOWS_BUILD),1)
-    BACKEND_LDFLAGS += `$(SDLCONFIG) --static-libs` -lsetupapi -luser32 -limm32 -lole32 -loleaut32 -lshell32 -lshlwapi -lwinmm -lversion
-  else
-    BACKEND_LDFLAGS += `$(SDLCONFIG) --libs`
+    ifeq ($(WINDOWS_BUILD),1)
+      BACKEND_LDFLAGS += `$(SDLCONFIG) --static-libs` -lsetupapi -luser32 -limm32 -lole32 -loleaut32 -lshell32 -lshlwapi -lwinmm -lversion
+    else
+      BACKEND_LDFLAGS += `$(SDLCONFIG) --libs`
+    endif
   endif
 endif
 
@@ -1657,6 +1659,7 @@ $(ZIP_UNCOMPRESSED): $(EXE) $(APK_FILES)
 	@cp -r platform/android $(BUILD_DIR)/platform/ >/dev/null 2>&1 && \
 	mkdir -p $(BUILD_DIR)/platform/android/app/assets/ >/dev/null 2>&1 && \
 	cp -r mods lang palettes dynos $(BUILD_DIR)/platform/android/app/assets/ >/dev/null 2>&1 && \
+  mkdir -p $(BUILD_DIR)/platform/android/app/lib/$(ANDROID_ARCH) >/dev/null 2>&1 && \
 	cp $(PREFIX)/lib/libc++_shared.so $(BUILD_DIR)/platform/android/app/lib/$(ANDROID_ARCH)/ >/dev/null 2>&1 && \
 	cp $(EXE) $(BUILD_DIR)/platform/android/app/lib/$(ANDROID_ARCH)/ >/dev/null 2>&1 && \
 	cd $(BUILD_DIR)/platform/android/app && \
