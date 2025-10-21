@@ -131,13 +131,15 @@ override_disallowed_functions = {
     "src/pc/lua/utils/smlua_audio_utils.h":     [ "smlua_audio_utils_override", "audio_custom_shutdown", "smlua_audio_custom_deinit", "audio_sample_destroy_pending_copies", "audio_custom_update_volume" ],
     "src/pc/djui/djui_hud_utils.h":             [ "djui_hud_render_texture_raw", "djui_hud_render_texture_tile_raw" ],
     "src/pc/lua/utils/smlua_level_utils.h":     [ "smlua_level_util_reset" ],
-    "src/pc/lua/utils/smlua_text_utils.h":      [ "smlua_text_utils_init", "smlua_text_utils_shutdown" ],
+    "src/pc/lua/utils/smlua_text_utils.h":      [ "smlua_text_utils_init", "smlua_text_utils_shutdown", "get_dialog_text_ascii", "smlua_text_utils_dialog_get_unmodified"],
     "src/pc/lua/utils/smlua_anim_utils.h":      [ "smlua_anim_util_reset", "smlua_anim_util_register_animation" ],
     "src/pc/lua/utils/smlua_gfx_utils.h":       [ "gfx_allocate_internal", "vtx_allocate_internal", "gfx_get_length_no_sentinel" ],
     "src/pc/network/lag_compensation.h":        [ "lag_compensation_clear" ],
     "src/game/first_person_cam.h":              [ "first_person_update" ],
     "src/pc/lua/utils/smlua_collision_utils.h": [ "collision_find_surface_on_ray" ],
     "src/engine/behavior_script.h":             [ "stub_behavior_script_2", "cur_obj_update" ],
+    "src/pc/mods/mod_storage.h":                [ "mod_storage_shutdown" ],
+    "src/pc/mods/mod_fs.h":                     [ "mod_fs_read_file_from_uri", "mod_fs_shutdown" ],
     "src/pc/utils/misc.h":                      [ "str_.*", "file_get_line", "delta_interpolate_(normal|rgba|mtx)", "detect_and_skip_mtx_interpolation", "precise_delay_f64" ],
     "src/engine/lighting_engine.h":             [ "le_calculate_vertex_lighting", "le_clear", "le_shutdown" ],
 }
@@ -813,6 +815,8 @@ def build_param(fid, param, i):
         return '    %s %s = smlua_to_bytestring(L, %d);\n' % (ptype, pid, i)
     elif ptype == 'LuaFunction':
         return '    %s %s = smlua_to_lua_function(L, %d);\n' % (ptype, pid, i)
+    elif ptype == 'LuaTable':
+        return '    %s %s = smlua_to_lua_table(L, %d);\n' % (ptype, pid, i)
     elif translate_type_to_lot(ptype) == 'LOT_POINTER':
         lvt = translate_type_to_lvt(ptype)
         return '    %s %s = (%s)smlua_to_cpointer(L, %d, %s);\n' % (ptype, pid, ptype, i, lvt)
@@ -868,6 +872,8 @@ def build_call(function):
         lfunc = 'lua_pushstring'
     elif ftype == 'ByteString':
         lfunc = 'smlua_push_bytestring'
+    elif ftype == 'LuaTable':
+        lfunc = 'smlua_push_lua_table'
     elif translate_type_to_lot(ftype) == 'LOT_POINTER':
         lvt = translate_type_to_lvt(ftype)
         return '    smlua_push_pointer(L, %s, (void*)%s, NULL);\n' % (lvt, ccall)

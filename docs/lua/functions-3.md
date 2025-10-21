@@ -2,7 +2,7 @@
 
 ---
 
-[< prev](functions-2.md) | [1](functions.md) | [2](functions-2.md) | 3 | [4](functions-4.md) | [5](functions-5.md) | [6](functions-6.md) | [next >](functions-4.md)]
+[< prev](functions-2.md) | [1](functions.md) | [2](functions-2.md) | 3 | [4](functions-4.md) | [5](functions-5.md) | [6](functions-6.md) | [7](functions-7.md) | [next >](functions-4.md)]
 
 
 ---
@@ -2186,7 +2186,7 @@ Starts a cutscene involving an object and displays dialog during the sequence. T
 - `integer`
 
 ### C Prototype
-`s16 cutscene_object_with_dialog(u8 cutscene, struct Object *o, s16 dialogID);`
+`s16 cutscene_object_with_dialog(u8 cutscene, struct Object *o, s32 dialogID);`
 
 [:arrow_up_small:](#)
 
@@ -3268,6 +3268,100 @@ Returns the amount scrolled vertically (-down/up+)
 
 <br />
 
+## [djui_hud_set_viewport](#djui_hud_set_viewport)
+
+### Description
+Sets the viewport to the specified position and size, this will resize
+
+### Lua Example
+`djui_hud_set_viewport(x, y, width, height)`
+
+### Parameters
+| Field | Type |
+| ----- | ---- |
+| x | `number` |
+| y | `number` |
+| width | `number` |
+| height | `number` |
+
+### Returns
+- None
+
+### C Prototype
+`void djui_hud_set_viewport(f32 x, f32 y, f32 width, f32 height);`
+
+[:arrow_up_small:](#)
+
+<br />
+
+## [djui_hud_reset_viewport](#djui_hud_reset_viewport)
+
+### Description
+put the description here
+
+### Lua Example
+`djui_hud_reset_viewport()`
+
+### Parameters
+- None
+
+### Returns
+- None
+
+### C Prototype
+`void djui_hud_reset_viewport(void);`
+
+[:arrow_up_small:](#)
+
+<br />
+
+## [djui_hud_set_scissor](#djui_hud_set_scissor)
+
+### Description
+put the description here
+
+### Lua Example
+`djui_hud_set_scissor(x, y, width, height)`
+
+### Parameters
+| Field | Type |
+| ----- | ---- |
+| x | `number` |
+| y | `number` |
+| width | `number` |
+| height | `number` |
+
+### Returns
+- None
+
+### C Prototype
+`void djui_hud_set_scissor(f32 x, f32 y, f32 width, f32 height);`
+
+[:arrow_up_small:](#)
+
+<br />
+
+## [djui_hud_reset_scissor](#djui_hud_reset_scissor)
+
+### Description
+put the description here
+
+### Lua Example
+`djui_hud_reset_scissor()`
+
+### Parameters
+- None
+
+### Returns
+- None
+
+### C Prototype
+`void djui_hud_reset_scissor(void);`
+
+[:arrow_up_small:](#)
+
+<br />
+
 ## [djui_hud_measure_text](#djui_hud_measure_text)
 
 ### Description
@@ -3521,6 +3615,33 @@ Renders an interpolated DJUI HUD rect onto the screen
 
 ### C Prototype
 `void djui_hud_render_rect_interpolated(f32 prevX, f32 prevY, f32 prevWidth, f32 prevHeight, f32 x, f32 y, f32 width, f32 height);`
+
+[:arrow_up_small:](#)
+
+<br />
+
+## [djui_hud_render_line](#djui_hud_render_line)
+
+### Description
+Renders an DJUI HUD line onto the screen
+
+### Lua Example
+`djui_hud_render_line(p1X, p1Y, p2X, p2Y, size)`
+
+### Parameters
+| Field | Type |
+| ----- | ---- |
+| p1X | `number` |
+| p1Y | `number` |
+| p2X | `number` |
+| p2Y | `number` |
+| size | `number` |
+
+### Returns
+- None
+
+### C Prototype
+`void djui_hud_render_line(f32 p1X, f32 p1Y, f32 p2X, f32 p2Y, f32 size);`
 
 [:arrow_up_small:](#)
 
@@ -4056,7 +4177,7 @@ Plays a dialog sound corresponding to `dialogID`
 - None
 
 ### C Prototype
-`void play_dialog_sound(u8 dialogID);`
+`void play_dialog_sound(s32 dialogID);`
 
 [:arrow_up_small:](#)
 
@@ -4692,7 +4813,7 @@ Creates a dialog box with a dialog ID that rotates into view
 - None
 
 ### C Prototype
-`void create_dialog_box(s16 dialog);`
+`void create_dialog_box(s32 dialog);`
 
 [:arrow_up_small:](#)
 
@@ -4716,7 +4837,7 @@ Creates a dialog box with a dialog variable
 - None
 
 ### C Prototype
-`void create_dialog_box_with_var(s16 dialog, s32 dialogVar);`
+`void create_dialog_box_with_var(s32 dialog, s32 dialogVar);`
 
 [:arrow_up_small:](#)
 
@@ -4739,7 +4860,7 @@ Creates a dialog box with a dialog ID that zooms into view
 - None
 
 ### C Prototype
-`void create_dialog_inverted_box(s16 dialog);`
+`void create_dialog_inverted_box(s32 dialog);`
 
 [:arrow_up_small:](#)
 
@@ -4762,7 +4883,7 @@ Creates a dialog box with a response
 - None
 
 ### C Prototype
-`void create_dialog_box_with_response(s16 dialog);`
+`void create_dialog_box_with_response(s32 dialog);`
 
 [:arrow_up_small:](#)
 
@@ -7183,5 +7304,5 @@ Sets whether a lighting engine point light will use a surface's normals to deter
 <br />
 ---
 
-[< prev](functions-2.md) | [1](functions.md) | [2](functions-2.md) | 3 | [4](functions-4.md) | [5](functions-5.md) | [6](functions-6.md) | [next >](functions-4.md)]
+[< prev](functions-2.md) | [1](functions.md) | [2](functions-2.md) | 3 | [4](functions-4.md) | [5](functions-5.md) | [6](functions-6.md) | [7](functions-7.md) | [next >](functions-4.md)]
 

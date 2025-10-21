@@ -19,8 +19,8 @@ _ReadOnlyTable = {
         local _table = rawget(t, '_table')
         return _table[k]
     end,
-    __newindex = function (t,k,v)
-    end
+    __newindex = function (_,k,_) error('Attempting to modify key `' .. k .. '` of read-only table') end,
+    __metatable = false
 }
 
 -----------
@@ -2361,6 +2361,7 @@ M_MOUSE_BUTTON = MOUSE_BUTTON_2
 --- @type integer
 R_MOUSE_BUTTON = MOUSE_BUTTON_3
 
+DIALOG_NONE  =  -1 --- @type DialogId
 DIALOG_000   =   0 --- @type DialogId
 DIALOG_001   =   1 --- @type DialogId
 DIALOG_002   =   2 --- @type DialogId
@@ -2534,6 +2535,7 @@ DIALOG_169   = 169 --- @type DialogId
 DIALOG_COUNT = 170 --- @type DialogId
 
 --- @alias DialogId
+--- | `DIALOG_NONE`
 --- | `DIALOG_000`
 --- | `DIALOG_001`
 --- | `DIALOG_002`
@@ -2942,6 +2944,9 @@ G_TEXRECT = 0xe4
 --- @type integer
 G_VTX_EXT = 0x11
 
+--- @type integer
+G_PPARTTOCOLOR = 0xd3
+
 BACKGROUND_OCEAN_SKY       =  0 --- @type SkyBackgroundParams
 BACKGROUND_FLAMING_SKY     =  1 --- @type SkyBackgroundParams
 BACKGROUND_UNDERWATER_CITY =  2 --- @type SkyBackgroundParams
@@ -2993,6 +2998,9 @@ GRAPH_RENDER_PLAYER = (1 << 7)
 
 --- @type integer
 GRAPH_EXTRA_FORCE_3D = (1 << 0)
+
+--- @type integer
+GRAPH_EXTRA_ROTATE_HELD = (1 << 1)
 
 --- @type integer
 GRAPH_NODE_TYPE_FUNCTIONAL = 0x100
@@ -3049,6 +3057,9 @@ GRAPH_NODE_TYPE_DISPLAY_LIST = 0x01B
 GRAPH_NODE_TYPE_SCALE = 0x01C
 
 --- @type integer
+GRAPH_NODE_TYPE_SCALE_XYZ = 0x01D
+
+--- @type integer
 GRAPH_NODE_TYPE_SHADOW = 0x028
 
 --- @type integer
@@ -3065,6 +3076,9 @@ GRAPH_NODE_TYPE_HELD_OBJ = (0x02E | GRAPH_NODE_TYPE_FUNCTIONAL)
 
 --- @type integer
 GRAPH_NODE_TYPE_CULLING_RADIUS = 0x02F
+
+--- @type integer
+GRAPH_NODE_TYPE_BONE = 0x030
 
 --- @type integer
 GFX_NUM_MASTER_LISTS = 8
@@ -3485,27 +3499,27 @@ SPECIAL_WARP_TITLE = -8
 --- @type integer
 SPECIAL_WARP_LEVEL_SELECT = -9
 
-MARIO_SPAWN_NONE                  =                                          0 --- @type MarioSpawnType
-MARIO_SPAWN_DOOR_WARP             =                                          1 --- @type MarioSpawnType
-MARIO_SPAWN_IDLE                  =                                          2 --- @type MarioSpawnType
-MARIO_SPAWN_PIPE                  =                                          3 --- @type MarioSpawnType
-MARIO_SPAWN_TELEPORT              =                                          4 --- @type MarioSpawnType
-MARIO_SPAWN_INSTANT_ACTIVE        =                                       0x10 --- @type MarioSpawnType
-MARIO_SPAWN_SWIMMING              =        ((MARIO_SPAWN_INSTANT_ACTIVE ) + 1) --- @type MarioSpawnType
-MARIO_SPAWN_AIRBORNE              =        ((MARIO_SPAWN_INSTANT_ACTIVE ) + 2) --- @type MarioSpawnType
-MARIO_SPAWN_HARD_AIR_KNOCKBACK    =        ((MARIO_SPAWN_INSTANT_ACTIVE ) + 3) --- @type MarioSpawnType
-MARIO_SPAWN_SPIN_AIRBORNE_CIRCLE  =        ((MARIO_SPAWN_INSTANT_ACTIVE ) + 4) --- @type MarioSpawnType
-MARIO_SPAWN_DEATH                 =        ((MARIO_SPAWN_INSTANT_ACTIVE ) + 5) --- @type MarioSpawnType
-MARIO_SPAWN_SPIN_AIRBORNE         =        ((MARIO_SPAWN_INSTANT_ACTIVE ) + 6) --- @type MarioSpawnType
-MARIO_SPAWN_FLYING                =        ((MARIO_SPAWN_INSTANT_ACTIVE ) + 7) --- @type MarioSpawnType
-MARIO_SPAWN_PAINTING_STAR_COLLECT =                                       0x20 --- @type MarioSpawnType
-MARIO_SPAWN_PAINTING_DEATH        = ((MARIO_SPAWN_PAINTING_STAR_COLLECT ) + 1) --- @type MarioSpawnType
-MARIO_SPAWN_AIRBORNE_STAR_COLLECT = ((MARIO_SPAWN_PAINTING_STAR_COLLECT ) + 2) --- @type MarioSpawnType
-MARIO_SPAWN_AIRBORNE_DEATH        = ((MARIO_SPAWN_PAINTING_STAR_COLLECT ) + 3) --- @type MarioSpawnType
-MARIO_SPAWN_LAUNCH_STAR_COLLECT   = ((MARIO_SPAWN_PAINTING_STAR_COLLECT ) + 4) --- @type MarioSpawnType
-MARIO_SPAWN_LAUNCH_DEATH          = ((MARIO_SPAWN_PAINTING_STAR_COLLECT ) + 5) --- @type MarioSpawnType
-MARIO_SPAWN_UNUSED_38             = ((MARIO_SPAWN_PAINTING_STAR_COLLECT ) + 6) --- @type MarioSpawnType
-MARIO_SPAWN_FADE_FROM_BLACK       = ((MARIO_SPAWN_PAINTING_STAR_COLLECT ) + 7) --- @type MarioSpawnType
+MARIO_SPAWN_NONE                  =    0 --- @type MarioSpawnType
+MARIO_SPAWN_DOOR_WARP             =    1 --- @type MarioSpawnType
+MARIO_SPAWN_IDLE                  =    2 --- @type MarioSpawnType
+MARIO_SPAWN_PIPE                  =    3 --- @type MarioSpawnType
+MARIO_SPAWN_TELEPORT              =    4 --- @type MarioSpawnType
+MARIO_SPAWN_INSTANT_ACTIVE        = 0x10 --- @type MarioSpawnType
+MARIO_SPAWN_SWIMMING              =   17 --- @type MarioSpawnType
+MARIO_SPAWN_AIRBORNE              =   18 --- @type MarioSpawnType
+MARIO_SPAWN_HARD_AIR_KNOCKBACK    =   19 --- @type MarioSpawnType
+MARIO_SPAWN_SPIN_AIRBORNE_CIRCLE  =   20 --- @type MarioSpawnType
+MARIO_SPAWN_DEATH                 =   21 --- @type MarioSpawnType
+MARIO_SPAWN_SPIN_AIRBORNE         =   22 --- @type MarioSpawnType
+MARIO_SPAWN_FLYING                =   23 --- @type MarioSpawnType
+MARIO_SPAWN_PAINTING_STAR_COLLECT = 0x20 --- @type MarioSpawnType
+MARIO_SPAWN_PAINTING_DEATH        =   33 --- @type MarioSpawnType
+MARIO_SPAWN_AIRBORNE_STAR_COLLECT =   34 --- @type MarioSpawnType
+MARIO_SPAWN_AIRBORNE_DEATH        =   35 --- @type MarioSpawnType
+MARIO_SPAWN_LAUNCH_STAR_COLLECT   =   36 --- @type MarioSpawnType
+MARIO_SPAWN_LAUNCH_DEATH          =   37 --- @type MarioSpawnType
+MARIO_SPAWN_UNUSED_38             =   38 --- @type MarioSpawnType
+MARIO_SPAWN_FADE_FROM_BLACK       =   39 --- @type MarioSpawnType
 
 --- @alias MarioSpawnType
 --- | `MARIO_SPAWN_NONE`
@@ -4543,13 +4557,19 @@ GRAB_POS_BOWSER    = 3 --- @type MarioGrabPosGSCId
 --- | `GRAB_POS_BOWSER`
 
 --- @type integer
-MOD_FS_MAX_SIZE = 0x1000000
+MOD_FS_MAX_SIZE = 0x2000000
 
 --- @type integer
-MOD_FS_MAX_FILES = 0x100
+MOD_FS_MAX_FILES = 0x200
 
 --- @type integer
 MOD_FS_MAX_PATH = 0x100
+
+--- @type string
+MOD_FS_URI_PREFIX = "modfs:/"
+
+--- @type string
+MOD_FS_URI_FORMAT = "modfs:/%s/%s"
 
 INT_TYPE_U8  = 0 --- @type ModFsFileIntType
 INT_TYPE_U16 = 1 --- @type ModFsFileIntType
@@ -6744,6 +6764,9 @@ R_CBUTTONS = CONT_F
 --- @type integer
 D_CBUTTONS = CONT_D
 
+--- @type string
+PALETTES_DIRECTORY = "palettes"
+
 --- @type integer
 MAX_PRESET_PALETTES = 128
 
@@ -7366,6 +7389,9 @@ ACT_COUGHING = 0x0C40020A
 ACT_SHIVERING = 0x0C40020B
 
 --- @type integer
+ACT_PALETTE_EDITOR_CAP = 0x0000020C
+
+--- @type integer
 ACT_IN_QUICKSAND = 0x0002020D
 
 --- @type integer
@@ -7946,9 +7972,6 @@ ACT_FEET_STUCK_IN_GROUND = 0x0002033C
 
 --- @type integer
 ACT_PUTTING_ON_CAP = 0x0000133D
-
---- @type integer
-ACT_TAKING_OFF_CAP = 0x0000133E
 
 --- @type integer
 ACT_HOLDING_POLE = 0x08100340
@@ -10943,6 +10966,9 @@ SURFACE_FLAG_DYNAMIC = (1 << 0)
 SURFACE_FLAG_NO_CAM_COLLISION = (1 << 1)
 
 --- @type integer
+SURFACE_FLAG_INTANGIBLE = (1 << 2)
+
+--- @type integer
 SURFACE_FLAG_X_PROJECTION = (1 << 3)
 
 --- @type integer
@@ -11044,6 +11070,9 @@ ANIM_FLAG_6 = (1 << 6)
 
 --- @type integer
 ANIM_FLAG_7 = (1 << 7)
+
+--- @type integer
+ANIM_FLAG_BONE_TRANS = (1 << 8)
 
 --- @type integer
 OBJECT_MAX_BHV_STACK = 16
@@ -11148,6 +11177,12 @@ VERSION_NUMBER = 41
 
 --- @type integer
 MINOR_VERSION_NUMBER = 0
+
+--- @type string
+GAME_NAME = "sm64coopdx"
+
+--- @type string
+WINDOW_NAME = "Super Mario 64 Coop Deluxe"
 
 --- @type integer
 MAX_VERSION_LENGTH = 128

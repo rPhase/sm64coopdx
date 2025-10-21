@@ -85,7 +85,7 @@ bool djui_is_playerlist_ping_visible(void);
 /* |description|Gets the current state of the dialog box|descriptionEnd| */
 s8 get_dialog_box_state(void);
 /* |description|Gets the current dialog box ID|descriptionEnd| */
-s16 get_dialog_id(void);
+s32 get_dialog_id(void);
 
 /* |description|Gets if the last objective collected was a star (0) or a key (1)|descriptionEnd| */
 u8 get_last_star_or_key(void);
@@ -252,7 +252,10 @@ struct GraphNodeCamera* geo_get_current_camera(void);
 /* |description|Gets the current GraphNodeHeldObject|descriptionEnd|*/
 struct GraphNodeHeldObject* geo_get_current_held_object(void);
 
-/* |description|Converts a texture's pixels to a Lua table. Returns nil if failed. Otherwise, returns a table as a pure memory buffer. Supports rgba16 and rgba32 textures.|descriptionEnd|*/
-void texture_to_lua_table(const u8 *tex);
+/* |description|Converts a texture's pixels to a Lua table. Returns nil if failed. Otherwise, returns a table as a pure memory buffer. Supports rgba16 and rgba32 textures|descriptionEnd|*/
+void texture_to_lua_table(const Texture *tex);
+
+/* |description|Gets the name of the provided texture pointer `tex`|descriptionEnd|*/
+const char *get_texture_name(const Texture *tex);
 
 #endif
