@@ -273,7 +273,7 @@ jobs:
 
             - name: Build the game
               run: |
-                make -j$(nproc)
+                make -j$(nproc) TOUCH_CONTROLS=1
                 cd platform
                 chmod +x ./gradlew
                 ./gradlew assembleRelease
