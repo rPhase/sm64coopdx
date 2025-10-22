@@ -258,7 +258,17 @@ jobs:
             - name: Install dependencies
               run: |
                 sudo apt update
-                sudo apt install -y build-essential git python3 libglew-dev libsdl2-dev libz-dev libcurl4-openssl-dev g++ zip
+                sudo apt install -y build-essential git python3 libglew-dev libsdl2-dev libz-dev libcurl4-openssl-dev g++ zip unzip wget
+                mkdir -p $HOME/android-sdk/cmdline-tools
+                cd $HOME/android-sdk/cmdline-tools
+                wget https://dl.google.com/android/repository/commandlinetools-linux-9477386_latest.zip -O tools.zip
+                unzip tools.zip
+                rm tools.zip
+                mv cmdline-tools latest
+                export ANDROID_HOME=$HOME/android-sdk
+                export PATH=$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/platform-tools:$PATH
+                yes | sdkmanager --licenses
+                sdkmanager "platform-tools" "platforms;android-33" "build-tools;33.0.2"
 
             - name: Build the game
               run: |
@@ -266,17 +276,17 @@ jobs:
                 cd platform
                 chmod +x ./gradlew
                 ./gradlew assembleRelease
-                mv ./app/build/outputs/apk/release/app-release.apk ../sm64coopdx.apk
+                mv ./app/build/outputs/apk/release/app-release.apk ../build/us_pc/sm64coopdx.apk
 
             - name: Generate hash
               run: |
                 cd tools
                 g++ -std=c++17 -o hash_file hash_file.cpp
-                echo "::notice ::$(./hash_file ../platform/app/build/outputs/apk/release/sm64coopdx.apk)"
+                echo "::notice ::$(./hash_file ../build/us_pc/sm64coopdx.apk)"
 
             - name: Zip the .apk package
               run: |
-                cd ../platform/app/build/outputs/apk/release
+                cd ./build/us_pc
                 zip -r sm64coopdx_Android.zip sm64coopdx.apk
             
             - name: Upload artifact
