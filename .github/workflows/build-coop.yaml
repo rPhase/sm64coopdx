@@ -283,9 +283,10 @@ jobs:
               run: |
                 cd tools
                 g++ -std=c++17 -o hash_file hash_file.cpp
-                for f in platform/app/build/intermediates/merged_native_libs/release/mergeReleaseNativeLibs/out/lib/*/libmain.so; do
-                  abi=$(basename $(dirname "$f"))
-                  echo "::notice ::ABI: $abi, $(./hash_file ../build/us_pc/sm64coopdx.apk)"
+                for f in ../platform/app/build/intermediates/merged_native_libs/release/mergeReleaseNativeLibs/out/lib/*/libmain.so; do
+                    abi=$(basename $(dirname "$f"))
+                    hash=$(./hash_file "$f")
+                    echo "::notice title=libmain.so ($abi)::$hash"
                 done
 
             - name: Zip the .apk package
