@@ -34,7 +34,7 @@ include $(PREBUILT_STATIC_LIBRARY)
 # SDL2
 include $(CLEAR_VARS)
 LOCAL_MODULE := sdl2
-LOCAL_SRC_FILES := $(LOCAL_PATH)/lib/sdl2/android/$(TARGET_ARCH_ABI)/libsdl2.so
+LOCAL_SRC_FILES := $(LOCAL_PATH)/lib/sdl2/android/$(TARGET_ARCH_ABI)/libSDL2.so
 include $(PREBUILT_SHARED_LIBRARY)
 
 # Curl
