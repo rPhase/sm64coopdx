@@ -277,7 +277,7 @@ jobs:
                 cd platform
                 chmod +x ./gradlew
                 ./gradlew assembleRelease
-                mv ./app/build/outputs/apk/release/app-release.apk ../build/us_pc/sm64coopdx.apk
+                mv $(find ./app/build/outputs/apk/release -name '*.apk' | head -n1) ../build/us_pc/sm64coopdx.apk
 
             - name: Generate hash
               run: |
