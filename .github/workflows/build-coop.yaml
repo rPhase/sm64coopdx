@@ -269,6 +269,7 @@ jobs:
                 export PATH=$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/platform-tools:$PATH
                 yes | sdkmanager --licenses
                 sdkmanager "platform-tools" "platforms;android-33" "build-tools;33.0.2"
+                echo "sdk.dir=$HOME/android-sdk" > platform/local.properties
 
             - name: Build the game
               run: |
