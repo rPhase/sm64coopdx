@@ -261,11 +261,12 @@ jobs:
                 sudo apt install -y build-essential g++ zip
 
             - name: Build the game
-              working-directory: ./platform
               run: |
+                make -j$(nproc)
+                cd platform
                 chmod +x ./gradlew
-                ./gradlew assembleRelease --stacktrace --info --no-daemon
-                mv ./app/build/outputs/apk/release/app-release.apk sm64coopdx.apk
+                ./gradlew assembleRelease
+                mv ./app/build/outputs/apk/release/app-release.apk ../sm64coopdx.apk
 
             - name: Generate hash
               run: |
