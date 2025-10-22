@@ -157,11 +157,7 @@ static ULONG CaptureStackWalkBackTrace(CONTEXT* ctx, DWORD FramesToSkip, DWORD F
 #endif
 
 #include <signal.h>
-#ifdef __ANDROID__
-#include "pc/android/android_execinfo.h"
-#else
 #include <execinfo.h>
-#endif
 #include <ucontext.h>
 #include <dlfcn.h>
 

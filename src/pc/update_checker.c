@@ -1,4 +1,3 @@
-#ifndef __ANDROID__
 #include <stdio.h>
 #if defined(_WIN32) || defined(_WIN64)
 #include <windows.h>
@@ -150,7 +149,3 @@ void check_for_updates(void) {
         gUpdateMessage = true;
     }
 }
-#else
-#include <stdbool.h>
-bool gUpdateMessage = false;
-#endif

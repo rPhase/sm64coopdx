@@ -550,7 +550,7 @@ BIN_DIRS := bin bin/$(VERSION)
 SRC_DIRS += src/pc src/pc/gfx src/pc/audio src/pc/controller src/pc/fs src/pc/fs/packtypes src/pc/mods src/pc/dev src/pc/network src/pc/network/packets src/pc/network/socket src/pc/network/coopnet src/pc/utils src/pc/utils/miniz src/pc/djui src/pc/lua src/pc/lua/utils src/pc/os
 
 ifeq ($(TARGET_ANDROID),1)
-  SRC_DIRS += platform/android src/pc/android
+  SRC_DIRS += platform/android include/android_execinfo
 endif
 
 ifeq ($(DISCORD_SDK),1)
@@ -793,7 +793,7 @@ else
 endif
 
 ifeq ($(TARGET_ANDROID),1)
-  INCLUDE_DIRS += lib/sdl2/include
+  INCLUDE_DIRS += lib/sdl2/include include/android_execinfo
 endif
 
 # Connfigure backend flags
