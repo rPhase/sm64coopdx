@@ -1654,27 +1654,27 @@ else
   ifeq ($(TARGET_ANDROID),1)
     APK_FILES := $(shell find platform/android/ -type f)
 
-# Copying Libraries and Assets
-$(ZIP_UNCOMPRESSED): $(EXE) $(APK_FILES)
-	@cp -r platform/android $(BUILD_DIR)/platform/ && \
-	mkdir -p $(BUILD_DIR)/platform/android/app/assets/ && \
-	cp -r mods lang palettes dynos $(BUILD_DIR)/platform/android/app/assets/ && \
-  mkdir -p $(BUILD_DIR)/platform/android/app/lib/$(ANDROID_ARCH) && \
-	cp $(PREFIX)/lib/libc++_shared.so $(BUILD_DIR)/platform/android/app/lib/$(ANDROID_ARCH)/ && \
-  cp lib/sdl2/android/$(ANDROID_ARCH)/libSDL2.so $(BUILD_DIR)/platform/android/app/lib/$(ANDROID_ARCH)/ && \
-  cp lib/curl/android/$(ANDROID_ARCH)/libcurl.so $(BUILD_DIR)/platform/android/app/lib/$(ANDROID_ARCH)/ && \
-	cp $(EXE) $(BUILD_DIR)/platform/android/app/lib/$(ANDROID_ARCH)/ && \
-	cd $(BUILD_DIR)/platform/android/app && \
-	zip -0 -r ../../../../../$@ ./* && \
-	cd - && \
-	rm -rf $(BUILD_DIR)/platform/android/app
+  # Copying Libraries and Assets
+  $(ZIP_UNCOMPRESSED): $(EXE) $(APK_FILES)
+	@cp -r platform/android $(BUILD_DIR)/platform/ >/dev/null 2>&1 && \
+	mkdir -p $(BUILD_DIR)/platform/android/app/assets/ >/dev/null 2>&1 && \
+	cp -r mods lang palettes dynos $(BUILD_DIR)/platform/android/app/assets/ >/dev/null 2>&1 && \
+  mkdir -p $(BUILD_DIR)/platform/android/app/lib/$(ANDROID_ARCH) >/dev/null 2>&1 && \
+	cp $(PREFIX)/lib/libc++_shared.so $(BUILD_DIR)/platform/android/app/lib/$(ANDROID_ARCH)/ >/dev/null 2>&1 && \
+  cp lib/sdl2/android/$(ANDROID_ARCH)/libSDL2.so $(BUILD_DIR)/platform/android/app/lib/$(ANDROID_ARCH)/ >/dev/null 2>&1 && \
+  cp lib/curl/android/$(ANDROID_ARCH)/libcurl.so $(BUILD_DIR)/platform/android/app/lib/$(ANDROID_ARCH)/ >/dev/null 2>&1 && \
+	cp $(EXE) $(BUILD_DIR)/platform/android/app/lib/$(ANDROID_ARCH)/ >/dev/null 2>&1 && \
+	cd $(BUILD_DIR)/platform/android/app >/dev/null 2>&1 && \
+	zip -0 -r ../../../../../$@ ./* >/dev/null 2>&1 && \
+	cd - >/dev/null 2>&1 && \
+	rm -rf $(BUILD_DIR)/platform/android/app >/dev/null 2>&1
 
-# Aligning the zip
-$(APK_ALIGNED): $(ZIP_UNCOMPRESSED)
+  # Aligning the zip
+  $(APK_ALIGNED): $(ZIP_UNCOMPRESSED)
 	@zipalign -f -p 4 $< $@ >/dev/null 2>&1
 
-# Signing the apk
-$(APK_SIGNED): $(APK_ALIGNED)
+  # Signing the apk
+  $(APK_SIGNED): $(APK_ALIGNED)
 	@cp $< $@ >/dev/null 2>&1 && \
 	apksigner sign --cert platform/android/certificate.pem --key platform/android/key.pk8 $@ >/dev/null 2>&1
   endif
