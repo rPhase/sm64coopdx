@@ -262,7 +262,7 @@ jobs:
 
             - name: Build the game
               run: |
-                make -j$(nproc) TARGET_ANDROID=1
+                make -j$(nproc)
                 cd platform
                 chmod +x ./gradlew
                 ./gradlew assembleRelease
