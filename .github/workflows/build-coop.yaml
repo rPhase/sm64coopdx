@@ -264,7 +264,7 @@ jobs:
               working-directory: ./platform
               run: |
                 chmod +x ./gradlew
-                ./gradlew assembleRelease
+                ./gradlew assembleRelease --stacktrace --info --no-daemon
                 mv ./app/build/outputs/apk/release/app-release.apk sm64coopdx.apk
 
             - name: Generate hash
