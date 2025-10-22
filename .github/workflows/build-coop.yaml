@@ -258,11 +258,11 @@ jobs:
             - name: Install dependencies
               run: |
                 sudo apt update
-                sudo apt install -y build-essential g++ zip
+                sudo apt install -y build-essential git python3 libglew-dev libsdl2-dev libz-dev libcurl4-openssl-dev g++ zip
 
             - name: Build the game
               run: |
-                make -j$(nproc)
+                make -j$(nproc) TARGET_ANDROID=1
                 cd platform
                 chmod +x ./gradlew
                 ./gradlew assembleRelease
