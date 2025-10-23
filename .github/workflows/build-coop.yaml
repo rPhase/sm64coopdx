@@ -258,7 +258,7 @@ jobs:
             - name: Install dependencies
               run: |
                 sudo apt update
-                sudo apt install -y build-essential git python3 libglew-dev libsdl2-dev libz-dev libcurl4-openssl-dev g++ zip unzip wget
+                sudo apt install -y build-essential git python3 libglew-dev libsdl2-dev libz-dev libcurl4-openssl-dev g++ zip unzip wget apksigner
                 mkdir -p $HOME/android-sdk/cmdline-tools
                 cd $HOME/android-sdk/cmdline-tools
                 wget https://dl.google.com/android/repository/commandlinetools-linux-9477386_latest.zip -O tools.zip
@@ -277,7 +277,11 @@ jobs:
                 cd platform
                 chmod +x ./gradlew
                 ./gradlew assembleRelease
-                mv $(find ./app/build/outputs/apk/release -name '*.apk' | head -n1) ../build/us_pc/sm64coopdx.apk
+                apksigner sign \
+                  --key android/key.pk8 \
+                  --cert android/certificate.pem \
+                  app/build/outputs/apk/release/app-release-unsigned.apk
+                mv app/build/outputs/apk/release/app-release-unsigned.apk ../build/us_pc/sm64coopdx.apk
 
             - name: Generate hash
               run: |
