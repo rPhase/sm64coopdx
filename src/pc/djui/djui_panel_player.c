@@ -395,8 +395,12 @@ static void djui_panel_player_name_active_palette(struct DjuiBase* caller) {
         }
         
         {
+#ifdef TOUCH_CONTROLS
+            struct DjuiButton *text = djui_button_create(body, DLANG(PLAYER, CAP_TOGGLE_TOUCH), DJUI_BUTTON_STYLE_NORMAL, djui_panel_player_on_toggle_wear_cap);
+#else
             struct DjuiText *text = djui_text_create(body, DLANG(PLAYER, CAP_TOGGLE));
             djui_text_set_alignment(text, DJUI_HALIGN_CENTER, DJUI_VALIGN_TOP);
+#endif
             djui_base_set_size_type(&text->base, DJUI_SVT_RELATIVE, DJUI_SVT_ABSOLUTE);
             djui_base_set_size(&text->base, 1.0f, 64);
             gDjuiPaletteToggle = text;
