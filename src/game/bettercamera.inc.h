@@ -260,12 +260,11 @@ static void newcam_rotate_button(void) {
 #ifdef TOUCH_CONTROLS // In the future, check if touch controls exist instead of checking for the TOUCH_CONTROLS define
         gNewCamera.yaw += newcam_ivrt(0) * touch_x * 2 * configFreeCameraXSens;
         gNewCamera.tilt += newcam_ivrt(1) * touch_y * 2 * configFreeCameraYSens;
-#else
+#endif
         if (!gNewCamera.useDPad || !gNewCamera.directionLocked) {
             gNewCamera.yaw += newcam_ivrt(0) * mouse_x * 16.f * (gNewCamera.sensitivityX / 250.f);
         }
         gNewCamera.tilt += newcam_ivrt(1) * mouse_y * 16.f * (gNewCamera.sensitivityY / 250.f);
-#endif
     }
 
     // Dpad behaviors
