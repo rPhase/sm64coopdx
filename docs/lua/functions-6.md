@@ -1007,28 +1007,6 @@ Multiplies a vector by the transpose of a matrix of the form: `| ? ? ? 0 |` `| ?
 
 <br />
 
-## [obj_init_animation_with_sound](#obj_init_animation_with_sound)
-
-### Lua Example
-`obj_init_animation_with_sound(obj, animations, animIndex)`
-
-### Parameters
-| Field | Type |
-| ----- | ---- |
-| obj | [Object](structs.md#Object) |
-| animations | [AnimationTable](structs.md#AnimationTable) |
-| animIndex | `integer` |
-
-### Returns
-- None
-
-### C Prototype
-`void obj_init_animation_with_sound(struct Object *obj, const struct AnimationTable* animations, s32 animIndex);`
-
-[:arrow_up_small:](#)
-
-<br />
-
 ## [cur_obj_enable_rendering_and_become_tangible](#cur_obj_enable_rendering_and_become_tangible)
 
 ### Lua Example
@@ -5223,6 +5201,27 @@ Checks whether the cannon in the specified course is unlocked. Returns true if t
 
 <br />
 
+## [save_file_set_cannon_unlocked](#save_file_set_cannon_unlocked)
+
+### Description
+Unlocks the cannon in the current course
+
+### Lua Example
+`save_file_set_cannon_unlocked()`
+
+### Parameters
+- None
+
+### Returns
+- None
+
+### C Prototype
+`void save_file_set_cannon_unlocked(void);`
+
+[:arrow_up_small:](#)
+
+<br />
+
 ## [save_file_get_cap_pos](#save_file_get_cap_pos)
 
 ### Description
@@ -5276,7 +5275,7 @@ Returns the current sound mode (e.g., stereo, mono) stored in the save file. Use
 ## [sequence_player_get_tempo](#sequence_player_get_tempo)
 
 ### Description
-Gets the tempo of `player`
+Gets the `tempo` of `player`
 
 ### Lua Example
 `local integerValue = sequence_player_get_tempo(player)`
@@ -5323,7 +5322,7 @@ Sets the `tempo` of `player`. Resets when another sequence is played
 ## [sequence_player_get_tempo_acc](#sequence_player_get_tempo_acc)
 
 ### Description
-Gets the tempoAcc (tempo accumulation) of `player`
+Gets the `tempoAcc` (tempo accumulation) of `player`
 
 ### Lua Example
 `local integerValue = sequence_player_get_tempo_acc(player)`
@@ -5370,7 +5369,7 @@ Sets the `tempoAcc` (tempo accumulation) of `player`. Resets when another sequen
 ## [sequence_player_get_transposition](#sequence_player_get_transposition)
 
 ### Description
-Gets the transposition (pitch) of `player`
+Gets the `transposition` (pitch) of `player`
 
 ### Lua Example
 `local integerValue = sequence_player_get_transposition(player)`

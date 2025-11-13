@@ -3923,32 +3923,6 @@ Reflects Mario off a wall if he is colliding with one and flips forward velocity
 
 <br />
 
-## [init_bully_collision_data](#init_bully_collision_data)
-
-### Lua Example
-`init_bully_collision_data(data, posX, posZ, forwardVel, yaw, conversionRatio, radius)`
-
-### Parameters
-| Field | Type |
-| ----- | ---- |
-| data | [BullyCollisionData](structs.md#BullyCollisionData) |
-| posX | `number` |
-| posZ | `number` |
-| forwardVel | `number` |
-| yaw | `integer` |
-| conversionRatio | `number` |
-| radius | `number` |
-
-### Returns
-- None
-
-### C Prototype
-`void init_bully_collision_data(struct BullyCollisionData *data, f32 posX, f32 posZ, f32 forwardVel, s16 yaw, f32 conversionRatio, f32 radius);`
-
-[:arrow_up_small:](#)
-
-<br />
-
 ## [mario_update_quicksand](#mario_update_quicksand)
 
 ### Description
@@ -4070,7 +4044,7 @@ Sets all of Mario's velocity variables to 0 and sets his Y position to the floor
 ## [stationary_ground_step](#stationary_ground_step)
 
 ### Description
-Performs a full Mario stationary physics step (4 substeps) and returns an `GROUND_STEP_*` result
+Performs a full Mario stationary physics step (4 substeps) and returns a `GROUND_STEP_*` result
 
 ### Lua Example
 `local integerValue = stationary_ground_step(m)`
@@ -4093,7 +4067,7 @@ Performs a full Mario stationary physics step (4 substeps) and returns an `GROUN
 ## [perform_ground_step](#perform_ground_step)
 
 ### Description
-Performs a full Mario ground physics step (4 substeps) and returns an `GROUND_STEP_*` result
+Performs a full Mario ground physics step (4 substeps) and returns a `GROUND_STEP_*` result
 
 ### Lua Example
 `local integerValue = perform_ground_step(m)`

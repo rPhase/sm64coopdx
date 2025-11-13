@@ -3615,12 +3615,6 @@ function rotate_camera_around_walls(c, cPos, avoidYaw, yawRange)
     -- ...
 end
 
---- @param pg PlayerGeometry
---- Finds the floor and ceiling directly above and below Mario's position. Updates Mario's geometry information for camera calculations
-function find_mario_floor_and_ceil(pg)
-    -- ...
-end
-
 --- @param cutscene integer
 --- @return integer
 --- Starts a cutscene focused on an object without requiring focus to remain locked. This is useful for dynamic events where the camera adjusts freely
@@ -3914,8 +3908,14 @@ function djui_hud_get_raw_mouse_y()
     -- ...
 end
 
+--- @return boolean
+--- Checks if the cursor is locked to the window
+function djui_hud_is_mouse_locked()
+    -- ...
+end
+
 --- @param locked boolean
---- Sets if the cursor is hidden and constrainted to the window
+--- Locks (or unlocks) the cursor to the window
 function djui_hud_set_mouse_locked(locked)
     -- ...
 end
@@ -3954,12 +3954,12 @@ end
 --- @param y number
 --- @param width number
 --- @param height number
---- Sets the viewport to the specified position and size, this will resize
+--- Sets the viewport to the specified position and size, this will resize any subsequent DJUI graphics
 function djui_hud_set_viewport(x, y, width, height)
     -- ...
 end
 
---- put the description here
+--- Resets the viewport to a fullscreen state
 function djui_hud_reset_viewport()
     -- ...
 end
@@ -3968,12 +3968,12 @@ end
 --- @param y number
 --- @param width number
 --- @param height number
---- put the description here
+--- Sets the scissor rectangle to the specified position and size, this will cut off any subsequent DJUI graphics not within the rectangle
 function djui_hud_set_scissor(x, y, width, height)
     -- ...
 end
 
---- put the description here
+--- Resets the scissor rectangle to a fullscreen state
 function djui_hud_reset_scissor()
     -- ...
 end
@@ -6393,17 +6393,6 @@ function mario_bonk_reflection(m, negateSpeed)
     -- ...
 end
 
---- @param data BullyCollisionData
---- @param posX number
---- @param posZ number
---- @param forwardVel number
---- @param yaw integer
---- @param conversionRatio number
---- @param radius number
-function init_bully_collision_data(data, posX, posZ, forwardVel, yaw, conversionRatio, radius)
-    -- ...
-end
-
 --- @param m MarioState
 --- @param sinkingSpeed number
 --- @return integer
@@ -6443,14 +6432,14 @@ end
 
 --- @param m MarioState
 --- @return integer
---- Performs a full Mario stationary physics step (4 substeps) and returns an `GROUND_STEP_*` result
+--- Performs a full Mario stationary physics step (4 substeps) and returns a `GROUND_STEP_*` result
 function stationary_ground_step(m)
     -- ...
 end
 
 --- @param m MarioState
 --- @return integer
---- Performs a full Mario ground physics step (4 substeps) and returns an `GROUND_STEP_*` result
+--- Performs a full Mario ground physics step (4 substeps) and returns a `GROUND_STEP_*` result
 function perform_ground_step(m)
     -- ...
 end
@@ -8827,13 +8816,6 @@ function cur_obj_init_animation_with_accel_and_sound(animIndex, accel)
 end
 
 --- @param obj Object
---- @param animations AnimationTable
---- @param animIndex integer
-function obj_init_animation_with_sound(obj, animations, animIndex)
-    -- ...
-end
-
---- @param obj Object
 function cur_obj_enable_rendering_and_become_tangible(obj)
     -- ...
 end
@@ -10014,6 +9996,11 @@ function save_file_is_cannon_unlocked(fileIndex, courseIndex)
     -- ...
 end
 
+--- Unlocks the cannon in the current course
+function save_file_set_cannon_unlocked()
+    -- ...
+end
+
 --- @param capPos Vec3s
 --- @return integer
 --- Retrieves the current position of Mario's cap, if it is on the ground in the current level and area. The position is stored in the provided `capPos` parameter. Useful for tracking the cap's location after it has been dropped or lost
@@ -10029,7 +10016,7 @@ end
 
 --- @param player integer
 --- @return integer
---- Gets the tempo of `player`
+--- Gets the `tempo` of `player`
 function sequence_player_get_tempo(player)
     -- ...
 end
@@ -10043,7 +10030,7 @@ end
 
 --- @param player integer
 --- @return integer
---- Gets the tempoAcc (tempo accumulation) of `player`
+--- Gets the `tempoAcc` (tempo accumulation) of `player`
 function sequence_player_get_tempo_acc(player)
     -- ...
 end
@@ -10057,7 +10044,7 @@ end
 
 --- @param player integer
 --- @return integer
---- Gets the transposition (pitch) of `player`
+--- Gets the `transposition` (pitch) of `player`
 function sequence_player_get_transposition(player)
     -- ...
 end
@@ -11832,6 +11819,14 @@ end
 --- @return SpawnParticlesInfo
 --- Returns a temporary particle spawn info pointer with its model loaded in from `modelId`
 function obj_get_temp_spawn_particles_info(modelId)
+    -- ...
+end
+
+--- @param modelId ModelExtendedId
+--- @param behaviorId BehaviorId
+--- @return WaterDropletParams
+--- Returns a temporary water droplet params pointer with its model and behavior loaded in from `modelId` and `behaviorId`
+function obj_get_temp_water_droplet_params(modelId, behaviorId)
     -- ...
 end
 
