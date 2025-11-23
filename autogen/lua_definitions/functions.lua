@@ -4444,6 +4444,12 @@ function set_menu_mode(mode)
     -- ...
 end
 
+--- @param dialogID integer
+--- The internal function used by SM64 which plays a tune whenever boss, KtQ, etc dialog is read.
+function handle_special_dialog_text(dialogID)
+    -- ...
+end
+
 --- @param width integer
 --- Dialog box customization: Sets the minimum width for a dialog box
 function set_min_dialog_width(width)
@@ -4984,6 +4990,12 @@ end
 --- @return integer
 --- Returns if the level timer is running
 function level_control_timer_running()
+    -- ...
+end
+
+--- @return boolean
+--- Checks if the start button has been pressed as well as some other conditions for opening the pause menu depending on if pause anywhere is enabled
+function pressed_pause()
     -- ...
 end
 
@@ -11080,6 +11092,12 @@ function djui_get_playerlist_page_index()
     -- ...
 end
 
+--- @return boolean
+--- Checks if the DJUI chatbox is open
+function djui_is_chatbox_open()
+    -- ...
+end
+
 --- @return DjuiFontType
 --- Gets the DJUI menu font
 function djui_menu_get_font()
@@ -11258,6 +11276,28 @@ end
 --- @return boolean
 --- Checks if the game is paused
 function is_game_paused()
+    -- ...
+end
+
+--- @return boolean
+--- Gets if the pause menu elements are hidden, useful for creating custom pause menus
+function is_pause_menu_hidden()
+    -- ...
+end
+
+--- @param hidden boolean
+--- Sets if the pause menu elements are hidden, useful for creating custom pause menus
+function set_pause_menu_hidden(hidden)
+    -- ...
+end
+
+--- Pauses the game
+function game_pause()
+    -- ...
+end
+
+--- Unpauses the game
+function game_unpause()
     -- ...
 end
 
@@ -11540,7 +11580,8 @@ function geo_get_current_held_object()
 end
 
 --- @param tex Pointer_Texture
---- Converts a texture's pixels to a Lua table. Returns nil if failed. Otherwise, returns a table as a pure memory buffer. Supports rgba16 and rgba32 textures
+--- @return table
+--- Converts a texture's pixels to a Lua table. Returns nil if failed. Otherwise, returns a 1-indexed table of RGBA pixels
 function texture_to_lua_table(tex)
     -- ...
 end

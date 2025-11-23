@@ -541,6 +541,27 @@ Gets the DJUI playerlist's page index
 
 <br />
 
+## [djui_is_chatbox_open](#djui_is_chatbox_open)
+
+### Description
+Checks if the DJUI chatbox is open
+
+### Lua Example
+`local booleanValue = djui_is_chatbox_open()`
+
+### Parameters
+- None
+
+### Returns
+- `boolean`
+
+### C Prototype
+`bool djui_is_chatbox_open(void);`
+
+[:arrow_up_small:](#)
+
+<br />
+
 ## [djui_menu_get_font](#djui_menu_get_font)
 
 ### Description
@@ -1163,6 +1184,92 @@ Checks if the game is paused
 
 ### C Prototype
 `bool is_game_paused(void);`
+
+[:arrow_up_small:](#)
+
+<br />
+
+## [is_pause_menu_hidden](#is_pause_menu_hidden)
+
+### Description
+Gets if the pause menu elements are hidden, useful for creating custom pause menus
+
+### Lua Example
+`local booleanValue = is_pause_menu_hidden()`
+
+### Parameters
+- None
+
+### Returns
+- `boolean`
+
+### C Prototype
+`bool is_pause_menu_hidden(void);`
+
+[:arrow_up_small:](#)
+
+<br />
+
+## [set_pause_menu_hidden](#set_pause_menu_hidden)
+
+### Description
+Sets if the pause menu elements are hidden, useful for creating custom pause menus
+
+### Lua Example
+`set_pause_menu_hidden(hidden)`
+
+### Parameters
+| Field | Type |
+| ----- | ---- |
+| hidden | `boolean` |
+
+### Returns
+- None
+
+### C Prototype
+`void set_pause_menu_hidden(bool hidden);`
+
+[:arrow_up_small:](#)
+
+<br />
+
+## [game_pause](#game_pause)
+
+### Description
+Pauses the game
+
+### Lua Example
+`game_pause()`
+
+### Parameters
+- None
+
+### Returns
+- None
+
+### C Prototype
+`void game_pause(void);`
+
+[:arrow_up_small:](#)
+
+<br />
+
+## [game_unpause](#game_unpause)
+
+### Description
+Unpauses the game
+
+### Lua Example
+`game_unpause()`
+
+### Parameters
+- None
+
+### Returns
+- None
+
+### C Prototype
+`void game_unpause(void);`
 
 [:arrow_up_small:](#)
 
@@ -2127,10 +2234,10 @@ Gets the current GraphNodeHeldObject
 ## [texture_to_lua_table](#texture_to_lua_table)
 
 ### Description
-Converts a texture's pixels to a Lua table. Returns nil if failed. Otherwise, returns a table as a pure memory buffer. Supports rgba16 and rgba32 textures
+Converts a texture's pixels to a Lua table. Returns nil if failed. Otherwise, returns a 1-indexed table of RGBA pixels
 
 ### Lua Example
-`texture_to_lua_table(tex)`
+`local tableValue = texture_to_lua_table(tex)`
 
 ### Parameters
 | Field | Type |
@@ -2138,10 +2245,10 @@ Converts a texture's pixels to a Lua table. Returns nil if failed. Otherwise, re
 | tex | `Pointer` <`Texture`> |
 
 ### Returns
-- None
+- `table`
 
 ### C Prototype
-`void texture_to_lua_table(const Texture *tex);`
+`LuaTable texture_to_lua_table(const Texture *tex);`
 
 [:arrow_up_small:](#)
 

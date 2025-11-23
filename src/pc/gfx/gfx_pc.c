@@ -356,8 +356,8 @@ static void import_texture_rgba32(int tile) {
 static void import_texture_rgba16(int tile) {
     tile = tile % RDP_TILES;
     if (!rdp.loaded_texture[tile].addr) { return; }
-    if (rdp.loaded_texture[tile].size_bytes * 2 > 8192) { return; }
-    uint8_t rgba32_buf[8192];
+    if (rdp.loaded_texture[tile].size_bytes * 2 > 0x2000) { return; }
+    uint8_t rgba32_buf[0x2000];
 
     for (uint32_t i = 0; i < rdp.loaded_texture[tile].size_bytes / 2; i++) {
         uint16_t col16 = (rdp.loaded_texture[tile].addr[2 * i] << 8) | rdp.loaded_texture[tile].addr[2 * i + 1];
@@ -380,8 +380,8 @@ static void import_texture_rgba16(int tile) {
 static void import_texture_ia4(int tile) {
     tile = tile % RDP_TILES;
     if (!rdp.loaded_texture[tile].addr) { return; }
-    if (rdp.loaded_texture[tile].size_bytes * 8 > 32768) { return; }
-    uint8_t rgba32_buf[32768];
+    if (rdp.loaded_texture[tile].size_bytes * 8 > 0x8000) { return; }
+    uint8_t rgba32_buf[0x8000];
 
     for (uint32_t i = 0; i < rdp.loaded_texture[tile].size_bytes * 2; i++) {
         uint8_t byte = rdp.loaded_texture[tile].addr[i / 2];
@@ -406,8 +406,8 @@ static void import_texture_ia4(int tile) {
 static void import_texture_ia8(int tile) {
     tile = tile % RDP_TILES;
     if (!rdp.loaded_texture[tile].addr) { return; }
-    if (rdp.loaded_texture[tile].size_bytes * 4 > 16384) { return; }
-    uint8_t rgba32_buf[16384];
+    if (rdp.loaded_texture[tile].size_bytes * 4 > 0x4000) { return; }
+    uint8_t rgba32_buf[0x4000];
 
     for (uint32_t i = 0; i < rdp.loaded_texture[tile].size_bytes; i++) {
         uint8_t intensity = rdp.loaded_texture[tile].addr[i] >> 4;
@@ -430,8 +430,8 @@ static void import_texture_ia8(int tile) {
 static void import_texture_ia16(int tile) {
     tile = tile % RDP_TILES;
     if (!rdp.loaded_texture[tile].addr) { return; }
-    if (rdp.loaded_texture[tile].size_bytes * 2 > 8192) { return; }
-    uint8_t rgba32_buf[8192];
+    if (rdp.loaded_texture[tile].size_bytes * 2 > 0x2000) { return; }
+    uint8_t rgba32_buf[0x2000];
 
     for (uint32_t i = 0; i < rdp.loaded_texture[tile].size_bytes / 2; i++) {
         uint8_t intensity = rdp.loaded_texture[tile].addr[2 * i];
@@ -454,8 +454,8 @@ static void import_texture_ia16(int tile) {
 static void import_texture_i4(int tile) {
     tile = tile % RDP_TILES;
     if (!rdp.loaded_texture[tile].addr) { return; }
-    if (rdp.loaded_texture[tile].size_bytes * 8 > 32768) { return; }
-    uint8_t rgba32_buf[32768];
+    if (rdp.loaded_texture[tile].size_bytes * 8 > 0x8000) { return; }
+    uint8_t rgba32_buf[0x8000];
 
     for (uint32_t i = 0; i < rdp.loaded_texture[tile].size_bytes * 2; i++) {
         uint8_t byte = rdp.loaded_texture[tile].addr[i / 2];
@@ -475,8 +475,8 @@ static void import_texture_i4(int tile) {
 static void import_texture_i8(int tile) {
     tile = tile % RDP_TILES;
     if (!rdp.loaded_texture[tile].addr) { return; }
-    if (rdp.loaded_texture[tile].size_bytes * 4 > 16384) { return; }
-    uint8_t rgba32_buf[16384];
+    if (rdp.loaded_texture[tile].size_bytes * 4 > 0x4000) { return; }
+    uint8_t rgba32_buf[0x4000];
 
     for (uint32_t i = 0; i < rdp.loaded_texture[tile].size_bytes; i++) {
         uint8_t intensity = rdp.loaded_texture[tile].addr[i];
@@ -495,8 +495,8 @@ static void import_texture_i8(int tile) {
 static void import_texture_ci4(int tile) {
     tile = tile % RDP_TILES;
     if (!rdp.loaded_texture[tile].addr) { return; }
-    if (rdp.loaded_texture[tile].size_bytes * 8 > 32768) { return; }
-    uint8_t rgba32_buf[32768];
+    if (rdp.loaded_texture[tile].size_bytes * 8 > 0x8000) { return; }
+    uint8_t rgba32_buf[0x8000];
 
     for (uint32_t i = 0; i < rdp.loaded_texture[tile].size_bytes * 2; i++) {
         uint8_t byte = rdp.loaded_texture[tile].addr[i / 2];
@@ -521,8 +521,8 @@ static void import_texture_ci4(int tile) {
 static void import_texture_ci8(int tile) {
     tile = tile % RDP_TILES;
     if (!rdp.loaded_texture[tile].addr) { return; }
-    if (rdp.loaded_texture[tile].size_bytes * 4 > 16384) { return; }
-    uint8_t rgba32_buf[16384];
+    if (rdp.loaded_texture[tile].size_bytes * 4 > 0x4000) { return; }
+    uint8_t rgba32_buf[0x4000];
 
     for (uint32_t i = 0; i < rdp.loaded_texture[tile].size_bytes; i++) {
         uint8_t idx = rdp.loaded_texture[tile].addr[i];
@@ -730,7 +730,7 @@ static void OPTIMIZE_O3 gfx_sp_vertex(size_t n_vertices, size_t dest_index, cons
 
     Vec3f globalLightCached[2];
     Vec3f vertexColorCached;
-    if (rsp.geometry_mode & G_LIGHTING) {
+    if ((rsp.geometry_mode & G_LIGHTING) && !(rsp.geometry_mode & G_LIGHT_MAP_EXT)) {
         for (int i = 0; i < 2; i++) {
             for (int j = 0; j < 3; j++)
                 globalLightCached[i][j] = gLightingColor[i][j] / 255.0f;
@@ -858,8 +858,8 @@ static void OPTIMIZE_O3 gfx_sp_vertex(size_t n_vertices, size_t dest_index, cons
                 gfx_local_to_world_space(vpos, vnormal);
 
                 Vec3f viewDir = {
-                    sInverseCameraMatrix[3][0] - vpos[0], 
-                    sInverseCameraMatrix[3][1] - vpos[1], 
+                    sInverseCameraMatrix[3][0] - vpos[0],
+                    sInverseCameraMatrix[3][1] - vpos[1],
                     sInverseCameraMatrix[3][2] - vpos[2]
                 };
                 vec3f_normalize(viewDir);
@@ -911,7 +911,7 @@ static void OPTIMIZE_O3 gfx_sp_vertex(size_t n_vertices, size_t dest_index, cons
                 d->color.b *= color[2] / 255.0f;
             }
         // if lighting engine is enabled and we should affect all vertex colored surfaces or the lighting engine geometry mode is on
-        } else if (le_is_enabled() && (affectAllVertexColored || (rsp.geometry_mode & G_LIGHTING_ENGINE_EXT))) {
+        } else if (le_is_enabled() && !(rsp.geometry_mode & G_LIGHT_MAP_EXT) && (affectAllVertexColored || (rsp.geometry_mode & G_LIGHTING_ENGINE_EXT))) {
             Color color = { gLEAmbientColor[0], gLEAmbientColor[1], gLEAmbientColor[2] };
             CTX_BEGIN(CTX_LIGHTING);
 
@@ -2065,17 +2065,26 @@ void gfx_shutdown(void) {
  // v custom for djui v //
 /////////////////////////
 
-static bool    sDjuiClip          = 0;
-static uint8_t sDjuiClipX1        = 0;
-static uint8_t sDjuiClipY1        = 0;
-static uint8_t sDjuiClipX2        = 0;
-static uint8_t sDjuiClipY2        = 0;
+static const struct {
+    uint8_t LOAD_BLOCK;
+    uint8_t SHIFT;
+    uint8_t INCR;
+    uint8_t LINE_BYTES;
+} G_IM_SIZ_[] = {
+    [G_IM_SIZ_4b]  = { G_IM_SIZ_4b_LOAD_BLOCK,  G_IM_SIZ_4b_SHIFT,  G_IM_SIZ_4b_INCR,  G_IM_SIZ_4b_LINE_BYTES  },
+    [G_IM_SIZ_8b]  = { G_IM_SIZ_8b_LOAD_BLOCK,  G_IM_SIZ_8b_SHIFT,  G_IM_SIZ_8b_INCR,  G_IM_SIZ_8b_LINE_BYTES  },
+    [G_IM_SIZ_16b] = { G_IM_SIZ_16b_LOAD_BLOCK, G_IM_SIZ_16b_SHIFT, G_IM_SIZ_16b_INCR, G_IM_SIZ_16b_LINE_BYTES },
+    [G_IM_SIZ_32b] = { G_IM_SIZ_32b_LOAD_BLOCK, G_IM_SIZ_32b_SHIFT, G_IM_SIZ_32b_INCR, G_IM_SIZ_32b_LINE_BYTES },
+};
 
-static bool    sDjuiOverride        = false;
-static void*   sDjuiOverrideTexture = NULL;
-static uint32_t sDjuiOverrideW       = 0;
-static uint32_t sDjuiOverrideH       = 0;
-static uint32_t sDjuiOverrideB       = 0;
+static bool    sDjuiClip   = 0;
+static uint8_t sDjuiClipX1 = 0;
+static uint8_t sDjuiClipY1 = 0;
+static uint8_t sDjuiClipX2 = 0;
+static uint8_t sDjuiClipY2 = 0;
+
+static bool sDjuiOverride = false;
+static struct TextureInfo sDjuiOverrideTexture;
 
 static void OPTIMIZE_O3 djui_gfx_dp_execute_clipping(void) {
     if (!sDjuiClip) { return; }
@@ -2141,29 +2150,19 @@ static void OPTIMIZE_O3 djui_gfx_dp_execute_override(void) {
     if (!sDjuiOverride) { return; }
     sDjuiOverride = false;
 
-    // gsDPSetTextureImage
-    uint8_t sizeLoadBlock = (sDjuiOverrideB == 32) ? 3 : 2;
-    rdp.texture_to_load.addr = sDjuiOverrideTexture;
-    rdp.texture_to_load.siz = sizeLoadBlock;
+    const Texture *texture = sDjuiOverrideTexture.texture;
+    uint32_t width = sDjuiOverrideTexture.width;
+    uint32_t height = sDjuiOverrideTexture.height;
+    uint8_t fmt = sDjuiOverrideTexture.format;
+    uint8_t siz = sDjuiOverrideTexture.size;
 
-    // gsDPSetTile
-    rdp.texture_tile.siz = sizeLoadBlock;
+    if (siz > G_IM_SIZ_32b) { return; }
 
-    // gsDPLoadBlock
-    uint32_t wordSizeShift = (sDjuiOverrideB == 32) ? 2 : 1;
-    uint32_t lrs = (sDjuiOverrideW * sDjuiOverrideH) - 1;
-    uint32_t sizeBytes = (lrs + 1) << wordSizeShift;
-    gfx_update_loaded_texture(rdp.texture_to_load.tile_number, sizeBytes, rdp.texture_to_load.addr);
-
-    // gsDPSetTile
-    uint32_t line = (((sDjuiOverrideW * 2) + 7) >> 3);
-    rdp.texture_tile.line_size_bytes = line * 8;
-
-    // gsDPSetTileSize
-    /*rdp.texture_tile.uls = 0;
-    rdp.texture_tile.ult = 0;
-    rdp.texture_tile.lrs = (sDjuiOverrideW - 1) << G_TEXTURE_IMAGE_FRAC;
-    rdp.texture_tile.lrt = (sDjuiOverrideH - 1) << G_TEXTURE_IMAGE_FRAC;*/
+    // This is gDPLoadTextureBlock, but with some shortcuts and without texture size limitations
+    gfx_dp_set_texture_image(fmt, G_IM_SIZ_[siz].LOAD_BLOCK, width, texture);
+    gfx_dp_set_tile(fmt, siz, 0, 0, G_TX_LOADTILE, 0, 0, 0, 0, 0, 0, 0);
+    gfx_dp_load_block(0, 0, 0, ((width * height + G_IM_SIZ_[siz].INCR) >> G_IM_SIZ_[siz].SHIFT) - 1, 0);
+    gfx_dp_set_tile(fmt, siz, (((width * G_IM_SIZ_[siz].LINE_BYTES) + 7) >> 3), 0, G_TX_RENDERTILE, 0, 0, 0, 0, 0, 0, 0);
 }
 
 static void OPTIMIZE_O3 djui_gfx_dp_execute_djui(uint32_t opcode) {
@@ -2198,12 +2197,13 @@ static void OPTIMIZE_O3 djui_gfx_dp_set_clipping(uint32_t x1, uint32_t y1, uint3
     sDjuiClip   = true;
 }
 
-static void OPTIMIZE_O3 djui_gfx_dp_set_override(void* texture, uint32_t w, uint32_t h, uint32_t b) {
-    sDjuiOverrideTexture = texture;
-    sDjuiOverrideW = w;
-    sDjuiOverrideH = h;
-    sDjuiOverrideB = b;
-    sDjuiOverride  = (texture != NULL);
+static void OPTIMIZE_O3 djui_gfx_dp_set_override(void* texture, uint32_t w, uint32_t h, uint8_t fmt, uint8_t siz) {
+    sDjuiOverrideTexture.texture = texture;
+    sDjuiOverrideTexture.width = w;
+    sDjuiOverrideTexture.height = h;
+    sDjuiOverrideTexture.format = fmt;
+    sDjuiOverrideTexture.size = siz;
+    sDjuiOverride = (texture != NULL);
 }
 
 /*static void OPTIMIZE_O3 djui_gfx_sp_simple_vertex(size_t n_vertices, size_t dest_index, const Vtx *vertices) {
@@ -2232,7 +2232,7 @@ void OPTIMIZE_O3 ext_gfx_run_dl(Gfx* cmd) {
             djui_gfx_dp_set_clipping(C0(16, 8), C0(8, 8), C1(16, 8), C1(8, 8));
             break;
         case G_TEXOVERRIDE_DJUI:
-            djui_gfx_dp_set_override(seg_addr(cmd->words.w1), 1 << C0(16, 8), 1 << C0(8, 8), C0(0, 8));
+            djui_gfx_dp_set_override(seg_addr(cmd->words.w1), 1 << C0(16, 8), 1 << C0(8, 8), C0(4, 4), C0(0, 4));
             break;
         case G_VTX_EXT:
 #ifdef F3DEX_GBI_2

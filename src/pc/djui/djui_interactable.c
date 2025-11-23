@@ -212,6 +212,16 @@ bool djui_interactable_on_key_down(int scancode) {
         }
     }
 
+#ifdef TOUCH_CONTROLS
+    if ((scancode == SCANCODE_ESCAPE || scancode == SCANCODE_BACK) && djui_panel_is_active()) {
+#else
+    if (scancode == SCANCODE_ESCAPE && djui_panel_is_active()) {
+#endif
+        // pressed escape button on keyboard
+        djui_panel_back();
+        return true;
+    }
+
     if (gDjuiChatBox != NULL && !gDjuiChatBoxFocus) {
         bool pressChat = false;
         for (int i = 0; i < MAX_BINDS; i++) {
@@ -282,16 +292,6 @@ void djui_interactable_on_key_up(int scancode) {
         for (int i = 0; i < MAX_BINDS; i++) {
             if (scancode == (int)configKeyConsole[i]) { djui_console_toggle(); break; }
         }
-    }
-
-#ifdef TOUCH_CONTROLS
-    if ((scancode == SCANCODE_ESCAPE || scancode == SCANCODE_BACK) && djui_panel_is_active()) {
-#else
-    if (scancode == SCANCODE_ESCAPE && djui_panel_is_active()) {
-#endif
-        // pressed escape button on keyboard
-        djui_panel_back();
-        return;
     }
 
     if (gDjuiPlayerList != NULL || gDjuiModList != NULL) {

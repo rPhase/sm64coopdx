@@ -21,6 +21,8 @@
 #include "pc/utils/misc.h"
 
 static Gfx* sSavedDisplayListHead = NULL;
+static Gfx* sHookHudRenderGfx = NULL;
+static size_t sHookHudRenderGfxSize = 0;
 
 struct DjuiRoot* gDjuiRoot = NULL;
 struct DjuiText* gDjuiPauseOptions = NULL;
@@ -72,7 +74,6 @@ void djui_shutdown(void) {
 void patch_djui_before(void) {
     sDjuiRendered60fps = false;
     sSavedDisplayListHead = NULL;
-    djui_cursor_interp_before();
 }
 
 void patch_djui_interpolated(UNUSED f32 delta) {
@@ -182,10 +183,10 @@ void djui_render(void) {
 #ifdef TOUCH_CONTROLS
     render_touch_controls();
 #endif
-    djui_reset_hud_params();
 
     sSavedDisplayListHead = gDisplayListHead;
     gDjuiHudUtilsZ = 0;
+    djui_reset_hud_params();
 
     create_dl_ortho_matrix();
     djui_gfx_displaylist_begin();
@@ -194,7 +195,23 @@ void djui_render(void) {
         djui_base_render(&sDjuiRootBehind->base);
     }
 
-    smlua_call_event_hooks(HOOK_ON_HUD_RENDER, djui_reset_hud_params);
+    // To maintain consistency with other hooks, HOOK_ON_HUD_RENDER must run at 30 fps
+    // During interpolated frames, copy the generated display list without running the hook again
+    if (!sDjuiRendered60fps) {
+        Gfx *hookHudRenderStart = gDisplayListHead;
+        smlua_call_event_hooks(HOOK_ON_HUD_RENDER, djui_reset_hud_params);
+        size_t gfxSize = sizeof(Gfx) * (gDisplayListHead - hookHudRenderStart);
+        if (gfxSize > 0) {
+            if (gfxSize > sHookHudRenderGfxSize) {
+                sHookHudRenderGfx = realloc(sHookHudRenderGfx, gfxSize);
+            }
+            memcpy(sHookHudRenderGfx, hookHudRenderStart, gfxSize);
+        }
+        sHookHudRenderGfxSize = gfxSize;
+    } else if (sHookHudRenderGfx != NULL && sHookHudRenderGfxSize > 0) {
+        memcpy(gDisplayListHead, sHookHudRenderGfx, sHookHudRenderGfxSize);
+        gDisplayListHead += sHookHudRenderGfxSize / sizeof(Gfx);
+    }
 
     djui_panel_update();
     djui_popup_update();
@@ -217,6 +234,11 @@ void djui_render(void) {
 
     djui_cursor_update();
     djui_base_render(&gDjuiConsole->base);
-    djui_interactable_update();
+
+    // Be careful! Djui interactables update at 30hz to avoid display list corruption.
+    if (!sDjuiRendered60fps) {
+        djui_interactable_update();
+    }
+
     djui_gfx_displaylist_end();
 }

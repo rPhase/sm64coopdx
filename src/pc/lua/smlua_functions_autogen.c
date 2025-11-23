@@ -14146,6 +14146,23 @@ int smlua_func_set_menu_mode(lua_State* L) {
     return 1;
 }
 
+int smlua_func_handle_special_dialog_text(lua_State* L) {
+    if (L == NULL) { return 0; }
+
+    int top = lua_gettop(L);
+    if (top != 1) {
+        LOG_LUA_LINE("Improper param count for '%s': Expected %u, Received %u", "handle_special_dialog_text", 1, top);
+        return 0;
+    }
+
+    s32 dialogID = smlua_to_integer(L, 1);
+    if (!gSmLuaConvertSuccess) { LOG_LUA("Failed to convert parameter %u for function '%s'", 1, "handle_special_dialog_text"); return 0; }
+
+    handle_special_dialog_text(dialogID);
+
+    return 1;
+}
+
 int smlua_func_set_min_dialog_width(lua_State* L) {
     if (L == NULL) { return 0; }
 
@@ -15447,6 +15464,21 @@ int smlua_func_level_control_timer_running(UNUSED lua_State* L) {
 
 
     lua_pushinteger(L, level_control_timer_running());
+
+    return 1;
+}
+
+int smlua_func_pressed_pause(UNUSED lua_State* L) {
+    if (L == NULL) { return 0; }
+
+    int top = lua_gettop(L);
+    if (top != 0) {
+        LOG_LUA_LINE("Improper param count for '%s': Expected %u, Received %u", "pressed_pause", 0, top);
+        return 0;
+    }
+
+
+    lua_pushboolean(L, pressed_pause());
 
     return 1;
 }
@@ -33300,6 +33332,21 @@ int smlua_func_djui_get_playerlist_page_index(UNUSED lua_State* L) {
     return 1;
 }
 
+int smlua_func_djui_is_chatbox_open(UNUSED lua_State* L) {
+    if (L == NULL) { return 0; }
+
+    int top = lua_gettop(L);
+    if (top != 0) {
+        LOG_LUA_LINE("Improper param count for '%s': Expected %u, Received %u", "djui_is_chatbox_open", 0, top);
+        return 0;
+    }
+
+
+    lua_pushboolean(L, djui_is_chatbox_open());
+
+    return 1;
+}
+
 int smlua_func_djui_menu_get_font(UNUSED lua_State* L) {
     if (L == NULL) { return 0; }
 
@@ -33768,6 +33815,68 @@ int smlua_func_is_game_paused(UNUSED lua_State* L) {
 
 
     lua_pushboolean(L, is_game_paused());
+
+    return 1;
+}
+
+int smlua_func_is_pause_menu_hidden(UNUSED lua_State* L) {
+    if (L == NULL) { return 0; }
+
+    int top = lua_gettop(L);
+    if (top != 0) {
+        LOG_LUA_LINE("Improper param count for '%s': Expected %u, Received %u", "is_pause_menu_hidden", 0, top);
+        return 0;
+    }
+
+
+    lua_pushboolean(L, is_pause_menu_hidden());
+
+    return 1;
+}
+
+int smlua_func_set_pause_menu_hidden(lua_State* L) {
+    if (L == NULL) { return 0; }
+
+    int top = lua_gettop(L);
+    if (top != 1) {
+        LOG_LUA_LINE("Improper param count for '%s': Expected %u, Received %u", "set_pause_menu_hidden", 1, top);
+        return 0;
+    }
+
+    bool hidden = smlua_to_boolean(L, 1);
+    if (!gSmLuaConvertSuccess) { LOG_LUA("Failed to convert parameter %u for function '%s'", 1, "set_pause_menu_hidden"); return 0; }
+
+    set_pause_menu_hidden(hidden);
+
+    return 1;
+}
+
+int smlua_func_game_pause(UNUSED lua_State* L) {
+    if (L == NULL) { return 0; }
+
+    int top = lua_gettop(L);
+    if (top != 0) {
+        LOG_LUA_LINE("Improper param count for '%s': Expected %u, Received %u", "game_pause", 0, top);
+        return 0;
+    }
+
+
+    game_pause();
+
+    return 1;
+}
+
+int smlua_func_game_unpause(UNUSED lua_State* L) {
+    if (L == NULL) { return 0; }
+
+    int top = lua_gettop(L);
+    if (top != 0) {
+        LOG_LUA_LINE("Improper param count for '%s': Expected %u, Received %u", "game_unpause", 0, top);
+        return 0;
+    }
+
+
+    game_unpause();
 
     return 1;
 }
@@ -34497,7 +34606,7 @@ int smlua_func_texture_to_lua_table(lua_State* L) {
     Texture * tex = (Texture *)smlua_to_cpointer(L, 1, LVT_TEXTURE_P);
     if (!gSmLuaConvertSuccess) { LOG_LUA("Failed to convert parameter %u for function '%s'", 1, "texture_to_lua_table"); return 0; }
 
-    texture_to_lua_table(tex);
+    smlua_push_lua_table(L, texture_to_lua_table(tex));
 
     return 1;
 }
@@ -37574,6 +37683,7 @@ void smlua_bind_functions_autogen(void) {
     smlua_bind_function(L, "create_dialog_box_with_response", smlua_func_create_dialog_box_with_response);
     smlua_bind_function(L, "reset_dialog_render_state", smlua_func_reset_dialog_render_state);
     smlua_bind_function(L, "set_menu_mode", smlua_func_set_menu_mode);
+    smlua_bind_function(L, "handle_special_dialog_text", smlua_func_handle_special_dialog_text);
     smlua_bind_function(L, "set_min_dialog_width", smlua_func_set_min_dialog_width);
     smlua_bind_function(L, "set_dialog_override_pos", smlua_func_set_dialog_override_pos);
     smlua_bind_function(L, "reset_dialog_override_pos", smlua_func_reset_dialog_override_pos);
@@ -37651,6 +37761,7 @@ void smlua_bind_functions_autogen(void) {
 
     // level_update.h
     smlua_bind_function(L, "level_control_timer_running", smlua_func_level_control_timer_running);
+    smlua_bind_function(L, "pressed_pause", smlua_func_pressed_pause);
     smlua_bind_function(L, "fade_into_special_warp", smlua_func_fade_into_special_warp);
     smlua_bind_function(L, "get_instant_warp", smlua_func_get_instant_warp);
     smlua_bind_function(L, "get_painting_warp_node", smlua_func_get_painting_warp_node);
@@ -38631,6 +38742,7 @@ void smlua_bind_functions_autogen(void) {
     smlua_bind_function(L, "djui_is_playerlist_open", smlua_func_djui_is_playerlist_open);
     smlua_bind_function(L, "djui_attempting_to_open_playerlist", smlua_func_djui_attempting_to_open_playerlist);
     smlua_bind_function(L, "djui_get_playerlist_page_index", smlua_func_djui_get_playerlist_page_index);
+    smlua_bind_function(L, "djui_is_chatbox_open", smlua_func_djui_is_chatbox_open);
     smlua_bind_function(L, "djui_menu_get_font", smlua_func_djui_menu_get_font);
     smlua_bind_function(L, "djui_menu_get_theme", smlua_func_djui_menu_get_theme);
     smlua_bind_function(L, "djui_is_playerlist_ping_visible", smlua_func_djui_is_playerlist_ping_visible);
@@ -38659,6 +38771,10 @@ void smlua_bind_functions_autogen(void) {
     smlua_bind_function(L, "act_select_hud_show", smlua_func_act_select_hud_show);
     smlua_bind_function(L, "act_select_hud_is_hidden", smlua_func_act_select_hud_is_hidden);
     smlua_bind_function(L, "is_game_paused", smlua_func_is_game_paused);
+    smlua_bind_function(L, "is_pause_menu_hidden", smlua_func_is_pause_menu_hidden);
+    smlua_bind_function(L, "set_pause_menu_hidden", smlua_func_set_pause_menu_hidden);
+    smlua_bind_function(L, "game_pause", smlua_func_game_pause);
+    smlua_bind_function(L, "game_unpause", smlua_func_game_unpause);
     smlua_bind_function(L, "is_transition_playing", smlua_func_is_transition_playing);
     smlua_bind_function(L, "allocate_mario_action", smlua_func_allocate_mario_action);
     smlua_bind_function(L, "get_hand_foot_pos_x", smlua_func_get_hand_foot_pos_x);
