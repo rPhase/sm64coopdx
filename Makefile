@@ -133,7 +133,7 @@ ifeq ($(HOST_OS),Darwin)
 endif
 
 # Attempt to detect Termux Android build
-ifneq ($(shell which termux-setup-storage),)
+ifneq ($(shell command -v termux-setup-storage >/dev/null 2>&1 && echo Building for termux),)
   TARGET_ANDROID := 1
 endif
 
@@ -389,7 +389,7 @@ ifeq ($(TARGET_RK3588),1) # Define RK3588 to change SDL2 title & GLES2 hints
   DEFINES += USE_GLES=1
 endif
 
-ifeq ($(TARGET_ANDROID),1) # Define Android to change SDL2 title & GLES2 hints
+ifeq ($(TARGET_ANDROID),1) # Define Android to change SDL2 title & GLES hints
   DEFINES += TARGET_ANDROID=1 USE_GLES=1 _LANGUAGE_C=1
 endif
 
@@ -550,7 +550,7 @@ BIN_DIRS := bin bin/$(VERSION)
 SRC_DIRS += src/pc src/pc/gfx src/pc/audio src/pc/controller src/pc/fs src/pc/fs/packtypes src/pc/mods src/pc/dev src/pc/network src/pc/network/packets src/pc/network/socket src/pc/network/coopnet src/pc/utils src/pc/utils/miniz src/pc/djui src/pc/lua src/pc/lua/utils src/pc/os
 
 ifeq ($(TARGET_ANDROID),1)
-  SRC_DIRS += platform/android src/pc/android/execinfo
+  SRC_DIRS += platform/android include/android_execinfo
 endif
 
 ifeq ($(DISCORD_SDK),1)
@@ -793,7 +793,7 @@ else
 endif
 
 ifeq ($(TARGET_ANDROID),1)
-  INCLUDE_DIRS += platform/android/include
+  INCLUDE_DIRS += lib/sdl2/include include/android_execinfo
 endif
 
 # Connfigure backend flags
@@ -817,7 +817,7 @@ else ifeq ($(findstring SDL,$(WINDOW_API)),SDL)
   ifeq ($(WINDOWS_BUILD),1)
     BACKEND_LDFLAGS += -lglew32 -lglu32 -lopengl32
   else ifeq ($(TARGET_ANDROID),1)
-    BACKEND_LDFLAGS += -lGLESv2 -llog
+    BACKEND_LDFLAGS += -lGLESv3 -llog
   else ifeq ($(TARGET_RPI),1)
     BACKEND_LDFLAGS += -lGLESv2
   else ifeq ($(TARGET_RK3588),1)
@@ -861,18 +861,20 @@ endif
 ifneq ($(SDL1_USED)$(SDL2_USED),00)
   ifeq ($(TARGET_ANDROID),1)
     BACKEND_LDFLAGS += -lSDL2
-  else ifeq ($(OSX_BUILD),1)
-    # on OSX at least the homebrew version of sdl-config gives include path as `.../include/SDL2` instead of `.../include`
-    OSX_PREFIX := $(shell $(SDLCONFIG) --prefix)
-    BACKEND_CFLAGS += -I$(OSX_PREFIX)/include $(shell $(SDLCONFIG) --cflags)
   else
-    BACKEND_CFLAGS += `$(SDLCONFIG) --cflags`
-  endif
+    ifeq ($(OSX_BUILD),1)
+      # on OSX at least the homebrew version of sdl-config gives include path as `.../include/SDL2` instead of `.../include`
+      OSX_PREFIX := $(shell $(SDLCONFIG) --prefix)
+      BACKEND_CFLAGS += -I$(OSX_PREFIX)/include $(shell $(SDLCONFIG) --cflags)
+    else
+      BACKEND_CFLAGS += `$(SDLCONFIG) --cflags`
+    endif
 
-  ifeq ($(WINDOWS_BUILD),1)
-    BACKEND_LDFLAGS += `$(SDLCONFIG) --static-libs` -lsetupapi -luser32 -limm32 -lole32 -loleaut32 -lshell32 -lshlwapi -lwinmm -lversion
-  else
-    BACKEND_LDFLAGS += `$(SDLCONFIG) --libs`
+    ifeq ($(WINDOWS_BUILD),1)
+      BACKEND_LDFLAGS += `$(SDLCONFIG) --static-libs` -lsetupapi -luser32 -limm32 -lole32 -loleaut32 -lshell32 -lshlwapi -lwinmm -lversion
+    else
+      BACKEND_LDFLAGS += `$(SDLCONFIG) --libs`
+    endif
   endif
 endif
 
@@ -914,7 +916,7 @@ endif
 CPPFLAGS := -P -Wno-trigraphs $(DEF_INC_CFLAGS)
 
 ifeq ($(TARGET_ANDROID),1)
-  ifneq ($(shell which termux-setup-storage),) # Termux has clang
+  ifeq ($(shell command -v termux-setup-storage >/dev/null 2>&1; echo $$?),0) # Termux has clang
     CPPFLAGS := -E -P -x c -Wno-trigraphs $(DEF_INC_CFLAGS)
   endif
 endif
@@ -938,17 +940,16 @@ ifeq ($(WINDOWS_BUILD),1)
 else ifeq ($(TARGET_RPI),1)
   LDFLAGS := $(OPT_FLAGS) -lm $(BACKEND_LDFLAGS) -no-pie
 else ifeq ($(TARGET_ANDROID),1)
-  ifneq ($(shell uname -m | grep "i.86"),)
-    ARCH_APK := x86
-  else ifeq ($(shell uname -m),x86_64)
-    ARCH_APK := x86_64
+  ifeq ($(shell uname -m),x86_64)
+    ANDROID_ARCH := x86_64
   else ifeq ($(shell getconf LONG_BIT),64)
-    ARCH_APK := arm64-v8a
+    ANDROID_ARCH := arm64-v8a
   else
-    ARCH_APK := armeabi-v7a
+    ANDROID_ARCH := $(shell uname -m)
+    $(error $(ANDROID_ARCH) is not supported)
   endif
   CFLAGS  += -fPIC
-  LDFLAGS := -L ./platform/android/android/lib/$(ARCH_APK)/ -lm $(BACKEND_LDFLAGS) -shared
+  LDFLAGS := -L ./lib/sdl2/android/$(ANDROID_ARCH)/ -L ./lib/curl/android/$(ANDROID_ARCH)/ -lm $(BACKEND_LDFLAGS) -shared
 else ifeq ($(TARGET_RK3588),1)
   LDFLAGS := $(OPT_FLAGS) -lm $(BACKEND_LDFLAGS) -no-pie
 else ifeq ($(OSX_BUILD),1)
@@ -993,7 +994,7 @@ endif
 
 # Zlib
 ifeq ($(TARGET_ANDROID),1)
-  LDFLAGS += -Llib/zlib/android -l:libz.a
+  LDFLAGS += -Llib/zlib/android/$(ANDROID_ARCH) -l:libz.a
 else
   LDFLAGS += -lz
 endif
@@ -1025,7 +1026,7 @@ else ifeq ($(TARGET_RPI),1)
     LDFLAGS += -Llib/lua/linux -l:liblua53-arm.a
   endif
 else ifeq ($(TARGET_ANDROID),1)
-  LDFLAGS += -Llib/lua/android -l:liblua.a
+  LDFLAGS += -Llib/lua/android/$(ANDROID_ARCH) -l:liblua.a
 else ifeq ($(TARGET_RK3588),1)
   LDFLAGS += -Llib/lua/linux -l:liblua53-arm64.a
 else
@@ -1045,11 +1046,11 @@ ifeq ($(COOPNET),1)
     ifeq ($(shell uname -m),arm64)
       LDFLAGS += -Wl,-rpath,@loader_path -L./lib/coopnet/mac_arm/ -l coopnet
       COOPNET_LIBS += ./lib/coopnet/mac_arm/libcoopnet.dylib
-      COOPNET_LIBS += ./lib/coopnet/mac_arm/libjuice.1.2.2.dylib
+      COOPNET_LIBS += ./lib/coopnet/mac_arm/libjuice.1.6.2.dylib
     else
       LDFLAGS += -Wl,-rpath,@loader_path -L./lib/coopnet/mac_intel/ -l coopnet
       COOPNET_LIBS += ./lib/coopnet/mac_intel/libcoopnet.dylib
-      COOPNET_LIBS += ./lib/coopnet/mac_intel/libjuice.1.2.2.dylib
+      COOPNET_LIBS += ./lib/coopnet/mac_intel/libjuice.1.6.2.dylib
     endif
   else ifeq ($(TARGET_RPI),1)
     ifneq (,$(findstring aarch64,$(machine)))
@@ -1058,7 +1059,7 @@ ifeq ($(COOPNET),1)
       LDFLAGS += -Llib/coopnet/linux -l:libcoopnet-arm.a -l:libjuice-arm.a
     endif
   else ifeq ($(TARGET_ANDROID),1)
-    LDFLAGS += -Llib/coopnet/android -l:libcoopnet.a -l:libjuice.a
+    LDFLAGS += -Llib/coopnet/android/$(ANDROID_ARCH) -l:libcoopnet.a -l:libjuice.a
   else ifeq ($(TARGET_RK3588),1)
     LDFLAGS += -Llib/coopnet/linux -l:libcoopnet-arm64.a -l:libjuice.a
   else
@@ -1649,31 +1650,34 @@ ifeq ($(TARGET_N64),1)
   $(BUILD_DIR)/$(TARGET).objdump: $(ELF)
 	$(OBJDUMP) -D $< > $@
 else
+  # Android Files
+  ifeq ($(TARGET_ANDROID),1)
+    APK_FILES := $(shell find platform/android/ -type f)
 
-ifeq ($(TARGET_ANDROID),1)
-APK_FILES := $(shell find platform/android/ -type f)
+  # Copying Libraries and Assets
+  $(ZIP_UNCOMPRESSED): $(EXE) $(APK_FILES)
+	@cp -r platform/android $(BUILD_DIR)/platform/ >/dev/null 2>&1 && \
+	mkdir -p $(BUILD_DIR)/platform/android/app/assets/ >/dev/null 2>&1 && \
+	cp -r mods lang palettes dynos $(BUILD_DIR)/platform/android/app/assets/ >/dev/null 2>&1 && \
+  mkdir -p $(BUILD_DIR)/platform/android/app/lib/$(ANDROID_ARCH) >/dev/null 2>&1 && \
+	cp $(PREFIX)/lib/libc++_shared.so $(BUILD_DIR)/platform/android/app/lib/$(ANDROID_ARCH)/ >/dev/null 2>&1 && \
+  cp lib/sdl2/android/$(ANDROID_ARCH)/libSDL2.so $(BUILD_DIR)/platform/android/app/lib/$(ANDROID_ARCH)/ >/dev/null 2>&1 && \
+  cp lib/curl/android/$(ANDROID_ARCH)/libcurl.so $(BUILD_DIR)/platform/android/app/lib/$(ANDROID_ARCH)/ >/dev/null 2>&1 && \
+	cp $(EXE) $(BUILD_DIR)/platform/android/app/lib/$(ANDROID_ARCH)/ >/dev/null 2>&1 && \
+	cd $(BUILD_DIR)/platform/android/app >/dev/null 2>&1 && \
+	zip -0 -r ../../../../../$@ ./* >/dev/null 2>&1 && \
+	cd - >/dev/null 2>&1 && \
+	rm -rf $(BUILD_DIR)/platform/android/app >/dev/null 2>&1
 
-$(ZIP_UNCOMPRESSED): $(EXE) $(APK_FILES)
-	cp -r platform/android $(BUILD_DIR)/platform/ && \
-	mkdir $(BUILD_DIR)/platform/android/android/assets/ && \
-	cp -r mods $(BUILD_DIR)/platform/android/android/assets/ && \
-	cp -r lang $(BUILD_DIR)/platform/android/android/assets/ && \
-  cp -r palettes $(BUILD_DIR)/platform/android/android/assets/ && \
-  cp -r dynos $(BUILD_DIR)/platform/android/android/assets/ && \
-	cp $(PREFIX)/lib/libc++_shared.so $(BUILD_DIR)/platform/android/android/lib/$(ARCH_APK)/ && \
-	cp $(EXE) $(BUILD_DIR)/platform/android/android/lib/$(ARCH_APK)/ && \
-	cd $(BUILD_DIR)/platform/android/android && \
-	zip -0 -r ../../../../../$@ ./* && \
-	cd - && \
-	rm -rf $(BUILD_DIR)/platform/android/android
+  # Aligning the zip
+  $(APK_ALIGNED): $(ZIP_UNCOMPRESSED)
+	@zipalign -f -p 4 $< $@ >/dev/null 2>&1
 
-$(APK_ALIGNED): $(ZIP_UNCOMPRESSED)
-	zipalign -f -p 4 $< $@
-
-$(APK_SIGNED): $(APK_ALIGNED)
-	cp $< $@ && \
-	apksigner sign --cert platform/android/certificate.pem --key platform/android/key.pk8 $@
-endif
+  # Signing the apk
+  $(APK_SIGNED): $(APK_ALIGNED)
+	@cp $< $@ >/dev/null 2>&1 && \
+	apksigner sign --cert platform/android/certificate.pem --key platform/android/key.pk8 $@ >/dev/null 2>&1
+  endif
 
   $(EXE): $(O_FILES) $(MIO0_FILES:.mio0=.o) $(ULTRA_O_FILES) $(GODDARD_O_FILES) $(BUILD_DIR)/$(RPC_LIBS) $(BUILD_DIR)/$(DISCORD_SDK_LIBS) $(BUILD_DIR)/$(COOPNET_LIBS) $(BUILD_DIR)/$(LANG_DIR) $(BUILD_DIR)/$(MOD_DIR) $(BUILD_DIR)/$(PALETTES_DIR)
 	@$(PRINT) "$(GREEN)Linking executable: $(BLUE)$@ $(NO_COL)\n"
