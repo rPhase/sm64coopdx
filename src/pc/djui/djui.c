@@ -185,7 +185,8 @@ void djui_render(void) {
     gDjuiHudUtilsZ = 0;
     djui_reset_hud_params();
 #ifdef TOUCH_CONTROLS
-    if (gInTouchConfig) render_touch_controls();
+    extern bool is_game_paused(void);
+    if (gInTouchConfig || is_game_paused()) render_touch_controls();
 #endif
 
     create_dl_ortho_matrix();
@@ -234,7 +235,7 @@ void djui_render(void) {
 
     djui_cursor_update();
 #ifdef TOUCH_CONTROLS
-    if (!gInTouchConfig) render_touch_controls();
+    if (!gInTouchConfig && !is_game_paused()) render_touch_controls();
 #endif
     djui_base_render(&gDjuiConsole->base);
 
