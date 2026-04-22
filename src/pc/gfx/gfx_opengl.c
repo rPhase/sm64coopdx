@@ -338,7 +338,7 @@ static struct ShaderProgram *gfx_opengl_create_and_load_new_shader(struct ColorC
 
     for (int t = 0; t < 2; t++) {
         if (ccf.used_textures[t]) {
-            fs_len += sprintf(fs_buf + fs_len, "varying vec2 vTexCoord%d;\n", t);
+            fs_len += sprintf(fs_buf + fs_len, VARYING_FS " vec2 vTexCoord%d;\n", t);
         }
     }
     if (opt_fog) {
