@@ -36,7 +36,7 @@ static void _clock_gettime(struct timespec* clock_time) {
     clock_gettime(CLOCK_MONOTONIC, clock_time);
 #else
     if (clock_gettime(CLOCK_MONOTONIC, clock_time))
-        clock_gettime(CLOCK_REALTIME, clock_time));
+        clock_gettime(CLOCK_REALTIME, clock_time);
 #endif
 
 #ifdef DEVELOPMENT
@@ -593,19 +593,4 @@ void str_seperator_concat(char *output_buffer, int buffer_size, char** strings, 
             buffer_index += seperator_length;
         }
     }
-}
-
-char *str_remove_color_codes(const char *str) {
-    char *output = strdup(str);
-    char *startColor;
-    while ((startColor = strstr(output, "\\#"))) {
-        char *endColor = strchr(startColor + 2, '\\');
-        if (endColor) {
-            memmove(startColor, endColor + 1, strlen(endColor + 1) + 1);
-        } else {
-            *startColor = 0;
-            break;
-        }
-    }
-    return output;
 }

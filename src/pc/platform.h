@@ -10,6 +10,14 @@
 #define ANDROID_APPNAME "com.maniscat2.sm64coopdx"
 #endif
 
+#ifdef _WIN32
+#define PATH_SEPARATOR      "\\"
+#define PATH_SEPARATOR_ALT  "/"
+#else
+#define PATH_SEPARATOR      "/"
+#define PATH_SEPARATOR_ALT  "\\"
+#endif
+
 #define SYS_MAX_PATH 4096
 
 // crossplatform impls of misc stuff

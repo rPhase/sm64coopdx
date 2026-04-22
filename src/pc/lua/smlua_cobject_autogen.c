@@ -1228,16 +1228,6 @@ static struct LuaObjectField sGraphNodeTranslationRotationFields[LUA_GRAPH_NODE_
     { "translation", LVT_COBJECT,   offsetof(struct GraphNodeTranslationRotation, translation), true,  LOT_VEC3S,     1, sizeof(Vec3s)            },
 };
 
-#define LUA_HUD_UTILS_ROTATION_FIELD_COUNT 6
-static struct LuaObjectField sHudUtilsRotationFields[LUA_HUD_UTILS_ROTATION_FIELD_COUNT] = {
-    { "pivotX",       LVT_F32, offsetof(struct HudUtilsRotation, pivotX),       false, LOT_NONE, 1, sizeof(f32) },
-    { "pivotY",       LVT_F32, offsetof(struct HudUtilsRotation, pivotY),       false, LOT_NONE, 1, sizeof(f32) },
-    { "prevPivotX",   LVT_F32, offsetof(struct HudUtilsRotation, prevPivotX),   false, LOT_NONE, 1, sizeof(f32) },
-    { "prevPivotY",   LVT_F32, offsetof(struct HudUtilsRotation, prevPivotY),   false, LOT_NONE, 1, sizeof(f32) },
-    { "rotation",     LVT_F32, offsetof(struct HudUtilsRotation, rotation),     false, LOT_NONE, 1, sizeof(f32) },
-    { "rotationDiff", LVT_F32, offsetof(struct HudUtilsRotation, rotationDiff), false, LOT_NONE, 1, sizeof(f32) },
-};
-
 #define LUA_INSTANT_WARP_FIELD_COUNT 3
 static struct LuaObjectField sInstantWarpFields[LUA_INSTANT_WARP_FIELD_COUNT] = {
     { "area",         LVT_U8,      offsetof(struct InstantWarp, area),         false, LOT_NONE,  1, sizeof(u8)    },
@@ -1484,7 +1474,7 @@ static struct LuaObjectField sModFields[LUA_MOD_FIELD_COUNT] = {
     { "incompatible",         LVT_STRING_P, offsetof(struct Mod, incompatible),         true, LOT_NONE, 1, sizeof(char*)  },
     { "index",                LVT_S32,      offsetof(struct Mod, index),                true, LOT_NONE, 1, sizeof(s32)    },
     { "isDirectory",          LVT_BOOL,     offsetof(struct Mod, isDirectory),          true, LOT_NONE, 1, sizeof(bool)   },
-    { "name",                 LVT_STRING_P, offsetof(struct Mod, name),                 true, LOT_NONE, 1, sizeof(char*)  },
+    { "name",                 LVT_STRING,   offsetof(struct Mod, name),                 true, LOT_NONE, 1, sizeof(char)   },
     { "pausable",             LVT_BOOL,     offsetof(struct Mod, pausable),             true, LOT_NONE, 1, sizeof(bool)   },
     { "relativePath",         LVT_STRING,   offsetof(struct Mod, relativePath),         true, LOT_NONE, 1, sizeof(char)   },
     { "renderBehindHud",      LVT_BOOL,     offsetof(struct Mod, renderBehindHud),      true, LOT_NONE, 1, sizeof(bool)   },
@@ -1519,33 +1509,35 @@ static struct LuaObjectField sModFsFields[LUA_MOD_FS_FIELD_COUNT] = {
     { "totalSize",    LVT_U32,       offsetof(struct ModFs, totalSize), true, LOT_NONE, 1, sizeof(u32)          },
 };
 
-#define LUA_MOD_FS_FILE_FIELD_COUNT 25
+#define LUA_MOD_FS_FILE_FIELD_COUNT 27
 static struct LuaObjectField sModFsFileFields[LUA_MOD_FS_FILE_FIELD_COUNT] = {
-    { "erase",         LVT_FUNCTION,  (size_t) "mod_fs_file_erase",         true, LOT_NONE,  1, sizeof(const char *)  },
-    { "filepath",      LVT_STRING,    offsetof(struct ModFsFile, filepath), true, LOT_NONE,  1, sizeof(char)          },
-    { "fill",          LVT_FUNCTION,  (size_t) "mod_fs_file_fill",          true, LOT_NONE,  1, sizeof(const char *)  },
-    { "isPublic",      LVT_BOOL,      offsetof(struct ModFsFile, isPublic), true, LOT_NONE,  1, sizeof(bool)          },
-    { "isText",        LVT_BOOL,      offsetof(struct ModFsFile, isText),   true, LOT_NONE,  1, sizeof(bool)          },
-    { "is_eof",        LVT_FUNCTION,  (size_t) "mod_fs_file_is_eof",        true, LOT_NONE,  1, sizeof(const char *)  },
-    { "modFs",         LVT_COBJECT_P, offsetof(struct ModFsFile, modFs),    true, LOT_MODFS, 1, sizeof(struct ModFs*) },
-    { "offset",        LVT_U32,       offsetof(struct ModFsFile, offset),   true, LOT_NONE,  1, sizeof(u32)           },
-    { "read_bool",     LVT_FUNCTION,  (size_t) "mod_fs_file_read_bool",     true, LOT_NONE,  1, sizeof(const char *)  },
-    { "read_bytes",    LVT_FUNCTION,  (size_t) "mod_fs_file_read_bytes",    true, LOT_NONE,  1, sizeof(const char *)  },
-    { "read_integer",  LVT_FUNCTION,  (size_t) "mod_fs_file_read_integer",  true, LOT_NONE,  1, sizeof(const char *)  },
-    { "read_line",     LVT_FUNCTION,  (size_t) "mod_fs_file_read_line",     true, LOT_NONE,  1, sizeof(const char *)  },
-    { "read_number",   LVT_FUNCTION,  (size_t) "mod_fs_file_read_number",   true, LOT_NONE,  1, sizeof(const char *)  },
-    { "read_string",   LVT_FUNCTION,  (size_t) "mod_fs_file_read_string",   true, LOT_NONE,  1, sizeof(const char *)  },
-    { "rewind",        LVT_FUNCTION,  (size_t) "mod_fs_file_rewind",        true, LOT_NONE,  1, sizeof(const char *)  },
-    { "seek",          LVT_FUNCTION,  (size_t) "mod_fs_file_seek",          true, LOT_NONE,  1, sizeof(const char *)  },
-    { "set_public",    LVT_FUNCTION,  (size_t) "mod_fs_file_set_public",    true, LOT_NONE,  1, sizeof(const char *)  },
-    { "set_text_mode", LVT_FUNCTION,  (size_t) "mod_fs_file_set_text_mode", true, LOT_NONE,  1, sizeof(const char *)  },
-    { "size",          LVT_U32,       offsetof(struct ModFsFile, size),     true, LOT_NONE,  1, sizeof(u32)           },
-    { "write_bool",    LVT_FUNCTION,  (size_t) "mod_fs_file_write_bool",    true, LOT_NONE,  1, sizeof(const char *)  },
-    { "write_bytes",   LVT_FUNCTION,  (size_t) "mod_fs_file_write_bytes",   true, LOT_NONE,  1, sizeof(const char *)  },
-    { "write_integer", LVT_FUNCTION,  (size_t) "mod_fs_file_write_integer", true, LOT_NONE,  1, sizeof(const char *)  },
-    { "write_line",    LVT_FUNCTION,  (size_t) "mod_fs_file_write_line",    true, LOT_NONE,  1, sizeof(const char *)  },
-    { "write_number",  LVT_FUNCTION,  (size_t) "mod_fs_file_write_number",  true, LOT_NONE,  1, sizeof(const char *)  },
-    { "write_string",  LVT_FUNCTION,  (size_t) "mod_fs_file_write_string",  true, LOT_NONE,  1, sizeof(const char *)  },
+    { "compressionLevel", LVT_S32,       offsetof(struct ModFsFile, compressionLevel), true, LOT_NONE,  1, sizeof(s32)           },
+    { "erase",            LVT_FUNCTION,  (size_t) "mod_fs_file_erase",                 true, LOT_NONE,  1, sizeof(const char *)  },
+    { "filepath",         LVT_STRING,    offsetof(struct ModFsFile, filepath),         true, LOT_NONE,  1, sizeof(char)          },
+    { "fill",             LVT_FUNCTION,  (size_t) "mod_fs_file_fill",                  true, LOT_NONE,  1, sizeof(const char *)  },
+    { "isPublic",         LVT_BOOL,      offsetof(struct ModFsFile, isPublic),         true, LOT_NONE,  1, sizeof(bool)          },
+    { "isText",           LVT_BOOL,      offsetof(struct ModFsFile, isText),           true, LOT_NONE,  1, sizeof(bool)          },
+    { "is_eof",           LVT_FUNCTION,  (size_t) "mod_fs_file_is_eof",                true, LOT_NONE,  1, sizeof(const char *)  },
+    { "modFs",            LVT_COBJECT_P, offsetof(struct ModFsFile, modFs),            true, LOT_MODFS, 1, sizeof(struct ModFs*) },
+    { "offset",           LVT_U32,       offsetof(struct ModFsFile, offset),           true, LOT_NONE,  1, sizeof(u32)           },
+    { "read_bool",        LVT_FUNCTION,  (size_t) "mod_fs_file_read_bool",             true, LOT_NONE,  1, sizeof(const char *)  },
+    { "read_bytes",       LVT_FUNCTION,  (size_t) "mod_fs_file_read_bytes",            true, LOT_NONE,  1, sizeof(const char *)  },
+    { "read_integer",     LVT_FUNCTION,  (size_t) "mod_fs_file_read_integer",          true, LOT_NONE,  1, sizeof(const char *)  },
+    { "read_line",        LVT_FUNCTION,  (size_t) "mod_fs_file_read_line",             true, LOT_NONE,  1, sizeof(const char *)  },
+    { "read_number",      LVT_FUNCTION,  (size_t) "mod_fs_file_read_number",           true, LOT_NONE,  1, sizeof(const char *)  },
+    { "read_string",      LVT_FUNCTION,  (size_t) "mod_fs_file_read_string",           true, LOT_NONE,  1, sizeof(const char *)  },
+    { "rewind",           LVT_FUNCTION,  (size_t) "mod_fs_file_rewind",                true, LOT_NONE,  1, sizeof(const char *)  },
+    { "seek",             LVT_FUNCTION,  (size_t) "mod_fs_file_seek",                  true, LOT_NONE,  1, sizeof(const char *)  },
+    { "set_compression",  LVT_FUNCTION,  (size_t) "mod_fs_file_set_compression",       true, LOT_NONE,  1, sizeof(const char *)  },
+    { "set_public",       LVT_FUNCTION,  (size_t) "mod_fs_file_set_public",            true, LOT_NONE,  1, sizeof(const char *)  },
+    { "set_text_mode",    LVT_FUNCTION,  (size_t) "mod_fs_file_set_text_mode",         true, LOT_NONE,  1, sizeof(const char *)  },
+    { "size",             LVT_U32,       offsetof(struct ModFsFile, size),             true, LOT_NONE,  1, sizeof(u32)           },
+    { "write_bool",       LVT_FUNCTION,  (size_t) "mod_fs_file_write_bool",            true, LOT_NONE,  1, sizeof(const char *)  },
+    { "write_bytes",      LVT_FUNCTION,  (size_t) "mod_fs_file_write_bytes",           true, LOT_NONE,  1, sizeof(const char *)  },
+    { "write_integer",    LVT_FUNCTION,  (size_t) "mod_fs_file_write_integer",         true, LOT_NONE,  1, sizeof(const char *)  },
+    { "write_line",       LVT_FUNCTION,  (size_t) "mod_fs_file_write_line",            true, LOT_NONE,  1, sizeof(const char *)  },
+    { "write_number",     LVT_FUNCTION,  (size_t) "mod_fs_file_write_number",          true, LOT_NONE,  1, sizeof(const char *)  },
+    { "write_string",     LVT_FUNCTION,  (size_t) "mod_fs_file_write_string",          true, LOT_NONE,  1, sizeof(const char *)  },
 };
 
 #define LUA_NAMETAGS_SETTINGS_FIELD_COUNT 2
@@ -1744,11 +1736,11 @@ static struct LuaObjectField sObjectFields[LUA_OBJECT_FIELD_COUNT] = {
     { "oCameraLakituBlinkTimer",                    LVT_S32,                 offsetof(struct Object, oCameraLakituBlinkTimer),                    false, LOT_NONE,         1,                    sizeof(s32)                   },
     { "oCameraLakituCircleRadius",                  LVT_F32,                 offsetof(struct Object, oCameraLakituCircleRadius),                  false, LOT_NONE,         1,                    sizeof(f32)                   },
     { "oCameraLakituFinishedDialog",                LVT_S32,                 offsetof(struct Object, oCameraLakituFinishedDialog),                false, LOT_NONE,         1,                    sizeof(s32)                   },
+#ifndef VERSION_JP
+    { "oCameraLakituMusicPlayed",                   LVT_S32,                 offsetof(struct Object, oCameraLakituMusicPlayed),                   false, LOT_NONE,         1,                    sizeof(s32)                   },
+#endif
     { "oCameraLakituPitchVel",                      LVT_S16,                 offsetof(struct Object, oCameraLakituPitchVel),                      false, LOT_NONE,         1,                    sizeof(s16)                   },
     { "oCameraLakituSpeed",                         LVT_F32,                 offsetof(struct Object, oCameraLakituSpeed),                         false, LOT_NONE,         1,                    sizeof(f32)                   },
-#ifndef VERSION_JP
-    { "oCameraLakituUnk104",                        LVT_S32,                 offsetof(struct Object, oCameraLakituUnk104),                        false, LOT_NONE,         1,                    sizeof(s32)                   },
-#endif
     { "oCameraLakituYawVel",                        LVT_S16,                 offsetof(struct Object, oCameraLakituYawVel),                        false, LOT_NONE,         1,                    sizeof(s16)                   },
     { "oCannonBarrelBubblesUnkF4",                  LVT_F32,                 offsetof(struct Object, oCannonBarrelBubblesUnkF4),                  false, LOT_NONE,         1,                    sizeof(f32)                   },
     { "oCannonPlayerIndex",                         LVT_S32,                 offsetof(struct Object, oCannonPlayerIndex),                         false, LOT_NONE,         1,                    sizeof(s32)                   },
@@ -2734,7 +2726,6 @@ struct LuaObjectTable sLuaObjectAutogenTable[LOT_AUTOGEN_MAX - LOT_AUTOGEN_MIN] 
     { LOT_GRAPHNODESWITCHCASE,          sGraphNodeSwitchCaseFields,          LUA_GRAPH_NODE_SWITCH_CASE_FIELD_COUNT          },
     { LOT_GRAPHNODETRANSLATION,         sGraphNodeTranslationFields,         LUA_GRAPH_NODE_TRANSLATION_FIELD_COUNT          },
     { LOT_GRAPHNODETRANSLATIONROTATION, sGraphNodeTranslationRotationFields, LUA_GRAPH_NODE_TRANSLATION_ROTATION_FIELD_COUNT },
-    { LOT_HUDUTILSROTATION,             sHudUtilsRotationFields,             LUA_HUD_UTILS_ROTATION_FIELD_COUNT              },
     { LOT_INSTANTWARP,                  sInstantWarpFields,                  LUA_INSTANT_WARP_FIELD_COUNT                    },
     { LOT_LAKITUSTATE,                  sLakituStateFields,                  LUA_LAKITU_STATE_FIELD_COUNT                    },
     { LOT_LEVELVALUES,                  sLevelValuesFields,                  LUA_LEVEL_VALUES_FIELD_COUNT                    },
@@ -2840,7 +2831,6 @@ const char *sLuaLotNames[] = {
 	[LOT_GRAPHNODESWITCHCASE] = "GraphNodeSwitchCase",
 	[LOT_GRAPHNODETRANSLATION] = "GraphNodeTranslation",
 	[LOT_GRAPHNODETRANSLATIONROTATION] = "GraphNodeTranslationRotation",
-	[LOT_HUDUTILSROTATION] = "HudUtilsRotation",
 	[LOT_INSTANTWARP] = "InstantWarp",
 	[LOT_LAKITUSTATE] = "LakituState",
 	[LOT_LEVELVALUES] = "LevelValues",

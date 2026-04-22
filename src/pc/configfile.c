@@ -151,6 +151,7 @@ unsigned int configStickDeadzone                  = 16;
 unsigned int configRumbleStrength                 = 50;
 unsigned int configGamepadNumber                  = 0;
 bool         configBackgroundGamepad              = true;
+bool         configExtendedReports                = false;
 bool         configDisableGamepads                = false;
 bool         configUseStandardKeyBindingsChat     = false;
 bool         configSmoothScrolling                = false;
@@ -237,6 +238,7 @@ unsigned int configDjuiScale                      = 0;
 #endif
 // other
 unsigned int configRulesVersion                   = 0;
+bool         configHideSocketWarning              = false;
 bool         configCompressOnStartup              = false;
 bool         configSkipPackGeneration             = false;
 #ifdef TOUCH_CONTROLS
@@ -307,6 +309,7 @@ static const struct ConfigOption options[] = {
     {.name = "rumble_strength",                .type = CONFIG_TYPE_UINT, .uintValue = &configRumbleStrength},
     {.name = "gamepad_number",                 .type = CONFIG_TYPE_UINT, .uintValue = &configGamepadNumber},
     {.name = "background_gamepad",             .type = CONFIG_TYPE_UINT, .boolValue = &configBackgroundGamepad},
+    {.name = "extended_reports",               .type = CONFIG_TYPE_BOOL, .boolValue = &configExtendedReports},
 #ifndef HANDHELD
     {.name = "disable_gamepads",               .type = CONFIG_TYPE_BOOL, .boolValue = &configDisableGamepads},
 #endif
@@ -429,6 +432,7 @@ static const struct ConfigOption options[] = {
     {.name = "djui_scale",                     .type = CONFIG_TYPE_UINT,   .uintValue   = &configDjuiScale},
     // other
     {.name = "rules_version",                  .type = CONFIG_TYPE_UINT,   .uintValue   = &configRulesVersion},
+    {.name = "hide_socket_warning",            .type = CONFIG_TYPE_BOOL,   .boolValue   = &configHideSocketWarning},
     {.name = "compress_on_startup",            .type = CONFIG_TYPE_BOOL,   .boolValue   = &configCompressOnStartup},
     {.name = "skip_pack_generation",           .type = CONFIG_TYPE_BOOL,   .boolValue   = &configSkipPackGeneration},
 };

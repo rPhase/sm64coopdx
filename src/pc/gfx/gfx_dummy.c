@@ -56,7 +56,7 @@ static void gfx_dummy_wm_set_touchscreen_callbacks(UNUSED void (*down)(void* eve
 static void gfx_dummy_wm_set_scroll_callback(UNUSED void (*on_scroll)(float, float)) {
 }
 
-static void gfx_dummy_wm_set_fullscreen(UNUSED bool enable) {
+UNUSED static void gfx_dummy_wm_set_fullscreen(UNUSED bool enable) {
 }
 
 static void gfx_dummy_wm_main_loop(void (*run_one_game_iter)(void)) {
