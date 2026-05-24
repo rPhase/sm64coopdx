@@ -542,10 +542,9 @@ static struct ShaderProgram *gfx_opengl_create_and_load_new_shader(struct ColorC
         append_line(fs_buf, &fs_len, "if (uShaderFlags[6] == 1) {");
 #ifdef USE_GLES
         append_line(fs_buf, &fs_len, "float levels = max(1.0, uShaderFlagValues[6]);");
-        append_line(fs_buf, &fs_len, "vec3 poster = floor(texel.rgb * vec3(levels));");
-        append_line(fs_buf, &fs_len, "texel.rgb = poster / vec3(levels);");
+        append_line(fs_buf, &fs_len, "texel.rgb = floor(texel.rgb * levels) / levels;");
 #else
-        append_line(fs_buf, &fs_len, "int levels = int(max(1.0, uShaderFlagValues[6]));");
+        append_line(fs_buf, &fs_len, "float levels = floor(max(1.0, uShaderFlagValues[6]));");
         append_line(fs_buf, &fs_len, "texel.rgb = floor(texel.rgb * levels) / levels;");
 #endif
         append_line(fs_buf, &fs_len, "}");
