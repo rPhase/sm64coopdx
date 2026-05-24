@@ -659,20 +659,20 @@ LuaTable get_mod_files(struct Mod* mod, OPTIONAL const char* subDirectory) {
 
 void set_window_title(const char* title) {
 #ifndef __ANDROID__
-    WAPI.set_window_title(title);
+    gWindowApi->set_window_title(title);
 #endif
 }
 
 void reset_window_title(void) {
 #ifndef __ANDROID__
-    WAPI.reset_window_title();
+    gWindowApi->reset_window_title();
 #endif
 }
 
 ///
 
 const char* get_os_name(void) {
-#if defined(_WIN32) || defined(_WIN64)
+#if defined(_WIN32)
     return "Windows";
 #elif __APPLE__ || __MACH__
     return "Mac OSX"; // should be macOS

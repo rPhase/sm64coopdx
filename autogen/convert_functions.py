@@ -105,7 +105,7 @@ override_allowed_functions = {
 
 override_disallowed_functions = {
     "src/audio/external.h":                     [ " func_" ],
-    "src/engine/surface_load.h":                [ "load_area_terrain", "alloc_surface_pools", "clear_dynamic_surfaces", "get_area_terrain_size" ],
+    "src/engine/surface_load.h":                [ "load_area_terrain", "alloc_surface_pools", "clear_dynamic_surfaces", "get_area_terrain_size", "alloc_surface", "add_surface", "remove_surface_from_partition", "delete_surface", "swap_and_pop_surface_pool", "add_surface_without_hook" ],
     "src/engine/surface_collision.h":           [ " debug_", "f32_find_wall_collision" ],
     "src/game/mario_actions_airborne.c":        [ "^[us]32 act_.*" ],
     "src/game/mario_actions_automatic.c":       [ "^[us]32 act_.*" ],
@@ -118,7 +118,7 @@ override_disallowed_functions = {
     "src/game/mario.h":                         [ " init_mario" ],
     "src/pc/djui/djui_console.h":               [ " djui_console_create", "djui_console_message_create", "djui_console_message_dequeue" ],
     "src/pc/djui/djui_chat_message.h":          [ "create_from" ],
-    "src/pc/djui/djui_hud_utils.h":             [ "djui_hud_clear_interp_data" ],
+    "src/pc/djui/djui_hud_utils.h":             [ "djui_hud_clear_interp_data", "djui_hud_print_text", "djui_hud_print_text_interpolated" ],
     "src/game/interaction.h":                   [ "process_interaction", "_handle_" ],
     "src/game/sound_init.h":                    [ "_loop_", "thread4_", "set_sound_mode" ],
     "src/pc/network/network_utils.h":           [ "network_get_player_text_color[^_]" ],
@@ -142,7 +142,7 @@ override_disallowed_functions = {
     "src/engine/behavior_script.h":             [ "stub_behavior_script_2", "cur_obj_update" ],
     "src/pc/mods/mod_storage.h":                [ "mod_storage_shutdown" ],
     "src/pc/mods/mod_fs.h":                     [ "mod_fs_read_file_from_uri", "mod_fs_shutdown" ],
-    "src/pc/utils/misc.h":                      [ "str_.*", "file_get_line", "delta_interpolate_(normal|rgba|mtx)", "detect_and_skip_mtx_interpolation", "precise_delay_f64" ],
+    "src/pc/utils/misc.h":                      [ "str_.*", "file_get_line", "delta_interpolate_(normal|rgba|mtx)", "detect_and_skip_mtx_interpolation", "precise_delay_f64", "can_update_game", "update_game" ],
     "src/engine/lighting_engine.h":             [ "le_calculate_vertex_lighting", "le_clear", "le_shutdown" ],
 }
 
@@ -234,6 +234,8 @@ manual_index_documentation = """
    - [cast_graph_node](#cast_graph_node)
    - [get_uncolored_string](#get_uncolored_string)
    - [gfx_set_command](#gfx_set_command)
+   - [djui_hud_print_text](#djui_hud_print_text)
+   - [djui_hud_print_text_interpolated](#djui_hud_print_text_interpolated)
 
 <br />
 
@@ -727,6 +729,64 @@ N/A
 
 <br />
 
+## [djui_hud_print_text](#djui_hud_print_text)
+
+### Description
+Prints DJUI HUD text onto the screen
+
+### Lua Example
+`djui_hud_print_text(message, x, y, scaleX, scaleY)`
+
+### Parameters
+| Field | Type |
+| ----- | ---- |
+| message | `string` |
+| x | `number` |
+| y | `number` |
+| scaleX | `number` |
+| scaleY | `number` |
+
+### Returns
+- None
+
+### C Prototype
+`void djui_hud_print_text(const char* message, f32 x, f32 y, f32 scaleX, f32 scaleY);`
+
+[:arrow_up_small:](#)
+
+<br />
+
+## [djui_hud_print_text_interpolated](#djui_hud_print_text_interpolated)
+
+### Description
+Prints interpolated DJUI HUD text onto the screen
+
+### Lua Example
+`djui_hud_print_text_interpolated(message, prevX, prevY, prevScaleX, prevScaleY, x, y, scaleX, scaleY)`
+
+### Parameters
+| Field | Type |
+| ----- | ---- |
+| message | `string` |
+| prevX | `number` |
+| prevY | `number` |
+| prevScaleX | `number` |
+| prevScaleY | `number` |
+| x | `number` |
+| y | `number` |
+| scaleX | `number` |
+| scaleY | `number` |
+
+### Returns
+- None
+
+### C Prototype
+`void djui_hud_print_text_interpolated(const char* message, f32 prevX, f32 prevY, f32 prevScaleX, f32 prevScaleY, f32 x, f32 y, f32 scaleX, f32 scaleY);`
+
+[:arrow_up_small:](#)
+
+<br />
+
 """
 
 ############################################################################
@@ -1016,7 +1076,7 @@ def build_function(function, do_extern):
     else:
         global total_functions
         total_functions += 1
-        if function['description'] != "":
+        if function['description'][0] != "":
             global total_doc_functions
             total_doc_functions += 1
         elif verbose:
@@ -1152,7 +1212,7 @@ def process_functions(fname, file_str, extracted_descriptions):
             rejects += line + '\n'
             continue
         line = line.strip()
-        description = extracted_descriptions.get(line, "")
+        description = extracted_descriptions.get(line, [""])
         fn = process_function(fname, line, description)
         if fn == None:
             continue
@@ -1294,14 +1354,15 @@ def doc_function(fname, function):
     fid = function['identifier']
     s = '\n## [%s](#%s)\n' % (fid, fid)
 
-    description = function.get('description', "")
+    description = function.get('description', [""])
 
     rtype, rlink = translate_type_to_lua(function['type'])
     param_str = ', '.join([x['identifier'] for x in function['params'] if 'RET' not in x])
 
-    if description != "":
+    if description[0] != "":
         s += '\n### Description\n'
-        s +=  f'{description}\n'
+        for line in description:
+            s +=  f'{line}\n'
 
     s += "\n### Lua Example\n"
     rvalues = []
@@ -1450,7 +1511,7 @@ def def_function(fname, function):
         rid = param['identifier']
         rtypes.append((rtype, rid))
 
-    if function['description'].startswith("[DEPRECATED"):
+    if function['description'][0].startswith("[DEPRECATED"):
         s += "--- @deprecated\n"
 
     for param in fparams:
@@ -1472,8 +1533,9 @@ def def_function(fname, function):
         if rtype != "nil":
             s += ('--- @return %s' % rtype) + (' %s' % rid if rid else '') + '\n'
 
-    if function['description'] != "":
-        s += "--- %s\n" % (function['description'])
+    if function['description'][0] != "":
+        for n, line in enumerate(function['description']):
+            s += "--- %s%s\n" % (line, "<br>" if n != len(function['description']) - 1 else "")
     s += "function %s(%s)\n    -- ...\nend\n\n" % (fid, param_str)
 
     return s

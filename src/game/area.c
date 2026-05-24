@@ -504,6 +504,9 @@ void render_game(void) {
             }
         }
     } else {
+        // this will get drawn over anyways
+        smlua_call_event_hooks(HOOK_ON_HUD_RENDER_BEHIND, djui_reset_hud_params);
+
         render_text_labels();
         if (gViewportClip != NULL) {
             clear_viewport(gViewportClip, gWarpTransFBSetColor);

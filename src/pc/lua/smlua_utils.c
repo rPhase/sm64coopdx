@@ -88,6 +88,7 @@ bool smlua_to_boolean(lua_State* L, int index) {
         gSmLuaConvertSuccess = false;
         return 0;
     }
+    gSmLuaConvertSuccess = true;
     return lua_toboolean(L, index) ? true : false;
 }
 
@@ -869,7 +870,7 @@ void smlua_logline(void) {
     }
 }
 
-void smlua_free(void *ptr, u16 lot) {
+static void smlua_cobject_invalidate_internal(void *ptr, u16 lot) {
     if (ptr && gLuaState) {
         lua_State *L = gLuaState;
         LUA_STACK_CHECK_BEGIN(L);
@@ -890,5 +891,13 @@ void smlua_free(void *ptr, u16 lot) {
         lua_pop(L, 1);
         LUA_STACK_CHECK_END(L);
     }
+}
+
+void smlua_free(void *ptr, u16 lot) {
+    smlua_cobject_invalidate_internal(ptr, lot);
     free(ptr);
+}
+
+void smlua_cobject_invalidate(void *ptr, u16 lot) {
+    smlua_cobject_invalidate_internal(ptr, lot);
 }

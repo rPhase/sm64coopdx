@@ -1,6 +1,5 @@
 #include "djui.h"
 #include "djui_panel.h"
-#include "djui_flow_layout.h"
 #include "pc/controller/controller_mouse.h"
 #include "pc/gfx/gfx_window_manager_api.h"
 #include "pc/pc_main.h"
@@ -30,11 +29,11 @@ void djui_cursor_set_visible(bool visible) {
         djui_base_set_visible(&sMouseCursor->base, visible);
     }
 
-    if (wm_api) {
+    if (gWindowApi) {
         if (configWindow.fullscreen) {
-            wm_api->set_cursor_visible(false);
+            gWindowApi->set_cursor_visible(false);
         } else {
-            wm_api->set_cursor_visible(!visible);
+            gWindowApi->set_cursor_visible(!visible);
         }
     }
     sSavedMouseX = mouse_window_x;
@@ -119,31 +118,13 @@ void djui_cursor_move(s8 xDir, s8 yDir) {
     if (pick != NULL) {
         sCursorMouseControlled = false;
         djui_cursor_input_controlled_center(pick);
-
-        // auto-scroll scrollable flow layout to show the picked element
-        if (gDjuiFlowLayoutScrollRender) {
-            struct DjuiBase* parent = pick->parent;
-            while (parent) {
-                if (parent->render == gDjuiFlowLayoutScrollRender) {
-                    struct DjuiFlowLayout* layout = (struct DjuiFlowLayout*)parent;
-                    f32 targetTop = pick->elem.y;
-                    f32 targetBot = pick->elem.y + pick->elem.height;
-                    f32 visTop = parent->clip.y;
-                    f32 visBot = parent->clip.y + parent->clip.height;
-                    if (targetTop < visTop) { layout->scrollY -= (visTop - targetTop); }
-                    else if (targetBot > visBot) { layout->scrollY += (targetBot - visBot); }
-                    break;
-                }
-                parent = parent->parent;
-            }
-        }
     }
 }
 
 static void djui_cursor_update_position(void) {
     sPrevCursorX = gCursorX;
     sPrevCursorY = gCursorY;
-#if defined(CAPI_SDL2) || defined(CAPI_SDL1)
+
     if (djui_interactable_is_binding()) { return; }
     if (sMouseCursor == NULL) { return; }
     if (!djui_panel_is_active()) { return; }
@@ -182,7 +163,6 @@ static void djui_cursor_update_position(void) {
     } else {
         sMouseCursor->textureInfo.texture = gd_texture_hand_open;
     }
-#endif
 }
 
 static void djui_cursor_render_cursor(void) {
