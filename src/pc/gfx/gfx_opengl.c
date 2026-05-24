@@ -542,10 +542,12 @@ static struct ShaderProgram *gfx_opengl_create_and_load_new_shader(struct ColorC
         append_line(fs_buf, &fs_len, "if (uShaderFlags[6] == 1) {");
 #ifdef USE_GLES
         append_line(fs_buf, &fs_len, "float levels = max(1.0, uShaderFlagValues[6]);");
+        append_line(fs_buf, &fs_len, "vec3 poster = floor(texel.rgb * vec3(levels));");
+        append_line(fs_buf, &fs_len, "texel.rgb = poster / vec3(levels);");
 #else
         append_line(fs_buf, &fs_len, "int levels = int(max(1.0, uShaderFlagValues[6]));");
-#endif
         append_line(fs_buf, &fs_len, "texel.rgb = floor(texel.rgb * levels) / levels;");
+#endif
         append_line(fs_buf, &fs_len, "}");
 
         // scan lines
@@ -607,7 +609,11 @@ static struct ShaderProgram *gfx_opengl_create_and_load_new_shader(struct ColorC
         fprintf(stderr, "Vertex shader compilation failed\n");
         glGetShaderInfoLog(vertex_shader, max_length, &max_length, &error_log[0]);
         fprintf(stderr, "%s\n", &error_log[0]);
+#ifdef __ANDROID__
+        sys_fatal(error_log);
+#else
         sys_fatal("vertex shader compilation failed (see terminal)");
+#endif
     }
 
     GLuint fragment_shader = glCreateShader(GL_FRAGMENT_SHADER);
@@ -621,7 +627,11 @@ static struct ShaderProgram *gfx_opengl_create_and_load_new_shader(struct ColorC
         fprintf(stderr, "Fragment shader compilation failed\n");
         glGetShaderInfoLog(fragment_shader, max_length, &max_length, &error_log[0]);
         fprintf(stderr, "%s\n", &error_log[0]);
+#ifdef __ANDROID__
+        sys_fatal(error_log);
+#else
         sys_fatal("fragment shader compilation failed (see terminal)");
+#endif
     }
 
     GLuint shader_program = glCreateProgram();
