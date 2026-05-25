@@ -105,28 +105,32 @@ static inline s32 clamp_s32(s32 v, s32 min, s32 max) {
 struct Position get_pos(ConfigControlElement *config) {
     struct Position ret;
 
-    if (config->anchor == CONTROL_ELEMENT_HIDDEN) {
-        if (gInTouchConfig) {
+    switch (config->anchor) {
+        case CONTROL_ELEMENT_LEFT:
+            ret.x = GFX_DIMENSIONS_RECT_FROM_LEFT_EDGE(config->x << 2);
+            ret.y = config->y;
+            break;
+
+        case CONTROL_ELEMENT_RIGHT:
+            ret.x = GFX_DIMENSIONS_RECT_FROM_RIGHT_EDGE(config->x << 2);
+            ret.y = config->y;
+            break;
+
+        case CONTROL_ELEMENT_CENTER:
             ret.x = config->x;
             ret.y = config->y;
-        } else {
-            ret.x = HIDE_POS;
-            ret.y = HIDE_POS;
-        }
-    } else {
-        switch (config->anchor) {
-            case CONTROL_ELEMENT_LEFT:
-                ret.x = GFX_DIMENSIONS_RECT_FROM_LEFT_EDGE(config->x << 2);
-                break;
-            case CONTROL_ELEMENT_RIGHT:
-                ret.x = GFX_DIMENSIONS_RECT_FROM_RIGHT_EDGE(config->x << 2);
-                break;
-            case CONTROL_ELEMENT_CENTER:
-            default:
-                ret.x = config->x;
-                break;
-        }
-        ret.y = config->y;
+            break;
+
+        case CONTROL_ELEMENT_HIDDEN:
+        default:
+            if (gInTouchConfig) {
+                ret.x = SCREEN_WIDTH_API / 2;
+                ret.y = SCREEN_HEIGHT_API / 2;
+            } else {
+                ret.x = HIDE_POS;
+                ret.y = HIDE_POS;
+            }
+            break;
     }
 
     if (configSnapTouch) {
@@ -160,6 +164,9 @@ void move_touch_element(struct TouchEvent *event, enum ConfigControlElementIndex
     s32 y_raw = CORRECT_TOUCH_Y(event->y);
 
     s32 radius;
+    s32 x;
+    enum ConfigControlElementAnchor anchor;
+
     s32 scale = 1 + config->size;
 
     if (controlElements[i].type == Joystick) {
@@ -168,25 +175,20 @@ void move_touch_element(struct TouchEvent *event, enum ConfigControlElementIndex
         radius = 16 << scale;
     }
 
-    x_raw = clamp_s32(x_raw, radius, SCREEN_WIDTH_API - radius);
-    y_raw = clamp_s32(y_raw, radius, SCREEN_HEIGHT_API - radius);
-
-    config->y = y_raw;
-
-    switch (config->anchor) {
-        case CONTROL_ELEMENT_LEFT:
-            config->x = (x_raw - RECT_FROM_LEFT_EDGE(0)) >> 2;
-            break;
-
-        case CONTROL_ELEMENT_RIGHT:
-            config->x = (RECT_FROM_RIGHT_EDGE(0) - x_raw) >> 2;
-            break;
-
-        case CONTROL_ELEMENT_CENTER:
-        default:
-            config->x = x_raw;
-            break;
+    if (x_raw < (SCREEN_WIDTH_API / 2) - 30) {
+        x = -GFX_DIMENSIONS_RECT_FROM_LEFT_EDGE(-(x_raw >> 2));
+        anchor = CONTROL_ELEMENT_LEFT;
+    } else if (x_raw > (SCREEN_WIDTH_API / 2) + 30) {
+        x = GFX_DIMENSIONS_RECT_FROM_RIGHT_EDGE(x_raw >> 2);
+        anchor = CONTROL_ELEMENT_RIGHT;
+    } else {
+        x = SCREEN_WIDTH_API / 2;
+        anchor = CONTROL_ELEMENT_CENTER;
     }
+
+    config->x = x;
+    config->y = y_raw;
+    config->anchor = anchor;
 }
 
 void touch_down(struct TouchEvent* event) {
