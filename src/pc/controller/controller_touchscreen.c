@@ -85,6 +85,23 @@ static struct ControlElement controlElements[TOUCH_COUNT] = {
 
 static u32 controlElementsLength = sizeof(controlElements)/sizeof(struct ControlElement);
 
+static inline s32 int_log2(s32 v) {
+    s32 r = 0;
+
+    while (v > 1) {
+        v >>= 1;
+        r++;
+    }
+
+    return r;
+}
+
+static inline s32 clamp_s32(s32 v, s32 min, s32 max) {
+    if (v < min) return min;
+    if (v > max) return max;
+    return v;
+}
+
 struct Position get_pos(ConfigControlElement *config) {
     struct Position ret;
 
@@ -137,19 +154,33 @@ Colors get_color(ConfigControlElement *config) {
 }
 
 void move_touch_element(struct TouchEvent *event, enum ConfigControlElementIndex i) {
-    s32 x_raw = CORRECT_TOUCH_X(event->x);
-    s32 y = CORRECT_TOUCH_Y(event->y);
     ConfigControlElement *config = &configControlElements[i];
 
-    config->y = y;
+    s32 x_raw = CORRECT_TOUCH_X(event->x);
+    s32 y_raw = CORRECT_TOUCH_Y(event->y);
+
+    s32 radius;
+
+    if (controlElements[i].type == Joystick) {
+        radius = (32 << (1 + config->size));
+    } else {
+        radius = (16 << (1 + config->size));
+    }
+
+    x_raw = clamp_s32(x_raw, radius, SCREEN_WIDTH - radius);
+    y_raw = clamp_s32(y_raw, radius, SCREEN_HEIGHT - radius);
+
+    config->y = y_raw;
 
     switch (config->anchor) {
         case CONTROL_ELEMENT_LEFT:
             config->x = (x_raw - RECT_FROM_LEFT_EDGE(0)) >> 2;
             break;
+
         case CONTROL_ELEMENT_RIGHT:
             config->x = (RECT_FROM_RIGHT_EDGE(0) - x_raw) >> 2;
             break;
+
         case CONTROL_ELEMENT_CENTER:
         default:
             config->x = x_raw;
@@ -320,7 +351,7 @@ static void render_texture(const Texture *texture, s32 x, s32 y, u32 w, u32 h, s
 
     gDPSetTile(gDisplayListHead++, G_IM_FMT_RGBA, G_IM_SIZ_16b, 0, 0, G_TX_LOADTILE, 0, G_TX_WRAP | G_TX_NOMIRROR, 0, G_TX_NOLOD, G_TX_WRAP | G_TX_NOMIRROR, 0, G_TX_NOLOD);
     gDPLoadBlock(gDisplayListHead++, G_TX_LOADTILE, 0, 0, w * h - 1, CALC_DXT(w, G_IM_SIZ_16b_BYTES));
-    gDPSetTile(gDisplayListHead++, G_IM_FMT_RGBA, G_IM_SIZ_16b, w / 4, 0, G_TX_RENDERTILE, 0, G_TX_CLAMP | G_TX_NOMIRROR, log2(w), G_TX_NOLOD, G_TX_CLAMP | G_TX_NOMIRROR, log2(h), G_TX_NOLOD);
+    gDPSetTile(gDisplayListHead++, G_IM_FMT_RGBA, G_IM_SIZ_16b, w / 4, 0, G_TX_RENDERTILE, 0, G_TX_CLAMP | G_TX_NOMIRROR, int_log2(w), G_TX_NOLOD, G_TX_CLAMP | G_TX_NOMIRROR, int_log2(h), G_TX_NOLOD);
     gDPSetTileSize(gDisplayListHead++, 0, 0, 0, (w - 1) << G_TEXTURE_IMAGE_FRAC, (w - 1) << G_TEXTURE_IMAGE_FRAC);
 
     gDPSetEnvColor(gDisplayListHead++, r, g, b, a);

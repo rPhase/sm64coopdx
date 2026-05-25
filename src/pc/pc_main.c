@@ -609,9 +609,11 @@ int main(int argc, char *argv[]) {
 
     show_update_popup();
 
+#ifndef __ANDROID__
     if (can_update_game()) {
         djui_open_update_panel();
     }
+#endif
 
     // initialize network
     if (gCLIOpts.network == NT_CLIENT) {

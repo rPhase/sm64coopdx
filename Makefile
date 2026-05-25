@@ -141,9 +141,6 @@ endif
 
 ifeq ($(TARGET_ANDROID),1)
   RENDER_API := GL
-  WINDOW_API := SDL2
-  AUDIO_API := SDL2
-  CONTROLLER_API := SDL2
   TOUCH_CONTROLS := 1
   DISCORD_SDK := 0
   HANDHELD := 1
@@ -1058,13 +1055,12 @@ ifeq ($(DOCKERBUILD),1)
   CFLAGS += -DDOCKERBUILD
 endif
 
-ifeq ($(WINDOW_API),SDL2)
-  # Check for SDL2 touch controls
-  ifeq ($(TOUCH_CONTROLS),1)
-    CC_CHECK_CFLAGS += -DTOUCH_CONTROLS
-    CFLAGS += -DTOUCH_CONTROLS
-  endif
+# Check for SDL2 touch controls
+ifeq ($(TOUCH_CONTROLS),1)
+  CC_CHECK_CFLAGS += -DTOUCH_CONTROLS
+  CFLAGS += -DTOUCH_CONTROLS
 endif
+
 
 # Check for Discord SDK option
 ifeq ($(DISCORD_SDK),1)
