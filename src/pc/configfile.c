@@ -814,10 +814,10 @@ static void configfile_load_internal(const char *filename, bool* error) {
                             sscanf(tokens[2], "%04x", &option->touchValues->y);
                             sscanf(tokens[3], "%04x", &option->touchValues->size);
 
-                            sscanf(tokens[5], "%02x", &option->touchValues->r);
-                            sscanf(tokens[6], "%02x", &option->touchValues->g);
-                            sscanf(tokens[7], "%02x", &option->touchValues->b);
-                            sscanf(tokens[8], "%02x", &option->touchValues->a);
+                            sscanf(tokens[4], "%02x", &option->touchValues->r);
+                            sscanf(tokens[5], "%02x", &option->touchValues->g);
+                            sscanf(tokens[6], "%02x", &option->touchValues->b);
+                            sscanf(tokens[7], "%02x", &option->touchValues->a);
                             break;
 #endif
                         case CONFIG_TYPE_FLOAT:

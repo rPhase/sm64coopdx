@@ -96,12 +96,6 @@ static inline s32 int_log2(s32 v) {
     return r;
 }
 
-static inline s32 clamp_s32(s32 v, s32 min, s32 max) {
-    if (v < min) return min;
-    if (v > max) return max;
-    return v;
-}
-
 struct Position get_pos(ConfigControlElement *config) {
     struct Position ret;
 
@@ -117,7 +111,7 @@ struct Position get_pos(ConfigControlElement *config) {
             break;
 
         case CONTROL_ELEMENT_CENTER:
-            ret.x = config->x;
+            ret.x = SCREEN_WIDTH_API / 2;
             ret.y = config->y;
             break;
 
@@ -163,17 +157,8 @@ void move_touch_element(struct TouchEvent *event, enum ConfigControlElementIndex
     s32 x_raw = CORRECT_TOUCH_X(event->x);
     s32 y_raw = CORRECT_TOUCH_Y(event->y);
 
-    s32 radius;
     s32 x;
     enum ConfigControlElementAnchor anchor;
-
-    s32 scale = 1 + config->size;
-
-    if (controlElements[i].type == Joystick) {
-        radius = 32 << scale;
-    } else {
-        radius = 16 << scale;
-    }
 
     if (x_raw < (SCREEN_WIDTH_API / 2) - 30) {
         x = -GFX_DIMENSIONS_RECT_FROM_LEFT_EDGE(-(x_raw >> 2));
