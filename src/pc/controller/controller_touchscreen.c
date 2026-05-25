@@ -230,9 +230,8 @@ void touch_motion(struct TouchEvent* event) {
                 if (controlElements[i].touchID == event->touchID) {
                     s32 x, y;
                     switch (controlElements[i].type) {
-                        case Joystick: {
-                            s32 joySize = size;
-                            if (configPhantomTouch && !TRIGGER_DETECT(joySize * 6)) {
+                        case Joystick:
+                            if (configPhantomTouch && !TRIGGER_DETECT(size * 6)) {
                                 controlElements[i].joyX = 0;
                                 controlElements[i].joyY = 0;
                                 controlElements[i].touchID = 0;
@@ -240,19 +239,17 @@ void touch_motion(struct TouchEvent* event) {
                             }
                             x = CORRECT_TOUCH_X(event->x) - pos.x;
                             y = CORRECT_TOUCH_Y(event->y) - pos.y;
-                            if (joySize > 100) joySize += 50;
-                            if (pos.x + joySize / 2 < CORRECT_TOUCH_X(event->x))
-                                x = joySize / 2;
-                            if (pos.x - joySize / 2 > CORRECT_TOUCH_X(event->x))
-                                x = - joySize / 2;
-                            if (pos.y + joySize / 2 < CORRECT_TOUCH_Y(event->y))
-                                y = joySize / 2;
-                            if (pos.y - joySize / 2 > CORRECT_TOUCH_Y(event->y))
-                                y = - joySize / 2;
+                            if (pos.x + size / 2 < CORRECT_TOUCH_X(event->x))
+                                x = size / 2;
+                            if (pos.x - size / 2 > CORRECT_TOUCH_X(event->x))
+                                x = - size / 2;
+                            if (pos.y + size / 2 < CORRECT_TOUCH_Y(event->y))
+                                y = size / 2;
+                            if (pos.y - size / 2 > CORRECT_TOUCH_Y(event->y))
+                                y = - size / 2;
                             controlElements[i].joyX = x;
                             controlElements[i].joyY = y;
                             break;
-                        }
                         case Mouse:
                             if (configPhantomTouch && !TRIGGER_DETECT(size)) {
                                 touch_x = before_x = 0;
