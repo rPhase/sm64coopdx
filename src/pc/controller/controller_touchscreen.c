@@ -116,10 +116,10 @@ struct Position get_pos(ConfigControlElement *config) {
     } else {
         switch (config->anchor) {
             case CONTROL_ELEMENT_LEFT:
-                ret.x = RECT_FROM_LEFT_EDGE(config->x << 2);
+                ret.x = GFX_DIMENSIONS_RECT_FROM_LEFT_EDGE(config->x << 2);
                 break;
             case CONTROL_ELEMENT_RIGHT:
-                ret.x = RECT_FROM_RIGHT_EDGE(config->x << 2);
+                ret.x = GFX_DIMENSIONS_RECT_FROM_RIGHT_EDGE(config->x << 2);
                 break;
             case CONTROL_ELEMENT_CENTER:
             default:
@@ -160,15 +160,16 @@ void move_touch_element(struct TouchEvent *event, enum ConfigControlElementIndex
     s32 y_raw = CORRECT_TOUCH_Y(event->y);
 
     s32 radius;
+    s32 scale = 1 + config->size;
 
     if (controlElements[i].type == Joystick) {
-        radius = (32 << (1 + config->size));
+        radius = 32 << scale;
     } else {
-        radius = (16 << (1 + config->size));
+        radius = 16 << scale;
     }
 
-    x_raw = clamp_s32(x_raw, radius, SCREEN_WIDTH - radius);
-    y_raw = clamp_s32(y_raw, radius, SCREEN_HEIGHT - radius);
+    x_raw = clamp_s32(x_raw, radius, SCREEN_WIDTH_API - radius);
+    y_raw = clamp_s32(y_raw, radius, SCREEN_HEIGHT_API - radius);
 
     config->y = y_raw;
 
