@@ -342,11 +342,13 @@ static void render_texture(const Texture *texture, s32 x, s32 y, u32 w, u32 h, s
     gDPSetTile(gDisplayListHead++, G_IM_FMT_RGBA, G_IM_SIZ_16b, 0, 0, G_TX_LOADTILE, 0, G_TX_WRAP | G_TX_NOMIRROR, 0, G_TX_NOLOD, G_TX_WRAP | G_TX_NOMIRROR, 0, G_TX_NOLOD);
     gDPLoadBlock(gDisplayListHead++, G_TX_LOADTILE, 0, 0, w * h - 1, CALC_DXT(w, G_IM_SIZ_16b_BYTES));
     gDPSetTile(gDisplayListHead++, G_IM_FMT_RGBA, G_IM_SIZ_16b, w / 4, 0, G_TX_RENDERTILE, 0, G_TX_CLAMP | G_TX_NOMIRROR, int_log2(w), G_TX_NOLOD, G_TX_CLAMP | G_TX_NOMIRROR, int_log2(h), G_TX_NOLOD);
-    gDPSetTileSize(gDisplayListHead++, 0, 0, 0, (w - 1) << G_TEXTURE_IMAGE_FRAC, (w - 1) << G_TEXTURE_IMAGE_FRAC);
+    gDPSetTileSize(gDisplayListHead++, 0, 0, 0, (w - 1) << G_TEXTURE_IMAGE_FRAC, (h - 1) << G_TEXTURE_IMAGE_FRAC);
 
     gDPSetEnvColor(gDisplayListHead++, r, g, b, a);
 
-    gSPTextureRectangle(gDisplayListHead++, x - (w << scaling), y - (h << scaling), x + (w << scaling), y + (h << scaling), G_TX_RENDERTILE, 0, 0, 4 << (9 - scaling), 1 << (11 - scaling));
+    s32 half_w = (w << scaling);
+    s32 half_h = (h << scaling);
+    gSPTextureRectangle(gDisplayListHead++, x - half_w, y - half_h, x + half_w, y + half_h, G_TX_RENDERTILE, 0, 0, 4 << (9 - scaling), 1 << (11 - scaling));
 
     gSPTexture(gDisplayListHead++, 0xFFFF, 0xFFFF, 0, G_TX_RENDERTILE, G_OFF);
     gDPSetCombineMode(gDisplayListHead++, G_CC_SHADE, G_CC_SHADE);
