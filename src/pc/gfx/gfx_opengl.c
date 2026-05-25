@@ -22,9 +22,7 @@
 #include <SDL2/SDL.h>
 #ifdef USE_GLES
 #include <SDL2/SDL_opengles2.h>
-#ifdef __ANDROID__
 #include <GLES3/gl3.h>
-#endif
 #else
 #include <SDL2/SDL_opengl.h>
 #endif
@@ -530,7 +528,11 @@ static struct ShaderProgram *gfx_opengl_create_and_load_new_shader(struct ColorC
 
         // exposure
         append_line(fs_buf, &fs_len, "if (uShaderFlags[4] == 1) {");
+#ifdef USE_GLES
+        append_line(fs_buf, &fs_len, "texel.rgb = texel.rgb + (uShaderFlagValues[4] - 2.0) * texel.rgb + texel.rgb;");
+#else
         append_line(fs_buf, &fs_len, "texel.rgb = texel.rgb + (uShaderFlagValues[4] - 2) * texel.rgb + texel.rgb;");
+#endif
         append_line(fs_buf, &fs_len, "}");
 
         // dithering
