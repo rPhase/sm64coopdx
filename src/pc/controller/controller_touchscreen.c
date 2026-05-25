@@ -154,20 +154,20 @@ Colors get_color(ConfigControlElement *config) {
 void move_touch_element(struct TouchEvent *event, enum ConfigControlElementIndex i) {
     ConfigControlElement *config = &configControlElements[i];
 
-    s32 x_raw = CORRECT_TOUCH_X(event->x) - 300;
+    s32 x_raw = CORRECT_TOUCH_X(event->x);
     s32 y_raw = CORRECT_TOUCH_Y(event->y);
 
-    s32 x;
+    s32 x = 0;
     enum ConfigControlElementAnchor anchor;
 
     if (x_raw < (SCREEN_WIDTH_API / 2) - 30) {
-        x = -RECT_FROM_LEFT_EDGE(-(x_raw >> 2));
+        x = (x_raw - RECT_FROM_LEFT_EDGE(0)) >> 2;
         anchor = CONTROL_ELEMENT_LEFT;
     } else if (x_raw > (SCREEN_WIDTH_API / 2) + 30) {
-        x = RECT_FROM_RIGHT_EDGE(x_raw >> 2);
+        x = (RECT_FROM_RIGHT_EDGE(0) - x_raw) >> 2;
         anchor = CONTROL_ELEMENT_RIGHT;
     } else {
-        x = SCREEN_WIDTH_API / 2;
+        x = x_raw;
         anchor = CONTROL_ELEMENT_CENTER;
     }
 
