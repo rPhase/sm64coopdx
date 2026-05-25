@@ -162,9 +162,11 @@ void move_touch_element(struct TouchEvent *event, enum ConfigControlElementIndex
 
     if (x_raw < (SCREEN_WIDTH_API / 2) - 30) {
         x = (x_raw - RECT_FROM_LEFT_EDGE(0)) >> 2;
+        if (x < 0) x = 0;
         anchor = CONTROL_ELEMENT_LEFT;
     } else if (x_raw > (SCREEN_WIDTH_API / 2) + 30) {
         x = (RECT_FROM_RIGHT_EDGE(0) - x_raw) >> 2;
+        if (x < 0) x = 0;
         anchor = CONTROL_ELEMENT_RIGHT;
     } else {
         x = x_raw;
