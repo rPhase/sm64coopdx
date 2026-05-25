@@ -154,7 +154,7 @@ Colors get_color(ConfigControlElement *config) {
 void move_touch_element(struct TouchEvent *event, enum ConfigControlElementIndex i) {
     ConfigControlElement *config = &configControlElements[i];
 
-    s32 x_raw = CORRECT_TOUCH_X(event->x);
+    s32 x_raw = CORRECT_TOUCH_X(event->x) - 100;
     s32 y_raw = CORRECT_TOUCH_Y(event->y);
 
     s32 x;
