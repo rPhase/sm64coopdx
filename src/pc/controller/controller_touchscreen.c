@@ -101,12 +101,12 @@ struct Position get_pos(ConfigControlElement *config) {
 
     switch (config->anchor) {
         case CONTROL_ELEMENT_LEFT:
-            ret.x = GFX_DIMENSIONS_RECT_FROM_LEFT_EDGE(config->x << 2);
+            ret.x = RECT_FROM_LEFT_EDGE(config->x << 2);
             ret.y = config->y;
             break;
 
         case CONTROL_ELEMENT_RIGHT:
-            ret.x = GFX_DIMENSIONS_RECT_FROM_RIGHT_EDGE(config->x << 2);
+            ret.x = RECT_FROM_RIGHT_EDGE(config->x << 2);
             ret.y = config->y;
             break;
 
@@ -161,10 +161,10 @@ void move_touch_element(struct TouchEvent *event, enum ConfigControlElementIndex
     enum ConfigControlElementAnchor anchor;
 
     if (x_raw < (SCREEN_WIDTH_API / 2) - 30) {
-        x = -GFX_DIMENSIONS_RECT_FROM_LEFT_EDGE(-(x_raw >> 2));
+        x = -RECT_FROM_LEFT_EDGE(-(x_raw >> 2));
         anchor = CONTROL_ELEMENT_LEFT;
     } else if (x_raw > (SCREEN_WIDTH_API / 2) + 30) {
-        x = GFX_DIMENSIONS_RECT_FROM_RIGHT_EDGE(x_raw >> 2);
+        x = RECT_FROM_RIGHT_EDGE(x_raw >> 2);
         anchor = CONTROL_ELEMENT_RIGHT;
     } else {
         x = SCREEN_WIDTH_API / 2;
