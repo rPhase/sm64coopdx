@@ -42,10 +42,6 @@ bool mod_storage_clear(void);
 
 void mod_storage_shutdown(void);
 
-#ifdef __ANDROID__
-void key_cache_init(void);
-#endif
-
 #ifdef __cplusplus
 }
 #endif
