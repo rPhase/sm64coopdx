@@ -813,11 +813,15 @@ static void configfile_load_internal(const char *filename, bool* error) {
                             sscanf(tokens[1], "%04x", &option->touchValues->x);
                             sscanf(tokens[2], "%04x", &option->touchValues->y);
                             sscanf(tokens[3], "%04x", &option->touchValues->size);
-
-                            sscanf(tokens[4], "%02x", &option->touchValues->r);
-                            sscanf(tokens[5], "%02x", &option->touchValues->g);
-                            sscanf(tokens[6], "%02x", &option->touchValues->b);
-                            sscanf(tokens[7], "%02x", &option->touchValues->a);
+                            if (strcmp(tokens[4], "true") == 0)
+                                option->touchValues->hidden = true;
+                            else
+                                option->touchValues->hidden = false;
+                            break;
+                            sscanf(tokens[5], "%02x", &option->touchValues->r);
+                            sscanf(tokens[6], "%02x", &option->touchValues->g);
+                            sscanf(tokens[7], "%02x", &option->touchValues->b);
+                            sscanf(tokens[8], "%02x", &option->touchValues->a);
                             break;
 #endif
                         case CONFIG_TYPE_FLOAT:
@@ -941,7 +945,7 @@ static void configfile_save_option(FILE *file, const struct ConfigOption *option
             break;
 #ifdef TOUCH_CONTROLS
         case CONFIG_TYPE_TOUCH:
-            fprintf(file, "%s %04x %04x %04x %02x %02x %02x %02x\n", option->name, option->touchValues->x, option->touchValues->y, option->touchValues->size, option->touchValues->r, option->touchValues->g, option->touchValues->b, option->touchValues->a);
+            fprintf(file, "%s %04x %04x %04x %s %02x %02x %02x %02x\n", option->name, option->touchValues->x, option->touchValues->y, option->touchValues->size, option->touchValues->hidden ? "true" : "false", option->touchValues->r, option->touchValues->g, option->touchValues->b, option->touchValues->a);
             break;
 #endif
         case CONFIG_TYPE_STRING:
