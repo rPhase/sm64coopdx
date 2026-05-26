@@ -358,7 +358,10 @@ static struct ShaderProgram *gfx_opengl_create_and_load_new_shader(struct ColorC
         }
     }
 
-    // 3-point texture filtering macro
+    // 3 point texture filtering
+    // Original author: ArthurCarvalho
+    // Modified GLSL implementation by twinaphex, mupen64plus-libretro project.
+
 #ifdef USE_GLES
         append_line(fs_buf, &fs_len, "#define TEX_OFFSET(off) texture(tex, texCoord - (off)/texSize)");
 #else
@@ -440,6 +443,7 @@ static struct ShaderProgram *gfx_opengl_create_and_load_new_shader(struct ColorC
 
     if ((opt_alpha && opt_dither) || ccf.do_noise) {
         append_line(fs_buf, &fs_len, "uniform float uFrameCount;");
+
         append_line(fs_buf, &fs_len, "float random(in vec3 value) {");
         append_line(fs_buf, &fs_len, "    float random = dot(sin(value), vec3(12.9898, 78.233, 37.719));");
         append_line(fs_buf, &fs_len, "    return fract(sin(random) * 143758.5453);");
@@ -456,6 +460,7 @@ static struct ShaderProgram *gfx_opengl_create_and_load_new_shader(struct ColorC
     }
 
     append_line(fs_buf, &fs_len, "uniform int uFilter;");
+
     append_line(fs_buf, &fs_len, "void main() {");
 
     if ((opt_alpha && opt_dither) || ccf.do_noise) {
@@ -542,7 +547,11 @@ static struct ShaderProgram *gfx_opengl_create_and_load_new_shader(struct ColorC
 
         // posterization
         append_line(fs_buf, &fs_len, "if (uShaderFlags[6] == 1) {");
-        append_line(fs_buf, &fs_len, "float levels = floor(max(1.0, uShaderFlagValues[6]));");
+#ifdef USE_GLES
+        append_line(fs_buf, &fs_len, "float levels = max(1.0, uShaderFlagValues[6]);");
+#else
+        append_line(fs_buf, &fs_len, "int levels = int(max(1.0, uShaderFlagValues[6]));");
+#endif
         append_line(fs_buf, &fs_len, "texel.rgb = floor(texel.rgb * levels) / levels;");
         append_line(fs_buf, &fs_len, "}");
 
@@ -878,7 +887,7 @@ static void gfx_opengl_init(void) {
 
     glBindBuffer(GL_ARRAY_BUFFER, opengl_vbo);
 
-    if (vmajor >= 3) {
+    if (vmajor >= 3 && !is_es) {
         glGenVertexArrays(1, &opengl_vao);
         glBindVertexArray(opengl_vao);
     }

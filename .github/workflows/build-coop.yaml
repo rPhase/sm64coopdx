@@ -230,7 +230,7 @@ jobs:
                 path: ./build/us_pc/sm64coopdx_macOS_Intel.zip
 
     build-android:
-        if: ${{ github.event_name == 'workflow_dispatch' || contains(github.event.head_commit.message, '[build]') }}
+        if: ${{ (github.event_name != 'push' || contains(github.event.head_commit.message, '[build]')) && github.event.pull_request.draft == false }}
         runs-on: ubuntu-22.04
         steps:
             - name: Checkout repository
@@ -245,7 +245,7 @@ jobs:
             - name: Install dependencies
               run: |
                 sudo apt update
-                sudo apt install -y build-essential git python3 libglew-dev libsdl2-dev libz-dev libcurl4-openssl-dev g++ zip unzip wget apksigner x11-repo sdl2
+                sudo apt install -y build-essential git python3 libglew-dev libsdl2-dev libz-dev libcurl4-openssl-dev g++ zip unzip wget apksigner
                 mkdir -p $HOME/android-sdk/cmdline-tools
                 cd $HOME/android-sdk/cmdline-tools
                 wget https://dl.google.com/android/repository/commandlinetools-linux-9477386_latest.zip -O tools.zip
