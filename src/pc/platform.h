@@ -28,6 +28,8 @@ int sys_strcasecmp(const char *s1, const char *s2);
 // path stuff
 #ifdef TARGET_ANDROID
 const char* get_gamedir(void);
+void open_file_picker(void);
+bool is_file_picker_open(void);
 #endif
 #ifdef _WIN32
 bool sys_windows_short_path_from_wcs(char *destPath, size_t destSize, const wchar_t *wcsLongPath);

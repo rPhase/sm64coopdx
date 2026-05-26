@@ -744,7 +744,7 @@ else
 endif
 
 ifeq ($(TARGET_ANDROID),1)
-  INCLUDE_DIRS += lib/sdl2/include include/android_execinfo
+  INCLUDE_DIRS += lib/sdl2/include include/android_execinfo $(JNI_H_INCLUDE)
 endif
 
 # Configure backend flags

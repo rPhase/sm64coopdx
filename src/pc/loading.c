@@ -188,12 +188,20 @@ void render_rom_setup_screen(void) {
     if (!sLoading) { init_loading_screen(); }
 
 #ifdef TARGET_ANDROID
-    loading_screen_set_segment_text("No rom detected, place Super Mario 64 (U) [!].z64 in com.maniscat2.sm64coopdx or the user folder");
+    loading_screen_set_segment_text("No rom detected, select Super Mario 64 (U) [!].z64 in the file picker");
+    open_file_picker();
+    u32 reopenDelay = 0;
 #else
     loading_screen_set_segment_text("No rom detected, drag & drop Super Mario 64 (U) [!].z64 on to this screen");
 #endif
 
     while (!gRomIsValid) {
         gWindowApi->main_loop(loading_screen_produce_one_frame);
+#ifdef TARGET_ANDROID
+        if (!is_file_picker_open() && ++reopenDelay > 90) {
+            open_file_picker();
+            reopenDelay = 0;
+        }
+#endif
     }
 }

@@ -294,6 +294,9 @@ static void sys_fatal_impl(const char *msg) {
 
 #else
 
+#ifdef __ANDROID__
+#include <jni.h>
+#endif
 #include <SDL2/SDL.h>
 
 #include "platform.h"
@@ -315,6 +318,36 @@ const char *get_gamedir(void) {
     //Android 11 and up
     privileged_manage = SDL_AndroidRequestPermission("android.permission.MANAGE_EXTERNAL_STORAGE");
     return (privileged_write || privileged_manage) ? gamedir_privileged : gamedir_unprivileged;
+}
+
+static bool sFilePickerActive = false;
+
+void open_file_picker(void) {
+    JNIEnv* env = (JNIEnv*)SDL_AndroidGetJNIEnv();
+    jobject activity = (jobject)SDL_AndroidGetActivity();
+
+    jclass cls = (*env)->GetObjectClass(env, activity);
+    jmethodID method = (*env)->GetMethodID(env, cls, "openFilePicker", "()V");
+
+    (*env)->CallVoidMethod(env, activity, method);
+    sFilePickerActive = true;
+}
+
+bool is_file_picker_open(void) {
+    return sFilePickerActive;
+}
+
+#include "rom_checker.h"
+
+JNIEXPORT void JNICALL Java_org_libsdl_app_SDLActivity_nativeFilePicked(JNIEnv* env, jclass cls, jstring jpath) {
+    const char* path = (*env)->GetStringUTFChars(env, jpath, NULL);
+    rom_on_drop_file(path);
+    (*env)->ReleaseStringUTFChars(env, jpath, path);
+    sFilePickerActive = false;
+}
+
+JNIEXPORT void JNICALL Java_org_libsdl_app_SDLActivity_nativeFilePickerCancelled(JNIEnv* env, jclass cls) {
+    sFilePickerActive = false;
 }
 #endif
 
