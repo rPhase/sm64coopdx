@@ -339,57 +339,15 @@ bool is_file_picker_open(void) {
 
 #include "rom_checker.h"
 
-static void native_file_picked(JNIEnv* env, jclass cls, jstring jpath) {
+JNIEXPORT void JNICALL Java_com_maniscat2_sm64coopdx_sm64coopdxActivity_nativeFilePicked(JNIEnv* env, jclass cls, jstring jpath) {
     const char* path = (*env)->GetStringUTFChars(env, jpath, NULL);
     rom_on_drop_file(path);
     (*env)->ReleaseStringUTFChars(env, jpath, path);
     sFilePickerActive = false;
 }
 
-static void native_file_picker_cancelled(JNIEnv* env, jclass cls) {
+JNIEXPORT void JNICALL Java_com_maniscat2_sm64coopdx_sm64coopdxActivity_nativeFilePickerCancelled(JNIEnv* env, jclass cls) {
     sFilePickerActive = false;
-}
-
-JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM* vm, void* reserved) {
-    JNIEnv* env = NULL;
-
-    if ((*vm)->GetEnv(vm, (void**)&env, JNI_VERSION_1_6) != JNI_OK) {
-        return JNI_ERR;
-    }
-
-    jobject activity = SDL_AndroidGetActivity();
-
-    if (!activity) {
-        SDL_Log("Android activity not found");
-        return JNI_ERR;
-    }
-
-    jclass cls = (*env)->GetObjectClass(env, activity);
-
-    if (!cls) {
-        SDL_Log("Object class not found");
-        return JNI_ERR;
-    }
-
-    static const JNINativeMethod methods[] = {
-        {
-            "nativeFilePicked",
-            "(Ljava/lang/String;)V",
-            (void*)native_file_picked
-        },
-        {
-            "nativeFilePickerCancelled",
-            "()V",
-            (void*)native_file_picker_cancelled
-        }
-    };
-
-    if ((*env)->RegisterNatives(env, cls, methods, sizeof(methods) / sizeof(methods[0])) < 0) {
-        SDL_Log("Failed to register native functions");
-        return JNI_ERR;
-    }
-
-    return JNI_VERSION_1_6;
 }
 #endif
 
