@@ -107,29 +107,12 @@ static bool mod_storage_check_inputs(const char *key, const char *value, char *f
 static mINI::INIStructure &mod_storage_read_file(const char *filename) {
     const auto &it = sModStorageFiles.find(filename);
     if (it != sModStorageFiles.end()) {
-        LOG_LUA_LINE("Using cached mod storage: %s", filename); // Temp, remove later
         return it->second;
     }
 
-    LOG_LUA_LINE("Reading mod storage file: %s", filename); // Temp
-
     mINI::INIFile file(filename);
     mINI::INIStructure ini;
-
-    bool success = file.read(ini);
-
-    LOG_LUA_LINE("INI read success: %d", success); // Temp
-    // Temp for testing
-    if (success) {
-        LOG_LUA_LINE("Storage section size: %zu", ini["storage"].size());
-
-        for (const auto &kv : ini["storage"]) {
-            LOG_LUA_LINE("Key: %s = %s",
-                kv.first.c_str(),
-                kv.second.c_str());
-        }
-    }
-
+    file.read(ini);
     sModStorageFiles[filename] = ini;
     return sModStorageFiles[filename];
 }
