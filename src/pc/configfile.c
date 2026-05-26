@@ -158,12 +158,20 @@ bool         configDisableGamepads                = false;
 bool         configUseStandardKeyBindingsChat     = false;
 bool         configSmoothScrolling                = false;
 // free camera settings
+#ifdef __ANDROID__
+bool         configEnableFreeCamera               = true;
+#else
 bool         configEnableFreeCamera               = false;
+#endif
 bool         configFreeCameraAnalog               = false;
 bool         configFreeCameraLCentering           = false;
 bool         configFreeCameraDPadBehavior         = false;
 bool         configFreeCameraHasCollision         = true;
+#ifdef __ANDROID__
+bool         configFreeCameraMouse                = true;
+#else
 bool         configFreeCameraMouse                = false;
+#endif
 unsigned int configFreeCameraXSens                = 50;
 unsigned int configFreeCameraYSens                = 50;
 unsigned int configFreeCameraAggr                 = 0;
