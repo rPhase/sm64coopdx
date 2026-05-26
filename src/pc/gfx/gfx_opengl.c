@@ -358,7 +358,10 @@ static struct ShaderProgram *gfx_opengl_create_and_load_new_shader(struct ColorC
         }
     }
 
-    // 3-point texture filtering macro
+    // 3 point texture filtering
+    // Original author: ArthurCarvalho
+    // Modified GLSL implementation by twinaphex, mupen64plus-libretro project.
+
 #ifdef USE_GLES
         append_line(fs_buf, &fs_len, "#define TEX_OFFSET(off) texture(tex, texCoord - (off)/texSize)");
 #else
@@ -438,58 +441,9 @@ static struct ShaderProgram *gfx_opengl_create_and_load_new_shader(struct ColorC
         append_line(fs_buf, &fs_len, "}");
     }
 
-    if (world_geometry) {
-        append_line(fs_buf, &fs_len, "float dither4x4(vec2 position, float brightness) {");
-        append_line(fs_buf, &fs_len, "    int x = int(mod(position.x, 4.0));");
-        append_line(fs_buf, &fs_len, "    int y = int(mod(position.y, 4.0));");
-        append_line(fs_buf, &fs_len, "    int index = x + y * 4;");
-        append_line(fs_buf, &fs_len, "    float limit = 0.0;");
-        append_line(fs_buf, &fs_len, "    if (x < 8) {");
-        append_line(fs_buf, &fs_len, "        if (index == 0) limit = 0.0625;");
-        append_line(fs_buf, &fs_len, "        if (index == 1) limit = 0.5625;");
-        append_line(fs_buf, &fs_len, "        if (index == 2) limit = 0.1875;");
-        append_line(fs_buf, &fs_len, "        if (index == 3) limit = 0.6875;");
-        append_line(fs_buf, &fs_len, "        if (index == 4) limit = 0.8125;");
-        append_line(fs_buf, &fs_len, "        if (index == 5) limit = 0.3125;");
-        append_line(fs_buf, &fs_len, "        if (index == 6) limit = 0.9375;");
-        append_line(fs_buf, &fs_len, "        if (index == 7) limit = 0.4375;");
-        append_line(fs_buf, &fs_len, "        if (index == 8) limit = 0.25;");
-        append_line(fs_buf, &fs_len, "        if (index == 9) limit = 0.75;");
-        append_line(fs_buf, &fs_len, "        if (index == 10) limit = 0.125;");
-        append_line(fs_buf, &fs_len, "        if (index == 11) limit = 0.625;");
-        append_line(fs_buf, &fs_len, "        if (index == 12) limit = 1.0;");
-        append_line(fs_buf, &fs_len, "        if (index == 13) limit = 0.5;");
-        append_line(fs_buf, &fs_len, "        if (index == 14) limit = 0.875;");
-        append_line(fs_buf, &fs_len, "        if (index == 15) limit = 0.375;");
-        append_line(fs_buf, &fs_len, "    }");
-        append_line(fs_buf, &fs_len, "    return brightness < limit ? 0.0 : 1.0;");
-        append_line(fs_buf, &fs_len, "}");
-    
-        append_line(fs_buf, &fs_len, "vec3 rgb2hsv(vec3 c) {");
-        append_line(fs_buf, &fs_len, "    vec4 K = vec4(0.0, -1.0/3.0, 2.0/3.0, -1.0);");
-        append_line(fs_buf, &fs_len, "    vec4 p = mix(vec4(c.bg, K.wz),");
-        append_line(fs_buf, &fs_len, "                 vec4(c.gb, K.xy),");
-        append_line(fs_buf, &fs_len, "                 step(c.b, c.g));");
-        append_line(fs_buf, &fs_len, "    vec4 q = mix(vec4(p.xyw, c.r),");
-        append_line(fs_buf, &fs_len, "                 vec4(c.r, p.yzx),");
-        append_line(fs_buf, &fs_len, "                 step(p.x, c.r));");
-        append_line(fs_buf, &fs_len, "    float d = q.x - min(q.w, q.y);");
-        append_line(fs_buf, &fs_len, "    float e = 1.0e-10;");
-        append_line(fs_buf, &fs_len, "    return vec3(");
-        append_line(fs_buf, &fs_len, "        abs(q.z + (q.w - q.y) / (6.0 * d + e)), // hue");
-        append_line(fs_buf, &fs_len, "        d / (q.x + e),                          // saturation");
-        append_line(fs_buf, &fs_len, "        q.x                                     // value");
-        append_line(fs_buf, &fs_len, "    );");
-        append_line(fs_buf, &fs_len, "}");
-        append_line(fs_buf, &fs_len, "");
-        append_line(fs_buf, &fs_len, "vec3 hsv2rgb(vec3 c) {");
-        append_line(fs_buf, &fs_len, "    vec3 p = abs(fract(c.xxx + vec3(0.0, 2.0/3.0, 1.0/3.0)) * 6.0 - 3.0);");
-        append_line(fs_buf, &fs_len, "    return c.z * mix(vec3(1.0), clamp(p - 1.0, 0.0, 1.0), c.y);");
-        append_line(fs_buf, &fs_len, "}");
-    }
-
     if ((opt_alpha && opt_dither) || ccf.do_noise) {
         append_line(fs_buf, &fs_len, "uniform float uFrameCount;");
+
         append_line(fs_buf, &fs_len, "float random(in vec3 value) {");
         append_line(fs_buf, &fs_len, "    float random = dot(sin(value), vec3(12.9898, 78.233, 37.719));");
         append_line(fs_buf, &fs_len, "    return fract(sin(random) * 143758.5453);");
@@ -507,7 +461,6 @@ static struct ShaderProgram *gfx_opengl_create_and_load_new_shader(struct ColorC
 
     append_line(fs_buf, &fs_len, "uniform int uFilter;");
 
-    append_line(fs_buf, &fs_len, "uniform int uFilter;");
     append_line(fs_buf, &fs_len, "void main() {");
 
     if ((opt_alpha && opt_dither) || ccf.do_noise) {
@@ -930,7 +883,7 @@ static void gfx_opengl_init(void) {
 
     glBindBuffer(GL_ARRAY_BUFFER, opengl_vbo);
 
-    if (vmajor >= 3) {
+    if (vmajor >= 3 && !is_es) {
         glGenVertexArrays(1, &opengl_vao);
         glBindVertexArray(opengl_vao);
     }
