@@ -46,46 +46,6 @@ static void strdelete(char* string, const char* substr) {
     string[i] = '\0';
 }
 
-#ifdef __ANDROID__
-#define MAX_CACHED_KEYS MAX_KEYS
-
-typedef struct CachedKey {
-    char key[MAX_KEY_VALUE_LENGTH],
-         value[MAX_KEY_VALUE_LENGTH];
-} CachedKey;
-
-static CachedKey sCachedKeys[MAX_CACHED_KEYS];
-
-C_FIELD void key_cache_init(void) {
-    for (u32 i = 0; i < MAX_CACHED_KEYS; i++) {
-        snprintf(sCachedKeys[i].key, MAX_KEY_VALUE_LENGTH, "%s", "");
-        snprintf(sCachedKeys[i].value, MAX_KEY_VALUE_LENGTH, "%s", "");
-    }
-}
-
-char *key_cached(const char *key, const char *value) {
-    for (u32 i = 0; i < MAX_CACHED_KEYS; i++) {
-        if (strncmp(key, sCachedKeys[i].key, MAX_KEY_VALUE_LENGTH) == 0) {
-            if (value) {
-                snprintf(sCachedKeys[i].value, MAX_KEY_VALUE_LENGTH, "%s", value);
-            }
-            return sCachedKeys[i].value;
-        }
-    }
-    return NULL;
-}
-
-void cache_key(const char  *key, const char  *value) {
-    for (u32 i = 0; i < MAX_CACHED_KEYS; i++) {
-        if (strncmp("", sCachedKeys[i].key, MAX_KEY_VALUE_LENGTH) == 0) {
-            snprintf(sCachedKeys[i].key, MAX_KEY_VALUE_LENGTH, "%s", key);
-            snprintf(sCachedKeys[i].value, MAX_KEY_VALUE_LENGTH, "%s", value);
-            return;
-        }
-    }
-}
-#endif
-
 static bool char_valid(const char* buffer, bool isKey) {
     if (buffer[0] == '\0') { return false; }
 
@@ -112,12 +72,6 @@ static bool mod_storage_check_inputs(const char *key, const char *value, char *f
 
     // check active mod
     if (gLuaActiveMod == NULL) { return false; }
-
-#ifdef __ANDROID__
-    if (!key_cached(key, value)) {
-        cache_key(key, value);
-    }
-#endif
 
     // retrieve filename
     mod_storage_get_filename(filename);
@@ -169,14 +123,6 @@ C_FIELD const char* mod_storage_load(const char* key) {
         return NULL;
     }
 
-#ifdef __ANDROID__
-    char *cached_value = NULL;
-    cached_value = key_cached(key, NULL);
-    if (cached_value) {
-        return cached_value;
-    }
-#endif
-
     const mINI::INIStructure &ini = mod_storage_read_file(filename);
     std::string str = ini.get("storage").get(key);
     if (str.empty()) { return NULL; }
@@ -186,9 +132,6 @@ C_FIELD const char* mod_storage_load(const char* key) {
     static char value[MAX_KEY_VALUE_LENGTH];
     snprintf(value, MAX_KEY_VALUE_LENGTH, "%s", str.c_str());
 
-#ifdef __ANDROID__
-    cache_key(key, (char*)value);
-#endif
     return value;
 }
 
