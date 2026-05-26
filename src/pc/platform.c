@@ -339,14 +339,14 @@ bool is_file_picker_open(void) {
 
 #include "rom_checker.h"
 
-JNIEXPORT void JNICALL Java_com_maniscat2_sm64coopdx_sm64coopdxActivity_nativeFilePicked(JNIEnv* env, jclass cls, jstring jpath) {
+JNIEXPORT void JNICALL Java_com_libsdl_app_SDLActivity_nativeFilePicked(JNIEnv* env, jclass cls, jstring jpath) {
     const char* path = (*env)->GetStringUTFChars(env, jpath, NULL);
     rom_on_drop_file(path);
     (*env)->ReleaseStringUTFChars(env, jpath, path);
     sFilePickerActive = false;
 }
 
-JNIEXPORT void JNICALL Java_com_maniscat2_sm64coopdx_sm64coopdxActivity_nativeFilePickerCancelled(JNIEnv* env, jclass cls) {
+JNIEXPORT void JNICALL Java_org_libsdl_app_SDLActivity_nativeFilePickerCancelled(JNIEnv* env, jclass cls) {
     sFilePickerActive = false;
 }
 #endif
