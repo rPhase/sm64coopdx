@@ -813,11 +813,11 @@ static void configfile_load_internal(const char *filename, bool* error) {
                             sscanf(tokens[1], "%04x", &option->touchValues->x);
                             sscanf(tokens[2], "%04x", &option->touchValues->y);
                             sscanf(tokens[3], "%04x", &option->touchValues->size);
-                            if (strcmp(tokens[4], "true") == 0)
+                            if (strcmp(tokens[4], "true") == 0) {
                                 option->touchValues->hidden = true;
-                            else
+                            } else {
                                 option->touchValues->hidden = false;
-                            break;
+                            }
                             sscanf(tokens[5], "%02x", &option->touchValues->r);
                             sscanf(tokens[6], "%02x", &option->touchValues->g);
                             sscanf(tokens[7], "%02x", &option->touchValues->b);
