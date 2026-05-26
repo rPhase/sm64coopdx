@@ -131,7 +131,6 @@ C_FIELD const char* mod_storage_load(const char* key) {
     // this assumes mod_storage_load will only ever be called by Lua
     static char value[MAX_KEY_VALUE_LENGTH];
     snprintf(value, MAX_KEY_VALUE_LENGTH, "%s", str.c_str());
-
     return value;
 }
 
