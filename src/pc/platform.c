@@ -357,10 +357,17 @@ JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM* vm, void* reserved) {
         return JNI_ERR;
     }
 
-    jclass cls = (*env)->FindClass(env, "com/maniscat2/sm64coopdx/sm64coopdxActivity");
+    jobject activity = SDL_AndroidGetActivity();
+
+    if (!activity) {
+        SDL_Log("Android activity not found");
+        return JNI_ERR;
+    }
+
+    jclass cls = (*env)->GetObjectClass(env, activity);
 
     if (!cls) {
-        SDL_Log("Failed to find activity class");
+        SDL_Log("Object class not found");
         return JNI_ERR;
     }
 
@@ -377,13 +384,8 @@ JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM* vm, void* reserved) {
         }
     };
 
-    if ((*env)->RegisterNatives(
-            env,
-            cls,
-            methods,
-            sizeof(methods) / sizeof(methods[0])) < 0)
-    {
-        SDL_Log("RegisterNatives failed");
+    if ((*env)->RegisterNatives(env, cls, methods, sizeof(methods) / sizeof(methods[0])) < 0) {
+        SDL_Log("Failed to register native functions");
         return JNI_ERR;
     }
 
