@@ -33,7 +33,6 @@ enum ConfigControlElementAnchor {
     CONTROL_ELEMENT_LEFT,
     CONTROL_ELEMENT_RIGHT,
     CONTROL_ELEMENT_CENTER,
-    CONTROL_ELEMENT_HIDDEN,
 };
 
 enum ConfigControlElementIndex {
@@ -63,6 +62,7 @@ enum ConfigControlElementIndex {
 
 typedef struct {
     u32 x, y, size;
+    bool hidden;
     enum ConfigControlElementAnchor anchor;
     u32 r, g, b, a;
 } ConfigControlElement;

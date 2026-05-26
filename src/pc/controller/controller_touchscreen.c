@@ -114,17 +114,13 @@ struct Position get_pos(ConfigControlElement *config) {
             ret.x = SCREEN_WIDTH_API / 2;
             ret.y = config->y;
             break;
+    }
 
-        case CONTROL_ELEMENT_HIDDEN:
-        default:
-            if (gInTouchConfig) {
-                ret.x = SCREEN_WIDTH_API / 2;
-                ret.y = SCREEN_HEIGHT_API / 2;
-            } else {
-                ret.x = HIDE_POS;
-                ret.y = HIDE_POS;
-            }
-            break;
+    if (config->hidden) {
+        if (!gInTouchConfig) {
+            ret.x = HIDE_POS;
+            ret.y = HIDE_POS;
+        }
     }
 
     if (configSnapTouch) {
@@ -169,7 +165,7 @@ void move_touch_element(struct TouchEvent *event, enum ConfigControlElementIndex
         if (x < 0) x = 0;
         anchor = CONTROL_ELEMENT_RIGHT;
     } else {
-        x = x_raw;
+        x = SCREEN_WIDTH_API / 2;
         anchor = CONTROL_ELEMENT_CENTER;
     }
 
