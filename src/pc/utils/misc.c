@@ -665,7 +665,7 @@ void open_url(const char* url) {
     launch("open", url);
 
 #elif __ANDROID__ // android
-    android_open_url(url)
+    android_open_url(url);
 
 #endif
 }
