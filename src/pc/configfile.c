@@ -818,7 +818,7 @@ static void configfile_load_internal(const char *filename, bool* error) {
                             break;
 #ifdef TOUCH_CONTROLS
                         case CONFIG_TYPE_TOUCH:
-                            if (numTokens < 7) break;
+                            if (numTokens < 10) break;
                             sscanf(tokens[1], "%04x", &option->touchValues->x);
                             sscanf(tokens[2], "%04x", &option->touchValues->y);
                             sscanf(tokens[3], "%04x", &option->touchValues->size);
