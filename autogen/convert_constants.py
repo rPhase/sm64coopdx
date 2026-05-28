@@ -149,6 +149,7 @@ defined_values = {
     'F3DEX_GBI_2': True,
     'DEVELOPMENT': False,
     '__ANDROID__': False,
+    'TARGET_ANDROID': False,
 }
 
 ############################################################################
