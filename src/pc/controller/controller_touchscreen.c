@@ -85,31 +85,42 @@ static struct ControlElement controlElements[TOUCH_COUNT] = {
 
 static u32 controlElementsLength = sizeof(controlElements)/sizeof(struct ControlElement);
 
+static inline s32 int_log2(s32 v) {
+    s32 r = 0;
+
+    while (v > 1) {
+        v >>= 1;
+        r++;
+    }
+
+    return r;
+}
+
 struct Position get_pos(ConfigControlElement *config) {
     struct Position ret;
 
-    if (config->anchor == CONTROL_ELEMENT_HIDDEN) {
-        if (gInTouchConfig) {
-            ret.x = config->x;
+    switch (config->anchor) {
+        case CONTROL_ELEMENT_LEFT:
+            ret.x = RECT_FROM_LEFT_EDGE(config->x << 2);
             ret.y = config->y;
-        } else {
+            break;
+
+        case CONTROL_ELEMENT_RIGHT:
+            ret.x = RECT_FROM_RIGHT_EDGE(config->x << 2);
+            ret.y = config->y;
+            break;
+
+        case CONTROL_ELEMENT_CENTER:
+            ret.x = SCREEN_WIDTH_API / 2;
+            ret.y = config->y;
+            break;
+    }
+
+    if (config->hidden) {
+        if (!gInTouchConfig) {
             ret.x = HIDE_POS;
             ret.y = HIDE_POS;
         }
-    } else {
-        switch (config->anchor) {
-            case CONTROL_ELEMENT_LEFT:
-                ret.x = RECT_FROM_LEFT_EDGE(config->x << 2);
-                break;
-            case CONTROL_ELEMENT_RIGHT:
-                ret.x = RECT_FROM_RIGHT_EDGE(config->x << 2);
-                break;
-            case CONTROL_ELEMENT_CENTER:
-            default:
-                ret.x = config->x;
-                break;
-        }
-        ret.y = config->y;
     }
 
     if (configSnapTouch) {
@@ -137,24 +148,30 @@ Colors get_color(ConfigControlElement *config) {
 }
 
 void move_touch_element(struct TouchEvent *event, enum ConfigControlElementIndex i) {
-    s32 x_raw = CORRECT_TOUCH_X(event->x);
-    s32 y = CORRECT_TOUCH_Y(event->y);
     ConfigControlElement *config = &configControlElements[i];
 
-    config->y = y;
+    s32 x_raw = CORRECT_TOUCH_X(event->x);
+    s32 y_raw = CORRECT_TOUCH_Y(event->y);
 
-    switch (config->anchor) {
-        case CONTROL_ELEMENT_LEFT:
-            config->x = (x_raw - RECT_FROM_LEFT_EDGE(0)) >> 2;
-            break;
-        case CONTROL_ELEMENT_RIGHT:
-            config->x = (RECT_FROM_RIGHT_EDGE(0) - x_raw) >> 2;
-            break;
-        case CONTROL_ELEMENT_CENTER:
-        default:
-            config->x = x_raw;
-            break;
+    s32 x = 0;
+    enum ConfigControlElementAnchor anchor;
+
+    if (x_raw < (SCREEN_WIDTH_API / 2) - 30) {
+        x = (x_raw - RECT_FROM_LEFT_EDGE(0)) >> 2;
+        if (x < 0) x = 0;
+        anchor = CONTROL_ELEMENT_LEFT;
+    } else if (x_raw > (SCREEN_WIDTH_API / 2) + 30) {
+        x = (RECT_FROM_RIGHT_EDGE(0) - x_raw) >> 2;
+        if (x < 0) x = 0;
+        anchor = CONTROL_ELEMENT_RIGHT;
+    } else {
+        x = SCREEN_WIDTH_API / 2;
+        anchor = CONTROL_ELEMENT_CENTER;
     }
+
+    config->x = x;
+    config->y = y_raw;
+    config->anchor = anchor;
 }
 
 void touch_down(struct TouchEvent* event) {
@@ -320,12 +337,14 @@ static void render_texture(const Texture *texture, s32 x, s32 y, u32 w, u32 h, s
 
     gDPSetTile(gDisplayListHead++, G_IM_FMT_RGBA, G_IM_SIZ_16b, 0, 0, G_TX_LOADTILE, 0, G_TX_WRAP | G_TX_NOMIRROR, 0, G_TX_NOLOD, G_TX_WRAP | G_TX_NOMIRROR, 0, G_TX_NOLOD);
     gDPLoadBlock(gDisplayListHead++, G_TX_LOADTILE, 0, 0, w * h - 1, CALC_DXT(w, G_IM_SIZ_16b_BYTES));
-    gDPSetTile(gDisplayListHead++, G_IM_FMT_RGBA, G_IM_SIZ_16b, w / 4, 0, G_TX_RENDERTILE, 0, G_TX_CLAMP | G_TX_NOMIRROR, log2(w), G_TX_NOLOD, G_TX_CLAMP | G_TX_NOMIRROR, log2(h), G_TX_NOLOD);
-    gDPSetTileSize(gDisplayListHead++, 0, 0, 0, (w - 1) << G_TEXTURE_IMAGE_FRAC, (w - 1) << G_TEXTURE_IMAGE_FRAC);
+    gDPSetTile(gDisplayListHead++, G_IM_FMT_RGBA, G_IM_SIZ_16b, w / 4, 0, G_TX_RENDERTILE, 0, G_TX_CLAMP | G_TX_NOMIRROR, int_log2(w), G_TX_NOLOD, G_TX_CLAMP | G_TX_NOMIRROR, int_log2(h), G_TX_NOLOD);
+    gDPSetTileSize(gDisplayListHead++, 0, 0, 0, (w - 1) << G_TEXTURE_IMAGE_FRAC, (h - 1) << G_TEXTURE_IMAGE_FRAC);
 
     gDPSetEnvColor(gDisplayListHead++, r, g, b, a);
 
-    gSPTextureRectangle(gDisplayListHead++, x - (w << scaling), y - (h << scaling), x + (w << scaling), y + (h << scaling), G_TX_RENDERTILE, 0, 0, 4 << (9 - scaling), 1 << (11 - scaling));
+    s32 half_w = (w << scaling);
+    s32 half_h = (h << scaling);
+    gSPTextureRectangle(gDisplayListHead++, x - half_w, y - half_h, x + half_w, y + half_h, G_TX_RENDERTILE, 0, 0, 4 << (9 - scaling), 1 << (11 - scaling));
 
     gSPTexture(gDisplayListHead++, 0xFFFF, 0xFFFF, 0, G_TX_RENDERTILE, G_OFF);
     gDPSetCombineMode(gDisplayListHead++, G_CC_SHADE, G_CC_SHADE);
