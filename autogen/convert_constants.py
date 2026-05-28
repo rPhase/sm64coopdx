@@ -148,6 +148,7 @@ defined_values = {
     'VERSION_SH': False,
     'F3DEX_GBI_2': True,
     'DEVELOPMENT': False,
+    '__ANDROID__': False,
 }
 
 ############################################################################
