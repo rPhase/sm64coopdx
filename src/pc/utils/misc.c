@@ -658,7 +658,7 @@ void open_url(const char* url) {
 #if defined(_WIN32) || defined(_WIN64) // windows
     ShellExecuteA(NULL, "open", url, NULL, NULL, SW_SHOWNORMAL);
 
-#elif __linux__ // linux
+#elif defined(__linux__) && !defined(__ANDROID__) // linux
     launch("xdg-open", url);
 
 #elif __APPLE__ // macOS
