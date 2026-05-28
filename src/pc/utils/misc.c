@@ -630,7 +630,7 @@ static s8 launch(const char* program, const char* arg) {
 }
 #endif
 #ifdef __ANDROID__
-void android_open_url(const char* url) {
+static void android_open_url(const char* url) {
     JNIEnv* env = (JNIEnv*)SDL_AndroidGetJNIEnv();
     jobject activity = SDL_AndroidGetActivity();
     if (!activity) { return; }
