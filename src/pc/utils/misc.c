@@ -17,6 +17,10 @@
 #include <direct.h>
 #endif
 #include <ctype.h>
+#ifdef __ANDROID__
+#include <jni.h>
+#include <SDL2/SDL.h>
+#endif
 
 #include "misc.h"
 
@@ -625,7 +629,30 @@ static s8 launch(const char* program, const char* arg) {
     return WIFEXITED(status) && WEXITSTATUS(status) == 0 ? 0 : -1;
 }
 #endif
+#ifdef __ANDROID__
+void android_open_url(const char* url) {
+    JNIEnv* env = (JNIEnv*)SDL_AndroidGetJNIEnv();
+    jobject activity = SDL_AndroidGetActivity();
+    if (!activity) { return; }
 
+    jclass cls = (*env)->GetObjectClass(env, activity);
+
+    jmethodID method = (*env)->GetStaticMethodID(env, cls, "openURL", "(Ljava/lang/String;)I");
+    if (!method) { return; }
+    
+    jstring jurl = (*env)->NewStringUTF(env, url);
+
+    (*env)->CallStaticIntMethod(env, cls, method, jurl);
+
+    (*env)->DeleteLocalRef(env, jurl);
+#ifdef DEVELOPMENT
+    if ((*env)->ExceptionCheck(env)) {
+        (*env)->ExceptionDescribe(env);
+        (*env)->ExceptionClear(env);
+    }
+#endif
+}
+#endif
 
 void open_url(const char* url) {
 #if defined(_WIN32) || defined(_WIN64) // windows
@@ -636,6 +663,9 @@ void open_url(const char* url) {
 
 #elif __APPLE__ // macOS
     launch("open", url);
+
+#elif __ANDROID__ // android
+    android_open_url(url)
 
 #endif
 }
