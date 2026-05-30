@@ -85,17 +85,6 @@ static struct ControlElement controlElements[TOUCH_COUNT] = {
 
 static u32 controlElementsLength = sizeof(controlElements)/sizeof(struct ControlElement);
 
-static inline s32 int_log2(s32 v) {
-    s32 r = 0;
-
-    while (v > 1) {
-        v >>= 1;
-        r++;
-    }
-
-    return r;
-}
-
 struct Position get_pos(ConfigControlElement *config) {
     struct Position ret;
 
