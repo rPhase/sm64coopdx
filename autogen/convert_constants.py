@@ -429,7 +429,7 @@ def build_to_c(built_files):
         txt = txt.replace('\n\n', '\n')
 
     lines = txt.splitlines()
-    txt = 'char gSmluaConstants[] = ""\n'
+    txt = 'const char gSmluaConstants[] = ""\n'
     for line in lines:
         if line.startswith("#"):
             txt += '%s\n' % line

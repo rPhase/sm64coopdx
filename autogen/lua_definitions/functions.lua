@@ -3917,6 +3917,12 @@ function djui_console_toggle()
     -- ...
 end
 
+--- @return boolean
+--- Returns whether the DJUI console is currently open or not
+function djui_console_is_open()
+    -- ...
+end
+
 --- @return integer
 --- Gets the current DJUI HUD resolution
 function djui_hud_get_resolution()
@@ -8733,6 +8739,7 @@ end
 --- @return integer
 --- @return integer angleVel
 --- @return integer angle
+--- Smoothly turns `angle` and adjust `angleVel` using parameters. Returns TRUE if `angle` reaches `targetAngle`
 function obj_smooth_turn(angleVel, angle, targetAngle, targetSpeedProportion, accel, minSpeed, maxSpeed)
     -- ...
 end
