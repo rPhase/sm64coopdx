@@ -755,6 +755,11 @@
 
 <br />
 
+- djui_gfx.h
+   - [djui_gfx_get_scale](functions-3.md#djui_gfx_get_scale)
+
+<br />
+
 - djui_hud_utils.h
    - [djui_hud_get_resolution](functions-3.md#djui_hud_get_resolution)
    - [djui_hud_set_resolution](functions-3.md#djui_hud_set_resolution)
@@ -1913,6 +1918,7 @@
    - [camera_config_set_deceleration](functions-6.md#camera_config_set_deceleration)
    - [camera_get_checking_surfaces](functions-6.md#camera_get_checking_surfaces)
    - [camera_set_checking_surfaces](functions-6.md#camera_set_checking_surfaces)
+   - [center_free_camera](functions-6.md#center_free_camera)
 
 <br />
 

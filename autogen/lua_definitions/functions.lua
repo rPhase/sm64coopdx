@@ -3923,6 +3923,12 @@ function djui_console_is_open()
     -- ...
 end
 
+--- @return number
+--- Gets the current visual scaling factor of DJUI
+function djui_gfx_get_scale()
+    -- ...
+end
+
 --- @return integer
 --- Gets the current DJUI HUD resolution
 function djui_hud_get_resolution()
@@ -11001,6 +11007,12 @@ end
 --- @param value boolean
 --- Sets if the camera should account for surfaces
 function camera_set_checking_surfaces(value)
+    -- ...
+end
+
+--- Centers the free camera.<br>
+--- This function is designed for rotating the camera to face Mario's facing angle when Free Camera is enabled
+function center_free_camera()
     -- ...
 end
 
