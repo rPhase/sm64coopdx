@@ -85,17 +85,6 @@ static struct ControlElement controlElements[TOUCH_COUNT] = {
 
 static u32 controlElementsLength = sizeof(controlElements)/sizeof(struct ControlElement);
 
-static inline s32 int_log2(s32 v) {
-    s32 r = 0;
-
-    while (v > 1) {
-        v >>= 1;
-        r++;
-    }
-
-    return r;
-}
-
 struct Position get_pos(ConfigControlElement *config) {
     struct Position ret;
 
@@ -332,23 +321,16 @@ static void render_texture(const Texture *texture, s32 x, s32 y, u32 w, u32 h, s
     gDPSetRenderMode(gDisplayListHead++, G_RM_XLU_SURF, G_RM_XLU_SURF2);
     gDPSetTextureFilter(gDisplayListHead++, G_TF_POINT);
     gSPTexture(gDisplayListHead++, 0xFFFF, 0xFFFF, 0, G_TX_RENDERTILE, G_ON);
-
-    gDPSetTextureImage(gDisplayListHead++, G_IM_FMT_RGBA, G_IM_SIZ_16b, 1, texture);
-
-    gDPSetTile(gDisplayListHead++, G_IM_FMT_RGBA, G_IM_SIZ_16b, 0, 0, G_TX_LOADTILE, 0, G_TX_WRAP | G_TX_NOMIRROR, 0, G_TX_NOLOD, G_TX_WRAP | G_TX_NOMIRROR, 0, G_TX_NOLOD);
-    gDPLoadBlock(gDisplayListHead++, G_TX_LOADTILE, 0, 0, w * h - 1, CALC_DXT(w, G_IM_SIZ_16b_BYTES));
-    gDPSetTile(gDisplayListHead++, G_IM_FMT_RGBA, G_IM_SIZ_16b, w / 4, 0, G_TX_RENDERTILE, 0, G_TX_CLAMP | G_TX_NOMIRROR, int_log2(w), G_TX_NOLOD, G_TX_CLAMP | G_TX_NOMIRROR, int_log2(h), G_TX_NOLOD);
-    gDPSetTileSize(gDisplayListHead++, 0, 0, 0, (w - 1) << G_TEXTURE_IMAGE_FRAC, (h - 1) << G_TEXTURE_IMAGE_FRAC);
-
+    gDPLoadTextureBlock(gDisplayListHead++, texture, G_IM_FMT_RGBA, G_IM_SIZ_16b, w, h, 0, G_TX_CLAMP, G_TX_CLAMP, 0, 0, 0, 0);
     gDPSetEnvColor(gDisplayListHead++, r, g, b, a);
 
     s32 half_w = (w << scaling);
     s32 half_h = (h << scaling);
     gSPTextureRectangle(gDisplayListHead++, x - half_w, y - half_h, x + half_w, y + half_h, G_TX_RENDERTILE, 0, 0, 4 << (9 - scaling), 1 << (11 - scaling));
-
     gSPTexture(gDisplayListHead++, 0xFFFF, 0xFFFF, 0, G_TX_RENDERTILE, G_OFF);
     gDPSetCombineMode(gDisplayListHead++, G_CC_SHADE, G_CC_SHADE);
 }
+
 
 void render_touch_controls(void) {
     if ((gGamepadActive && configAutohideTouch) || (!gDjuiInMainMenu && gDjuiDisabled)) { return; }
