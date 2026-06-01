@@ -19,7 +19,7 @@ android {
         minSdkVersion 24
         targetSdkVersion 33
         versionCode 42
-        versionName "1.5"
+        versionName "1.5.1"
         ndk {
             moduleName = "app"
             ldLibs "log"
