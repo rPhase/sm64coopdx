@@ -32,14 +32,7 @@ bool ns_coopnet_query(QueryCallbackPtr callback, QueryFinishCallbackPtr finishCa
     gCoopNetCallbacks.OnLobbyListGot = callback;
     gCoopNetCallbacks.OnLobbyListFinish = finishCallback;
     if (coopnet_initialize() != COOPNET_OK) { return false; }
-#ifdef __ANDROID__
-    const char *game_name = (password[0] != '\0') ? "sm64coopdx" : GAME_NAME;
-    if (coopnet_lobby_list_get(game_name, password) != COOPNET_OK) {
-        return false;
-    }
-#else
     if (coopnet_lobby_list_get(GAME_NAME, password) != COOPNET_OK) { return false; }
-#endif
     return true;
 }
 
@@ -224,12 +217,7 @@ void ns_coopnet_update(void) {
                 LOG_INFO("Create lobby");
                 snprintf(gCoopNetPassword, 64, "%s", configPassword);
                 coopnet_populate_description();
-#ifdef __ANDROID__
-                const char *game_name = (gCoopNetPassword[0] != '\0') ? "sm64coopdx" : GAME_NAME;
-                coopnet_lobby_create(game_name, get_version(), configPlayerName, mode, (uint16_t)configAmountOfPlayers, gCoopNetPassword, sCoopNetDescription);
-#else
                 coopnet_lobby_create(GAME_NAME, get_version(), configPlayerName, mode, (uint16_t)configAmountOfPlayers, gCoopNetPassword, sCoopNetDescription);
-#endif
             }
         } else if (sNetworkType == NT_CLIENT) {
             LOG_INFO("Join lobby");
@@ -290,6 +278,10 @@ static void ns_coopnet_shutdown(bool reconnecting) {
     sLocalLobbyOwnerId = 0;
 }
 
+#ifndef SERVER_IP
+#define SERVER_IP "localhost"
+#endif
+
 static CoopNetRc coopnet_initialize(void) {
     gCoopNetCallbacks.OnConnected = coopnet_on_connected;
     gCoopNetCallbacks.OnDisconnected = coopnet_on_disconnected;
@@ -305,7 +297,7 @@ static CoopNetRc coopnet_initialize(void) {
     char* endptr = NULL;
     uint64_t destId = strtoull(configDestId, &endptr, 10);
 
-    CoopNetRc rc = coopnet_begin(configCoopNetIp, configCoopNetPort, configPlayerName, destId);
+    CoopNetRc rc = coopnet_begin(SERVER_IP, configCoopNetPort, configPlayerName, destId);
     if (rc == COOPNET_FAILED) {
         djui_popup_create(DLANG(NOTIF, COOPNET_CONNECTION_FAILED), 2);
     }
