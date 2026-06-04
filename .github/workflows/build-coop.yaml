@@ -1,11 +1,10 @@
 name: Build coop
 
 on:
-    workflow_dispatch:
-    push:
-        branches: [ dev ]
-    pull_request:
-        branches: [ dev ]
+  workflow_dispatch:
+
+env:
+  COOP_SERVER_IP: ${{ secrets.COOP_SERVER_IP }}
 
 jobs:
     build-linux:
@@ -21,7 +20,7 @@ jobs:
                 sudo apt install -y build-essential git python3 libglew-dev libsdl2-dev libz-dev libcurl4-openssl-dev zip
 
             - name: Build the game
-              run: make -j$(nproc)
+              run: make -j$(nproc) SERVER_IP="$COOP_SERVER_IP"
 
             - name: Generate hash
               run: |
@@ -32,7 +31,7 @@ jobs:
             - name: Zip the game
               run: |
                 cd ./build/us_pc
-                zip -r sm64coopdx_Linux.zip dynos lang mods palettes libdiscord_game_sdk.so sm64coopdx coopdx_updater
+                zip -r sm64coopdx_Linux.zip dynos lang mods palettes libdiscord_game_sdk.so sm64coopdx
 
             - name: Upload artifact
               uses: actions/upload-artifact@v4
@@ -53,7 +52,7 @@ jobs:
                 sudo apt install -y build-essential git python3 libglew-dev libsdl2-dev libz-dev libcurl4-openssl-dev zip
 
             - name: Build the game
-              run: make -j$(nproc) HANDHELD=1
+              run: make -j$(nproc) HANDHELD=1 SERVER_IP="$COOP_SERVER_IP"
 
             - name: Generate hash
               run: |
@@ -64,7 +63,7 @@ jobs:
             - name: Zip the game
               run: |
                 cd ./build/us_pc
-                zip -r sm64coopdx_SteamOS.zip dynos lang mods palettes libdiscord_game_sdk.so sm64coopdx coopdx_updater
+                zip -r sm64coopdx_SteamOS.zip dynos lang mods palettes libdiscord_game_sdk.so sm64coopdx
 
             - name: Upload artifact
               uses: actions/upload-artifact@v4
@@ -101,7 +100,7 @@ jobs:
                     zip
 
             - name: Build the game
-              run: make -j$(nproc)
+              run: make -j$(nproc) SERVER_IP="$COOP_SERVER_IP"
 
             - name: Generate hash
               run: |
@@ -112,7 +111,7 @@ jobs:
             - name: Zip the game
               run: |
                 cd ./build/us_pc
-                zip -r sm64coopdx_Windows.zip dynos lang mods palettes coop.map discord_game_sdk.dll sm64coopdx.exe coopdx_updater.exe
+                zip -r sm64coopdx_Windows.zip dynos lang mods palettes coop.map discord_game_sdk.dll sm64coopdx.exe
 
             - name: Upload artifact
               uses: actions/upload-artifact@v4
@@ -152,7 +151,7 @@ jobs:
             - name: Build the game
               run: |
                 export PKG_CONFIG_PATH=/opt/homebrew/lib/pkgconfig:$PKG_CONFIG_PATH
-                gmake OSX_BUILD=1 -j$(sysctl -n hw.ncpu)
+                gmake OSX_BUILD=1 -j$(sysctl -n hw.ncpu) SERVER_IP="$COOP_SERVER_IP"
 
             - name: Code sign the app (Ad-Hoc)
               run: |
@@ -206,7 +205,7 @@ jobs:
 
             - name: Build the game
               run: |
-                gmake OSX_BUILD=1 -j$(sysctl -n hw.ncpu)
+                gmake OSX_BUILD=1 -j$(sysctl -n hw.ncpu) SERVER_IP="$COOP_SERVER_IP"
 
             - name: Code sign the app (Ad-Hoc)
               run: |

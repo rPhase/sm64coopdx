@@ -51,8 +51,10 @@ ENHANCE_LEVEL_TEXTURES ?= 1
 DISCORD_SDK ?= 1
 # Enable CoopNet SDK (used for CoopNet server hosting)
 COOPNET ?= 1
+# Server IP for CoopNet
+SERVER_IP ?= localhost
 # Enable Updater (used for automatic updates)
-UPDATER ?= 1
+UPDATER ?= 0
 # Enable docker build workarounds
 DOCKERBUILD ?= 0
 # Sets your optimization level for building.
@@ -974,6 +976,12 @@ endif
 #==============================================================================#
 # Extra CC Flags                                                               #
 #==============================================================================#
+
+# Server IP
+ifneq (,$(SERVER_IP))
+  CC_CHECK_CFLAGS += -DSERVER_IP=\"$(SERVER_IP)\"
+  CFLAGS += -DSERVER_IP=\"$(SERVER_IP)\"
+endif
 
 # Enforce -Werror in strict mode
 ifeq ($(STRICT),1)
